@@ -71,9 +71,9 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
                 {subcats.map((s) => (
                   <Badge
                     key={s}
-                    variant={campaign.subcategory === s ? "default" : "outline"}
+                    variant={campaign.targetAudience === s ? "default" : "outline"}
                     className="cursor-pointer transition-all hover:scale-105"
-                    onClick={() => onUpdate({ subcategory: s })}
+                    onClick={() => onUpdate({ targetAudience: s })}
                   >
                     {s}
                   </Badge>
