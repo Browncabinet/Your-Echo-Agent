@@ -72,7 +72,7 @@ export function createEmptyCampaign(): Campaign {
     name: "",
     goal: "",
     niche: "",
-    subcategory: "",
+    targetAudience: "",
     leads: [],
     emails: [],
     status: "setup",

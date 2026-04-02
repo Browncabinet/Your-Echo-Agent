@@ -95,8 +95,8 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
                 className="pl-10"
               />
             </div>
-            {campaign.subcategory && (
-              <p className="text-sm text-success font-medium">✓ Selected: {campaign.subcategory}</p>
+            {campaign.targetAudience && (
+              <p className="text-sm text-success font-medium">✓ Selected: {campaign.targetAudience}</p>
             )}
           </div>
         )}
