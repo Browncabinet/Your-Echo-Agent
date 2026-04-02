@@ -74,7 +74,7 @@ export function SocialMediaContent({ campaign, onBack }: Props) {
           platform="LinkedIn"
           title="Connection Note"
           color="bg-primary/10 text-primary"
-          content={`Hi [Name], I came across your profile and was impressed by your work in ${campaign.subcategory || "the industry"}. I'm working on ${biz} and would love to connect and share ideas. Looking forward to connecting!`}
+          content={`Hi [Name], I came across your profile and was impressed by your work in ${campaign.targetAudience || "the industry"}. I'm working on ${biz} and would love to connect and share ideas. Looking forward to connecting!`}
         />
         <ContentCard
           icon={Linkedin}
