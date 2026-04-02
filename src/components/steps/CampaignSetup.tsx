@@ -51,7 +51,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
 
         <div>
           <Label>Main Niche</Label>
-          <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, subcategory: "" })}>
+          <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, targetAudience: "" })}>
             <SelectTrigger className="mt-1.5">
               <SelectValue placeholder="Select a niche..." />
             </SelectTrigger>
