@@ -1,16 +1,194 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { StepIndicator } from "@/components/StepIndicator";
+import { CampaignSetup } from "@/components/steps/CampaignSetup";
+import { LeadAcquisition } from "@/components/steps/LeadAcquisition";
+import { EmailBuilder } from "@/components/steps/EmailBuilder";
+import { ReviewApproval } from "@/components/steps/ReviewApproval";
+import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
+import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
+import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
+import { Plus, Zap, BarChart3, Share2 } from "lucide-react";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+type View = "home" | "campaign" | "dashboard" | "social";
+
+export default function Index() {
+  const [view, setView] = useState<View>("home");
+  const [step, setStep] = useState(0);
+  const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+
+  const updateCampaign = (updates: Partial<Campaign>) => {
+    setCampaign((c) => ({ ...c, ...updates }));
+  };
+
+  const startNewCampaign = () => {
+    setCampaign(createEmptyCampaign());
+    setStep(0);
+    setView("campaign");
+  };
+
+  const handleSend = () => {
+    const updated = { ...campaign, status: "active" as const };
+    setCampaigns((prev) => [...prev.filter((c) => c.id !== campaign.id), updated]);
+    setCampaign(updated);
+    setView("dashboard");
+  };
+
+  const steps = [
+    { label: "Setup", completed: step > 0, active: step === 0 },
+    { label: "Leads", completed: step > 1, active: step === 1 },
+    { label: "Emails", completed: step > 2, active: step === 2 },
+    { label: "Review", completed: step > 3, active: step === 3 },
+  ];
+
+  if (view === "home") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="w-6 h-6 text-primary" />
+              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+            </div>
+            <p className="text-xs text-muted-foreground hidden sm:block">AI Marketing & Outreach</p>
+          </div>
+        </header>
+
+        <main className="container max-w-5xl mx-auto px-4 py-10">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-foreground">
+              Launch Your Outreach Campaign
+            </h2>
+            <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+              Find leads, craft personalized emails, and grow your business — all in one place.
+            </p>
+          </div>
+
+          <div className="flex justify-center mb-10">
+            <Button size="lg" onClick={startNewCampaign} className="gap-2 text-base px-8 py-6">
+              <Plus className="w-5 h-5" /> New Campaign
+            </Button>
+          </div>
+
+          {campaigns.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-foreground">Your Campaigns</h3>
+              {campaigns.map((c) => (
+                <Card
+                  key={c.id}
+                  className="p-4 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => {
+                    setCampaign(c);
+                    setView("dashboard");
+                  }}
+                >
+                  <div>
+                    <p className="font-medium text-foreground">{c.name}</p>
+                    <p className="text-sm text-muted-foreground">{c.niche} · {c.leads.length} leads</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCampaign(c);
+                        setView("dashboard");
+                      }}
+                    >
+                      <BarChart3 className="w-3 h-3" /> Results
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCampaign(c);
+                        setView("social");
+                      }}
+                    >
+                      <Share2 className="w-3 h-3" /> Social
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  if (view === "dashboard") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
+              <Zap className="w-6 h-6 text-primary" />
+              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setView("social")} className="gap-1">
+              <Share2 className="w-3 h-3" /> Social Content
+            </Button>
+          </div>
+        </header>
+        <main className="container max-w-5xl mx-auto px-4 py-8">
+          <ResultsDashboard campaign={campaign} onBack={() => setView("home")} />
+        </main>
+      </div>
+    );
+  }
+
+  if (view === "social") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
+            <Zap className="w-6 h-6 text-primary" />
+            <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+          </div>
+        </header>
+        <main className="container max-w-5xl mx-auto px-4 py-8">
+          <SocialMediaContent campaign={campaign} onBack={() => setView("dashboard")} />
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-card">
+        <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
+            <Zap className="w-6 h-6 text-primary" />
+            <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+          </div>
+        </div>
+      </header>
+
+      <main className="container max-w-5xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <StepIndicator steps={steps} />
+        </div>
+
+        {step === 0 && (
+          <CampaignSetup campaign={campaign} onUpdate={updateCampaign} onNext={() => setStep(1)} />
+        )}
+        {step === 1 && (
+          <LeadAcquisition campaign={campaign} onUpdate={updateCampaign} onNext={() => setStep(2)} onBack={() => setStep(0)} />
+        )}
+        {step === 2 && (
+          <EmailBuilder campaign={campaign} onUpdate={updateCampaign} onNext={() => setStep(3)} onBack={() => setStep(1)} />
+        )}
+        {step === 3 && (
+          <ReviewApproval campaign={campaign} onUpdate={updateCampaign} onSend={handleSend} onBack={() => setStep(2)} />
+        )}
+      </main>
     </div>
   );
-};
-
-const Index = PlaceholderIndex;
-
-export default Index;
+}
