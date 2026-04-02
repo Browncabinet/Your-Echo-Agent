@@ -83,7 +83,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search or type any subcategory..."
+                placeholder="Search or type your target audience..."
                 value={customSub}
                 onChange={(e) => setCustomSub(e.target.value)}
                 onKeyDown={(e) => {
