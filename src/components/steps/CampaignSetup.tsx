@@ -65,7 +65,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
 
         {campaign.niche && (
           <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-            <Label>Subcategory</Label>
+            <Label>Target Audience</Label>
             {subcats.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {subcats.map((s) => (
