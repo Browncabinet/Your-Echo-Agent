@@ -12,7 +12,7 @@ export const NICHES = [
   "Other",
 ] as const;
 
-export const SUBCATEGORIES: Record<string, string[]> = {
+export const TARGET_AUDIENCES: Record<string, string[]> = {
   "Real Estate": ["Agents", "Brokers", "Teams", "Transaction Coordinators", "Property Managers"],
   "Grocery Retail": ["Store Owners", "Buyers", "Category Managers", "Independent Stores", "Distributors"],
   "Legal Services": ["Workers Compensation Attorneys", "Personal Injury Lawyers", "Family Law", "Criminal Defense", "Immigration Lawyers"],
