@@ -49,7 +49,7 @@ export type Campaign = {
   name: string;
   goal: string;
   niche: string;
-  subcategory: string;
+  targetAudience: string;
   leads: Lead[];
   emails: EmailTemplate[];
   status: "setup" | "leads" | "emails" | "review" | "sending" | "active" | "completed";
