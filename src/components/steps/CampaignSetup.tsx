@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Search } from "lucide-react";
-import { NICHES, SUBCATEGORIES, type Campaign } from "@/lib/campaign-data";
+import { NICHES, TARGET_AUDIENCES, type Campaign } from "@/lib/campaign-data";
 
 type Props = {
   campaign: Campaign;
@@ -15,9 +15,9 @@ type Props = {
 
 export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
   const [customSub, setCustomSub] = useState("");
-  const subcats = SUBCATEGORIES[campaign.niche] || [];
+  const subcats = TARGET_AUDIENCES[campaign.niche] || [];
 
-  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.subcategory;
+  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience;
 
   return (
     <div className="space-y-6 max-w-xl">
@@ -51,7 +51,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
 
         <div>
           <Label>Main Niche</Label>
-          <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, subcategory: "" })}>
+          <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, targetAudience: "" })}>
             <SelectTrigger className="mt-1.5">
               <SelectValue placeholder="Select a niche..." />
             </SelectTrigger>
@@ -65,15 +65,15 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
 
         {campaign.niche && (
           <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-            <Label>Subcategory</Label>
+            <Label>Target Audience</Label>
             {subcats.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {subcats.map((s) => (
                   <Badge
                     key={s}
-                    variant={campaign.subcategory === s ? "default" : "outline"}
+                    variant={campaign.targetAudience === s ? "default" : "outline"}
                     className="cursor-pointer transition-all hover:scale-105"
-                    onClick={() => onUpdate({ subcategory: s })}
+                    onClick={() => onUpdate({ targetAudience: s })}
                   >
                     {s}
                   </Badge>
@@ -83,20 +83,20 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search or type any subcategory..."
+                placeholder="Search or type your target audience..."
                 value={customSub}
                 onChange={(e) => setCustomSub(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && customSub.trim()) {
-                    onUpdate({ subcategory: customSub.trim() });
+                    onUpdate({ targetAudience: customSub.trim() });
                     setCustomSub("");
                   }
                 }}
                 className="pl-10"
               />
             </div>
-            {campaign.subcategory && (
-              <p className="text-sm text-success font-medium">✓ Selected: {campaign.subcategory}</p>
+            {campaign.targetAudience && (
+              <p className="text-sm text-success font-medium">✓ Selected: {campaign.targetAudience}</p>
             )}
           </div>
         )}
