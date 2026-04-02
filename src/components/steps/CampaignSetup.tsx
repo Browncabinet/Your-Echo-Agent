@@ -88,7 +88,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
                 onChange={(e) => setCustomSub(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && customSub.trim()) {
-                    onUpdate({ subcategory: customSub.trim() });
+                    onUpdate({ targetAudience: customSub.trim() });
                     setCustomSub("");
                   }
                 }}
