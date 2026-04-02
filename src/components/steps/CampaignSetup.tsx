@@ -15,9 +15,9 @@ type Props = {
 
 export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
   const [customSub, setCustomSub] = useState("");
-  const subcats = SUBCATEGORIES[campaign.niche] || [];
+  const subcats = TARGET_AUDIENCES[campaign.niche] || [];
 
-  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.subcategory;
+  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience;
 
   return (
     <div className="space-y-6 max-w-xl">
