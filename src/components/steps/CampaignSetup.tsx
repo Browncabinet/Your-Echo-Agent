@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Search } from "lucide-react";
-import { NICHES, SUBCATEGORIES, type Campaign } from "@/lib/campaign-data";
+import { NICHES, TARGET_AUDIENCES, type Campaign } from "@/lib/campaign-data";
 
 type Props = {
   campaign: Campaign;
