@@ -47,7 +47,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
       setProgress((p) => [...p, "Scraping page ✓"]);
       setProgress((p) => [...p, "Extracting contacts..."]);
 
-      const markdown = result.data?.markdown || result.markdown || "";
+      const markdown = result.data?.markdown || (result as any).markdown || "";
       const leads = extractLeadsFromMarkdown(markdown);
 
       setProgress((p) => [...p, "Extracting contacts ✓"]);
