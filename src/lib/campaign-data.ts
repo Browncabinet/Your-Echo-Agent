@@ -53,6 +53,7 @@ export type Campaign = {
   targetAudience: string[];
   leads: Lead[];
   emails: EmailTemplate[];
+  batchSize: number;
   status: "setup" | "leads" | "emails" | "review" | "sending" | "active" | "completed";
   stats: {
     sent: number;
@@ -67,6 +68,13 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
+export const BATCH_TIERS = [
+  { value: 50, label: "Starter", range: "0–50", description: "Test your first batch of emails", tier: "Free" },
+  { value: 200, label: "Small", range: "51–200", description: "Great for testing a campaign", tier: "Starter" },
+  { value: 500, label: "Medium", range: "201–500", description: "Solid outreach volume", tier: "Growth" },
+  { value: 2000, label: "Large", range: "501–2,000", description: "Scale your outreach", tier: "Pro" },
+] as const;
+
 export function createEmptyCampaign(): Campaign {
   return {
     id: generateId(),
@@ -77,6 +85,7 @@ export function createEmptyCampaign(): Campaign {
     targetAudience: [],
     leads: [],
     emails: [],
+    batchSize: 50,
     status: "setup",
     stats: { sent: 0, opened: 0, clicked: 0, replied: 0 },
     createdAt: new Date().toISOString(),

@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, ArrowLeft, Loader2, Check, Link2, Search } from "lucide-react";
-import { type Campaign } from "@/lib/campaign-data";
+import { ArrowRight, ArrowLeft, Loader2, Check, Link2, Search, Info } from "lucide-react";
+import { type Campaign, BATCH_TIERS } from "@/lib/campaign-data";
 import { firecrawlApi, extractLeadsFromMarkdown, extractLeadsFromSearchResults } from "@/lib/api/firecrawl";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -27,7 +27,8 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   const [fields, setFields] = useState({ name: true, company: true, email: true, linkedin: false });
   const { toast } = useToast();
 
-  // Auto-generate a search query suggestion based on campaign data
+  const selectedBatch = campaign.batchSize || 50;
+
   const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
     ? `${campaign.targetAudience.join(" ")} ${campaign.niche} directory contact list email`
     : "";
@@ -39,36 +40,24 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
     try {
       const result = await firecrawlApi.scrape(url.trim());
+      if (!result.success) throw new Error(result.error || "Failed to scrape page");
 
-      if (!result.success) {
-        throw new Error(result.error || "Failed to scrape page");
-      }
-
-      setProgress((p) => [...p, "Scraping page ✓"]);
-      setProgress((p) => [...p, "Extracting contacts..."]);
-
+      setProgress((p) => [...p, "Scraping page ✓", "Extracting contacts..."]);
       const markdown = result.data?.markdown || (result as any).markdown || "";
-      const leads = extractLeadsFromMarkdown(markdown);
+      const allLeads = extractLeadsFromMarkdown(markdown);
+      const leads = allLeads.slice(0, selectedBatch);
 
       setProgress((p) => [...p, "Extracting contacts ✓"]);
 
       if (leads.length > 0) {
         onUpdate({ leads });
-        toast({ title: "Success!", description: `Found ${leads.length} contacts from the page.` });
+        toast({ title: "Success!", description: `Found ${leads.length} contacts from the page (capped at ${selectedBatch}).` });
       } else {
-        toast({
-          title: "No contacts found",
-          description: "We scraped the page but couldn't find email addresses. Try a different URL with listed contacts.",
-          variant: "destructive",
-        });
+        toast({ title: "No contacts found", description: "Try a different URL with listed contacts.", variant: "destructive" });
       }
     } catch (error) {
       console.error("Scrape error:", error);
-      toast({
-        title: "Scraping failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive",
-      });
+      toast({ title: "Scraping failed", description: error instanceof Error ? error.message : "Something went wrong", variant: "destructive" });
       setProgress([]);
     } finally {
       setLoading(false);
@@ -78,47 +67,34 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   const handleAutoSearch = async () => {
     const rawQuery = searchQuery.trim() || suggestedQuery;
     if (!rawQuery) return;
-    // Auto-append targeting keywords if not already present
     const hasKeywords = /directory|contact|email|list/i.test(rawQuery);
     const query = hasKeywords ? rawQuery : `${rawQuery} email contact directory`;
-    
+
     setLoading(true);
     setProgress(["Searching the web..."]);
 
     try {
       const result = await firecrawlApi.search(query);
+      if (!result.success) throw new Error(result.error || "Search failed");
 
-      if (!result.success) {
-        throw new Error(result.error || "Search failed");
-      }
-
-      setProgress((p) => [...p, "Searching the web ✓"]);
-      setProgress((p) => [...p, "Extracting contacts from results..."]);
+      setProgress((p) => [...p, "Searching the web ✓", "Extracting contacts from results..."]);
 
       const searchData = result.data || result;
       const results = searchData.data || searchData.results || [];
-      console.log("[LeadSearch] Raw search results:", results);
-      const leads = extractLeadsFromSearchResults(results);
+      const allLeads = extractLeadsFromSearchResults(results);
+      const leads = allLeads.slice(0, selectedBatch);
 
       setProgress((p) => [...p, "Extracting contacts ✓"]);
 
       if (leads.length > 0) {
         onUpdate({ leads });
-        toast({ title: "Success!", description: `Found ${leads.length} contacts from search results.` });
+        toast({ title: "Success!", description: `Found ${leads.length} contacts (capped at ${selectedBatch}).` });
       } else {
-        toast({
-          title: `Searched ${results.length} pages — no emails found`,
-          description: "Try a more specific query like 'real estate agents Miami directory email' to target pages with contact info.",
-          variant: "destructive",
-        });
+        toast({ title: `Searched ${results.length} pages — no emails found`, description: "Try a more specific query.", variant: "destructive" });
       }
     } catch (error) {
       console.error("Search error:", error);
-      toast({
-        title: "Search failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive",
-      });
+      toast({ title: "Search failed", description: error instanceof Error ? error.message : "Something went wrong", variant: "destructive" });
       setProgress([]);
     } finally {
       setLoading(false);
@@ -129,25 +105,46 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
     <div className="space-y-6 max-w-xl">
       <div>
         <h2 className="text-xl font-bold text-foreground">Find Your Leads</h2>
-        <p className="text-sm text-muted-foreground mt-1">Search the web or paste a URL to extract contact info automatically.</p>
+        <p className="text-sm text-muted-foreground mt-1">Choose your batch size, then search the web or paste a URL to extract contacts.</p>
+      </div>
+
+      {/* Batch size selector */}
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold">How many contacts do you want to find?</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {BATCH_TIERS.map((tier) => (
+            <button
+              key={tier.value}
+              onClick={() => onUpdate({ batchSize: tier.value })}
+              className={`relative rounded-lg border-2 p-3 text-left transition-all ${
+                selectedBatch === tier.value
+                  ? "border-primary bg-primary/5 shadow-sm"
+                  : "border-border hover:border-primary/40"
+              }`}
+            >
+              <div className="flex items-baseline justify-between">
+                <span className="font-semibold text-sm text-foreground">{tier.label}</span>
+                <span className="text-xs text-muted-foreground">{tier.tier}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">{tier.range} contacts</p>
+              <p className="text-xs text-primary/80 mt-1">{tier.description}</p>
+            </button>
+          ))}
+        </div>
+        <div className="flex items-start gap-2 rounded-md bg-accent/50 border border-accent p-3">
+          <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            Start with a small batch to test your emails before scaling up. You can always add more contacts later.
+          </p>
+        </div>
       </div>
 
       {/* Mode toggle */}
       <div className="flex gap-2">
-        <Button
-          variant={mode === "search" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setMode("search")}
-          className="gap-2"
-        >
+        <Button variant={mode === "search" ? "default" : "outline"} size="sm" onClick={() => setMode("search")} className="gap-2">
           <Search className="w-4 h-4" /> Auto Search
         </Button>
-        <Button
-          variant={mode === "url" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setMode("url")}
-          className="gap-2"
-        >
+        <Button variant={mode === "url" ? "default" : "outline"} size="sm" onClick={() => setMode("url")} className="gap-2">
           <Link2 className="w-4 h-4" /> Paste URL
         </Button>
       </div>
@@ -178,12 +175,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
             <div className="flex gap-2 mt-1.5">
               <div className="relative flex-1">
                 <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="https://example.com/directory"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="pl-10"
-                />
+                <Input placeholder="https://example.com/directory" value={url} onChange={(e) => setUrl(e.target.value)} className="pl-10" />
               </div>
               <Button onClick={handleScrapeUrl} disabled={loading || !url.trim()}>
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scrape"}
@@ -196,14 +188,8 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
           <Card className="p-4 space-y-2">
             {progress.map((p, i) => (
               <div key={i} className="flex items-center gap-2 text-sm">
-                {p.includes("✓") ? (
-                  <Check className="w-4 h-4 text-success flex-shrink-0" />
-                ) : (
-                  <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
-                )}
-                <span className={p.includes("✓") ? "text-success font-medium" : "text-foreground"}>
-                  {p.replace(" ✓", "")}
-                </span>
+                {p.includes("✓") ? <Check className="w-4 h-4 text-success flex-shrink-0" /> : <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />}
+                <span className={p.includes("✓") ? "text-success font-medium" : "text-foreground"}>{p.replace(" ✓", "")}</span>
               </div>
             ))}
           </Card>
@@ -214,11 +200,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
           <div className="flex flex-wrap gap-4">
             {Object.entries(fields).map(([key, val]) => (
               <label key={key} className="flex items-center gap-2 text-sm cursor-pointer">
-                <Checkbox
-                  checked={val}
-                  disabled={key === "email"}
-                  onCheckedChange={(v) => setFields((f) => ({ ...f, [key]: !!v }))}
-                />
+                <Checkbox checked={val} disabled={key === "email"} onCheckedChange={(v) => setFields((f) => ({ ...f, [key]: !!v }))} />
                 <span className="capitalize">{key === "linkedin" ? "LinkedIn Profile" : key}</span>
                 {key === "email" && <span className="text-xs text-muted-foreground">(required)</span>}
               </label>

@@ -31,6 +31,7 @@ function rowToCampaign(row: any): Campaign {
     targetAudience: (row.target_audience as string[]) || [],
     leads: (row.leads as any[]) || [],
     emails: (row.emails as any[]) || [],
+    batchSize: 50,
     status: row.status || "setup",
     stats: { sent: 0, opened: 0, clicked: 0, replied: 0 },
     createdAt: row.created_at,
