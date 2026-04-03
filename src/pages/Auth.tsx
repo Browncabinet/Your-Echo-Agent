@@ -1,10 +1,7 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Zap, Check } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
@@ -14,10 +11,6 @@ export default function Auth() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   if (loading) {
     return (
@@ -40,26 +33,6 @@ export default function Auth() {
     }
     if (result.redirected) return;
     navigate("/");
-  };
-
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        toast({ title: "Check your email", description: "We sent you a confirmation link." });
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate("/");
-      }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const features = [
@@ -121,9 +94,9 @@ export default function Auth() {
           <Card className="w-full max-w-sm mx-auto md:mx-0 p-8 space-y-6 glass">
             <div className="text-center space-y-1">
               <h2 className="text-lg font-bold text-foreground">
-                {isSignUp ? "Create your account" : "Welcome back"}
+                Sign in with Google to get started
               </h2>
-              <p className="text-xs text-muted-foreground">Get started in seconds</p>
+              <p className="text-xs text-muted-foreground">One click — no passwords needed</p>
             </div>
 
             <Button onClick={handleGoogle} variant="glass" className="w-full gap-2 py-5">
@@ -135,30 +108,6 @@ export default function Auth() {
               </svg>
               Sign in with Google
             </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">or</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleEmailAuth} className="space-y-4">
-              <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "..." : isSignUp ? "Sign Up" : "Sign In"}
-              </Button>
-            </form>
-
-            <p className="text-center text-sm text-muted-foreground">
-              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-              <button onClick={() => setIsSignUp(!isSignUp)} className="text-primary underline-offset-4 hover:underline font-medium">
-                {isSignUp ? "Sign In" : "Sign Up"}
-              </button>
-            </p>
           </Card>
         </div>
       </div>
