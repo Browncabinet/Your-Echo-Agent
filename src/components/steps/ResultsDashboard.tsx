@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
+import { ABTestingCard } from "@/components/dashboard/ABTestingCard";
 
 type Props = {
   campaign: Campaign;
