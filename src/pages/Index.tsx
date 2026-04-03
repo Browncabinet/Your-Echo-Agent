@@ -11,6 +11,8 @@ import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2, Inbox } from "lucide-react";
 import { RepliesInbox } from "@/components/steps/RepliesInbox";
+import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
+import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
