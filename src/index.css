@@ -52,9 +52,9 @@
     --sidebar-border: 214 25% 90%;
     --sidebar-ring: 217 91% 55%;
 
-    --step-active: 217 91% 55%;
+    --step-active: 239 84% 67%;
     --step-complete: 152 69% 40%;
-    --step-pending: 214 25% 85%;
+    --step-pending: 239 20% 85%;
 
     --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   }
