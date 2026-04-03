@@ -126,6 +126,15 @@ export function GmailConnect() {
             onChange={(e) => setAppPassword(e.target.value)}
           />
         </div>
+        <div>
+          <Label className="text-xs">Scheduling Link (optional — used in AI reply drafts)</Label>
+          <Input
+            type="url"
+            placeholder="https://calendly.com/you"
+            value={schedulingLink}
+            onChange={(e) => setSchedulingLink(e.target.value)}
+          />
+        </div>
       </div>
 
       <Button onClick={handleSave} disabled={saving || !email || !appPassword} className="w-full gap-2">
