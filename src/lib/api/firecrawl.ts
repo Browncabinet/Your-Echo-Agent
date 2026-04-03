@@ -39,7 +39,7 @@ export function extractLeadsFromMarkdown(markdown: string): Lead[] {
 
   for (const email of emails) {
     // Skip generic/noreply emails
-    if (/noreply|no-reply|info@|support@|admin@|hello@|contact@|sales@|help@/i.test(email)) continue;
+    if (/noreply|no-reply|support@|admin@|hello@|help@/i.test(email)) continue;
 
     const lead: Lead = {
       id: generateId(),
