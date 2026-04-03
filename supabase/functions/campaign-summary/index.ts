@@ -46,7 +46,7 @@ Opened: ${opened} (${openRate}%)
 Clicked: ${clicked} (${clickRate}%)
 Replied: ${replied} (${replyRate}%)
 
-Give a 3-sentence summary. Sentence 1: current performance snapshot. Sentence 2: what's working well or a positive highlight. Sentence 3: one actionable suggestion for improvement.`;
+Give a 2-sentence summary. Sentence 1: a warm, encouraging performance snapshot (e.g. "Nice work — your open rate is strong…"). Sentence 2: one specific, actionable suggestion. Keep it short and supportive.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

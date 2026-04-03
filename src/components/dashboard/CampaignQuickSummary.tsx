@@ -58,13 +58,13 @@ export function CampaignQuickSummary({ campaign }: CampaignQuickSummaryProps) {
     <div className="w-full">
       <div className="flex items-center justify-between pt-2">
         <Button
-          variant="ghost"
+          variant="secondary"
           size="sm"
           onClick={(e) => {
             e.stopPropagation();
             fetchSummary();
           }}
-          className="gap-1 text-xs text-muted-foreground hover:text-primary"
+          className="gap-1 text-xs h-7"
         >
           {expanded ? <ChevronUp className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
           {expanded ? "Hide Update" : "Get Update"}
