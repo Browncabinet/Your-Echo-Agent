@@ -53,6 +53,7 @@ export type Campaign = {
   targetAudience: string[];
   leads: Lead[];
   emails: EmailTemplate[];
+  batchSize: number;
   status: "setup" | "leads" | "emails" | "review" | "sending" | "active" | "completed";
   stats: {
     sent: number;
