@@ -12,6 +12,7 @@ export function GmailConnect() {
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [appPassword, setAppPassword] = useState("");
+  const [schedulingLink, setSchedulingLink] = useState("");
   const [connected, setConnected] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
