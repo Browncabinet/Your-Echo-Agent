@@ -29,7 +29,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
   // Auto-generate a search query suggestion based on campaign data
   const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
-    ? `${campaign.targetAudience.join(" ")} ${campaign.niche} email contact`
+    ? `${campaign.targetAudience.join(" ")} ${campaign.niche} directory contact list email`
     : "";
 
   const handleScrapeUrl = async () => {
