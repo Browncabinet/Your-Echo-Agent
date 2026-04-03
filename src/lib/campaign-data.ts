@@ -48,6 +48,7 @@ export type Campaign = {
   id: string;
   name: string;
   goal: string;
+  websiteUrl: string;
   niche: string;
   targetAudience: string[];
   leads: Lead[];
@@ -71,6 +72,7 @@ export function createEmptyCampaign(): Campaign {
     id: generateId(),
     name: "",
     goal: "",
+    websiteUrl: "",
     niche: "",
     targetAudience: [],
     leads: [],

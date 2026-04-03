@@ -50,6 +50,19 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
         </div>
 
         <div>
+          <Label htmlFor="websiteUrl">Your Website URL</Label>
+          <Input
+            id="websiteUrl"
+            type="url"
+            placeholder="https://yourapp.com"
+            value={campaign.websiteUrl}
+            onChange={(e) => onUpdate({ websiteUrl: e.target.value })}
+            className="mt-1.5"
+          />
+          <p className="text-xs text-muted-foreground mt-1">So the AI can personalize emails to match your business</p>
+        </div>
+
+        <div>
           <Label>Main Niche</Label>
           <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, targetAudience: [] })}>
             <SelectTrigger className="mt-1.5">

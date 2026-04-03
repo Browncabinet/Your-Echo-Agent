@@ -89,6 +89,7 @@ export function GmailConnect() {
       <div className="flex items-center gap-2">
         <Mail className="w-5 h-5 text-primary" />
         <h3 className="font-semibold text-sm">Connect Gmail</h3>
+        <span className="text-xs text-muted-foreground ml-auto">Works with personal Gmail or Google Workspace</span>
       </div>
 
       <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground space-y-1">
