@@ -11,6 +11,7 @@ function campaignToRow(campaign: Campaign, userId: string) {
     user_id: userId,
     name: campaign.name,
     goal: campaign.goal,
+    website_url: campaign.websiteUrl,
     niche: campaign.niche,
     target_audience: campaign.targetAudience as unknown as Json,
     leads: campaign.leads as unknown as Json,
