@@ -68,13 +68,10 @@ function ABTestRow({
   email,
   index,
 }: {
-  email: { id: string; subject: string; subjectB?: string; type: string };
+  email: { id: string; subject: string; subjectB?: string; type: string; openRateA?: number; openRateB?: number };
   index: number;
 }) {
-  // Simulated A/B performance (MVP placeholder — replace with real tracking later)
-  const aOpen = Math.floor(Math.random() * 30 + 25);
-  const bOpen = Math.floor(Math.random() * 30 + 25);
-  const winner = aOpen >= bOpen ? "A" : "B";
+  const hasData = typeof email.openRateA === "number" && typeof email.openRateB === "number";
 
   return (
     <div className="space-y-3">
@@ -82,45 +79,52 @@ function ABTestRow({
         Test #{index + 1} — {email.type === "initial" ? "Initial Email" : "Follow-up"}
       </p>
 
-      {/* Variant A */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={winner === "A" ? "default" : "outline"}
-              className="text-[10px] h-5"
-            >
-              A
-            </Badge>
-            <span className="text-sm text-foreground truncate max-w-[280px]">
-              {email.subject}
-            </span>
-            {winner === "A" && <Trophy className="w-3 h-3 text-warning" />}
-          </div>
-          <span className="text-xs font-medium text-muted-foreground">{aOpen}% open</span>
+      {!hasData ? (
+        <div className="space-y-2">
+          <VariantLabel letter="A" subject={email.subject} />
+          <VariantLabel letter="B" subject={email.subjectB} />
+          <p className="text-xs text-muted-foreground italic mt-1">
+            Waiting for results… Data will appear once emails are sent and opened.
+          </p>
         </div>
-        <Progress value={aOpen} className="h-2" />
-      </div>
+      ) : (
+        <>
+          {/* Variant A */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge variant={email.openRateA! >= email.openRateB! ? "default" : "outline"} className="text-[10px] h-5">A</Badge>
+                <span className="text-sm text-foreground truncate max-w-[280px]">{email.subject}</span>
+                {email.openRateA! >= email.openRateB! && <Trophy className="w-3 h-3 text-warning" />}
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">{email.openRateA}% open</span>
+            </div>
+            <Progress value={email.openRateA} className="h-2" />
+          </div>
 
-      {/* Variant B */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={winner === "B" ? "default" : "outline"}
-              className="text-[10px] h-5"
-            >
-              B
-            </Badge>
-            <span className="text-sm text-foreground truncate max-w-[280px]">
-              {email.subjectB}
-            </span>
-            {winner === "B" && <Trophy className="w-3 h-3 text-warning" />}
+          {/* Variant B */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge variant={email.openRateB! > email.openRateA! ? "default" : "outline"} className="text-[10px] h-5">B</Badge>
+                <span className="text-sm text-foreground truncate max-w-[280px]">{email.subjectB}</span>
+                {email.openRateB! > email.openRateA! && <Trophy className="w-3 h-3 text-warning" />}
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">{email.openRateB}% open</span>
+            </div>
+            <Progress value={email.openRateB} className="h-2" />
           </div>
-          <span className="text-xs font-medium text-muted-foreground">{bOpen}% open</span>
-        </div>
-        <Progress value={bOpen} className="h-2" />
-      </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function VariantLabel({ letter, subject }: { letter: string; subject?: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Badge variant="outline" className="text-[10px] h-5">{letter}</Badge>
+      <span className="text-sm text-foreground truncate max-w-[280px]">{subject || "—"}</span>
     </div>
   );
 }
