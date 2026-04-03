@@ -1,0 +1,1 @@
+ALTER TABLE public.campaigns ADD COLUMN website_url text NOT NULL DEFAULT '';

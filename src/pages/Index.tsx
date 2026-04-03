@@ -110,7 +110,10 @@ export default function Index() {
                 >
                   <div>
                     <p className="font-medium text-foreground">{c.name}</p>
-                    <p className="text-sm text-muted-foreground">{c.niche} · {c.leads.length} leads</p>
+                    <p className="text-sm text-muted-foreground">
+                      {c.websiteUrl && <>{new URL(c.websiteUrl).hostname} · </>}
+                      {c.niche} · {c.leads.length} leads
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <Button

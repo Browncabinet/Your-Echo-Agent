@@ -66,6 +66,7 @@ export type Database = {
           target_audience: Json
           updated_at: string
           user_id: string
+          website_url: string
         }
         Insert: {
           created_at?: string
@@ -79,6 +80,7 @@ export type Database = {
           target_audience?: Json
           updated_at?: string
           user_id: string
+          website_url?: string
         }
         Update: {
           created_at?: string
@@ -92,6 +94,7 @@ export type Database = {
           target_audience?: Json
           updated_at?: string
           user_id?: string
+          website_url?: string
         }
         Relationships: []
       }
