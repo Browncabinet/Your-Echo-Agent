@@ -1,42 +1,32 @@
 
 
-## Plan: Add Google Authentication
+## Plan: Updated Pricing Page with CRM Integration in Pro Tier
 
-Add Google login/signup so you and other developers can sign in easily. Campaigns will be saved per user in the database.
+Replace "team sharing" with "CRM integration (HubSpot, Salesforce, Google Sheets)" in the Pro plan. Everything else stays the same from the previously approved plan.
 
-### Changes
+### Pricing Structure
 
-1. **Configure Google Auth**
-   - Use the Configure Social Login tool to generate the Lovable Cloud auth module (managed Google OAuth — no credentials needed)
+| Plan | Price | Contacts | Key Features |
+|------|-------|----------|--------------|
+| **Free** | $0/mo | 50 contacts | 1 campaign, basic email templates, manual social posts |
+| **Starter** | $9/mo | 200 contacts | 3 campaigns, AI email writing, A/B testing, auto search |
+| **Growth** | $19/mo | 500 contacts | Unlimited campaigns, priority scraping, analytics dashboard |
+| **Pro** | $39/mo | 2,000 contacts | Everything + API access, **CRM integration** (HubSpot, Salesforce, Google Sheets), custom branding |
 
-2. **Create Auth Page** (`src/pages/Auth.tsx`)
-   - Clean login/signup page with a prominent "Sign in with Google" button
-   - Email/password option as fallback
-   - Matches the existing blue/white design
+**Add-ons:** Extra 100 contacts ($3), Extra 500 contacts ($10), AI Social Media Content ($5/mo), Advanced Analytics ($5/mo)
 
-3. **Create Auth Context** (`src/contexts/AuthContext.tsx`)
-   - Provides current user session across the app
-   - `onAuthStateChange` listener + `getSession` on mount
-   - Exposes `user`, `session`, `signOut`, `loading`
+### Files to Create/Change
 
-4. **Create Protected Route wrapper** (`src/components/ProtectedRoute.tsx`)
-   - Redirects unauthenticated users to `/auth`
+1. **`src/pages/Pricing.tsx`** — New page with 4-tier card layout, add-on section, FAQ ("Why so cheap?"), and CTAs. Blue/white design. Starter marked "Most Popular."
 
-5. **Update `src/App.tsx`**
-   - Wrap routes with `AuthProvider`
-   - Add `/auth` route
-   - Protect the `/` route with `ProtectedRoute`
+2. **`src/App.tsx`** — Add `/pricing` route (public, no auth required)
 
-6. **Update header in `src/pages/Index.tsx`**
-   - Show user avatar/email and a Sign Out button in the top-right
+3. **`src/pages/Index.tsx`** — Add small "Upgrade" button in header
 
-7. **Database: `campaigns` table** (migration)
-   - Store campaigns per user with columns: `id`, `user_id`, `name`, `goal`, `niche`, `target_audience`, `leads`, `emails`, `status`, `created_at`
-   - RLS: users can only read/update/delete their own campaigns
-   - Load campaigns on login, save on create/update
+4. **`src/pages/Auth.tsx`** — Add "View Pricing" link
 
 ### Technical notes
-- Google OAuth uses `lovable.auth.signInWithOAuth("google", ...)` — fully managed, no API keys needed
-- No profiles table needed initially — just `auth.users` + `campaigns`
-- Email auto-confirm will NOT be enabled (users verify email for password signups)
+- Static/informational page for now — no payment wiring yet
+- Publicly accessible (no login needed)
+- Payment integration (Stripe or Paddle) can be added later
 
