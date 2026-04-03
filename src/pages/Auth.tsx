@@ -116,7 +116,7 @@ export default function Auth() {
           </div>
 
           {/* Right: Login card */}
-          <Card className="w-full max-w-sm mx-auto md:mx-0 p-8 space-y-6">
+          <Card className="w-full max-w-sm mx-auto md:mx-0 p-8 space-y-6 glass">
             <div className="text-center space-y-1">
               <h2 className="text-lg font-bold text-foreground">
                 {isSignUp ? "Create your account" : "Welcome back"}
