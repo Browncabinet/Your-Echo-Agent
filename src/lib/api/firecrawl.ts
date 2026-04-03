@@ -89,9 +89,20 @@ export function extractLeadsFromSearchResults(results: any[]): Lead[] {
   const allLeads: Lead[] = [];
   const seenEmails = new Set<string>();
 
+  console.log(`[LeadExtraction] Processing ${results.length} search results`);
+
   for (const result of results) {
-    const markdown = result.markdown || result.description || '';
-    const pageLeads = extractLeadsFromMarkdown(markdown);
+    // Combine markdown, description, title, and url for maximum extraction
+    const parts = [
+      result.markdown || '',
+      result.description || '',
+      result.title || '',
+      result.url || '',
+    ];
+    const combined = parts.join('\n');
+    console.log(`[LeadExtraction] Result "${result.title || result.url || '?'}" — ${combined.length} chars`);
+    
+    const pageLeads = extractLeadsFromMarkdown(combined);
 
     for (const lead of pageLeads) {
       if (!seenEmails.has(lead.email)) {
@@ -101,5 +112,6 @@ export function extractLeadsFromSearchResults(results: any[]): Lead[] {
     }
   }
 
+  console.log(`[LeadExtraction] Total unique leads found: ${allLeads.length}`);
   return allLeads;
 }
