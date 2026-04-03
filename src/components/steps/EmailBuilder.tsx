@@ -5,8 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Plus, Trash2, Mail } from "lucide-react";
+import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2 } from "lucide-react";
 import { type Campaign, type EmailTemplate, generateEmailTemplates, generateId } from "@/lib/campaign-data";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type Props = {
   campaign: Campaign;
@@ -17,6 +19,7 @@ type Props = {
 
 export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
   const [emails, setEmails] = useState<EmailTemplate[]>(campaign.emails);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     if (emails.length === 0) {
@@ -52,16 +55,77 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
     onUpdate({ emails: updated });
   };
 
+  const generateWithAI = async () => {
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-emails", {
+        body: {
+          websiteUrl: campaign.websiteUrl,
+          goal: campaign.goal,
+          niche: campaign.niche,
+          targetAudience: campaign.targetAudience,
+          leads: campaign.leads.slice(0, 10),
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      if (data?.templates) {
+        const newEmails: EmailTemplate[] = data.templates.map((t: any) => ({
+          id: generateId(),
+          subject: t.subject,
+          subjectB: t.subjectB || undefined,
+          body: t.body,
+          delay: t.delay || (t.type === "followup" ? 5 : undefined),
+          type: t.type as "initial" | "followup",
+        }));
+        setEmails(newEmails);
+        onUpdate({ emails: newEmails });
+        toast.success("AI-generated emails ready! Edit anything you'd like.");
+      }
+    } catch (err: any) {
+      console.error("AI generation error:", err);
+      toast.error(err.message || "Failed to generate emails");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const followUpCount = emails.filter((e) => e.type === "followup").length;
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Build Your Emails</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          We've drafted personalized emails. Edit anything you'd like.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Build Your Emails</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Generate AI-powered emails or edit the drafts below.
+          </p>
+        </div>
+        <Button
+          onClick={generateWithAI}
+          disabled={generating}
+          variant="outline"
+          className="gap-2 shrink-0 border-primary/30 hover:border-primary text-primary"
+        >
+          {generating ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Sparkles className="w-4 h-4" />
+          )}
+          {generating ? "Generating..." : "Generate with AI"}
+        </Button>
       </div>
+
+      {campaign.websiteUrl && (
+        <p className="text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
+          ✨ AI will analyze <span className="font-medium text-foreground">{campaign.websiteUrl}</span> to personalize emails to your business
+        </p>
+      )}
 
       <div className="space-y-4">
         {emails.map((email, i) => (
