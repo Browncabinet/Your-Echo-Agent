@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
+import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 
 type Props = {
   campaign: Campaign;
@@ -40,6 +41,10 @@ export function ResultsDashboard({ campaign, onBack }: Props) {
         <p className="text-sm text-muted-foreground mt-1">"{campaign.name}" — live performance</p>
       </div>
 
+      {/* NEW: Visual metrics with donut charts + progress bars */}
+      <MetricsOverview stats={stats} />
+
+      {/* Existing stat cards preserved */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Mail} label="Emails Sent" value={stats.sent} color="bg-primary/10 text-primary" />
         <StatCard icon={Eye} label="Opened" value={stats.opened} color="bg-secondary text-secondary-foreground" />
