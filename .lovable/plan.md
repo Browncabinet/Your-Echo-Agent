@@ -1,32 +1,20 @@
 
 
-## Plan: Indigo Color Scheme + Glassmorphism Touch-ups
+## Plan: Add About Page
 
-Shift the primary color from blue to indigo and add glass-effect styling to buttons and cards across the app.
+Create a simple About page that tells your story — why you built Your Echo Agent.
 
-### Changes
+### New File
 
-1. **`src/index.css`** — Update CSS variables
-   - Change `--primary` from `217 91% 55%` to `239 84% 67%` (indigo-500) in light mode
-   - Change dark mode primary to `239 84% 72%`
-   - Update `--ring`, `--secondary`, `--accent` to match indigo tones
-   - Add a `.glass` utility class: `backdrop-blur-md bg-white/70 border border-white/20 shadow-lg` (dark: `bg-white/10`)
+**`src/pages/About.tsx`** — Clean, minimal page with:
+- Your story: 8 projects, 5 needing cold email outreach, tools costing $50/mo each adding up fast, couldn't find an affordable AI agent for cold emails, so you built one that echoes your voice and style
+- Contact: link to [@ladysoleil33 on X](https://x.com/ladysoleil33)
+- Glass card styling consistent with auth/pricing pages
+- Nav bar with logo + links to Pricing and back to home
 
-2. **`src/components/ui/button.tsx`** — Add glass variant
-   - New `glass` variant: semi-transparent indigo background with backdrop-blur, subtle border, hover glow
+### Edits
 
-3. **`src/pages/Auth.tsx`** — Apply glass styling
-   - Login card gets glass effect (translucent background + blur)
-   - Sign-in buttons use the new glass look
-
-4. **`src/pages/Pricing.tsx`** — Apply glass styling
-   - Plan cards get subtle glass treatment
-   - CTA buttons use glass variant for non-highlighted plans, solid indigo for highlighted
-
-5. **`src/pages/Index.tsx`** — Update "Upgrade" button to glass variant
-
-### Technical notes
-- Indigo hue `239` replaces blue hue `217` throughout the CSS variable system
-- Glass effect uses `backdrop-filter: blur()` + semi-transparent backgrounds — supported in all modern browsers
-- Keeps DM Sans font and existing layout structure unchanged
+1. **`src/App.tsx`** — Add `/about` route (public)
+2. **`src/pages/Auth.tsx`** — Add "About" link in nav bar next to Pricing
+3. **`src/pages/Pricing.tsx`** — Add "About" link in nav if not already there
 
