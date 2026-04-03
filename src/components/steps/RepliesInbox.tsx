@@ -268,7 +268,6 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
               ? 'Send a campaign first, then click "Check Replies Now" to fetch incoming replies from your inbox.'
               : "Try selecting a different classification filter above."}
           </p>
-          </p>
         </Card>
       ) : (
         <div className="space-y-3">
