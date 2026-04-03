@@ -1,40 +1,42 @@
 
 
-## Plan: Wire Up Real Lead Scraping with Firecrawl
+## Plan: Add Google Authentication
 
-Right now the "Scrape" button generates fake/mock leads. This plan connects it to Firecrawl so pasting a URL actually scrapes real contact data from the page.
+Add Google login/signup so you and other developers can sign in easily. Campaigns will be saved per user in the database.
 
-You already have a Firecrawl connection in your workspace — it just needs to be linked to this project.
+### Changes
 
-### What will change
+1. **Configure Google Auth**
+   - Use the Configure Social Login tool to generate the Lovable Cloud auth module (managed Google OAuth — no credentials needed)
 
-1. **Link the Firecrawl connector** to this project (you'll be prompted to confirm)
+2. **Create Auth Page** (`src/pages/Auth.tsx`)
+   - Clean login/signup page with a prominent "Sign in with Google" button
+   - Email/password option as fallback
+   - Matches the existing blue/white design
 
-2. **Enable Lovable Cloud** (needed for edge functions that call Firecrawl securely)
+3. **Create Auth Context** (`src/contexts/AuthContext.tsx`)
+   - Provides current user session across the app
+   - `onAuthStateChange` listener + `getSession` on mount
+   - Exposes `user`, `session`, `signOut`, `loading`
 
-3. **Create a Supabase Edge Function** (`supabase/functions/firecrawl-scrape/index.ts`)
-   - Receives a URL from the frontend
-   - Calls Firecrawl's scrape API to extract page content as markdown
-   - Returns the scraped content to the frontend
+4. **Create Protected Route wrapper** (`src/components/ProtectedRoute.tsx`)
+   - Redirects unauthenticated users to `/auth`
 
-4. **Create a lead extraction API helper** (`src/lib/api/firecrawl.ts`)
-   - Thin wrapper that calls the edge function from the frontend
+5. **Update `src/App.tsx`**
+   - Wrap routes with `AuthProvider`
+   - Add `/auth` route
+   - Protect the `/` route with `ProtectedRoute`
 
-5. **Update `LeadAcquisition.tsx`** to use real scraping
-   - Replace the fake `setTimeout` logic with a call to the Firecrawl edge function
-   - Parse the scraped markdown/HTML to extract names, emails, companies, and LinkedIn URLs
-   - Show real progress steps: Scraping page → Extracting contacts → Done
-   - Populate the leads list with actual extracted data
-   - Fall back to showing the raw scraped content if no structured contacts are found, so users can still see what was pulled
+6. **Update header in `src/pages/Index.tsx`**
+   - Show user avatar/email and a Sign Out button in the top-right
 
-6. **Add an "Auto Search" option** alongside paste-a-URL
-   - A second input mode: type a search query (e.g. "real estate agents in Miami") and the agent uses Firecrawl's `/search` endpoint to find and scrape results automatically
-   - Create a `firecrawl-search` edge function for this
-   - Toggle between "Paste URL" and "Auto Search" modes in the UI
+7. **Database: `campaigns` table** (migration)
+   - Store campaigns per user with columns: `id`, `user_id`, `name`, `goal`, `niche`, `target_audience`, `leads`, `emails`, `status`, `created_at`
+   - RLS: users can only read/update/delete their own campaigns
+   - Load campaigns on login, save on create/update
 
-### Technical details
-
-- Firecrawl does **not** use the connector gateway (marked `uses connector gateway: false`), so the edge function calls `https://api.firecrawl.dev/v1/scrape` directly with the `FIRECRAWL_API_KEY` env var
-- Contact extraction will use regex patterns on the scraped markdown to find emails, names, and company info
-- The search mode will use Firecrawl's `/v1/search` endpoint with `scrapeOptions` to get content from results
+### Technical notes
+- Google OAuth uses `lovable.auth.signInWithOAuth("google", ...)` — fully managed, no API keys needed
+- No profiles table needed initially — just `auth.users` + `campaigns`
+- Email auto-confirm will NOT be enabled (users verify email for password signups)
 
