@@ -1,59 +1,72 @@
 
 
-## Step 1: Execute Database Migration
+## Phase 1: QuickUpdateBar + CampaignQuickSummary
 
-I'll run the migration now using the database migration tool — two statements in a single migration.
+### 1. Edge Function: `supabase/functions/campaign-summary/index.ts`
 
-### Migration SQL
+Non-streaming edge function that accepts campaign stats and returns a 3-sentence AI summary via Lovable AI (Gemini Flash).
 
-```sql
--- Statement 1: Create email_replies table with RLS
-create table public.email_replies (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null,
-  campaign_id text not null,
-  lead_email text not null,
-  lead_name text not null default '',
-  subject text not null default '',
-  body text not null default '',
-  received_at timestamptz not null default now(),
-  classification text not null default 'unknown',
-  ai_draft_reply text not null default '',
-  ai_suggested_action text not null default '',
-  status text not null default 'pending',
-  sent_at timestamptz,
-  created_at timestamptz not null default now()
-);
+- Accepts: `{ campaign: { name, niche, goal, leadCount, emailCount, stats: {sent, opened, clicked, replied} } }`
+- Returns: `{ summary: "..." }`
+- Uses `LOVABLE_API_KEY` (already available)
+- System prompt instructs friendly, encouraging, actionable tone
+- Handles 429/402 errors with clear messages
+- Standard CORS headers pattern (matches existing edge functions)
 
-alter table public.email_replies enable row level security;
+### 2. `src/components/dashboard/QuickUpdateBar.tsx`
 
-create policy "Users can view own replies"
-  on public.email_replies for select to authenticated
-  using (auth.uid() = user_id);
+A search/select input placed between the "New Campaign" button and campaigns list.
 
-create policy "Users can insert own replies"
-  on public.email_replies for insert to authenticated
-  with check (auth.uid() = user_id);
+- Props: `campaigns: Campaign[]`
+- Renders a search `Input` with a `Search` icon and a filtered dropdown of campaign names
+- Accepts typed name or "Project #1" (maps to campaign index)
+- On selection, calls `campaign-summary` edge function via `supabase.functions.invoke()`
+- Displays result in a subtle dismissible `Card` below the input
+- Shows `Loader2` spinner while fetching, `X` button to dismiss
+- If no campaigns exist, input is disabled with placeholder "No campaigns yet"
 
-create policy "Users can update own replies"
-  on public.email_replies for update to authenticated
-  using (auth.uid() = user_id);
+### 3. `src/components/dashboard/CampaignQuickSummary.tsx`
 
--- Statement 2: Add columns to user_email_settings
-alter table public.user_email_settings
-  add column scheduling_link text not null default '',
-  add column email_alerts_paused boolean not null default false;
+An expandable inline summary inside each campaign card.
+
+- Props: `campaign: Campaign`
+- Renders a small "Get Update" button (with `Sparkles` icon)
+- On click, expands a section below showing:
+  - 3 horizontal `Progress` bars (Opened %, Clicked %, Replied %) with percentage labels
+  - 1-2 sentence AI summary from the same edge function
+- Collapsible via toggle. Shows loading state while fetching.
+
+### 4. Changes to `src/pages/Index.tsx` (append-only)
+
+**New imports** (top of file):
+```typescript
+import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
+import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
 ```
 
-### Post-migration verification
+**Insert QuickUpdateBar** between line 92 (end of "New Campaign" button div) and line 94 (campaignsLoading check):
+```tsx
+<QuickUpdateBar campaigns={campaigns} />
+```
 
-After execution I will query:
-1. `SELECT column_name, data_type, column_default, is_nullable FROM information_schema.columns WHERE table_name = 'email_replies' ORDER BY ordinal_position` — expect 14 rows
-2. `SELECT column_name FROM information_schema.columns WHERE table_name = 'user_email_settings' AND column_name IN ('scheduling_link', 'email_alerts_paused')` — expect 2 rows
-3. `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'email_replies'` — expect 3 policies
+**Insert CampaignQuickSummary** inside each campaign Card, after the existing buttons div (after line 156), before the closing `</Card>`:
+- Restructure the Card slightly to allow the summary to appear below the existing flex row
+- Wrap existing content in a div, append `<CampaignQuickSummary campaign={c} />` below
 
-### What changes
+**Nothing removed or rearranged** — all existing elements (header, buttons, card layout) stay exactly as they are.
 
-- **Database only** — one new table, two new columns on an existing table
-- No frontend or edge function files modified
+### Files Created/Modified
+
+| File | Action |
+|---|---|
+| `supabase/functions/campaign-summary/index.ts` | Create |
+| `src/components/dashboard/QuickUpdateBar.tsx` | Create |
+| `src/components/dashboard/CampaignQuickSummary.tsx` | Create |
+| `src/pages/Index.tsx` | Edit (append imports + insert 2 components) |
+
+### What stays untouched
+- `MetricsOverview.tsx`, `ResultsDashboard.tsx` — zero changes
+- All existing campaign card buttons (Results, Replies, Social)
+- Campaign wizard flow, sending pipeline, RepliesInbox
+- Header, navigation, auth flow
 
