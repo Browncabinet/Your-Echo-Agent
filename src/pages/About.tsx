@@ -59,13 +59,6 @@ export default function About() {
               I love AI and I love creators. We need to support each other. 💛
             </p>
             <p>
-              P.S. I also own{" "}
-              <a href="https://tablecharts.co" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
-                Tablecharts.co
-              </a>{" "}
-              — if you need clean, beautiful charts for presentations or pitch decks, feel free to check it out.
-            </p>
-            <p>
               With years of PR & Marketing experience working with celebs and big brands, I'll keep growing Your Echo Agent into a real growth tool.
             </p>
             <p className="font-medium">
@@ -79,6 +72,13 @@ export default function About() {
             >
               @Ladysoleil on X <ExternalLink className="w-3.5 h-3.5" />
             </a>
+            <p>
+              P.S. I also own{" "}
+              <a href="https://tablecharts.co" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
+                Tablecharts.co
+              </a>{" "}
+              — if you need clean, beautiful charts for presentations or pitch decks, feel free to check it out.
+            </p>
           </div>
         </Card>
       </main>
