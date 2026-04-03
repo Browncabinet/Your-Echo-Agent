@@ -151,7 +151,7 @@ export default function Pricing() {
               className={`p-6 flex flex-col relative ${
                 plan.highlighted
                   ? "border-primary ring-2 ring-primary/20 shadow-lg"
-                  : ""
+                  : "glass"
               }`}
             >
               {plan.badge && (
