@@ -196,10 +196,15 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
             Replies Inbox
           </h2>
           {lastChecked && (
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <button
+              onClick={handleCheckReplies}
+              disabled={checking}
+              className="text-xs text-muted-foreground mt-1 flex items-center gap-1 hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0"
+            >
               <Clock className="w-3 h-3" />
               Last checked: {new Date(lastChecked).toLocaleString()}
-            </p>
+              <RefreshCw className={`w-3 h-3 ml-0.5 ${checking ? "animate-spin" : ""}`} />
+            </button>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -253,12 +258,15 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       ) : filteredReplies.length === 0 ? (
-        <Card className="p-8 text-center">
-          <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">
+        <Card className="p-10 text-center">
+          <Inbox className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-foreground font-medium mb-1">
+            {replies.length === 0 ? "No replies received yet" : "No replies match this filter"}
+          </p>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto">
             {replies.length === 0
-              ? 'No replies yet. Click "Check Replies Now" to fetch new replies.'
-              : "No replies match this filter."}
+              ? 'Send a campaign first, then click "Check Replies Now" to fetch incoming replies from your inbox.'
+              : "Try selecting a different classification filter above."}
           </p>
         </Card>
       ) : (
