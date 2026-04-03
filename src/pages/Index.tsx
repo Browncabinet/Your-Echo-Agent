@@ -90,6 +90,12 @@ export default function Index() {
             </Button>
           </div>
 
+          {campaignsLoading && (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
+
           {campaigns.length > 0 && (
             <div className="space-y-4">
               <h3 className="font-semibold text-foreground">Your Campaigns</h3>
