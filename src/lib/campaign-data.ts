@@ -49,7 +49,7 @@ export type Campaign = {
   name: string;
   goal: string;
   niche: string;
-  targetAudience: string;
+  targetAudience: string[];
   leads: Lead[];
   emails: EmailTemplate[];
   status: "setup" | "leads" | "emails" | "review" | "sending" | "active" | "completed";
@@ -72,7 +72,7 @@ export function createEmptyCampaign(): Campaign {
     name: "",
     goal: "",
     niche: "",
-    targetAudience: "",
+    targetAudience: [],
     leads: [],
     emails: [],
     status: "setup",

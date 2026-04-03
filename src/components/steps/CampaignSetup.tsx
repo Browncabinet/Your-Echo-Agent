@@ -17,7 +17,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
   const [customSub, setCustomSub] = useState("");
   const subcats = TARGET_AUDIENCES[campaign.niche] || [];
 
-  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience;
+  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience.length > 0;
 
   return (
     <div className="space-y-6 max-w-xl">
@@ -51,7 +51,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
 
         <div>
           <Label>Main Niche</Label>
-          <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, targetAudience: "" })}>
+          <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, targetAudience: [] })}>
             <SelectTrigger className="mt-1.5">
               <SelectValue placeholder="Select a niche..." />
             </SelectTrigger>
@@ -68,16 +68,25 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
             <Label>Target Audience</Label>
             {subcats.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {subcats.map((s) => (
-                  <Badge
-                    key={s}
-                    variant={campaign.targetAudience === s ? "default" : "outline"}
-                    className="cursor-pointer transition-all hover:scale-105"
-                    onClick={() => onUpdate({ targetAudience: s })}
-                  >
-                    {s}
-                  </Badge>
-                ))}
+                {subcats.map((s) => {
+                  const selected = campaign.targetAudience.includes(s);
+                  return (
+                    <Badge
+                      key={s}
+                      variant={selected ? "default" : "outline"}
+                      className="cursor-pointer transition-all hover:scale-105"
+                      onClick={() =>
+                        onUpdate({
+                          targetAudience: selected
+                            ? campaign.targetAudience.filter((a) => a !== s)
+                            : [...campaign.targetAudience, s],
+                        })
+                      }
+                    >
+                      {s}
+                    </Badge>
+                  );
+                })}
               </div>
             )}
             <div className="relative">
@@ -87,16 +96,16 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
                 value={customSub}
                 onChange={(e) => setCustomSub(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && customSub.trim()) {
-                    onUpdate({ targetAudience: customSub.trim() });
+                  if (e.key === "Enter" && customSub.trim() && !campaign.targetAudience.includes(customSub.trim())) {
+                    onUpdate({ targetAudience: [...campaign.targetAudience, customSub.trim()] });
                     setCustomSub("");
                   }
                 }}
                 className="pl-10"
               />
             </div>
-            {campaign.targetAudience && (
-              <p className="text-sm text-success font-medium">✓ Selected: {campaign.targetAudience}</p>
+            {campaign.targetAudience.length > 0 && (
+              <p className="text-sm text-success font-medium">✓ Selected: {campaign.targetAudience.join(", ")}</p>
             )}
           </div>
         )}
