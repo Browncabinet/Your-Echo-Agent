@@ -11,6 +11,8 @@ import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2, Inbox } from "lucide-react";
 import { RepliesInbox } from "@/components/steps/RepliesInbox";
+import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
+import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -85,11 +87,13 @@ export default function Index() {
             </p>
           </div>
 
-          <div className="flex justify-center mb-10">
+          <div className="flex justify-center mb-8">
             <Button size="lg" onClick={startNewCampaign} className="gap-2 text-base px-8 py-6">
               <Plus className="w-5 h-5" /> New Campaign
             </Button>
           </div>
+
+          <QuickUpdateBar campaigns={campaigns} />
 
           {campaignsLoading && (
             <div className="flex justify-center py-8">
@@ -103,57 +107,60 @@ export default function Index() {
               {campaigns.map((c) => (
                 <Card
                   key={c.id}
-                  className="p-4 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                  className="p-4 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => {
                     setCampaign(c);
                     setView("dashboard");
                   }}
                 >
-                  <div>
-                    <p className="font-medium text-foreground">{c.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {c.websiteUrl && <>{new URL(c.websiteUrl).hostname} · </>}
-                      {c.niche} · {c.leads.length} leads
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-foreground">{c.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {c.websiteUrl && <>{new URL(c.websiteUrl).hostname} · </>}
+                        {c.niche} · {c.leads.length} leads
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCampaign(c);
+                          setView("dashboard");
+                        }}
+                      >
+                        <BarChart3 className="w-3 h-3" /> Results
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCampaign(c);
+                          setView("replies");
+                        }}
+                      >
+                        <Inbox className="w-3 h-3" /> Replies
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCampaign(c);
+                          setView("social");
+                        }}
+                      >
+                        <Share2 className="w-3 h-3" /> Social
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCampaign(c);
-                        setView("dashboard");
-                      }}
-                    >
-                      <BarChart3 className="w-3 h-3" /> Results
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCampaign(c);
-                        setView("replies");
-                      }}
-                    >
-                      <Inbox className="w-3 h-3" /> Replies
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCampaign(c);
-                        setView("social");
-                      }}
-                    >
-                      <Share2 className="w-3 h-3" /> Social
-                    </Button>
-                  </div>
+                  <CampaignQuickSummary campaign={c} />
                 </Card>
               ))}
             </div>
