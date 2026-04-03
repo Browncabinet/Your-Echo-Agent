@@ -58,20 +58,17 @@ export default function About() {
             <p>
               I love AI and I love creators. We need to support each other. 💛
             </p>
-          </div>
-
-          <div className="pt-4 border-t border-border space-y-3">
-            <p className="text-sm text-muted-foreground">
+            <p>
               P.S. I also own{" "}
               <a href="https://tablecharts.co" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
                 Tablecharts.co
               </a>{" "}
               — if you need clean, beautiful charts for presentations or pitch decks, feel free to check it out.
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p>
               With years of PR & Marketing experience working with celebs and big brands, I'll keep growing Your Echo Agent into a real growth tool.
             </p>
-            <p className="text-sm text-muted-foreground font-medium">
+            <p className="font-medium">
               Ping me anytime with issues or suggestions — I'm always improving it. Let's win together. 🚀
             </p>
             <a
