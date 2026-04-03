@@ -122,6 +122,15 @@ export default function Auth() {
             {isSignUp ? "Sign In" : "Sign Up"}
           </button>
         </p>
+
+        <p className="text-center">
+          <button
+            onClick={() => navigate("/pricing")}
+            className="text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+          >
+            View Pricing →
+          </button>
+        </p>
       </Card>
     </div>
   );

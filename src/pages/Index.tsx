@@ -9,7 +9,8 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, Zap, BarChart3, Share2, LogOut } from "lucide-react";
+import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -21,6 +22,7 @@ export default function Index() {
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const updateCampaign = (updates: Partial<Campaign>) => {
     setCampaign((c) => ({ ...c, ...updates }));
@@ -57,6 +59,9 @@ export default function Index() {
             </div>
             <div className="flex items-center gap-3">
               <p className="text-xs text-muted-foreground hidden sm:block">AI Marketing & Outreach</p>
+              <Button variant="outline" size="sm" onClick={() => navigate("/pricing")} className="gap-1 text-xs">
+                <CreditCard className="w-3 h-3" /> Upgrade
+              </Button>
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
