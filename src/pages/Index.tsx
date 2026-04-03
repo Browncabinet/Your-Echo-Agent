@@ -172,9 +172,14 @@ export default function Index() {
               <Zap className="w-6 h-6 text-primary" />
               <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
             </div>
-            <Button variant="outline" size="sm" onClick={() => setView("social")} className="gap-1">
-              <Share2 className="w-3 h-3" /> Social Content
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setView("replies")} className="gap-1">
+                <Inbox className="w-3 h-3" /> Replies
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setView("social")} className="gap-1">
+                <Share2 className="w-3 h-3" /> Social Content
+              </Button>
+            </div>
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8">
