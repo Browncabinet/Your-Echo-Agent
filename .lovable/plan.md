@@ -1,22 +1,25 @@
 
 
-## Plan: Rename "Subcategory" to "Target Audience"
+## Plan: Multi-Select Target Audience
 
-A straightforward rename across the codebase — replacing all references to "subcategory" with "target audience" in labels, types, and data.
+Change `targetAudience` from a single string to an array of strings, allowing users to select multiple audiences.
 
-### Files to change
+### Changes
 
 1. **`src/lib/campaign-data.ts`**
-   - Rename `SUBCATEGORIES` constant to `TARGET_AUDIENCES`
-   - Rename `subcategory` field in `Campaign` type to `targetAudience`
-   - Update `createEmptyCampaign` accordingly
+   - Change `targetAudience: string` → `targetAudience: string[]` in the `Campaign` type
+   - Update `createEmptyCampaign` to initialize with `[]`
 
 2. **`src/components/steps/CampaignSetup.tsx`**
-   - Update all references from `campaign.subcategory` to `campaign.targetAudience`
-   - Change label from "Subcategory" to "Target Audience"
-   - Update search placeholder to "Search or type your target audience..."
-   - Update the "Selected" confirmation text
+   - Toggle badges on/off (add/remove from array) instead of replacing
+   - Custom input adds to the array instead of replacing
+   - Show all selected audiences as highlighted badges
+   - Add ability to remove selected audiences (click to deselect)
+   - Validation checks `campaign.targetAudience.length > 0`
 
-3. **`src/pages/Index.tsx`** (if it references `subcategory` in validation or state)
-   - Update any references to the renamed field
+3. **`src/components/steps/SocialMediaContent.tsx`**
+   - Display `campaign.targetAudience.join(", ")` where the audience is referenced
+
+4. **`src/pages/Index.tsx`**
+   - Update any validation referencing `targetAudience` to check array length
 
