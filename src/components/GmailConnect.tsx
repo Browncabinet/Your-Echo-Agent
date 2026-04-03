@@ -47,6 +47,7 @@ export function GmailConnect() {
         smtp_port: 587,
         smtp_username: email,
         smtp_password: appPassword,
+        scheduling_link: schedulingLink,
         is_connected: true,
         updated_at: new Date().toISOString(),
       },
