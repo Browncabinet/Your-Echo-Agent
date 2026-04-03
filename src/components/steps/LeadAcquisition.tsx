@@ -158,7 +158,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
             <Label>Search for leads (we'll find contacts automatically)</Label>
             <div className="flex gap-2 mt-1.5">
               <Input
-                placeholder={suggestedQuery || "e.g. real estate agents in Miami email"}
+                placeholder={suggestedQuery || "e.g. real estate agents Miami contact email directory"}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
