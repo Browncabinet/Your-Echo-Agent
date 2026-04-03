@@ -28,6 +28,7 @@ export function GmailConnect() {
         if (data) {
           setEmail(data.email_address || "");
           setConnected(data.is_connected || false);
+          setSchedulingLink(data.scheduling_link || "");
         }
         setLoading(false);
       });
