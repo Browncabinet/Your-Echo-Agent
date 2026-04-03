@@ -59,7 +59,7 @@ export default function Index() {
             </div>
             <div className="flex items-center gap-3">
               <p className="text-xs text-muted-foreground hidden sm:block">AI Marketing & Outreach</p>
-              <Button variant="outline" size="sm" onClick={() => navigate("/pricing")} className="gap-1 text-xs">
+              <Button variant="glass" size="sm" onClick={() => navigate("/pricing")} className="gap-1 text-xs">
                 <CreditCard className="w-3 h-3" /> Upgrade
               </Button>
               <Avatar className="h-8 w-8">

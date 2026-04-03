@@ -15,24 +15,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 15%;
 
-    --primary: 217 91% 55%;
+    --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 80% 96%;
-    --secondary-foreground: 217 70% 40%;
+    --secondary: 239 60% 96%;
+    --secondary-foreground: 239 70% 40%;
 
-    --muted: 214 32% 94%;
-    --muted-foreground: 215 16% 50%;
+    --muted: 239 20% 94%;
+    --muted-foreground: 239 10% 50%;
 
-    --accent: 214 80% 96%;
-    --accent-foreground: 217 70% 40%;
+    --accent: 239 60% 96%;
+    --accent-foreground: 239 70% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 214 25% 90%;
     --input: 214 25% 90%;
-    --ring: 217 91% 55%;
+    --ring: 239 84% 67%;
 
     --radius: 0.75rem;
 
@@ -45,16 +45,16 @@
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 25% 15%;
-    --sidebar-primary: 217 91% 55%;
+    --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 214 80% 96%;
-    --sidebar-accent-foreground: 217 70% 40%;
-    --sidebar-border: 214 25% 90%;
-    --sidebar-ring: 217 91% 55%;
+    --sidebar-accent: 239 60% 96%;
+    --sidebar-accent-foreground: 239 70% 40%;
+    --sidebar-border: 239 20% 90%;
+    --sidebar-ring: 239 84% 67%;
 
-    --step-active: 217 91% 55%;
+    --step-active: 239 84% 67%;
     --step-complete: 152 69% 40%;
-    --step-pending: 214 25% 85%;
+    --step-pending: 239 20% 85%;
 
     --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   }
@@ -66,27 +66,27 @@
     --card-foreground: 210 33% 98%;
     --popover: 215 25% 12%;
     --popover-foreground: 210 33% 98%;
-    --primary: 217 91% 60%;
+    --primary: 239 84% 72%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 30% 18%;
-    --secondary-foreground: 210 33% 90%;
-    --muted: 217 30% 18%;
-    --muted-foreground: 215 16% 60%;
-    --accent: 217 30% 18%;
-    --accent-foreground: 210 33% 90%;
+    --secondary: 239 30% 18%;
+    --secondary-foreground: 239 20% 90%;
+    --muted: 239 30% 18%;
+    --muted-foreground: 239 16% 60%;
+    --accent: 239 30% 18%;
+    --accent-foreground: 239 20% 90%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 33% 98%;
     --border: 217 30% 20%;
     --input: 217 30% 20%;
-    --ring: 217 91% 60%;
-    --sidebar-background: 215 25% 10%;
+    --ring: 239 84% 72%;
+    --sidebar-background: 239 25% 10%;
     --sidebar-foreground: 210 33% 98%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 239 84% 72%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 30% 18%;
-    --sidebar-accent-foreground: 210 33% 90%;
-    --sidebar-border: 217 30% 20%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 239 30% 18%;
+    --sidebar-accent-foreground: 239 20% 90%;
+    --sidebar-border: 239 30% 20%;
+    --sidebar-ring: 239 84% 72%;
   }
 }
 
@@ -104,5 +104,17 @@
 @layer utilities {
   .step-checkmark {
     @apply inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply backdrop-blur-md border shadow-lg;
+    background: hsla(0, 0%, 100%, 0.7);
+    border-color: hsla(0, 0%, 100%, 0.2);
+  }
+  .dark .glass {
+    background: hsla(0, 0%, 100%, 0.1);
+    border-color: hsla(0, 0%, 100%, 0.1);
   }
 }
