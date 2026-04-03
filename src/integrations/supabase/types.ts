@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_sends: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          lead_email: string
+          lead_name: string
+          sent_at: string | null
+          status: string
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          lead_email: string
+          lead_name?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          lead_email?: string
+          lead_name?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           created_at: string
@@ -51,6 +90,48 @@ export type Database = {
           niche?: string
           status?: string
           target_audience?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_email_settings: {
+        Row: {
+          created_at: string
+          email_address: string
+          id: string
+          is_connected: boolean
+          provider: string
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_username: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_address?: string
+          id?: string
+          is_connected?: boolean
+          provider?: string
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_username?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_address?: string
+          id?: string
+          is_connected?: boolean
+          provider?: string
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_username?: string
           updated_at?: string
           user_id?: string
         }
