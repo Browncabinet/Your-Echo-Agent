@@ -87,11 +87,13 @@ export default function Index() {
             </p>
           </div>
 
-          <div className="flex justify-center mb-10">
+          <div className="flex justify-center mb-8">
             <Button size="lg" onClick={startNewCampaign} className="gap-2 text-base px-8 py-6">
               <Plus className="w-5 h-5" /> New Campaign
             </Button>
           </div>
+
+          <QuickUpdateBar campaigns={campaigns} />
 
           {campaignsLoading && (
             <div className="flex justify-center py-8">
