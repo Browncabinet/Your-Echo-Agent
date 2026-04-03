@@ -22,6 +22,7 @@ export default function Index() {
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const updateCampaign = (updates: Partial<Campaign>) => {
     setCampaign((c) => ({ ...c, ...updates }));
