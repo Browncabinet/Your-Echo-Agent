@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Zap, ArrowLeft, ExternalLink } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
+import profileImg from "@/assets/profile-ladysoleil.png";
 
 export default function About() {
   const navigate = useNavigate();
@@ -27,32 +28,35 @@ export default function About() {
 
       <main className="container max-w-2xl mx-auto px-4 py-16">
         <Card className="p-8 md:p-10 glass space-y-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-            Hi, I'm{" "}
-            <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              @Ladysoleil
-            </a>{" "}
-            on X
-          </h2>
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+            <img
+              src={profileImg}
+              alt="Ladysoleil profile"
+              className="w-24 h-24 rounded-full object-cover border-2 border-primary/30 shrink-0"
+            />
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                Hi, I'm{" "}
+                <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  @Ladysoleil
+                </a>{" "}
+                on X
+              </h2>
+            </div>
+          </div>
 
           <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
             <p>
-              I'm a tech executive turned builder with 15+ years in PR and Business Development. Over the past few years I've launched more than 10 AI projects (yeah, I'm a bit obsessed).
-            </p>
-            <p>
-              Every single time I finish one — after all the late nights and money spent — I hit the same wall: I need to send a batch of test emails to potential clients. But the tools out there? Free to start… until you actually want to send anything meaningful. Then it's $50+/month minimum. With 10 projects? No way I could afford that without knowing if any would even gain traction.
+              I'm a tech executive turned builder with 15+ years in PR and Business Development. I've launched 10+ AI projects, and every time I finish one, I hit the same frustrating wall — needing to send test emails without getting price-gouged.
             </p>
             <p className="text-foreground font-medium">
-              So I built <span className="italic">Your Echo Agent</span> — an extension of your voice. It lets you paste your URL, find leads, craft personalized emails that actually sound like you, send them, and even help handle the replies. Basically, it echoes a part of you out into the world — kindly — so you can test the waters without breaking the bank.
+              So I built <span className="italic">Your Echo Agent</span> — an extension of your voice. Paste your URL, get personalized emails that actually sound like you, send them, and even handle replies. Perfect for testing the waters affordably.
             </p>
             <p>
-              If it starts getting bites? Cool — just add a little to cover costs and keep it running. I'm not here to gouge you.
+              If it gets bites, just add a little to cover costs. No gouging here.
             </p>
             <p>
-              I genuinely love AI and I love creators like you. We need to support each other. When you build with purpose and help others succeed, it comes back around.
-            </p>
-            <p className="text-foreground font-medium">
-              Thanks for stopping by on your journey. I want you to win. 💛
+              I love AI and I love creators. We need to support each other. 💛
             </p>
           </div>
 
@@ -62,13 +66,13 @@ export default function About() {
               <a href="https://tablecharts.co" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
                 Tablecharts.co
               </a>{" "}
-              — if you ever need beautiful charts, graphs, or data visualizations for presentations, pitch decks, or business partners, feel free to check it out.
+              — if you need clean, beautiful charts for presentations or pitch decks, feel free to check it out.
             </p>
             <p className="text-sm text-muted-foreground">
-              I've worked with celebs and big brands for years in PR and Marketing, so as Your Echo Agent grows, I'll keep adding the pieces that actually help you grow (smart email is just the start).
+              With years of PR & Marketing experience working with celebs and big brands, I'll keep growing Your Echo Agent into a real growth tool.
             </p>
             <p className="text-sm text-muted-foreground font-medium">
-              Ping me anytime if you run into issues or have suggestions — I'm always tweaking and improving based on real feedback. Let's build something that works. 🚀
+              Ping me anytime with issues or suggestions — I'm always improving it. Let's win together. 🚀
             </p>
             <a
               href="https://x.com/ladysoleil33"
