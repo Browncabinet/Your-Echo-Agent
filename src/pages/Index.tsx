@@ -9,10 +9,11 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard } from "lucide-react";
+import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useCampaigns } from "@/hooks/use-campaigns";
 
 type View = "home" | "campaign" | "dashboard" | "social";
 
@@ -20,7 +21,7 @@ export default function Index() {
   const [view, setView] = useState<View>("home");
   const [step, setStep] = useState(0);
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const { campaigns, loading: campaignsLoading, saveCampaign } = useCampaigns();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -34,10 +35,10 @@ export default function Index() {
     setView("campaign");
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const updated = { ...campaign, status: "active" as const };
-    setCampaigns((prev) => [...prev.filter((c) => c.id !== campaign.id), updated]);
     setCampaign(updated);
+    await saveCampaign(updated);
     setView("dashboard");
   };
 
@@ -88,6 +89,12 @@ export default function Index() {
               <Plus className="w-5 h-5" /> New Campaign
             </Button>
           </div>
+
+          {campaignsLoading && (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
 
           {campaigns.length > 0 && (
             <div className="space-y-4">
