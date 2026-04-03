@@ -29,7 +29,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
   // Auto-generate a search query suggestion based on campaign data
   const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
-    ? `${campaign.targetAudience.join(" ")} ${campaign.niche} email contact`
+    ? `${campaign.targetAudience.join(" ")} ${campaign.niche} directory contact list email`
     : "";
 
   const handleScrapeUrl = async () => {
@@ -76,8 +76,12 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   };
 
   const handleAutoSearch = async () => {
-    const query = searchQuery.trim() || suggestedQuery;
-    if (!query) return;
+    const rawQuery = searchQuery.trim() || suggestedQuery;
+    if (!rawQuery) return;
+    // Auto-append targeting keywords if not already present
+    const hasKeywords = /directory|contact|email|list/i.test(rawQuery);
+    const query = hasKeywords ? rawQuery : `${rawQuery} email contact directory`;
+    
     setLoading(true);
     setProgress(["Searching the web..."]);
 
@@ -93,6 +97,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
       const searchData = result.data || result;
       const results = searchData.data || searchData.results || [];
+      console.log("[LeadSearch] Raw search results:", results);
       const leads = extractLeadsFromSearchResults(results);
 
       setProgress((p) => [...p, "Extracting contacts ✓"]);
@@ -102,8 +107,8 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
         toast({ title: "Success!", description: `Found ${leads.length} contacts from search results.` });
       } else {
         toast({
-          title: "No contacts found",
-          description: "The search completed but no email addresses were found. Try a more specific query.",
+          title: `Searched ${results.length} pages — no emails found`,
+          description: "Try a more specific query like 'real estate agents Miami directory email' to target pages with contact info.",
           variant: "destructive",
         });
       }
@@ -153,7 +158,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
             <Label>Search for leads (we'll find contacts automatically)</Label>
             <div className="flex gap-2 mt-1.5">
               <Input
-                placeholder={suggestedQuery || "e.g. real estate agents in Miami email"}
+                placeholder={suggestedQuery || "e.g. real estate agents Miami contact email directory"}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
