@@ -72,6 +72,7 @@ export function createEmptyCampaign(): Campaign {
     id: generateId(),
     name: "",
     goal: "",
+    websiteUrl: "",
     niche: "",
     targetAudience: [],
     leads: [],

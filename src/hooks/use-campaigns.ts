@@ -26,6 +26,7 @@ function rowToCampaign(row: any): Campaign {
     id: row.id,
     name: row.name || "",
     goal: row.goal || "",
+    websiteUrl: row.website_url || "",
     niche: row.niche || "",
     targetAudience: (row.target_audience as string[]) || [],
     leads: (row.leads as any[]) || [],
