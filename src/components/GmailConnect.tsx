@@ -21,7 +21,7 @@ export function GmailConnect() {
     if (!user) return;
     supabase
       .from("user_email_settings")
-      .select("email_address, is_connected")
+      .select("email_address, is_connected, scheduling_link")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
