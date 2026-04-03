@@ -35,10 +35,10 @@ export default function Index() {
     setView("campaign");
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const updated = { ...campaign, status: "active" as const };
-    setCampaigns((prev) => [...prev.filter((c) => c.id !== campaign.id), updated]);
     setCampaign(updated);
+    await saveCampaign(updated);
     setView("dashboard");
   };
 
