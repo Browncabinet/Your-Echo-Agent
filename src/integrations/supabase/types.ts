@@ -98,13 +98,66 @@ export type Database = {
         }
         Relationships: []
       }
+      email_replies: {
+        Row: {
+          ai_draft_reply: string
+          ai_suggested_action: string
+          body: string
+          campaign_id: string
+          classification: string
+          created_at: string
+          id: string
+          lead_email: string
+          lead_name: string
+          received_at: string
+          sent_at: string | null
+          status: string
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          ai_draft_reply?: string
+          ai_suggested_action?: string
+          body?: string
+          campaign_id: string
+          classification?: string
+          created_at?: string
+          id?: string
+          lead_email: string
+          lead_name?: string
+          received_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          user_id: string
+        }
+        Update: {
+          ai_draft_reply?: string
+          ai_suggested_action?: string
+          body?: string
+          campaign_id?: string
+          classification?: string
+          created_at?: string
+          id?: string
+          lead_email?: string
+          lead_name?: string
+          received_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_email_settings: {
         Row: {
           created_at: string
           email_address: string
+          email_alerts_paused: boolean
           id: string
           is_connected: boolean
           provider: string
+          scheduling_link: string
           smtp_host: string
           smtp_password: string
           smtp_port: number
@@ -115,9 +168,11 @@ export type Database = {
         Insert: {
           created_at?: string
           email_address?: string
+          email_alerts_paused?: boolean
           id?: string
           is_connected?: boolean
           provider?: string
+          scheduling_link?: string
           smtp_host?: string
           smtp_password?: string
           smtp_port?: number
@@ -128,9 +183,11 @@ export type Database = {
         Update: {
           created_at?: string
           email_address?: string
+          email_alerts_paused?: boolean
           id?: string
           is_connected?: boolean
           provider?: string
+          scheduling_link?: string
           smtp_host?: string
           smtp_password?: string
           smtp_port?: number
