@@ -80,7 +80,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
       setProgress((p) => [...p, "Searching the web ✓", "Extracting contacts from results..."]);
 
       const searchData = result.data || result;
-      const results = searchData.data || searchData.results || [];
+      const results = Array.isArray(searchData) ? searchData : (searchData.data || searchData.results || []);
       const allLeads = extractLeadsFromSearchResults(results);
       const leads = allLeads.slice(0, selectedBatch);
 
