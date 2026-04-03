@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
 
-type View = "home" | "campaign" | "dashboard" | "social";
+type View = "home" | "campaign" | "dashboard" | "social" | "replies";
 
 export default function Index() {
   const [view, setView] = useState<View>("home");
