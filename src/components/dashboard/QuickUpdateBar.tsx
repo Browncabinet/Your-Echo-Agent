@@ -92,7 +92,7 @@ export function QuickUpdateBar({ campaigns }: QuickUpdateBarProps) {
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
-          className="pl-10"
+          className="pl-10 h-12 text-base"
         />
       </div>
 
