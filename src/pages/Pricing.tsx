@@ -190,7 +190,7 @@ export default function Pricing() {
 
               <Button
                 className="w-full"
-                variant={plan.highlighted ? "default" : "outline"}
+                variant={plan.highlighted ? "default" : "glass"}
                 onClick={() => navigate("/auth")}
               >
                 {plan.cta}
