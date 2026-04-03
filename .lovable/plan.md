@@ -1,42 +1,32 @@
 
 
-## Plan: Redesign Auth Page as a Simple Landing + Login
+## Plan: Indigo Color Scheme + Glassmorphism Touch-ups
 
-Transform the current plain login card into a split-layout page that briefly explains the service before asking users to sign in. Keep it minimal and jargon-free.
-
-### Layout
-
-```text
-┌─────────────────────────────────────────────┐
-│  Logo + Nav (Pricing link)                  │
-├──────────────────────┬──────────────────────┤
-│                      │                      │
-│  Hero text:          │   Login card         │
-│  "Find leads.        │   (Google + email)   │
-│   Send emails.       │                      │
-│   Grow your business."│                      │
-│                      │                      │
-│  3 simple bullets:   │                      │
-│  ✓ Scrape contacts   │                      │
-│  ✓ AI-written emails │                      │
-│  ✓ Track results     │                      │
-│                      │                      │
-│  "Starting at $0/mo" │                      │
-│                      │                      │
-├──────────────────────┴──────────────────────┤
-│  Footer: "The affordable outreach tool"     │
-└─────────────────────────────────────────────┘
-```
-
-On mobile (< 768px), stack vertically: hero text on top, login card below.
+Shift the primary color from blue to indigo and add glass-effect styling to buttons and cards across the app.
 
 ### Changes
 
-1. **`src/pages/Auth.tsx`** — Redesign into a two-column layout:
-   - **Left side**: Hero headline, 3 checkmark feature bullets (simple language), and a "Starting at $0/mo" note with link to pricing
-   - **Right side**: Existing login card (Google + email/password)
-   - Top nav bar with logo and "Pricing" link
-   - Responsive: stacks on mobile
+1. **`src/index.css`** — Update CSS variables
+   - Change `--primary` from `217 91% 55%` to `239 84% 67%` (indigo-500) in light mode
+   - Change dark mode primary to `239 84% 72%`
+   - Update `--ring`, `--secondary`, `--accent` to match indigo tones
+   - Add a `.glass` utility class: `backdrop-blur-md bg-white/70 border border-white/20 shadow-lg` (dark: `bg-white/10`)
 
-No new files needed. Just a visual redesign of the existing Auth page.
+2. **`src/components/ui/button.tsx`** — Add glass variant
+   - New `glass` variant: semi-transparent indigo background with backdrop-blur, subtle border, hover glow
+
+3. **`src/pages/Auth.tsx`** — Apply glass styling
+   - Login card gets glass effect (translucent background + blur)
+   - Sign-in buttons use the new glass look
+
+4. **`src/pages/Pricing.tsx`** — Apply glass styling
+   - Plan cards get subtle glass treatment
+   - CTA buttons use glass variant for non-highlighted plans, solid indigo for highlighted
+
+5. **`src/pages/Index.tsx`** — Update "Upgrade" button to glass variant
+
+### Technical notes
+- Indigo hue `239` replaces blue hue `217` throughout the CSS variable system
+- Glass effect uses `backdrop-filter: blur()` + semi-transparent backgrounds — supported in all modern browsers
+- Keeps DM Sans font and existing layout structure unchanged
 
