@@ -76,12 +76,14 @@ export default function Auth() {
           <Zap className="w-6 h-6 text-primary" />
           <span className="font-bold text-foreground text-lg">Your Echo Agent</span>
         </div>
-        <Link
-          to="/pricing"
-          className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-        >
-          Pricing
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Pricing
+          </Link>
+          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            About
+          </Link>
+        </div>
       </nav>
 
       {/* Main content */}

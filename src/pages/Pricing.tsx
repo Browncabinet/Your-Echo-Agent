@@ -118,7 +118,10 @@ export default function Pricing() {
             <Zap className="w-6 h-6 text-primary" />
             <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              About
+            </Link>
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </Button>
