@@ -3,8 +3,12 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, CheckCheck } from "lucide-react";
+import { ArrowLeft, Send, CheckCheck, Loader2 } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
+import { GmailConnect } from "@/components/GmailConnect";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   campaign: Campaign;
@@ -14,6 +18,8 @@ type Props = {
 };
 
 export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
+  const [sending, setSending] = useState(false);
+
   const toggleLead = (id: string) => {
     const leads = campaign.leads.map((l) =>
       l.id === id ? { ...l, approved: !l.approved } : l
@@ -30,6 +36,34 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
   const approvedCount = campaign.leads.filter((l) => l.approved).length;
   const allApproved = campaign.leads.length > 0 && campaign.leads.every((l) => l.approved);
 
+  const handleSendEmails = async () => {
+    setSending(true);
+    const approvedLeads = campaign.leads.filter((l) => l.approved);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("send-campaign-emails", {
+        body: {
+          campaign_id: campaign.id,
+          leads: approvedLeads,
+          emails: campaign.emails,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast.error(data.error);
+      } else {
+        toast.success(`Sent ${data.sent} emails! ${data.failed > 0 ? `${data.failed} failed.` : ""}`);
+        onSend();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send emails");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -38,6 +72,8 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
           Check the leads you want to send to. {approvedCount}/{campaign.leads.length} approved.
         </p>
       </div>
+
+      <GmailConnect />
 
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
@@ -83,9 +119,9 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
           <div className="text-sm">
             <p className="font-medium text-foreground">Safe Sending Defaults</p>
             <p className="text-muted-foreground mt-1">
-              • Rate limited to 15-20 emails/day for warmup<br />
-              • Auto-added unsubscribe link & physical address<br />
-              • Connect via SMTP or Gmail API in settings
+              • Rate limited to 15 emails per batch for warmup<br />
+              • 1-second delay between each send<br />
+              • Sends from your connected Gmail account
             </p>
           </div>
         </div>
@@ -95,8 +131,9 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> Back
         </Button>
-        <Button onClick={onSend} disabled={approvedCount === 0} size="lg" className="gap-2">
-          <Send className="w-4 h-4" /> Approve & Send ({approvedCount})
+        <Button onClick={handleSendEmails} disabled={approvedCount === 0 || sending} size="lg" className="gap-2">
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          {sending ? "Sending..." : `Approve & Send (${approvedCount})`}
         </Button>
       </div>
     </div>
