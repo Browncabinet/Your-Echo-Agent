@@ -48,6 +48,7 @@ export type Campaign = {
   id: string;
   name: string;
   goal: string;
+  websiteUrl: string;
   niche: string;
   targetAudience: string[];
   leads: Lead[];
