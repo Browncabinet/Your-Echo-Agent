@@ -196,10 +196,15 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
             Replies Inbox
           </h2>
           {lastChecked && (
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <button
+              onClick={handleCheckReplies}
+              disabled={checking}
+              className="text-xs text-muted-foreground mt-1 flex items-center gap-1 hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0"
+            >
               <Clock className="w-3 h-3" />
               Last checked: {new Date(lastChecked).toLocaleString()}
-            </p>
+              <RefreshCw className={`w-3 h-3 ml-0.5 ${checking ? "animate-spin" : ""}`} />
+            </button>
           )}
         </div>
         <div className="flex items-center gap-2">
