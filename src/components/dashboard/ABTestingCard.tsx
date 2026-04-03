@@ -95,7 +95,7 @@ function ABTestRow({
             <span className="text-sm text-foreground truncate max-w-[280px]">
               {email.subject}
             </span>
-            {winner === "A" && <Trophy className="w-3 h-3 text-yellow-500" />}
+            {winner === "A" && <Trophy className="w-3 h-3 text-warning" />}
           </div>
           <span className="text-xs font-medium text-muted-foreground">{aOpen}% open</span>
         </div>
