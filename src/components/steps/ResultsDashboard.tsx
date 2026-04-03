@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
+import { ABTestingCard } from "@/components/dashboard/ABTestingCard";
 
 type Props = {
   campaign: Campaign;
@@ -63,6 +64,10 @@ export function ResultsDashboard({ campaign, onBack }: Props) {
           <li>✓ Consider sending follow-up #{campaign.emails.length} to non-openers in 3 days.</li>
         </ul>
       </Card>
+
+
+      {/* A/B Testing comparison */}
+      <ABTestingCard campaign={campaign} />
 
       <Button variant="outline" onClick={onBack} className="gap-2">
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
