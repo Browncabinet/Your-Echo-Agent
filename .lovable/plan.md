@@ -1,41 +1,33 @@
 
 
-## Analysis: Gmail + Multi-Campaign Support
+## Plan: Add Contact List Size Selector with Helpful Guidance
 
-### Current State
-
-**Gmail:** Works with both personal Gmail AND Google Workspace accounts — App Passwords are supported on both. No Workspace requirement. The current flow (enter Gmail + App Password in the Review step) is universal.
-
-**Multiple campaigns:** Already supported. Users can create unlimited campaigns from the home page via "New Campaign," and each is saved independently to the database. However, there's **no "website URL" field** in the campaign setup — the user's own website is never captured, which means the AI can't personalize emails based on the sender's business.
-
-### What Needs to Change
-
-**1. Add a "Your Website URL" field to Campaign Setup**
-- Add an optional `websiteUrl` field to the `Campaign` type in `src/lib/campaign-data.ts`
-- Add a URL input in `src/components/steps/CampaignSetup.tsx` — "Your website (so the AI knows what you offer)"
-- This URL gets used later for AI personalization and auto-detecting what the user sells
-- Add `website_url` column to the `campaigns` database table
-
-**2. Support multiple website URLs per campaign (multi-product outreach)**
-- Instead of a single URL, allow a list of URLs (e.g., user has 5 apps and wants to run outreach for each)
-- Each URL maps to one campaign — the "New Campaign" button already handles this
-- Add a visual indicator on the home page showing which URL each campaign targets
-
-**3. Clarify Gmail works for everyone (no Workspace needed)**
-- Update the GmailConnect component copy: "Works with any Gmail or Google Workspace account"
-- Keep App Password approach — it's the simplest path that works universally
+There's no way for users to choose how many contacts to search for. Adding tiered blocks keeps costs predictable and guides new users to start small.
 
 ### Changes
 
-1. **`src/lib/campaign-data.ts`** — Add `websiteUrl: string` to the `Campaign` type and `createEmptyCampaign()`
+**`src/components/steps/LeadAcquisition.tsx`**
 
-2. **`src/components/steps/CampaignSetup.tsx`** — Add a "Your Website URL" input field below Campaign Goal, with helper text explaining it helps the AI personalize emails to match your business
+1. Add a **contact list size selector** above the search input — radio-style cards with tiers:
+   - **Starter (0–50)** — "Test your first batch of emails" — Free tier
+   - **Small (51–200)** — "Great for testing a campaign" — Free/Starter
+   - **Medium (201–500)** — "Solid outreach volume" — Growth tier
+   - **Large (501–2,000)** — "Scale your outreach" — Pro tier
 
-3. **`src/hooks/use-campaigns.ts`** — Map `websiteUrl` to/from the database `website_url` column
+2. Add a helpful info banner below the selector:
+   > "Start with a small batch to test your emails before scaling up. You can always add more contacts later."
 
-4. **Database migration** — Add `website_url text default ''` column to `campaigns` table
+3. Pass the selected limit to the search function — cap results to the chosen tier max (currently Firecrawl returns whatever it finds, so we slice results to the limit)
 
-5. **`src/components/GmailConnect.tsx`** — Update copy to clarify: "Works with personal Gmail or Google Workspace"
+4. Store selected batch size in campaign state so it persists across steps
 
-6. **`src/pages/Index.tsx`** — Show the website URL under each campaign card (e.g., "yourechoagent.com · Real Estate · 12 leads")
+**`src/lib/campaign-data.ts`**
+
+- Add `batchSize: number` field to `Campaign` type (default: `50`)
+- Update `createEmptyCampaign()` to include `batchSize: 50`
+
+### Technical notes
+- The Firecrawl search already returns a limited set of results; the batch size acts as a client-side cap on how many leads get stored
+- No database migration needed — `batchSize` is only used in the wizard flow and doesn't need persistence (campaigns already store leads directly)
+- Tier labels align with existing pricing tiers on the Pricing page
 
