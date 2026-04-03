@@ -17,7 +17,7 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
   const [customSub, setCustomSub] = useState("");
   const subcats = TARGET_AUDIENCES[campaign.niche] || [];
 
-  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience;
+  const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience.length > 0;
 
   return (
     <div className="space-y-6 max-w-xl">
