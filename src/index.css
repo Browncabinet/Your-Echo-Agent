@@ -45,12 +45,12 @@
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 25% 15%;
-    --sidebar-primary: 217 91% 55%;
+    --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 214 80% 96%;
-    --sidebar-accent-foreground: 217 70% 40%;
-    --sidebar-border: 214 25% 90%;
-    --sidebar-ring: 217 91% 55%;
+    --sidebar-accent: 239 60% 96%;
+    --sidebar-accent-foreground: 239 70% 40%;
+    --sidebar-border: 239 20% 90%;
+    --sidebar-ring: 239 84% 67%;
 
     --step-active: 239 84% 67%;
     --step-complete: 152 69% 40%;
