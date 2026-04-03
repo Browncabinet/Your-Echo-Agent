@@ -104,8 +104,8 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
                 className="pl-10"
               />
             </div>
-            {campaign.targetAudience && (
-              <p className="text-sm text-success font-medium">✓ Selected: {campaign.targetAudience}</p>
+            {campaign.targetAudience.length > 0 && (
+              <p className="text-sm text-success font-medium">✓ Selected: {campaign.targetAudience.join(", ")}</p>
             )}
           </div>
         )}
