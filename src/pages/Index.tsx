@@ -9,13 +9,14 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2 } from "lucide-react";
+import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2, Inbox } from "lucide-react";
+import { RepliesInbox } from "@/components/steps/RepliesInbox";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
 
-type View = "home" | "campaign" | "dashboard" | "social";
+type View = "home" | "campaign" | "dashboard" | "social" | "replies";
 
 export default function Index() {
   const [view, setView] = useState<View>("home");
@@ -135,6 +136,18 @@ export default function Index() {
                       onClick={(e) => {
                         e.stopPropagation();
                         setCampaign(c);
+                        setView("replies");
+                      }}
+                    >
+                      <Inbox className="w-3 h-3" /> Replies
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCampaign(c);
                         setView("social");
                       }}
                     >
@@ -159,13 +172,39 @@ export default function Index() {
               <Zap className="w-6 h-6 text-primary" />
               <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
             </div>
-            <Button variant="outline" size="sm" onClick={() => setView("social")} className="gap-1">
-              <Share2 className="w-3 h-3" /> Social Content
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setView("replies")} className="gap-1">
+                <Inbox className="w-3 h-3" /> Replies
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setView("social")} className="gap-1">
+                <Share2 className="w-3 h-3" /> Social Content
+              </Button>
+            </div>
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8">
           <ResultsDashboard campaign={campaign} onBack={() => setView("home")} />
+        </main>
+      </div>
+    );
+  }
+
+  if (view === "replies") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card">
+          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
+              <Zap className="w-6 h-6 text-primary" />
+              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+            </div>
+          </div>
+        </header>
+        <main className="container max-w-5xl mx-auto px-4 py-8">
+          <RepliesInbox
+            campaignId={campaign.id}
+            onBack={() => setView("dashboard")}
+          />
         </main>
       </div>
     );

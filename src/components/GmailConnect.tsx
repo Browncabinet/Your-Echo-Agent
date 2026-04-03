@@ -12,6 +12,7 @@ export function GmailConnect() {
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [appPassword, setAppPassword] = useState("");
+  const [schedulingLink, setSchedulingLink] = useState("");
   const [connected, setConnected] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -20,13 +21,14 @@ export function GmailConnect() {
     if (!user) return;
     supabase
       .from("user_email_settings")
-      .select("email_address, is_connected")
+      .select("email_address, is_connected, scheduling_link")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
           setEmail(data.email_address || "");
           setConnected(data.is_connected || false);
+          setSchedulingLink(data.scheduling_link || "");
         }
         setLoading(false);
       });
@@ -45,6 +47,7 @@ export function GmailConnect() {
         smtp_port: 587,
         smtp_username: email,
         smtp_password: appPassword,
+        scheduling_link: schedulingLink,
         is_connected: true,
         updated_at: new Date().toISOString(),
       },
@@ -121,6 +124,15 @@ export function GmailConnect() {
             placeholder="xxxx xxxx xxxx xxxx"
             value={appPassword}
             onChange={(e) => setAppPassword(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label className="text-xs">Scheduling Link (optional — used in AI reply drafts)</Label>
+          <Input
+            type="url"
+            placeholder="https://calendly.com/you"
+            value={schedulingLink}
+            onChange={(e) => setSchedulingLink(e.target.value)}
           />
         </div>
       </div>
