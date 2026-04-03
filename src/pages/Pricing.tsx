@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Zap, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 
 const plans = [
   {
