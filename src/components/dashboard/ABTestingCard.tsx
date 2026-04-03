@@ -128,4 +128,3 @@ function VariantLabel({ letter, subject }: { letter: string; subject?: string })
     </div>
   );
 }
-}
