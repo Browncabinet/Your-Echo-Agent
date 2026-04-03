@@ -28,33 +28,55 @@ export default function About() {
       <main className="container max-w-2xl mx-auto px-4 py-16">
         <Card className="p-8 md:p-10 glass space-y-6">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-            Why I Built This
+            Hi, I'm{" "}
+            <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              @Ladysoleil
+            </a>{" "}
+            on X
           </h2>
 
           <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
             <p>
-              I'm <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">@ladysoleil33</a> — a developer with 8 projects in the works. Five of them needed cold email outreach and some marketing to get off the ground.
+              I'm a tech executive turned builder with 15+ years in PR and Business Development. Over the past few years I've launched more than 10 AI projects (yeah, I'm a bit obsessed).
             </p>
             <p>
-              Every tool I found was $50/month <span className="italic">per app</span>. That's $250/month just to test ideas. When you're bootstrapping and just need to send a few emails to see if something sticks, that's way too much.
-            </p>
-            <p>
-              I couldn't find an AI vertical agent built specifically for cold emails — something simple, affordable, and actually useful for solo devs. So I built one.
+              Every single time I finish one — after all the late nights and money spent — I hit the same wall: I need to send a batch of test emails to potential clients. But the tools out there? Free to start… until you actually want to send anything meaningful. Then it's $50+/month minimum. With 10 projects? No way I could afford that without knowing if any would even gain traction.
             </p>
             <p className="text-foreground font-medium">
-              Your Echo Agent echoes <span className="italic">your</span> voice and <span className="italic">your</span> style into an AI agent that writes emails for you. It starts free, scales cheap, and gets out of your way so you can focus on building.
+              So I built <span className="italic">Your Echo Agent</span> — an extension of your voice. It lets you paste your URL, find leads, craft personalized emails that actually sound like you, send them, and even help handle the replies. Basically, it echoes a part of you out into the world — kindly — so you can test the waters without breaking the bank.
+            </p>
+            <p>
+              If it starts getting bites? Cool — just add a little to cover costs and keep it running. I'm not here to gouge you.
+            </p>
+            <p>
+              I genuinely love AI and I love creators like you. We need to support each other. When you build with purpose and help others succeed, it comes back around.
+            </p>
+            <p className="text-foreground font-medium">
+              Thanks for stopping by on your journey. I want you to win. 💛
             </p>
           </div>
 
-          <div className="pt-4 border-t border-border">
-            <p className="text-sm text-muted-foreground mb-3">Get in touch or follow the journey:</p>
+          <div className="pt-4 border-t border-border space-y-3">
+            <p className="text-sm text-muted-foreground">
+              P.S. I also own{" "}
+              <a href="https://tablecharts.co" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
+                Tablecharts.co
+              </a>{" "}
+              — if you ever need beautiful charts, graphs, or data visualizations for presentations, pitch decks, or business partners, feel free to check it out.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              I've worked with celebs and big brands for years in PR and Marketing, so as Your Echo Agent grows, I'll keep adding the pieces that actually help you grow (smart email is just the start).
+            </p>
+            <p className="text-sm text-muted-foreground font-medium">
+              Ping me anytime if you run into issues or have suggestions — I'm always tweaking and improving based on real feedback. Let's build something that works. 🚀
+            </p>
             <a
               href="https://x.com/ladysoleil33"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
             >
-              @ladysoleil33 on X <ExternalLink className="w-3.5 h-3.5" />
+              @Ladysoleil on X <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
         </Card>
