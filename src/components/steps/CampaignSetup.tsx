@@ -68,16 +68,25 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
             <Label>Target Audience</Label>
             {subcats.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {subcats.map((s) => (
-                  <Badge
-                    key={s}
-                    variant={campaign.targetAudience === s ? "default" : "outline"}
-                    className="cursor-pointer transition-all hover:scale-105"
-                    onClick={() => onUpdate({ targetAudience: s })}
-                  >
-                    {s}
-                  </Badge>
-                ))}
+                {subcats.map((s) => {
+                  const selected = campaign.targetAudience.includes(s);
+                  return (
+                    <Badge
+                      key={s}
+                      variant={selected ? "default" : "outline"}
+                      className="cursor-pointer transition-all hover:scale-105"
+                      onClick={() =>
+                        onUpdate({
+                          targetAudience: selected
+                            ? campaign.targetAudience.filter((a) => a !== s)
+                            : [...campaign.targetAudience, s],
+                        })
+                      }
+                    >
+                      {s}
+                    </Badge>
+                  );
+                })}
               </div>
             )}
             <div className="relative">
