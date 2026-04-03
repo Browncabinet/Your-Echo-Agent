@@ -136,6 +136,18 @@ export default function Index() {
                       onClick={(e) => {
                         e.stopPropagation();
                         setCampaign(c);
+                        setView("replies");
+                      }}
+                    >
+                      <Inbox className="w-3 h-3" /> Replies
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCampaign(c);
                         setView("social");
                       }}
                     >
