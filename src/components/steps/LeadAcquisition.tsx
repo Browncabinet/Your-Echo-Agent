@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, ArrowLeft, Loader2, Check, Link2 } from "lucide-react";
-import { type Campaign, generateSampleLeads } from "@/lib/campaign-data";
+import { ArrowRight, ArrowLeft, Loader2, Check, Link2, Search } from "lucide-react";
+import { type Campaign } from "@/lib/campaign-data";
+import { firecrawlApi, extractLeadsFromMarkdown, extractLeadsFromSearchResults } from "@/lib/api/firecrawl";
+import { useToast } from "@/components/ui/use-toast";
 
 type Props = {
   campaign: Campaign;
@@ -14,58 +16,176 @@ type Props = {
   onBack: () => void;
 };
 
+type Mode = "url" | "search";
+
 export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
+  const [mode, setMode] = useState<Mode>("search");
   const [url, setUrl] = useState("");
-  const [scraping, setScraping] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<string[]>([]);
   const [fields, setFields] = useState({ name: true, company: true, email: true, linkedin: false });
+  const { toast } = useToast();
 
-  const handleScrape = async () => {
+  // Auto-generate a search query suggestion based on campaign data
+  const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
+    ? `${campaign.targetAudience.join(" ")} ${campaign.niche} email contact`
+    : "";
+
+  const handleScrapeUrl = async () => {
     if (!url.trim()) return;
-    setScraping(true);
-    setProgress([]);
+    setLoading(true);
+    setProgress(["Scraping page..."]);
 
-    await new Promise((r) => setTimeout(r, 1200));
-    setProgress(["Finding leads..."]);
+    try {
+      const result = await firecrawlApi.scrape(url.trim());
 
-    await new Promise((r) => setTimeout(r, 1500));
-    setProgress((p) => [...p, "Finding leads ✓"]);
-    setProgress((p) => [...p, "Extracting data..."]);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to scrape page");
+      }
 
-    await new Promise((r) => setTimeout(r, 1800));
-    setProgress((p) => [...p, "Extracting data ✓"]);
+      setProgress((p) => [...p, "Scraping page ✓"]);
+      setProgress((p) => [...p, "Extracting contacts..."]);
 
-    const leads = generateSampleLeads(15);
-    onUpdate({ leads });
-    setScraping(false);
+      const markdown = result.data?.markdown || (result as any).markdown || "";
+      const leads = extractLeadsFromMarkdown(markdown);
+
+      setProgress((p) => [...p, "Extracting contacts ✓"]);
+
+      if (leads.length > 0) {
+        onUpdate({ leads });
+        toast({ title: "Success!", description: `Found ${leads.length} contacts from the page.` });
+      } else {
+        toast({
+          title: "No contacts found",
+          description: "We scraped the page but couldn't find email addresses. Try a different URL with listed contacts.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Scrape error:", error);
+      toast({
+        title: "Scraping failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+      setProgress([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAutoSearch = async () => {
+    const query = searchQuery.trim() || suggestedQuery;
+    if (!query) return;
+    setLoading(true);
+    setProgress(["Searching the web..."]);
+
+    try {
+      const result = await firecrawlApi.search(query);
+
+      if (!result.success) {
+        throw new Error(result.error || "Search failed");
+      }
+
+      setProgress((p) => [...p, "Searching the web ✓"]);
+      setProgress((p) => [...p, "Extracting contacts from results..."]);
+
+      const searchData = result.data || result;
+      const results = searchData.data || searchData.results || [];
+      const leads = extractLeadsFromSearchResults(results);
+
+      setProgress((p) => [...p, "Extracting contacts ✓"]);
+
+      if (leads.length > 0) {
+        onUpdate({ leads });
+        toast({ title: "Success!", description: `Found ${leads.length} contacts from search results.` });
+      } else {
+        toast({
+          title: "No contacts found",
+          description: "The search completed but no email addresses were found. Try a more specific query.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "Search failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+      setProgress([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="space-y-6 max-w-xl">
       <div>
         <h2 className="text-xl font-bold text-foreground">Find Your Leads</h2>
-        <p className="text-sm text-muted-foreground mt-1">Paste a URL and we'll extract contact info automatically.</p>
+        <p className="text-sm text-muted-foreground mt-1">Search the web or paste a URL to extract contact info automatically.</p>
+      </div>
+
+      {/* Mode toggle */}
+      <div className="flex gap-2">
+        <Button
+          variant={mode === "search" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("search")}
+          className="gap-2"
+        >
+          <Search className="w-4 h-4" /> Auto Search
+        </Button>
+        <Button
+          variant={mode === "url" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("url")}
+          className="gap-2"
+        >
+          <Link2 className="w-4 h-4" /> Paste URL
+        </Button>
       </div>
 
       <div className="space-y-4">
-        <div>
-          <Label>Paste a URL (directory, Google search, association page, etc.)</Label>
-          <div className="flex gap-2 mt-1.5">
-            <div className="relative flex-1">
-              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        {mode === "search" ? (
+          <div>
+            <Label>Search for leads (we'll find contacts automatically)</Label>
+            <div className="flex gap-2 mt-1.5">
               <Input
-                placeholder="https://example.com/directory"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="pl-10"
+                placeholder={suggestedQuery || "e.g. real estate agents in Miami email"}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
+              <Button onClick={handleAutoSearch} disabled={loading || (!searchQuery.trim() && !suggestedQuery)}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
+              </Button>
             </div>
-            <Button onClick={handleScrape} disabled={scraping || !url.trim()}>
-              {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scrape"}
-            </Button>
+            {suggestedQuery && !searchQuery && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Suggested: <button className="text-primary underline" onClick={() => setSearchQuery(suggestedQuery)}>{suggestedQuery}</button>
+              </p>
+            )}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Free version: up to 500 contacts</p>
-        </div>
+        ) : (
+          <div>
+            <Label>Paste a URL (directory, Google search, association page, etc.)</Label>
+            <div className="flex gap-2 mt-1.5">
+              <div className="relative flex-1">
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="https://example.com/directory"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button onClick={handleScrapeUrl} disabled={loading || !url.trim()}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scrape"}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {progress.length > 0 && (
           <Card className="p-4 space-y-2">
