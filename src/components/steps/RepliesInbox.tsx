@@ -258,12 +258,16 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       ) : filteredReplies.length === 0 ? (
-        <Card className="p-8 text-center">
-          <Inbox className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">
+        <Card className="p-10 text-center">
+          <Inbox className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-foreground font-medium mb-1">
+            {replies.length === 0 ? "No replies received yet" : "No replies match this filter"}
+          </p>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto">
             {replies.length === 0
-              ? 'No replies yet. Click "Check Replies Now" to fetch new replies.'
-              : "No replies match this filter."}
+              ? 'Send a campaign first, then click "Check Replies Now" to fetch incoming replies from your inbox.'
+              : "Try selecting a different classification filter above."}
+          </p>
           </p>
         </Card>
       ) : (
