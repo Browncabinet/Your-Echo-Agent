@@ -70,6 +70,9 @@ export function ResultsDashboard({ campaign, onBack }: Props) {
       {/* A/B Testing comparison */}
       <ABTestingCard campaign={campaign} />
 
+      {/* Weekly AI Insights */}
+      <WeeklyInsightsCard campaign={campaign} stats={stats} />
+
       <Button variant="outline" onClick={onBack} className="gap-2">
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
       </Button>
