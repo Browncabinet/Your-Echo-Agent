@@ -20,7 +20,7 @@ const creditPacks = [
     price: "$25",
     perEmail: "$0.014",
     label: "Growth",
-    description: "Perfect for solo founders",
+    description: "Send up to 1,800 emails",
     popular: false,
     badge: "Best Value",
   },
