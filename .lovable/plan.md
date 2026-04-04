@@ -1,37 +1,61 @@
 
 
-## Plan: Replace "credits" with "emails" Across the App
+## Plan: Improve Lead Search — More Results, Location Filter, Cleaner UX
 
-The pricing page was updated to say "emails" but several other places still say "credits." This creates confusion — users don't know what a "credit" is or when they need to pay.
+### Problems Identified
+
+1. **Too few leads**: Firecrawl search is limited to 10 results, and email extraction from generic web pages yields very few contacts. To find 50-200 leads, we need multiple search passes with varied queries and a higher per-search limit.
+
+2. **No location filter**: The search query has no geographic targeting. Users need to specify a city/state/country to find local leads.
+
+3. **Redundant UI**: "Auto Search" and "Paste URL" serve different purposes but the naming is confusing. Simplify labels and make the flow clearer.
 
 ### Changes
 
-**1. Welcome Modal** (`src/components/WelcomeModal.tsx`)
-- Line 38: "50 free credits included" → "50 free emails included"
-- Line 40: Keep "No credit card needed" (this refers to payment cards, not email credits)
+**File 1: `src/components/steps/LeadAcquisition.tsx`**
 
-**2. Navbar credit display** (`src/pages/Index.tsx`)
-- Line 92: `"credits"` → `"emails"`
+- Add a **Location** input field (e.g. "Miami, FL" or "California") above the search query
+- Rename mode buttons: "Auto Search" → "Smart Search", "Paste URL" → "Scrape a Page"
+- Inject location into the search query automatically (e.g. `"real estate agents Miami FL email contact directory"`)
+- Run **multiple search passes** (up to 3 rounds with varied queries) when the user wants 51+ contacts, accumulating unique leads until the batch target is reached or searches are exhausted
+- Show progress like "Round 1: found 12 leads… Round 2: found 28 leads…"
+- Pre-fill location from campaign data if available
 
-**3. Buy Credits Modal** (`src/components/BuyCreditsModal.tsx`)
-- Line 100: "Buy Email Credits" → "Buy Email Packs"
-- Line 104: "credits for this campaign" → "emails for this campaign"
-- Line 105: "credits remaining" → "emails remaining"
-- Line 199: "Buy Credits" button → "Buy Emails"
-- Line 225: "Credits never expire" → "Emails never expire"
+**File 2: `src/lib/api/firecrawl.ts`**
 
-**4. Review & Approval** (`src/components/steps/ReviewApproval.tsx`)
-- Line 157: "Not enough credits" → "Not enough emails"
-- Line 159: "credits but need" → "emails but need"
-- Line 163: "Buy Credits" button → "Buy Emails"
+- Update `search()` to accept `location` and `limit` parameters and pass them through
+- Increase default search limit from 10 to 20
 
-**5. Checkout Return** (`src/pages/CheckoutReturn.tsx`)
-- Line 28: "Credits Added!" → "Emails Added!"
-- Line 30: "Your email credits have been added" → "Your emails have been added"
-- Line 37: "your credits will appear" → "your emails will appear"
+**File 3: `supabase/functions/firecrawl-search/index.ts`**
 
-**6. Terms page** (`src/pages/Terms.tsx`)
-- Update "credit" references to "email" where it refers to the balance (keep "credit card" references)
+- Pass `location` / `country` options through to Firecrawl API (already partially supported via `country` param)
 
-This is a text-only change across 6 files — no logic changes.
+**File 4: `src/lib/campaign-data.ts`**
+
+- Add `location: string` field to `Campaign` type so it persists across steps
+
+**File 5: `src/components/steps/CampaignSetup.tsx`**
+
+- Add a "Target Location" input field to Campaign Setup so users can set it early
+
+### Multi-round search logic (in LeadAcquisition)
+
+```text
+Round 1: "{audience} {niche} {location} email contact directory"
+Round 2: "{audience} {niche} {location} list members"  
+Round 3: "{niche} {location} association directory emails"
+
+Each round: limit=20, accumulate unique emails
+Stop early if target batch size reached
+```
+
+### Summary
+
+| File | Change |
+|------|--------|
+| `src/lib/campaign-data.ts` | Add `location` field |
+| `src/components/steps/CampaignSetup.tsx` | Add location input |
+| `src/components/steps/LeadAcquisition.tsx` | Location filter, multi-round search, rename buttons |
+| `src/lib/api/firecrawl.ts` | Pass location/limit params |
+| `supabase/functions/firecrawl-search/index.ts` | Forward location to Firecrawl |
 
