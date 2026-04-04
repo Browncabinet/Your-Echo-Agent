@@ -10,11 +10,10 @@ import { useCredits } from "@/hooks/use-credits";
 import { Coins, Sparkles, Check, Calculator } from "lucide-react";
 
 const creditPacks = [
-  { priceId: "credits_250_onetime", credits: 250, price: 5, perEmail: "$0.020", popular: false, badge: null },
-  { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Popular" },
-  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: false, badge: null },
-  { priceId: "credits_4000_onetime", credits: 4000, price: 50, perEmail: "$0.013", popular: false, badge: "Best Value" },
-  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: null },
+  { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Starter", label: "Popular" },
+  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: true, badge: "Growth", label: "Most Common" },
+  { priceId: "credits_4000_onetime", credits: 4000, price: 50, perEmail: "$0.013", popular: false, badge: "Scale", label: null },
+  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: "Pro", label: "Best Value" },
 ];
 
 // Rate tiers for custom amounts (dollars → rate per email)
@@ -22,8 +21,7 @@ function getCustomRate(dollars: number): number {
   if (dollars >= 100) return 0.011;
   if (dollars >= 50) return 0.013;
   if (dollars >= 25) return 0.014;
-  if (dollars >= 10) return 0.017;
-  return 0.020;
+  return 0.017;
 }
 
 function getCustomCredits(dollars: number): number {
