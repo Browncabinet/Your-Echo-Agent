@@ -49,52 +49,6 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
           />
         </div>
 
-        <div className="space-y-3">
-          <div>
-            <Label>Key Selling Points</Label>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Add details you want included in your emails (e.g. features, benefits, offers). Press Enter to add.
-            </p>
-          </div>
-          <div className="relative">
-            <Plus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder='e.g. "AI-powered lead scoring saves 5 hours/week"'
-              value={sellingPointInput}
-              onChange={(e) => setSellingPointInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addSellingPoint();
-                }
-              }}
-              className="pl-10"
-              disabled={(campaign.sellingPoints?.length || 0) >= 5}
-            />
-          </div>
-          {(campaign.sellingPoints?.length || 0) > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {campaign.sellingPoints.map((point) => (
-                <Badge
-                  key={point}
-                  variant="default"
-                  className="gap-1 pr-1.5 cursor-default"
-                >
-                  {point}
-                  <button
-                    onClick={() => removeSellingPoint(point)}
-                    className="ml-1 rounded-full hover:bg-primary-foreground/20 p-0.5"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {campaign.sellingPoints?.length || 0}/5 points added
-          </p>
-        </div>
 
         <div>
           <Label htmlFor="websiteUrl">Your Website URL</Label>
