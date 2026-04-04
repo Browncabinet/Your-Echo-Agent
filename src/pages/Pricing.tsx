@@ -98,7 +98,7 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="container max-w-4xl mx-auto px-4 py-12">
+      <main className="container max-w-5xl mx-auto px-4 py-12">
         {/* Hero */}
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
