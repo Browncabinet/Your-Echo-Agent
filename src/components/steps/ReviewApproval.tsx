@@ -3,13 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, CheckCheck, Loader2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Send, CheckCheck, Loader2, AlertTriangle, ShieldCheck, Coins } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
 import { GmailConnect } from "@/components/GmailConnect";
+import { BuyCreditsModal } from "@/components/BuyCreditsModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/hooks/use-credits";
 
 type Props = {
   campaign: Campaign;
@@ -21,9 +23,11 @@ type Props = {
 export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
   const [sending, setSending] = useState(false);
   const [showLimitWarning, setShowLimitWarning] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [todaySendCount, setTodaySendCount] = useState(0);
   const [dailyLimit, setDailyLimit] = useState(500);
   const { user } = useAuth();
+  const { balance, refresh: refreshCredits } = useCredits();
 
   useEffect(() => {
     if (!user) return;
@@ -68,6 +72,10 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
   const isOverLimit = projectedTotal > dailyLimit;
 
   const attemptSend = () => {
+    if (balance < approvedCount) {
+      setShowCreditsModal(true);
+      return;
+    }
     if (isApproachingLimit) {
       setShowLimitWarning(true);
     } else {
@@ -168,6 +176,24 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
         </div>
       </Card>
 
+      {/* Credit balance info */}
+      {balance < approvedCount && (
+        <Card className="p-4 border-destructive/30 bg-destructive/5 space-y-2">
+          <div className="flex items-start gap-3">
+            <Coins className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+            <div className="text-sm space-y-1">
+              <p className="font-medium text-foreground">Not enough credits</p>
+              <p className="text-muted-foreground">
+                You have <strong className="text-foreground">{balance}</strong> credits but need <strong className="text-foreground">{approvedCount}</strong> to send this campaign.
+              </p>
+            </div>
+          </div>
+          <Button size="sm" onClick={() => setShowCreditsModal(true)} className="ml-8 gap-1.5">
+            <Coins className="w-3 h-3" /> Buy Credits
+          </Button>
+        </Card>
+      )}
+
       {/* Pre-send safety warning */}
       {showLimitWarning && (
         <Card className="p-4 border-warning/30 bg-warning/5 space-y-3">
@@ -209,6 +235,12 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
           {sending ? "Sending..." : `Approve & Send (${approvedCount})`}
         </Button>
       </div>
+
+      <BuyCreditsModal
+        open={showCreditsModal}
+        onOpenChange={setShowCreditsModal}
+        requiredCredits={approvedCount}
+      />
     </div>
   );
 }

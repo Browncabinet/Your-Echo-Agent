@@ -104,6 +104,36 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_purchases: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          credits_added: number
+          environment: string
+          id: string
+          stripe_session_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          credits_added: number
+          environment?: string
+          id?: string
+          stripe_session_id: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          credits_added?: number
+          environment?: string
+          id?: string
+          stripe_session_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_replies: {
         Row: {
           ai_draft_reply: string
@@ -151,6 +181,36 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          total_purchased: number
+          total_used: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_purchased?: number
+          total_used?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          total_purchased?: number
+          total_used?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

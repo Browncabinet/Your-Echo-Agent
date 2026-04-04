@@ -9,8 +9,11 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2, Inbox, Sparkles } from "lucide-react";
+import { Plus, Zap, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins } from "lucide-react";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
+import { useCredits } from "@/hooks/use-credits";
+import { BuyCreditsModal } from "@/components/BuyCreditsModal";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { RepliesInbox } from "@/components/steps/RepliesInbox";
 import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
 import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
@@ -27,9 +30,11 @@ export default function Index() {
   const [step, setStep] = useState(0);
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
   const [quickStartOpen, setQuickStartOpen] = useState(false);
+  const [buyCreditsOpen, setBuyCreditsOpen] = useState(false);
   const { campaigns, loading: campaignsLoading, saveCampaign } = useCampaigns();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { balance, loading: creditsLoading } = useCredits();
 
   const updateCampaign = (updates: Partial<Campaign>) => {
     setCampaign((c) => ({ ...c, ...updates }));
@@ -65,6 +70,7 @@ export default function Index() {
   if (view === "home") {
     return (
       <div className="min-h-screen bg-background">
+        <PaymentTestModeBanner />
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -72,9 +78,10 @@ export default function Index() {
               <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
             </div>
             <div className="flex items-center gap-3">
-              <p className="text-xs text-muted-foreground hidden sm:block">AI Marketing & Outreach</p>
-              <Button variant="glass" size="sm" onClick={() => navigate("/pricing")} className="gap-1 text-xs">
-                <CreditCard className="w-3 h-3" /> Upgrade
+              <Button variant="ghost" size="sm" onClick={() => setBuyCreditsOpen(true)} className="gap-1.5 text-xs">
+                <Coins className="w-3.5 h-3.5 text-primary" />
+                <span className="font-medium text-foreground">{creditsLoading ? "…" : balance}</span>
+                <span className="text-muted-foreground">credits</span>
               </Button>
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
@@ -198,6 +205,7 @@ export default function Index() {
           onOpenChange={setQuickStartOpen}
           onStartCampaign={handleQuickStart}
         />
+        <BuyCreditsModal open={buyCreditsOpen} onOpenChange={setBuyCreditsOpen} />
       </div>
     );
   }
