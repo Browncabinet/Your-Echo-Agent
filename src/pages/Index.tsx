@@ -239,6 +239,12 @@ export default function Index() {
             </div>
           )}
         </main>
+
+        <QuickStartModal
+          open={quickStartOpen}
+          onOpenChange={setQuickStartOpen}
+          onStartCampaign={handleQuickStart}
+        />
       </div>
     );
   }
