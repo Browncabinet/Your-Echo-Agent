@@ -123,10 +123,7 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="text-center py-4 text-xs text-muted-foreground border-t border-border">
-        The affordable outreach tool — built for developers
-      </footer>
+      <Footer />
     </div>
   );
 }
