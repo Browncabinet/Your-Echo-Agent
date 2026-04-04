@@ -6,24 +6,38 @@ import { Check, Zap, ArrowLeft, Coins, Sparkles } from "lucide-react";
 
 const creditPacks = [
   {
-    credits: 500,
-    price: "$10",
-    perEmail: "$0.02",
-    description: "Great for testing a new idea",
+    credits: 250,
+    price: "$5",
+    perEmail: "$0.020",
+    description: "Quick test run",
     popular: false,
   },
   {
-    credits: 1500,
-    price: "$25",
+    credits: 600,
+    price: "$10",
     perEmail: "$0.017",
-    description: "Perfect for solo founders",
+    description: "Great for testing ideas",
     popular: true,
+  },
+  {
+    credits: 1800,
+    price: "$25",
+    perEmail: "$0.014",
+    description: "Perfect for solo founders",
+    popular: false,
   },
   {
     credits: 4000,
     price: "$50",
     perEmail: "$0.013",
     description: "Scale your outreach",
+    popular: false,
+  },
+  {
+    credits: 9000,
+    price: "$100",
+    perEmail: "$0.011",
+    description: "Maximum value",
     popular: false,
   },
 ];
@@ -84,7 +98,7 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="container max-w-4xl mx-auto px-4 py-12">
+      <main className="container max-w-5xl mx-auto px-4 py-12">
         {/* Hero */}
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
@@ -99,7 +113,7 @@ export default function Pricing() {
         </div>
 
         {/* Credit Packs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
           {creditPacks.map((pack) => (
             <Card
               key={pack.credits}
