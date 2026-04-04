@@ -29,7 +29,7 @@ const creditPacks = [
     price: "$50",
     perEmail: "$0.013",
     label: "Scale",
-    description: "Scale your outreach",
+    description: "Send up to 4,000 emails",
     popular: false,
     badge: null,
   },
