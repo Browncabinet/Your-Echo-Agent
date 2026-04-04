@@ -90,8 +90,10 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
       if (leads.length > 0) {
         onUpdate({ leads });
+        setProgress([]);
         toast({ title: "Success!", description: `Found ${leads.length} contacts (capped at ${selectedBatch}).` });
       } else {
+        setProgress([]);
         toast({ title: `Searched ${results.length} pages — no emails found`, description: "Try a more specific query.", variant: "destructive" });
       }
     } catch (error) {
