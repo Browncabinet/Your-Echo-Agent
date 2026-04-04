@@ -9,9 +9,13 @@ const supabase = createClient(
 
 // Map price IDs to credit amounts
 const CREDIT_MAP: Record<string, number> = {
+  credits_250_onetime: 250,
   credits_500_onetime: 500,
+  credits_600_onetime: 600,
   credits_1500_onetime: 1500,
+  credits_1800_onetime: 1800,
   credits_4000_onetime: 4000,
+  credits_9000_onetime: 9000,
 };
 
 serve(async (req) => {

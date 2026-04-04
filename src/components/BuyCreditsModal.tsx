@@ -1,18 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/hooks/use-credits";
-import { Coins, Sparkles, Check } from "lucide-react";
+import { Coins, Sparkles, Check, Calculator } from "lucide-react";
 
 const creditPacks = [
-  { priceId: "credits_500_onetime", credits: 500, price: "$10", perEmail: "$0.02", popular: false },
-  { priceId: "credits_1500_onetime", credits: 1500, price: "$25", perEmail: "$0.017", popular: true },
-  { priceId: "credits_4000_onetime", credits: 4000, price: "$50", perEmail: "$0.013", popular: false },
+  { priceId: "credits_250_onetime", credits: 250, price: 5, perEmail: "$0.020", popular: false, badge: null },
+  { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Popular" },
+  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: false, badge: null },
+  { priceId: "credits_4000_onetime", credits: 4000, price: 50, perEmail: "$0.013", popular: false, badge: "Best Value" },
+  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: null },
 ];
+
+// Rate tiers for custom amounts (dollars → rate per email)
+function getCustomRate(dollars: number): number {
+  if (dollars >= 100) return 0.011;
+  if (dollars >= 50) return 0.013;
+  if (dollars >= 25) return 0.014;
+  if (dollars >= 10) return 0.017;
+  return 0.020;
+}
+
+function getCustomCredits(dollars: number): number {
+  return Math.floor(dollars / getCustomRate(dollars));
+}
 
 interface BuyCreditsModalProps {
   open: boolean;
@@ -24,6 +40,31 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
   const { user } = useAuth();
   const { balance } = useCredits();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+  const [customAmount, setCustomAmount] = useState("");
+
+  const customDollars = useMemo(() => {
+    const val = parseInt(customAmount, 10);
+    return isNaN(val) || val < 5 ? 0 : val;
+  }, [customAmount]);
+
+  const customCredits = useMemo(() => {
+    return customDollars > 0 ? getCustomCredits(customDollars) : 0;
+  }, [customDollars]);
+
+  const customRate = useMemo(() => {
+    return customDollars > 0 ? getCustomRate(customDollars).toFixed(3) : null;
+  }, [customDollars]);
+
+  // Find the best matching pack for custom amounts
+  const bestPackForCustom = useMemo(() => {
+    if (customDollars <= 0) return null;
+    // Find exact match first
+    const exact = creditPacks.find(p => p.price === customDollars);
+    if (exact) return exact;
+    // Find nearest pack at or below the amount
+    const sorted = [...creditPacks].sort((a, b) => b.price - a.price);
+    return sorted.find(p => p.price <= customDollars) || creditPacks[0];
+  }, [customDollars]);
 
   if (selectedPriceId) {
     return (
@@ -46,7 +87,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-primary" />
@@ -54,13 +95,14 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
           </DialogTitle>
           <DialogDescription>
             {requiredCredits
-              ? `You need ${requiredCredits} credits for this campaign. You currently have ${balance}.`
-              : `You have ${balance} credits remaining. Top up to keep sending.`
+              ? `You need ${requiredCredits.toLocaleString()} credits for this campaign. You currently have ${balance.toLocaleString()}.`
+              : `You have ${balance.toLocaleString()} credits remaining. Top up to keep sending.`
             }
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3 py-2">
+        {/* Credit packs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
           {creditPacks.map((pack) => (
             <Card
               key={pack.priceId}
@@ -69,8 +111,8 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               }`}
               onClick={() => setSelectedPriceId(pack.priceId)}
             >
-              {pack.popular && (
-                <Badge className="absolute -top-2 right-3 text-[10px]">Best Value</Badge>
+              {pack.badge && (
+                <Badge className="absolute -top-2 right-3 text-[10px]">{pack.badge}</Badge>
               )}
               <div className="flex items-center justify-between">
                 <div>
@@ -79,16 +121,72 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
                     {pack.credits.toLocaleString()} credits
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {pack.perEmail}/email · Send {pack.credits.toLocaleString()} personalized emails
+                    {pack.perEmail}/email
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-foreground">{pack.price}</p>
+                  <p className="text-lg font-bold text-foreground">${pack.price}</p>
                   <p className="text-[10px] text-muted-foreground">one-time</p>
                 </div>
               </div>
             </Card>
           ))}
+        </div>
+
+        {/* Custom top-up */}
+        <div className="border-t border-border pt-4 mt-1">
+          <p className="text-sm font-semibold text-foreground flex items-center gap-1.5 mb-3">
+            <Calculator className="w-4 h-4 text-primary" />
+            Custom Top-up
+          </p>
+          <div className="flex gap-3 items-start">
+            <div className="flex-1">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <Input
+                  type="number"
+                  min={5}
+                  placeholder="Enter amount"
+                  className="pl-7"
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">$5 minimum</p>
+            </div>
+            <Button
+              disabled={customDollars < 5}
+              onClick={() => {
+                if (!bestPackForCustom) return;
+                // For exact pack matches, use the pack priceId
+                const exactPack = creditPacks.find(p => p.price === customDollars);
+                if (exactPack) {
+                  setSelectedPriceId(exactPack.priceId);
+                } else {
+                  // For custom amounts, use the closest lower pack
+                  // In a production app you'd create a dynamic Stripe price
+                  // For now, suggest the nearest pack
+                  setSelectedPriceId(bestPackForCustom.priceId);
+                }
+              }}
+              className="shrink-0"
+            >
+              Buy Credits
+            </Button>
+          </div>
+          {customDollars >= 5 && (
+            <div className="mt-2 rounded-md bg-primary/5 border border-primary/10 p-3">
+              <p className="text-sm text-foreground font-medium">
+                ${customDollars} → ~{customCredits.toLocaleString()} emails
+                <span className="text-muted-foreground font-normal"> (${customRate}/email)</span>
+              </p>
+              {!creditPacks.find(p => p.price === customDollars) && bestPackForCustom && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  We'll use the <strong>${bestPackForCustom.price}</strong> pack ({bestPackForCustom.credits.toLocaleString()} credits) — the best match for your amount.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
