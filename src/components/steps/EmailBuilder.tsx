@@ -164,11 +164,14 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
             </div>
 
             <div>
-              <Label className="text-xs">Subject Line A</Label>
+              <div className="flex items-center gap-1.5">
+                <Label className="text-xs">Subject Line A</Label>
+                <Pencil className="w-3 h-3 text-muted-foreground" />
+              </div>
               <Input
                 value={email.subject}
                 onChange={(e) => updateEmail(email.id, { subject: e.target.value })}
-                className="mt-1"
+                className="mt-1 border-primary/15 focus:border-primary/40 bg-background"
               />
             </div>
 
