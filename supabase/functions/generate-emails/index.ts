@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { websiteUrl, goal, niche, targetAudience, leads } = await req.json();
+    const { websiteUrl, goal, niche, targetAudience, sellingPoints, leads } = await req.json();
 
     if (!goal || !leads || leads.length === 0) {
       return new Response(
