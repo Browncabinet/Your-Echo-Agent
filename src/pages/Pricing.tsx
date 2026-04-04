@@ -6,16 +6,10 @@ import { Check, Zap, ArrowLeft, Coins, Sparkles } from "lucide-react";
 
 const creditPacks = [
   {
-    credits: 250,
-    price: "$5",
-    perEmail: "$0.020",
-    description: "Quick test run",
-    popular: false,
-  },
-  {
     credits: 600,
     price: "$10",
     perEmail: "$0.017",
+    label: "Starter",
     description: "Great for testing ideas",
     popular: true,
   },
@@ -23,13 +17,15 @@ const creditPacks = [
     credits: 1800,
     price: "$25",
     perEmail: "$0.014",
+    label: "Growth",
     description: "Perfect for solo founders",
-    popular: false,
+    popular: true,
   },
   {
     credits: 4000,
     price: "$50",
     perEmail: "$0.013",
+    label: "Scale",
     description: "Scale your outreach",
     popular: false,
   },
@@ -37,6 +33,7 @@ const creditPacks = [
     credits: 9000,
     price: "$100",
     perEmail: "$0.011",
+    label: "Pro",
     description: "Maximum value",
     popular: false,
   },
