@@ -177,9 +177,8 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
               </Button>
               <Button variant="ghost" onClick={() => {
                 const c: Campaign = { ...createEmptyCampaign(), name: detected.name, goal: detected.goal, websiteUrl: url.trim(), niche: detected.niche, targetAudience: detected.targetAudience };
-                onStartCampaign({ ...c } as any);
-                // Override to go to step 0 (full form) by dispatching with status
-                setCampaign?.(c);
+                onStartCampaign(c, false);
+                setUrl(""); setPhase("input"); setDetected(null);
               }} className="flex-1 text-muted-foreground">
                 Use Full Form Instead
               </Button>
