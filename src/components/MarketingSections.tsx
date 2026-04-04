@@ -68,7 +68,8 @@ export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-}
+});
+FeaturesSection.displayName = "FeaturesSection";
 
 export function ComparisonSection() {
   return (
