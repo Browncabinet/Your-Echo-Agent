@@ -176,6 +176,24 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
         </div>
       </Card>
 
+      {/* Credit balance info */}
+      {balance < approvedCount && (
+        <Card className="p-4 border-destructive/30 bg-destructive/5 space-y-2">
+          <div className="flex items-start gap-3">
+            <Coins className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
+            <div className="text-sm space-y-1">
+              <p className="font-medium text-foreground">Not enough credits</p>
+              <p className="text-muted-foreground">
+                You have <strong className="text-foreground">{balance}</strong> credits but need <strong className="text-foreground">{approvedCount}</strong> to send this campaign.
+              </p>
+            </div>
+          </div>
+          <Button size="sm" onClick={() => setShowCreditsModal(true)} className="ml-8 gap-1.5">
+            <Coins className="w-3 h-3" /> Buy Credits
+          </Button>
+        </Card>
+      )}
+
       {/* Pre-send safety warning */}
       {showLimitWarning && (
         <Card className="p-4 border-warning/30 bg-warning/5 space-y-3">
@@ -217,6 +235,12 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
           {sending ? "Sending..." : `Approve & Send (${approvedCount})`}
         </Button>
       </div>
+
+      <BuyCreditsModal
+        open={showCreditsModal}
+        onOpenChange={setShowCreditsModal}
+        requiredCredits={approvedCount}
+      />
     </div>
   );
 }
