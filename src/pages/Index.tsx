@@ -304,6 +304,10 @@ export default function Index() {
             <div className="cursor-pointer" onClick={() => setView("home")}>
               <Logo />
             </div>
+            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")}>
+              <AvatarImage src={user?.user_metadata?.avatar_url} />
+              <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
+            </Avatar>
         </div>
       </header>
 
