@@ -63,8 +63,8 @@ const faqs = [
     a: "No. Your email balance never expires. Use them whenever you're ready.",
   },
   {
-    q: "Can I buy more credits anytime?",
-    a: "Absolutely. Purchase additional credit packs whenever you need them — no subscriptions, no lock-in.",
+    q: "Can I buy more emails anytime?",
+    a: "Absolutely. Purchase additional email packs whenever you need them — no subscriptions, no lock-in.",
   },
   {
     q: "Is there a free tier?",
