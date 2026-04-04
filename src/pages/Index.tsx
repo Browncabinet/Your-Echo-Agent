@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StepIndicator } from "@/components/StepIndicator";
@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
 import { QuickStartModal } from "@/components/QuickStartModal";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
 
@@ -35,7 +36,16 @@ export default function Index() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { balance, loading: creditsLoading } = useCredits();
+  const [showWelcome, setShowWelcome] = useState(false);
 
+  useEffect(() => {
+    if (!user) return;
+    const key = `echo_welcomed_${user.id}`;
+    if (!localStorage.getItem(key)) {
+      setShowWelcome(true);
+      localStorage.setItem(key, "1");
+    }
+  }, [user]);
   const updateCampaign = (updates: Partial<Campaign>) => {
     setCampaign((c) => ({ ...c, ...updates }));
   };
@@ -206,6 +216,11 @@ export default function Index() {
           onStartCampaign={handleQuickStart}
         />
         <BuyCreditsModal open={buyCreditsOpen} onOpenChange={setBuyCreditsOpen} />
+        <WelcomeModal
+          open={showWelcome}
+          onOpenChange={setShowWelcome}
+          onTryFastMode={() => { setShowWelcome(false); setQuickStartOpen(true); }}
+        />
       </div>
     );
   }
