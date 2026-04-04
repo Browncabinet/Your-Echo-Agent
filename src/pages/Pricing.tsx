@@ -124,9 +124,9 @@ export default function Pricing() {
                   : ""
               }`}
             >
-              {pack.popular && (
+              {pack.badge && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-                  {pack.label}
+                  {pack.badge}
                 </Badge>
               )}
 
