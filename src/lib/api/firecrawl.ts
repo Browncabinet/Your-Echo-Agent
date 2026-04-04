@@ -16,9 +16,9 @@ export const firecrawlApi = {
     return data;
   },
 
-  async search(query: string): Promise<FirecrawlResponse> {
+  async search(query: string, options?: { limit?: number; lang?: string; country?: string }): Promise<FirecrawlResponse> {
     const { data, error } = await supabase.functions.invoke('firecrawl-search', {
-      body: { query, options: { limit: 10 } },
+      body: { query, options: { limit: options?.limit || 20, lang: options?.lang, country: options?.country } },
     });
     if (error) return { success: false, error: error.message };
     return data;

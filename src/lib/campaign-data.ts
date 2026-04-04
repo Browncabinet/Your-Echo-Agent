@@ -50,6 +50,7 @@ export type Campaign = {
   goal: string;
   websiteUrl: string;
   niche: string;
+  location: string;
   targetAudience: string[];
   sellingPoints: string[];
   leads: Lead[];
@@ -83,6 +84,7 @@ export function createEmptyCampaign(): Campaign {
     goal: "",
     websiteUrl: "",
     niche: "",
+    location: "",
     targetAudience: [],
     sellingPoints: [],
     leads: [],
