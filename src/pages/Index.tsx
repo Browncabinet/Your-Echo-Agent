@@ -205,6 +205,7 @@ export default function Index() {
           onOpenChange={setQuickStartOpen}
           onStartCampaign={handleQuickStart}
         />
+        <BuyCreditsModal open={buyCreditsOpen} onOpenChange={setBuyCreditsOpen} />
       </div>
     );
   }
