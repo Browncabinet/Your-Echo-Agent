@@ -1,60 +1,29 @@
 
 
-# End-to-End Test Results
+# Code Review: Buy Credits Modal Issues
 
-## What was tested
-- Auth page (unauthenticated landing)
-- Pricing page
-- Comparison table ("Built Differently")
-- Code review of: App routing, ProtectedRoute, AuthContext, Index (dashboard), ReviewApproval, BuyCreditsModal, Stripe edge functions, CheckoutReturn, config.toml
+## Issues Found
 
-## Bugs Found
+### 1. CRITICAL — $15 Quick Top-up is deceptive
+The "+$15 → +1,000 emails" button maps to `credits_600_onetime` (the $10 pack). The user sees "$15 for 1,000 emails" but would actually be charged $10 and receive 600 credits. This is misleading and could erode trust.
 
-### 1. Pricing page shows subscription plans, but payment system uses pay-as-you-go credits (MISMATCH)
-The Pricing page (`/pricing`) displays $0/mo, $9/mo, $19/mo, $39/mo subscription tiers. But the actual implemented payment system is pay-as-you-go credits ($10 for 500, $25 for 1,500, $50 for 4,000). **Visitors will be confused** — the pricing page promises one model, the dashboard delivers another.
+**Fix**: Either remove the $15 button, or create a real $15 Stripe product. The simplest fix is to remove it and keep only the $10 and $25 quick top-ups that map to real products.
 
-**Fix**: Update the Pricing page to reflect the credit-based model, or add a credits section alongside the plans.
+### 2. MEDIUM — Custom amount falls back to nearest lower pack
+Entering $35 maps to the $25 pack — user pays $25, not $35. The UI shows a disclaimer, but it's still confusing. Without dynamic Stripe price creation, this is a limitation.
 
-### 2. Console warnings: "Function components cannot be given refs"
-Multiple components (`TrustSignals`, `FeaturesSection`, `ComparisonSection`) throw React ref warnings when rendered inside `Auth.tsx`. These are non-breaking but indicate they're being passed refs they can't handle.
+**Fix**: Make the custom amount section clearer — show "You'll be charged $25 for 1,800 credits" instead of showing "$35 → ~2,500 emails" and then a small note saying it'll actually use the $25 pack.
 
-**Fix**: Wrap these components with `React.forwardRef` or adjust how `Auth.tsx` renders them (likely a parent is passing a ref down).
+### 3. LOW — No back button from checkout
+Once Stripe checkout loads, user can only close the modal entirely. A back arrow would be better UX.
 
-### 3. `user_credits` table allows authenticated users to INSERT their own credits
-The RLS policy "Users can insert own credits" lets any logged-in user insert a `user_credits` row with any balance. Combined with the client-side code in `use-credits.tsx` that inserts `balance: 50` when no record exists, a malicious user could insert `balance: 999999`.
+## Proposed Changes
 
-**Fix**: Remove the INSERT policy for authenticated users. Use a database trigger or the service role (via the webhook) to create initial credit records instead.
+### File: `src/components/BuyCreditsModal.tsx`
+1. Remove the `QUICK_15` constant and its misleading $15 button
+2. Keep only `+$10` and `+$25` quick top-ups (both map to real products)
+3. In the custom amount section, when the entered amount doesn't match an exact pack, show the actual pack that will be used more prominently (not as a footnote)
+4. Add a "← Back" button in the checkout view so users can return to pack selection
 
-### 4. No `verify_jwt = false` for other edge functions that may need CORS
-Functions like `send-campaign-emails`, `track`, `firecrawl-scrape`, etc. are not in `config.toml`. If any are called from the browser, CORS preflight will fail. The `track` function (for open/click tracking) is especially critical since it's hit by email clients without auth.
-
-**Fix**: Add `verify_jwt = false` for the `track` edge function at minimum.
-
-### 5. CheckoutReturn page is not behind ProtectedRoute
-The `/checkout/return` route is public. While not a security issue (it just shows a success message), the `useCredits()` hook calls refresh which requires a user. If somehow accessed without auth, it may error silently.
-
-**Fix**: Minor — either wrap in ProtectedRoute or add a null check.
-
-### 6. Potential URL parsing crash in campaign list
-Line 153 in Index.tsx: `new URL(c.websiteUrl).hostname` — if `websiteUrl` is not a valid URL (e.g. missing protocol), this will throw and crash the component.
-
-**Fix**: Wrap in try/catch or use a safer parsing method.
-
-## Summary of Severity
-
-| Bug | Severity | User-facing? |
-|-----|----------|-------------|
-| Pricing page mismatch | **High** | Yes — misleads visitors |
-| Credits INSERT RLS vulnerability | **High** | Security risk |
-| URL parsing crash | **Medium** | Crashes dashboard if bad URL saved |
-| Track function JWT config | **Medium** | Breaks open/click tracking |
-| Console ref warnings | **Low** | No visible impact |
-| CheckoutReturn unprotected | **Low** | Edge case |
-
-## Recommended fix order
-1. Fix the credits INSERT RLS vulnerability (security)
-2. Update Pricing page to match credit system (user trust)
-3. Add `verify_jwt = false` for `track` function
-4. Add try/catch around URL parsing
-5. Fix ref warnings (cosmetic)
+No database or backend changes needed.
 
