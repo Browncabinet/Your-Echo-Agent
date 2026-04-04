@@ -48,10 +48,7 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <Zap className="w-6 h-6 text-primary" />
-          <span className="font-bold text-foreground text-lg">Your Echo Agent</span>
-        </div>
+        <Logo />
         <div className="flex items-center gap-4">
           <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Pricing

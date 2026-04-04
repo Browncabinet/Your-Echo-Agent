@@ -84,10 +84,7 @@ export default function Index() {
         <PaymentTestModeBanner />
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="w-6 h-6 text-primary" />
-              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
-            </div>
+            <Logo />
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => setBuyCreditsOpen(true)} className="gap-1.5 text-xs">
                 <Coins className="w-3.5 h-3.5 text-primary" />

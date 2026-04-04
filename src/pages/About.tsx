@@ -11,9 +11,8 @@ export default function About() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-            <Zap className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+          <div className="cursor-pointer" onClick={() => navigate("/")}>
+            <Logo />
           </div>
           <div className="flex items-center gap-3">
             <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
