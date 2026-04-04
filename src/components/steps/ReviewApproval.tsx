@@ -72,6 +72,10 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
   const isOverLimit = projectedTotal > dailyLimit;
 
   const attemptSend = () => {
+    if (balance < approvedCount) {
+      setShowCreditsModal(true);
+      return;
+    }
     if (isApproachingLimit) {
       setShowLimitWarning(true);
     } else {
