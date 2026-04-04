@@ -4,6 +4,7 @@ import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp } fr
 import { type Campaign } from "@/lib/campaign-data";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ABTestingCard } from "@/components/dashboard/ABTestingCard";
+import { WeeklyInsightsCard } from "@/components/dashboard/WeeklyInsightsCard";
 
 type Props = {
   campaign: Campaign;
@@ -68,6 +69,9 @@ export function ResultsDashboard({ campaign, onBack }: Props) {
 
       {/* A/B Testing comparison */}
       <ABTestingCard campaign={campaign} />
+
+      {/* Weekly AI Insights */}
+      <WeeklyInsightsCard campaign={campaign} stats={stats} />
 
       <Button variant="outline" onClick={onBack} className="gap-2">
         <ArrowLeft className="w-4 h-4" /> Back to Campaigns
