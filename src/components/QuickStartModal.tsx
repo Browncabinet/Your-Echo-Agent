@@ -171,9 +171,17 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
               </div>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button variant="outline" onClick={() => { setPhase("input"); setDetected(null); }} className="flex-1">
                 Try Another URL
+              </Button>
+              <Button variant="ghost" onClick={() => {
+                const c: Campaign = { ...createEmptyCampaign(), name: detected.name, goal: detected.goal, websiteUrl: url.trim(), niche: detected.niche, targetAudience: detected.targetAudience };
+                onStartCampaign({ ...c } as any);
+                // Override to go to step 0 (full form) by dispatching with status
+                setCampaign?.(c);
+              }} className="flex-1 text-muted-foreground">
+                Use Full Form Instead
               </Button>
               <Button onClick={handleConfirm} className="flex-1 gap-2">
                 Looks Good — Continue <ArrowRight className="w-4 h-4" />
