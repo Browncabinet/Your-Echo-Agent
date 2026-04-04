@@ -80,12 +80,16 @@ Rules:
 - No generic filler. Every sentence should add value.
 - Use a friendly, professional tone`;
 
+    const sellingPointsBlock = sellingPoints && sellingPoints.length > 0
+      ? `\n\nKEY SELLING POINTS TO INCLUDE (pick 2-3 as brief bullets or a short value proposition):\n${sellingPoints.map((p: string) => `• ${p}`).join("\n")}`
+      : "";
+
     const userPrompt = `Generate personalized cold email templates for the following campaign:
 
 CAMPAIGN GOAL: ${goal}
 NICHE: ${niche || "General"}
 TARGET AUDIENCE: ${(targetAudience || []).join(", ") || "Business professionals"}
-${businessContext}
+${businessContext}${sellingPointsBlock}
 
 LEADS TO PERSONALIZE FOR:
 ${leadsList}

@@ -84,6 +84,7 @@ export function createEmptyCampaign(): Campaign {
     websiteUrl: "",
     niche: "",
     targetAudience: [],
+    sellingPoints: [],
     leads: [],
     emails: [],
     batchSize: 50,
