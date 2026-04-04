@@ -4,6 +4,7 @@ import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp } fr
 import { type Campaign } from "@/lib/campaign-data";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ABTestingCard } from "@/components/dashboard/ABTestingCard";
+import { WeeklyInsightsCard } from "@/components/dashboard/WeeklyInsightsCard";
 
 type Props = {
   campaign: Campaign;
