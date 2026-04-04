@@ -160,6 +160,72 @@ export default function Index() {
             </div>
           </div>
 
+          {/* Comparison Table */}
+          <div className="pt-4">
+            <h3 className="text-center text-lg font-semibold text-foreground mb-2">
+              Built Differently
+            </h3>
+            <p className="text-center text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">
+              We built Your Echo Agent for creators and solo builders who want a full AI outreach agent without expensive commitments.
+            </p>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-3 font-medium text-muted-foreground w-[22%]">Feature</th>
+                    <th className="text-left py-3 px-3 font-medium text-foreground bg-primary/5 border-x border-primary/10 w-[22%]">Your Echo Agent</th>
+                    <th className="text-left py-3 px-3 font-medium text-muted-foreground w-[18%]">AutoGTM</th>
+                    <th className="text-left py-3 px-3 font-medium text-muted-foreground w-[20%]">Instantly / Smartlead</th>
+                    <th className="text-left py-3 px-3 font-medium text-muted-foreground w-[18%]">Apollo</th>
+                  </tr>
+                </thead>
+                <tbody className="text-xs">
+                  {[
+                    { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", a: "✅ Very fast drafts", b: "— List upload required", c: "— Manual setup" },
+                    { feature: "AI Research & Personalization", us: "✅ Reads your site + target sites", a: "✅ Strong deep research", b: "⚠️ Template + basic AI", c: "✅ Large database + signals" },
+                    { feature: "Sending Emails", us: "✅ Built-in sending", a: "❌ Drafts only", b: "✅ Strong sending", c: "✅ Good sending" },
+                    { feature: "Reply Handling", us: "✅ AI classifies + drafts replies", a: "— Limited", b: "⚠️ Basic sequences", c: "⚠️ Basic" },
+                    { feature: "Open & Click Tracking", us: "✅ Real-time + AI insights", a: "✅ Basic", b: "✅ Excellent", c: "✅ Excellent" },
+                    { feature: "Pricing Model", us: "🟢 Flexible – pay as you grow", a: "💰 Monthly subscription", b: "💰 $30–$300+/mo", c: "💰 $49+/mo+" },
+                    { feature: "Best For", us: "Solo builders & multiple small projects", a: "Teams wanting fast AI drafts", b: "High-volume sending teams", c: "Large sales teams" },
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b last:border-0">
+                      <td className="py-3 px-3 font-medium text-foreground">{row.feature}</td>
+                      <td className="py-3 px-3 bg-primary/5 border-x border-primary/10 text-foreground">{row.us}</td>
+                      <td className="py-3 px-3 text-muted-foreground">{row.a}</td>
+                      <td className="py-3 px-3 text-muted-foreground">{row.b}</td>
+                      <td className="py-3 px-3 text-muted-foreground">{row.c}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile stacked cards */}
+            <div className="md:hidden space-y-3">
+              {[
+                { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", others: "AutoGTM: ✅ Fast drafts · Instantly: — List upload · Apollo: — Manual" },
+                { feature: "AI Research & Personalization", us: "✅ Reads your site + target sites", others: "AutoGTM: ✅ Deep research · Instantly: ⚠️ Basic AI · Apollo: ✅ Large DB" },
+                { feature: "Sending Emails", us: "✅ Built-in sending", others: "AutoGTM: ❌ Drafts only · Instantly: ✅ Strong · Apollo: ✅ Good" },
+                { feature: "Reply Handling", us: "✅ AI classifies + drafts replies", others: "AutoGTM: — Limited · Instantly: ⚠️ Basic · Apollo: ⚠️ Basic" },
+                { feature: "Open & Click Tracking", us: "✅ Real-time + AI insights", others: "AutoGTM: ✅ Basic · Instantly: ✅ Excellent · Apollo: ✅ Excellent" },
+                { feature: "Pricing Model", us: "🟢 Flexible – pay as you grow", others: "AutoGTM: 💰 Monthly · Instantly: 💰 $30–$300+/mo · Apollo: 💰 $49+/mo" },
+                { feature: "Best For", us: "Solo builders & multiple small projects", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
+              ].map((row, i) => (
+                <Card key={i} className="p-4 space-y-2">
+                  <p className="text-xs font-semibold text-foreground">{row.feature}</p>
+                  <div className="rounded-md bg-primary/5 border border-primary/10 p-2">
+                    <p className="text-xs font-medium text-primary">Your Echo Agent</p>
+                    <p className="text-xs text-foreground">{row.us}</p>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{row.others}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+
           <QuickUpdateBar campaigns={campaigns} />
 
           {campaignsLoading && (
