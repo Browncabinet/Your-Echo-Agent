@@ -40,6 +40,13 @@ export default function Index() {
     setView("campaign");
   };
 
+  const handleQuickStart = (quickCampaign: Campaign) => {
+    setCampaign(quickCampaign);
+    setStep(1); // Skip setup, go straight to leads
+    setView("campaign");
+    setQuickStartOpen(false);
+  };
+
   const handleSend = async () => {
     const updated = { ...campaign, status: "active" as const };
     setCampaign(updated);
