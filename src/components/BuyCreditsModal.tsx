@@ -143,17 +143,17 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
                 <Input
                   type="number"
-                  min={5}
+                  min={10}
                   placeholder="Enter amount"
                   className="pl-7"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                 />
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">$5 minimum</p>
+              <p className="text-[11px] text-muted-foreground mt-1">$10 minimum</p>
             </div>
             <Button
-              disabled={customDollars < 5}
+              disabled={customDollars < 10}
               onClick={() => {
                 if (!bestPackForCustom) return;
                 // For exact pack matches, use the pack priceId
