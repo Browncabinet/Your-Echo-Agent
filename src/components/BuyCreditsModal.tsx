@@ -70,8 +70,15 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
       <Dialog open={open} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); onOpenChange(o); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Complete Purchase</DialogTitle>
-            <DialogDescription>Secure checkout powered by Stripe</DialogDescription>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedPriceId(null)}>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div>
+                <DialogTitle>Complete Purchase</DialogTitle>
+                <DialogDescription>Secure checkout powered by Stripe</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <StripeEmbeddedCheckout
             priceId={selectedPriceId}
