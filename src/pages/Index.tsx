@@ -156,9 +156,15 @@ export default function Index() {
             </div>
           )}
 
+          {!campaignsLoading && campaigns.length === 0 && (
+            <Card className="p-8 text-center border-dashed">
+              <p className="text-muted-foreground text-sm">No campaigns yet. Create your first one above.</p>
+            </Card>
+          )}
+
           {campaigns.length > 0 && (
             <div className="space-y-4">
-              <h3 className="font-semibold text-foreground">Your Campaigns</h3>
+              <h3 className="font-semibold text-foreground">Your Recent Campaigns</h3>
               {campaigns.map((c) => (
                 <Card
                   key={c.id}
