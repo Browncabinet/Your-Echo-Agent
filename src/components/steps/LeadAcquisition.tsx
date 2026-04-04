@@ -4,10 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ArrowRight, ArrowLeft, Loader2, Check, Link2, Search, Info, MapPin, ChevronDown } from "lucide-react";
+import { ArrowRight, ArrowLeft, Loader2, Check, Link2, Search, Info, MapPin, ChevronDown, X, Plus, Sparkles } from "lucide-react";
 import { type Campaign, BATCH_TIERS } from "@/lib/campaign-data";
 import { firecrawlApi, extractLeadsFromMarkdown, extractLeadsFromSearchResults } from "@/lib/api/firecrawl";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { type Lead } from "@/lib/campaign-data";
 
@@ -26,9 +28,11 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   const [progress, setProgress] = useState<string[]>([]);
   const [fields, setFields] = useState({ name: true, company: true, email: true, linkedin: false });
   const [scrapeOpen, setScrapeOpen] = useState(false);
+  const [newPointInput, setNewPointInput] = useState("");
   const { toast } = useToast();
 
   const selectedBatch = campaign.batchSize || 50;
+  const sellingPoints = campaign.sellingPoints || [];
 
   const buildQuery = (base: string) => {
     const loc = location.trim();
@@ -38,6 +42,57 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
     ? `${campaign.targetAudience.join(" ")} ${campaign.niche} directory contact list email`
     : "";
+
+  const removeSellingPoint = (point: string) => {
+    onUpdate({ sellingPoints: sellingPoints.filter((p) => p !== point) });
+  };
+
+  const addSellingPoint = () => {
+    const point = newPointInput.trim();
+    if (point && !sellingPoints.includes(point) && sellingPoints.length < 5) {
+      onUpdate({ sellingPoints: [...sellingPoints, point] });
+      setNewPointInput("");
+    }
+  };
+
+  const extractSellingPoints = async (): Promise<boolean> => {
+    if (!campaign.websiteUrl) return true;
+    if (sellingPoints.length > 0) return true;
+
+    setProgress((p) => [...p, "Analyzing your website..."]);
+
+    try {
+      const scrapeResult = await firecrawlApi.scrape(campaign.websiteUrl);
+      if (!scrapeResult.success) {
+        setProgress((p) => [...p, "Website analysis skipped (couldn't reach site) ✓"]);
+        return true;
+      }
+
+      const summary = scrapeResult.data?.summary || scrapeResult.data?.markdown?.slice(0, 2000) || (scrapeResult as any).summary || (scrapeResult as any).markdown?.slice(0, 2000) || "";
+
+      if (!summary) {
+        setProgress((p) => [...p, "Website analysis skipped (no content found) ✓"]);
+        return true;
+      }
+
+      const { data, error } = await supabase.functions.invoke('extract-selling-points', {
+        body: { summary, niche: campaign.niche, goal: campaign.goal },
+      });
+
+      if (error || !data?.success) {
+        setProgress((p) => [...p, "Website analysis skipped ✓"]);
+        return true;
+      }
+
+      onUpdate({ sellingPoints: data.sellingPoints });
+      setProgress((p) => [...p, `Found ${data.sellingPoints.length} selling points from your website ✓`]);
+      return true;
+    } catch (err) {
+      console.error("Selling points extraction error:", err);
+      setProgress((p) => [...p, "Website analysis skipped ✓"]);
+      return true;
+    }
+  };
 
   const handleScrapeUrl = async () => {
     if (!url.trim()) return;
@@ -75,11 +130,17 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
     if (!rawQuery) return;
 
     setLoading(true);
-    setProgress(["Starting smart search..."]);
+    setProgress([]);
 
     if (location.trim()) {
       onUpdate({ location: location.trim() });
     }
+
+    // Step 1: Auto-extract selling points from website
+    await extractSellingPoints();
+
+    // Step 2: Search for leads
+    setProgress((prev) => [...prev, "Starting smart search..."]);
 
     const seenEmails = new Set<string>();
     let allLeads: Lead[] = [];
@@ -249,6 +310,44 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
               </div>
             ))}
           </Card>
+        )}
+
+        {/* Selling Points — shown after extraction */}
+        {sellingPoints.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <Label className="text-sm font-semibold">Selling Points (from your website)</Label>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {sellingPoints.map((point) => (
+                <Badge key={point} variant="default" className="gap-1 pr-1.5 cursor-default">
+                  {point}
+                  <button
+                    onClick={() => removeSellingPoint(point)}
+                    className="ml-1 rounded-full hover:bg-primary-foreground/20 p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+              {sellingPoints.length < 5 && (
+                <div className="flex items-center gap-1">
+                  <Input
+                    placeholder="Add a point..."
+                    value={newPointInput}
+                    onChange={(e) => setNewPointInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSellingPoint(); } }}
+                    className="h-7 w-40 text-xs"
+                  />
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={addSellingPoint} disabled={!newPointInput.trim()}>
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">These will be used to personalize your emails. Click ✕ to remove or add your own.</p>
+          </div>
         )}
 
         {/* Data fields */}
