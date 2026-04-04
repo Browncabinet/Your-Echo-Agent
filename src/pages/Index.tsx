@@ -40,9 +40,9 @@ export default function Index() {
     setView("campaign");
   };
 
-  const handleQuickStart = (quickCampaign: Campaign) => {
+  const handleQuickStart = (quickCampaign: Campaign, skipSetup = true) => {
     setCampaign(quickCampaign);
-    setStep(1); // Skip setup, go straight to leads
+    setStep(skipSetup ? 1 : 0);
     setView("campaign");
     setQuickStartOpen(false);
   };
