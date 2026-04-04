@@ -16,6 +16,9 @@ import {
   AlertTriangle,
   Zap,
   Building2,
+  Lightbulb,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 export function GmailConnect() {
@@ -27,11 +30,11 @@ export function GmailConnect() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [todaySendCount, setTodaySendCount] = useState(0);
+  const [tipsOpen, setTipsOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
 
-    // Fetch settings and today's send count in parallel
     Promise.all([
       supabase
         .from("user_email_settings")
@@ -141,7 +144,7 @@ export function GmailConnect() {
           {usagePercent > 80 && (
             <p className="text-[11px] text-destructive flex items-center gap-1">
               <AlertTriangle className="w-3 h-3" />
-              Approaching daily limit — consider spacing sends across days
+              You're getting close to your daily limit — consider spacing sends across days
             </p>
           )}
         </div>
@@ -151,14 +154,17 @@ export function GmailConnect() {
           <div className="rounded-lg border border-primary/10 bg-primary/5 p-3 text-xs text-muted-foreground space-y-1">
             <div className="flex items-center gap-1.5 text-primary font-medium">
               <Building2 className="w-3.5 h-3.5" />
-              Upgrade to Google Workspace for better results
+              Tip: Google Workspace unlocks better results
             </div>
             <p>
-              Personal Gmail has a 500 email/day limit. Google Workspace gives you up to 2,000/day, plus better
-              deliverability and a professional sender address.
+              Personal Gmail allows ~500 emails/day. With Google Workspace you get up to 2,000/day, 
+              better deliverability, and a professional sender address that builds trust.
             </p>
           </div>
         )}
+
+        {/* Deliverability tips (collapsible) */}
+        <DeliverabilityTips open={tipsOpen} onToggle={() => setTipsOpen(!tipsOpen)} />
       </Card>
     );
   }
@@ -173,11 +179,11 @@ export function GmailConnect() {
         </span>
       </div>
 
-      {/* Sending limits info */}
+      {/* Sending limits info — friendly tone */}
       <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs space-y-2">
         <div className="flex items-center gap-1.5 text-warning font-medium">
-          <AlertTriangle className="w-3.5 h-3.5" />
-          Important: Gmail sending limits
+          <ShieldCheck className="w-3.5 h-3.5" />
+          Good to know: Gmail sending limits
         </div>
         <div className="grid grid-cols-2 gap-2 text-muted-foreground">
           <div className="flex items-center gap-1.5">
@@ -190,7 +196,8 @@ export function GmailConnect() {
           </div>
         </div>
         <p className="text-muted-foreground">
-          Start with small batches (15–20/day) to warm up your account and avoid spam flags.
+          We recommend starting with small batches (15–20/day) to warm up your account. 
+          Your Echo Agent handles pacing automatically — just connect and we'll take care of the rest.
         </p>
       </div>
 
@@ -252,14 +259,58 @@ export function GmailConnect() {
         {saving ? "Connecting..." : "Connect Gmail"}
       </Button>
 
+      {/* Deliverability tips */}
+      <DeliverabilityTips open={tipsOpen} onToggle={() => setTipsOpen(!tipsOpen)} />
+
       {/* Future ESP note */}
       <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground flex items-start gap-2">
         <Zap className="w-3.5 h-3.5 mt-0.5 shrink-0" />
         <p>
-          <strong className="text-foreground">Scaling up?</strong> For high-volume campaigns, we'll soon support
-          dedicated email providers like SendGrid and Resend for better deliverability and higher limits.
+          <strong className="text-foreground">Planning to scale up?</strong> We're working on adding support 
+          for dedicated email providers like SendGrid and Resend — for even higher volume and better deliverability. Stay tuned!
         </p>
       </div>
     </Card>
+  );
+}
+
+function DeliverabilityTips({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/30 overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-3 text-xs font-medium text-foreground hover:bg-muted/50 transition-colors"
+      >
+        <span className="flex items-center gap-1.5">
+          <Lightbulb className="w-3.5 h-3.5 text-primary" />
+          Deliverability Tips — Send like a pro
+        </span>
+        {open ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="px-3 pb-3 text-xs text-muted-foreground space-y-2">
+          <div className="flex items-start gap-2">
+            <span className="text-primary font-bold mt-px">1.</span>
+            <p><strong className="text-foreground">Warm up gradually.</strong> Start with 15–20 emails/day for the first week, then increase slowly. This builds trust with Gmail's spam filters.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-primary font-bold mt-px">2.</span>
+            <p><strong className="text-foreground">Write like a human.</strong> Avoid ALL CAPS, excessive exclamation marks, and spammy phrases like "Act now!" or "Limited time offer!!!" — keep it conversational.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-primary font-bold mt-px">3.</span>
+            <p><strong className="text-foreground">Always include an unsubscribe option.</strong> Your Echo Agent adds one automatically, but it's also good practice and legally required in many countries.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-primary font-bold mt-px">4.</span>
+            <p><strong className="text-foreground">Personalize every email.</strong> Generic blasts get flagged. The more personal and relevant your outreach, the better your deliverability.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-primary font-bold mt-px">5.</span>
+            <p><strong className="text-foreground">Keep your list clean.</strong> Remove bounced or invalid emails promptly. High bounce rates hurt your sender reputation.</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

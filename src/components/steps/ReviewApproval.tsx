@@ -3,12 +3,13 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, CheckCheck, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, CheckCheck, Loader2, AlertTriangle, ShieldCheck } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
 import { GmailConnect } from "@/components/GmailConnect";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Props = {
   campaign: Campaign;
@@ -19,6 +20,33 @@ type Props = {
 
 export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
   const [sending, setSending] = useState(false);
+  const [showLimitWarning, setShowLimitWarning] = useState(false);
+  const [todaySendCount, setTodaySendCount] = useState(0);
+  const [dailyLimit, setDailyLimit] = useState(500);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      supabase
+        .from("campaign_sends")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "sent")
+        .gte("sent_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
+      supabase
+        .from("user_email_settings")
+        .select("email_address")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]).then(([sendsRes, settingsRes]) => {
+      const count = sendsRes.count || 0;
+      setTodaySendCount(count);
+      const emailAddr = settingsRes.data?.email_address || "";
+      const isWs = emailAddr.includes("@") && !emailAddr.endsWith("@gmail.com");
+      setDailyLimit(isWs ? 2000 : 500);
+    });
+  }, [user]);
 
   const toggleLead = (id: string) => {
     const leads = campaign.leads.map((l) =>
@@ -35,8 +63,20 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
 
   const approvedCount = campaign.leads.filter((l) => l.approved).length;
   const allApproved = campaign.leads.length > 0 && campaign.leads.every((l) => l.approved);
+  const projectedTotal = todaySendCount + approvedCount;
+  const isApproachingLimit = projectedTotal > dailyLimit * 0.8;
+  const isOverLimit = projectedTotal > dailyLimit;
+
+  const attemptSend = () => {
+    if (isApproachingLimit) {
+      setShowLimitWarning(true);
+    } else {
+      handleSendEmails();
+    }
+  };
 
   const handleSendEmails = async () => {
+    setShowLimitWarning(false);
     setSending(true);
     const approvedLeads = campaign.leads.filter((l) => l.approved);
 
@@ -121,17 +161,50 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
             <p className="text-muted-foreground mt-1">
               • Rate limited to 15 emails per batch for warmup<br />
               • 1-second delay between each send<br />
+              • Unsubscribe link included automatically<br />
               • Sends from your connected Gmail account
             </p>
           </div>
         </div>
       </Card>
 
+      {/* Pre-send safety warning */}
+      {showLimitWarning && (
+        <Card className="p-4 border-warning/30 bg-warning/5 space-y-3">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-warning mt-0.5 shrink-0" />
+            <div className="text-sm space-y-1">
+              <p className="font-medium text-foreground">
+                {isOverLimit ? "This would exceed your daily limit" : "You're approaching your daily limit"}
+              </p>
+              <p className="text-muted-foreground">
+                You've sent <strong className="text-foreground">{todaySendCount}</strong> emails today. 
+                Sending <strong className="text-foreground">{approvedCount}</strong> more would bring your total 
+                to <strong className="text-foreground">{projectedTotal}</strong> out of your <strong className="text-foreground">{dailyLimit}</strong>/day limit.
+              </p>
+              <p className="text-muted-foreground">
+                {isOverLimit 
+                  ? "Exceeding your limit can temporarily suspend your Gmail sending. We recommend reducing the batch size or waiting until tomorrow." 
+                  : "To keep your account safe, consider sending fewer emails now and spacing the rest across days."}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 ml-8">
+            <Button variant="outline" size="sm" onClick={() => setShowLimitWarning(false)}>
+              Reduce volume
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSendEmails} className="text-muted-foreground">
+              <ShieldCheck className="w-3 h-3 mr-1" /> Proceed anyway
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> Back
         </Button>
-        <Button onClick={handleSendEmails} disabled={approvedCount === 0 || sending} size="lg" className="gap-2">
+        <Button onClick={attemptSend} disabled={approvedCount === 0 || sending} size="lg" className="gap-2">
           {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           {sending ? "Sending..." : `Approve & Send (${approvedCount})`}
         </Button>
