@@ -10,7 +10,7 @@ import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onStartCampaign: (campaign: Campaign) => void;
+  onStartCampaign: (campaign: Campaign, skipSetup?: boolean) => void;
 };
 
 type DetectedData = {
