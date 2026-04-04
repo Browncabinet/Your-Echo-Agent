@@ -24,7 +24,7 @@ const mobileComparisonRows = [
 
 export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div className="mb-14">
+    <div ref={ref} className="mb-14">
       <h3 className="text-center text-lg font-semibold text-foreground mb-6">
         How Your Echo Agent Works
       </h3>
