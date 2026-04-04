@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/hooks/use-credits";
-import { Coins, Sparkles, Check, Calculator, Plus } from "lucide-react";
+import { Coins, Sparkles, Check, Calculator, Plus, ArrowLeft } from "lucide-react";
 
 const creditPacks = [
   { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Starter", label: "Popular" },
