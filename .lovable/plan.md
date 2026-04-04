@@ -1,72 +1,41 @@
 
 
-## Phase 1: QuickUpdateBar + CampaignQuickSummary
+# Fix: Make comparison table visible to all visitors
 
-### 1. Edge Function: `supabase/functions/campaign-summary/index.ts`
+## Problem
+The "Built Differently" comparison table (and the entire redesigned homepage — hero, features, recent campaigns) lives inside `Index.tsx`, which is wrapped in a `ProtectedRoute`. Unauthenticated visitors see only the `Auth.tsx` page, which has a basic "Find leads. Send emails." layout with a Google sign-in button.
 
-Non-streaming edge function that accepts campaign stats and returns a 3-sentence AI summary via Lovable AI (Gemini Flash).
+This means all the homepage work (hero, features, comparison table) is invisible to new visitors who haven't signed in yet.
 
-- Accepts: `{ campaign: { name, niche, goal, leadCount, emailCount, stats: {sent, opened, clicked, replied} } }`
-- Returns: `{ summary: "..." }`
-- Uses `LOVABLE_API_KEY` (already available)
-- System prompt instructs friendly, encouraging, actionable tone
-- Handles 429/402 errors with clear messages
-- Standard CORS headers pattern (matches existing edge functions)
+## Proposed Solution
 
-### 2. `src/components/dashboard/QuickUpdateBar.tsx`
+Move the public-facing marketing content (hero, trust signals, features cards, comparison table) to the **Auth page** so unauthenticated visitors see the full value proposition before signing in.
 
-A search/select input placed between the "New Campaign" button and campaigns list.
+### Step 1: Extract marketing sections into a shared component
+- Create `src/components/MarketingSections.tsx` containing:
+  - Hero section (headline, subheadline, trust badges)
+  - Features cards (4 benefit cards)
+  - "Built Differently" comparison table
+- These are currently in Index.tsx lines ~86–270
 
-- Props: `campaigns: Campaign[]`
-- Renders a search `Input` with a `Search` icon and a filtered dropdown of campaign names
-- Accepts typed name or "Project #1" (maps to campaign index)
-- On selection, calls `campaign-summary` edge function via `supabase.functions.invoke()`
-- Displays result in a subtle dismissible `Card` below the input
-- Shows `Loader2` spinner while fetching, `X` button to dismiss
-- If no campaigns exist, input is disabled with placeholder "No campaigns yet"
+### Step 2: Update Auth.tsx
+- Import and render `MarketingSections` above or around the sign-in card
+- Keep the Google sign-in card prominent (perhaps overlaid on or beside the hero)
+- The CTA buttons in the hero would point to sign-in rather than "New Campaign"
 
-### 3. `src/components/dashboard/CampaignQuickSummary.tsx`
+### Step 3: Update Index.tsx (authenticated view)
+- Import the same `MarketingSections` component (or a subset — possibly skip the comparison table for logged-in users since they've already converted)
+- Keep the Quick Update bar, Recent Campaigns, and campaign management as the authenticated-only content
 
-An expandable inline summary inside each campaign card.
+### Step 4: Responsive and style consistency
+- Ensure the Auth page with marketing sections looks good on mobile
+- Keep the "Fast Mode — Paste URL Only" button visible but redirect to sign-in for unauthenticated users
 
-- Props: `campaign: Campaign`
-- Renders a small "Get Update" button (with `Sparkles` icon)
-- On click, expands a section below showing:
-  - 3 horizontal `Progress` bars (Opened %, Clicked %, Replied %) with percentage labels
-  - 1-2 sentence AI summary from the same edge function
-- Collapsible via toggle. Shows loading state while fetching.
+## Technical details
+- Files modified: `src/pages/Auth.tsx`, `src/pages/Index.tsx`
+- File created: `src/components/MarketingSections.tsx`
+- No database or backend changes needed
 
-### 4. Changes to `src/pages/Index.tsx` (append-only)
-
-**New imports** (top of file):
-```typescript
-import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
-import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
-```
-
-**Insert QuickUpdateBar** between line 92 (end of "New Campaign" button div) and line 94 (campaignsLoading check):
-```tsx
-<QuickUpdateBar campaigns={campaigns} />
-```
-
-**Insert CampaignQuickSummary** inside each campaign Card, after the existing buttons div (after line 156), before the closing `</Card>`:
-- Restructure the Card slightly to allow the summary to appear below the existing flex row
-- Wrap existing content in a div, append `<CampaignQuickSummary campaign={c} />` below
-
-**Nothing removed or rearranged** — all existing elements (header, buttons, card layout) stay exactly as they are.
-
-### Files Created/Modified
-
-| File | Action |
-|---|---|
-| `supabase/functions/campaign-summary/index.ts` | Create |
-| `src/components/dashboard/QuickUpdateBar.tsx` | Create |
-| `src/components/dashboard/CampaignQuickSummary.tsx` | Create |
-| `src/pages/Index.tsx` | Edit (append imports + insert 2 components) |
-
-### What stays untouched
-- `MetricsOverview.tsx`, `ResultsDashboard.tsx` — zero changes
-- All existing campaign card buttons (Results, Replies, Social)
-- Campaign wizard flow, sending pipeline, RepliesInbox
-- Header, navigation, auth flow
+## Alternative (simpler)
+If you'd prefer not to restructure, we can simply **duplicate** the comparison table into `Auth.tsx` directly. This is faster but creates code duplication.
 
