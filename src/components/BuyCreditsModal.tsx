@@ -101,8 +101,8 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
           </DialogTitle>
           <DialogDescription>
             {requiredCredits
-              ? `You need ${requiredCredits.toLocaleString()} credits for this campaign. You currently have ${balance.toLocaleString()}.`
-              : `You have ${balance.toLocaleString()} credits remaining. Top up to keep sending.`
+              ? `You need ${requiredCredits.toLocaleString()} emails for this campaign. You currently have ${balance.toLocaleString()}.`
+              : `You have ${balance.toLocaleString()} emails remaining. Top up to keep sending.`
             }
           </DialogDescription>
         </DialogHeader>
