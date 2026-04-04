@@ -51,6 +51,7 @@ export type Campaign = {
   websiteUrl: string;
   niche: string;
   targetAudience: string[];
+  sellingPoints: string[];
   leads: Lead[];
   emails: EmailTemplate[];
   batchSize: number;
