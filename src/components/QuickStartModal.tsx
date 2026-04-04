@@ -125,8 +125,8 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
           <div className="flex flex-col items-center gap-4 py-10">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <div className="text-center">
-              <p className="font-medium text-foreground">Analyzing your website…</p>
-              <p className="text-sm text-muted-foreground mt-1">Detecting niche, audience, and campaign goal</p>
+              <p className="font-medium text-foreground">Understanding your offer…</p>
+              <p className="text-sm text-muted-foreground mt-1">Finding your ideal customers and crafting your campaign</p>
             </div>
           </div>
         )}
