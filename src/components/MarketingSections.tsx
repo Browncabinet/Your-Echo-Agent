@@ -134,4 +134,5 @@ export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
       <span className="flex items-center gap-1.5">✓ No monthly contracts</span>
     </div>
   );
-}
+});
+TrustSignals.displayName = "TrustSignals";
