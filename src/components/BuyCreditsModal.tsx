@@ -42,7 +42,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
 
   const customDollars = useMemo(() => {
     const val = parseInt(customAmount, 10);
-    return isNaN(val) || val < 5 ? 0 : val;
+    return isNaN(val) || val < 10 ? 0 : val;
   }, [customAmount]);
 
   const customCredits = useMemo(() => {
