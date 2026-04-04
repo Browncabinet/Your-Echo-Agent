@@ -231,13 +231,17 @@ export default function Index() {
             <div className="cursor-pointer" onClick={() => setView("home")}>
               <Logo />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" onClick={() => setView("replies")} className="gap-1">
                 <Inbox className="w-3 h-3" /> Replies
               </Button>
               <Button variant="outline" size="sm" onClick={() => setView("social")} className="gap-1">
                 <Share2 className="w-3 h-3" /> Social Content
               </Button>
+              <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")}>
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </header>
