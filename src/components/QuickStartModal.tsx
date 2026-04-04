@@ -56,7 +56,7 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
       setDetected(data);
       setPhase("confirm");
     } catch (e: any) {
-      setError(e.message || "Detection failed — please try again.");
+      setError("Couldn't read that URL. Please try again or use the full New Campaign form.");
       setPhase("input");
     }
   };
