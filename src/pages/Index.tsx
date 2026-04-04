@@ -70,6 +70,7 @@ export default function Index() {
   if (view === "home") {
     return (
       <div className="min-h-screen bg-background">
+        <PaymentTestModeBanner />
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -77,9 +78,10 @@ export default function Index() {
               <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
             </div>
             <div className="flex items-center gap-3">
-              <p className="text-xs text-muted-foreground hidden sm:block">AI Marketing & Outreach</p>
-              <Button variant="glass" size="sm" onClick={() => navigate("/pricing")} className="gap-1 text-xs">
-                <CreditCard className="w-3 h-3" /> Upgrade
+              <Button variant="ghost" size="sm" onClick={() => setBuyCreditsOpen(true)} className="gap-1.5 text-xs">
+                <Coins className="w-3.5 h-3.5 text-primary" />
+                <span className="font-medium text-foreground">{creditsLoading ? "…" : balance}</span>
+                <span className="text-muted-foreground">credits</span>
               </Button>
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
