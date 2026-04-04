@@ -114,7 +114,12 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
                 We'll analyze your site and auto-detect your niche, audience, and campaign goal.
               </p>
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <div className="space-y-2">
+                <p className="text-sm text-destructive">{error}</p>
+                <Button variant="outline" size="sm" onClick={() => setError(null)}>Try Again</Button>
+              </div>
+            )}
             <Button onClick={handleDetect} disabled={!url.trim()} className="w-full gap-2" size="lg">
               <Sparkles className="w-4 h-4" /> Detect My Business
             </Button>
