@@ -130,7 +130,7 @@ export default function Pricing() {
               <div className="mb-4 mt-2">
                 <Sparkles className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-3xl font-bold text-foreground">{pack.credits.toLocaleString()}</p>
-                <p className="text-sm text-muted-foreground">credits</p>
+                <p className="text-sm text-muted-foreground">emails</p>
               </div>
 
               <div className="mb-4">
