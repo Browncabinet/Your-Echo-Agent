@@ -7,8 +7,8 @@ interface LogoProps {
 }
 
 export function Logo({ size = "md", showText = true }: LogoProps) {
-  const iconSize = size === "sm" ? "h-6 w-6" : "h-7 w-7";
-  const textHeight = size === "sm" ? "h-4" : "h-5";
+  const iconSize = size === "sm" ? "h-8 w-8" : "h-9 w-9";
+  const textHeight = size === "sm" ? "h-6" : "h-7";
 
   return (
     <div className="flex items-center gap-2">
