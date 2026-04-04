@@ -272,9 +272,8 @@ export default function Index() {
     return (
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
-          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
-            <Zap className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+          <div className="container max-w-5xl mx-auto px-4 py-4 cursor-pointer" onClick={() => setView("home")}>
+            <Logo />
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8">
