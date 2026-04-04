@@ -78,19 +78,29 @@ export default function Index() {
         </header>
 
         <main className="container max-w-5xl mx-auto px-4 py-10">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-foreground">
-              Launch Your Outreach Campaign
+          {/* Hero Section */}
+          <div className="text-center mb-14 pt-6">
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
+              Turn Your Website Into Cold Outreach —{" "}
+              <span className="text-primary">Automatically</span>
             </h2>
-            <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-              Find leads, craft personalized emails, and grow your business — all in one place.
+            <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
+              Find qualified leads, write personalized emails that sound like you, send them, and even handle replies — all from your website URL.
             </p>
-          </div>
 
-          <div className="flex justify-center mb-8">
-            <Button size="lg" onClick={startNewCampaign} className="gap-2 text-base px-8 py-6">
-              <Plus className="w-5 h-5" /> New Campaign
-            </Button>
+            <div className="flex justify-center mt-8">
+              <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
+                <Plus className="w-5 h-5" /> New Campaign
+              </Button>
+            </div>
+
+            {/* Trust signals */}
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">✓ Gmail connect in seconds</span>
+              <span className="flex items-center gap-1.5">✓ High deliverability</span>
+              <span className="flex items-center gap-1.5">✓ AI-powered personalization</span>
+              <span className="flex items-center gap-1.5">✓ No monthly contracts</span>
+            </div>
           </div>
 
           <QuickUpdateBar campaigns={campaigns} />
