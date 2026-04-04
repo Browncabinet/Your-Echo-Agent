@@ -97,9 +97,12 @@ export default function Index() {
               Find qualified leads, write personalized emails that sound like you, send them, and even handle replies — all from your website URL.
             </p>
 
-            <div className="flex justify-center mt-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
               <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
                 <Plus className="w-5 h-5" /> New Campaign
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
+                <Sparkles className="w-5 h-5" /> Quick Start: Paste URL Only
               </Button>
             </div>
 
