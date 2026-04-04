@@ -1,18 +1,18 @@
 
 
-## Plan: Replace Logo Assets and Increase Size
+## Root Cause
 
-The user has provided new, cleaner versions of the logo icon and text. These are 1024x1024 images with the content filling more of the canvas (less whitespace padding), which should render larger at the same CSS dimensions.
+The "Couldn't read that URL" error happens because the **Quick Start detect** edge function is calling the wrong AI endpoint. It's using `https://api.lovable.dev/v1/chat/completions` which returns a **404 Not Found**. The correct URL is `https://ai.gateway.lovable.dev/v1/chat/completions` (which the email generation and campaign summary functions already use successfully).
 
-### Changes
+The same bug also affects the **check-replies** edge function.
 
-**1. Replace asset files**
-- Copy `user-uploads://echo_agent_logo-3.png` → `src/assets/echo_agent_logo.png`
-- Copy `user-uploads://your_echo_agent_text-3.png` → `src/assets/your_echo_agent_text.png`
+## Fix
 
-**2. Increase Logo component sizes** (`src/components/Logo.tsx`)
-- Icon: `h-20 w-20` (default), `h-16 w-16` (sm)
-- Text: `h-20` (default), `h-16` (sm)
+**File 1: `supabase/functions/quick-start-detect/index.ts`** (line 36)
+- Change `https://api.lovable.dev/v1/chat/completions` to `https://ai.gateway.lovable.dev/v1/chat/completions`
 
-These new images have tighter cropping so the text/icon should fill the height much better than before.
+**File 2: `supabase/functions/check-replies/index.ts`** (line 248)
+- Change `https://api.lovable.dev/v1/chat/completions` to `https://ai.gateway.lovable.dev/v1/chat/completions`
+
+That's it -- two one-line URL fixes. After this, Fast Mode / Quick Start will work correctly.
 
