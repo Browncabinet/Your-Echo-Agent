@@ -26,8 +26,7 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
     if (data) {
       setBalance(data.balance);
     } else {
-      // Create initial credits record (50 free)
-      await supabase.from("user_credits").insert({ user_id: user.id, balance: 50 });
+      // Credits are auto-created by DB trigger on signup; default to 50 for display
       setBalance(50);
     }
     setLoading(false);
