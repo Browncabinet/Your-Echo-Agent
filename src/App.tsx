@@ -10,6 +10,9 @@ import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import About from "./pages/About.tsx";
+import Privacy from "./pages/Privacy.tsx";
+import Terms from "./pages/Terms.tsx";
+import AcceptableUse from "./pages/AcceptableUse.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import CheckoutReturn from "./pages/CheckoutReturn.tsx";
 
