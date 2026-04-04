@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Zap, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 
