@@ -97,7 +97,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-primary" />
-            Buy Email Credits
+            Buy Email Packs
           </DialogTitle>
           <DialogDescription>
             {requiredCredits
