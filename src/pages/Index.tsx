@@ -216,6 +216,11 @@ export default function Index() {
           onStartCampaign={handleQuickStart}
         />
         <BuyCreditsModal open={buyCreditsOpen} onOpenChange={setBuyCreditsOpen} />
+        <WelcomeModal
+          open={showWelcome}
+          onOpenChange={setShowWelcome}
+          onTryFastMode={() => { setShowWelcome(false); setQuickStartOpen(true); }}
+        />
       </div>
     );
   }
