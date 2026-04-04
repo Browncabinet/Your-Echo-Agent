@@ -146,7 +146,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
             Quick Add for this project
           </p>
           <div className="flex gap-2 mb-4">
-            {[quickTopUps[0], QUICK_15, quickTopUps[1]].map((item) => (
+            {quickTopUps.map((item) => (
               <Button
                 key={item.dollars}
                 variant="outline"
