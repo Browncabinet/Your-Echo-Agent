@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { useNavigate, Link } from "react-router-dom";
 import profileImg from "@/assets/profile-ladysoleil.png";
 

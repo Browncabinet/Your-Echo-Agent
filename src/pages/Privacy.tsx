@@ -9,9 +9,8 @@ export default function Privacy() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-card">
         <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <Zap className="w-6 h-6 text-primary" />
-            <span className="text-lg font-bold text-foreground">Your Echo Agent</span>
+          <Link to="/">
+            <Logo />
           </Link>
           <Link to="/">
             <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4 mr-1" /> Back</Button>
