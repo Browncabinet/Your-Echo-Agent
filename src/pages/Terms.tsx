@@ -48,12 +48,12 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground">Credits & Payments</h2>
+            <h2 className="text-xl font-semibold text-foreground">Email Packs & Payments</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Your Echo Agent uses a pay-as-you-go credit system. Credits are purchased through Stripe and never expire. Each email sent consumes one credit. New accounts receive 50 free credits.
+              Your Echo Agent uses a pay-as-you-go system. Email packs are purchased through Stripe and never expire. Each email sent uses one from your balance. New accounts receive 50 free emails.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              All purchases are final. Credits are non-refundable and non-transferable. If you believe there was a billing error, contact us and we'll look into it.
+              All purchases are final. Email packs are non-refundable and non-transferable. If you believe there was a billing error, contact us and we'll look into it.
             </p>
           </section>
 
@@ -100,7 +100,7 @@ export default function Terms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">Account Termination</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We reserve the right to suspend or terminate accounts that violate these terms or our Acceptable Use Policy. If we terminate your account, any remaining credits will be forfeited. You can delete your account at any time.
+              We reserve the right to suspend or terminate accounts that violate these terms or our Acceptable Use Policy. If we terminate your account, any remaining emails will be forfeited. You can delete your account at any time.
             </p>
           </section>
 

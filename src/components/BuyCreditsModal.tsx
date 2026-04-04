@@ -97,12 +97,12 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-primary" />
-            Buy Email Credits
+            Buy Email Packs
           </DialogTitle>
           <DialogDescription>
             {requiredCredits
-              ? `You need ${requiredCredits.toLocaleString()} credits for this campaign. You currently have ${balance.toLocaleString()}.`
-              : `You have ${balance.toLocaleString()} credits remaining. Top up to keep sending.`
+              ? `You need ${requiredCredits.toLocaleString()} emails for this campaign. You currently have ${balance.toLocaleString()}.`
+              : `You have ${balance.toLocaleString()} emails remaining. Top up to keep sending.`
             }
           </DialogDescription>
         </DialogHeader>
@@ -196,7 +196,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               }}
               className="shrink-0"
             >
-              Buy Credits
+              Buy Emails
             </Button>
           </div>
           {customDollars >= 10 && (
@@ -222,7 +222,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
         </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-          <Check className="w-3 h-3" /> Credits never expire
+          <Check className="w-3 h-3" /> Emails never expire
           <span className="mx-1">·</span>
           <Check className="w-3 h-3" /> No subscription required
         </div>
