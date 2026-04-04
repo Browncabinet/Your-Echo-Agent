@@ -38,7 +38,7 @@ const creditPacks = [
     price: "$100",
     perEmail: "$0.011",
     label: "Pro",
-    description: "Maximum value",
+    description: "Send up to 9,000 emails",
     popular: false,
     badge: null,
   },
