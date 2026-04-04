@@ -106,7 +106,7 @@ export default function Pricing() {
             Simple, Honest Pricing
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            No subscriptions. No contracts. Buy credits when you need them and send personalized outreach at a fraction of the cost.
+            No subscriptions. No contracts. Buy email packs when you need them and send personalized outreach at a fraction of the cost.
           </p>
         </div>
 
