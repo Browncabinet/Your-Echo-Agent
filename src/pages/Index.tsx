@@ -103,6 +103,51 @@ export default function Index() {
             </div>
           </div>
 
+          {/* Features / Value Section */}
+          <div className="mb-14">
+            <h3 className="text-center text-lg font-semibold text-foreground mb-6">
+              How Your Echo Agent Works
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="p-5 text-center">
+                <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
+                  <Globe className="w-5 h-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-sm text-foreground mb-1">Paste Your URL</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  AI scrapes your site and finds qualified leads that match your niche — automatically.
+                </p>
+              </Card>
+              <Card className="p-5 text-center">
+                <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
+                  <Mail className="w-5 h-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-sm text-foreground mb-1">Emails That Sound Like You</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Hyper-personalized cold emails crafted from your voice, brand, and goals — not generic templates.
+                </p>
+              </Card>
+              <Card className="p-5 text-center">
+                <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
+                  <MessageSquareReply className="w-5 h-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-sm text-foreground mb-1">Send + Smart Replies</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Send campaigns with one click and let AI draft thoughtful replies when leads respond.
+                </p>
+              </Card>
+              <Card className="p-5 text-center">
+                <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-sm text-foreground mb-1">Simple Analytics</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Track opens, clicks, and replies with AI-powered weekly insights to sharpen your outreach.
+                </p>
+              </Card>
+            </div>
+          </div>
+
           <QuickUpdateBar campaigns={campaigns} />
 
           {campaignsLoading && (
