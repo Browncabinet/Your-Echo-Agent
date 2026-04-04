@@ -25,9 +25,9 @@ export default function CheckoutReturn() {
         {sessionId ? (
           <>
             <CheckCircle className="w-12 h-12 text-primary mx-auto" />
-            <h1 className="text-xl font-bold text-foreground">Credits Added!</h1>
+            <h1 className="text-xl font-bold text-foreground">Emails Added!</h1>
             <p className="text-sm text-muted-foreground">
-              Your email credits have been added to your account. They're ready to use immediately.
+              Your emails have been added to your account. They're ready to use immediately.
             </p>
           </>
         ) : (
