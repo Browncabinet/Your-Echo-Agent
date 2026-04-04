@@ -32,6 +32,8 @@ serve(async (req) => {
           if (!formattedUrl.startsWith("http")) formattedUrl = `https://${formattedUrl}`;
 
           console.log("Scraping website for context:", formattedUrl);
+          const scrapeController = new AbortController();
+          const scrapeTimeout = setTimeout(() => scrapeController.abort(), 10000);
           const scrapeRes = await fetch("https://api.firecrawl.dev/v1/scrape", {
             method: "POST",
             headers: {
@@ -43,7 +45,9 @@ serve(async (req) => {
               formats: ["summary"],
               onlyMainContent: true,
             }),
+            signal: scrapeController.signal,
           });
+          clearTimeout(scrapeTimeout);
 
           if (scrapeRes.ok) {
             const scrapeData = await scrapeRes.json();
