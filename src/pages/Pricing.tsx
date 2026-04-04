@@ -2,88 +2,39 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, ArrowLeft } from "lucide-react";
+import { Check, Zap, ArrowLeft, Coins, Sparkles } from "lucide-react";
 
-
-const plans = [
+const creditPacks = [
   {
-    name: "Free",
-    price: "$0",
-    period: "/mo",
-    description: "Get started with the basics",
-    badge: "Start Here",
-    badgeVariant: "outline" as const,
-    contacts: "50 contacts",
-    features: [
-      "1 campaign",
-      "Basic email templates",
-      "Manual social posts",
-      "Community support",
-    ],
-    cta: "Get Started Free",
-    highlighted: false,
+    credits: 500,
+    price: "$10",
+    perEmail: "$0.02",
+    description: "Great for testing a new idea",
+    popular: false,
   },
   {
-    name: "Starter",
-    price: "$9",
-    period: "/mo",
+    credits: 1500,
+    price: "$25",
+    perEmail: "$0.017",
     description: "Perfect for solo founders",
-    badge: "Most Popular",
-    badgeVariant: "default" as const,
-    contacts: "200 contacts",
-    features: [
-      "3 campaigns",
-      "AI email writing",
-      "A/B testing",
-      "Auto lead search",
-      "Email support",
-    ],
-    cta: "Start for $9/mo",
-    highlighted: true,
+    popular: true,
   },
   {
-    name: "Growth",
-    price: "$19",
-    period: "/mo",
+    credits: 4000,
+    price: "$50",
+    perEmail: "$0.013",
     description: "Scale your outreach",
-    badge: null,
-    badgeVariant: "outline" as const,
-    contacts: "500 contacts",
-    features: [
-      "Unlimited campaigns",
-      "Priority scraping",
-      "Analytics dashboard",
-      "Social media content",
-      "Priority support",
-    ],
-    cta: "Start for $19/mo",
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "$39",
-    period: "/mo",
-    description: "For power users & agencies",
-    badge: null,
-    badgeVariant: "outline" as const,
-    contacts: "2,000 contacts",
-    features: [
-      "Everything in Growth",
-      "API access",
-      "CRM integration (HubSpot, Salesforce, Google Sheets)",
-      "Custom branding",
-      "Dedicated support",
-    ],
-    cta: "Start for $39/mo",
-    highlighted: false,
+    popular: false,
   },
 ];
 
-const addons = [
-  { name: "Extra 100 contacts", price: "$3", period: "one-time" },
-  { name: "Extra 500 contacts", price: "$10", period: "one-time" },
-  { name: "AI Social Media Content", price: "$5", period: "/mo" },
-  { name: "Advanced Analytics", price: "$5", period: "/mo" },
+const included = [
+  "50 free credits on signup",
+  "AI-powered email writing",
+  "Lead research & personalization",
+  "Open & click tracking",
+  "Reply handling with AI drafts",
+  "No monthly commitment",
 ];
 
 const faqs = [
@@ -92,16 +43,16 @@ const faqs = [
     a: "We believe great marketing tools shouldn't cost a fortune. We keep costs low by focusing on what matters — lead generation and outreach — without the bloated feature sets that drive up prices elsewhere.",
   },
   {
-    q: "Can I upgrade or downgrade anytime?",
-    a: "Absolutely. Change your plan or cancel whenever you want. No contracts, no lock-in.",
+    q: "Do credits expire?",
+    a: "No. Your credits never expire. Use them whenever you're ready.",
   },
   {
-    q: "What happens if I hit my contact limit?",
-    a: "You can purchase add-on contact packs at any time — starting at just $3 for 100 extra contacts.",
+    q: "Can I buy more credits anytime?",
+    a: "Absolutely. Purchase additional credit packs whenever you need them — no subscriptions, no lock-in.",
   },
   {
-    q: "Is there a free trial for paid plans?",
-    a: "Every plan starts with a free tier so you can try the product before upgrading. No credit card required.",
+    q: "Is there a free tier?",
+    a: "Yes! Every new account gets 50 free credits to try out the platform. No credit card required.",
   },
 ];
 
@@ -133,88 +84,73 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="container max-w-6xl mx-auto px-4 py-12">
+      <main className="container max-w-4xl mx-auto px-4 py-12">
         {/* Hero */}
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
-            The affordable alternative
+            Pay as you go
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
             Simple, Honest Pricing
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Stop overpaying for marketing tools. Get leads, write emails, and grow your business — starting free.
+            No subscriptions. No contracts. Buy credits when you need them and send personalized outreach at a fraction of the cost.
           </p>
         </div>
 
-        {/* Plans */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {plans.map((plan) => (
+        {/* Credit Packs */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+          {creditPacks.map((pack) => (
             <Card
-              key={plan.name}
-              className={`p-6 flex flex-col relative ${
-                plan.highlighted
+              key={pack.credits}
+              className={`p-6 flex flex-col relative text-center ${
+                pack.popular
                   ? "border-primary ring-2 ring-primary/20 shadow-lg"
-                  : "glass"
+                  : ""
               }`}
             >
-              {plan.badge && (
-                <Badge
-                  variant={plan.badgeVariant}
-                  className={`absolute -top-3 left-1/2 -translate-x-1/2 ${
-                    plan.highlighted ? "bg-primary text-primary-foreground" : ""
-                  }`}
-                >
-                  {plan.badge}
+              {pack.popular && (
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
+                  Best Value
                 </Badge>
               )}
 
               <div className="mb-4 mt-2">
-                <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <Sparkles className="w-6 h-6 text-primary mx-auto mb-2" />
+                <p className="text-3xl font-bold text-foreground">{pack.credits.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">credits</p>
               </div>
 
               <div className="mb-4">
-                <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                <span className="text-muted-foreground text-sm">{plan.period}</span>
+                <span className="text-4xl font-bold text-foreground">{pack.price}</span>
+                <span className="text-muted-foreground text-sm ml-1">one-time</span>
               </div>
 
-              <p className="text-sm font-medium text-foreground mb-4">
-                {plan.contacts}
-              </p>
-
-              <ul className="space-y-2 mb-6 flex-1">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm text-muted-foreground mb-2">{pack.description}</p>
+              <p className="text-xs text-muted-foreground mb-6">{pack.perEmail} per email</p>
 
               <Button
-                className="w-full"
-                variant={plan.highlighted ? "default" : "glass"}
+                className="w-full mt-auto"
+                variant={pack.popular ? "default" : "outline"}
                 onClick={() => navigate("/auth")}
               >
-                {plan.cta}
+                Get Started
               </Button>
             </Card>
           ))}
         </div>
 
-        {/* Add-ons */}
+        {/* What's Included */}
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-foreground text-center mb-6">
-            Need More? Add What You Need
+            Everything Included
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {addons.map((addon) => (
-              <Card key={addon.name} className="p-4 text-center">
-                <p className="font-medium text-foreground text-sm">{addon.name}</p>
-                <p className="text-2xl font-bold text-primary mt-1">{addon.price}</p>
-                <p className="text-xs text-muted-foreground">{addon.period}</p>
-              </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+            {included.map((item) => (
+              <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Check className="w-4 h-4 text-primary shrink-0" />
+                {item}
+              </div>
             ))}
           </div>
         </div>

@@ -1,3 +1,4 @@
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { Globe, Mail, MessageSquareReply, TrendingUp } from "lucide-react";
 
@@ -21,9 +22,9 @@ const mobileComparisonRows = [
   { feature: "Best For", us: "Solo builders & multiple small projects", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
 ];
 
-export function FeaturesSection() {
+export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div className="mb-14">
+    <div ref={ref} className="mb-14">
       <h3 className="text-center text-lg font-semibold text-foreground mb-6">
         How Your Echo Agent Works
       </h3>
@@ -67,11 +68,12 @@ export function FeaturesSection() {
       </div>
     </div>
   );
-}
+});
+FeaturesSection.displayName = "FeaturesSection";
 
-export function ComparisonSection() {
+export const ComparisonSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div className="pt-4 mb-14">
+    <div ref={ref} className="pt-4 mb-14">
       <h3 className="text-center text-lg font-semibold text-foreground mb-2">
         Built Differently
       </h3>
@@ -120,15 +122,17 @@ export function ComparisonSection() {
       </div>
     </div>
   );
-}
+});
+ComparisonSection.displayName = "ComparisonSection";
 
-export function TrustSignals() {
+export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div className="flex flex-wrap justify-center gap-6 mt-8 text-xs text-muted-foreground">
+    <div ref={ref} className="flex flex-wrap justify-center gap-6 mt-8 text-xs text-muted-foreground">
       <span className="flex items-center gap-1.5">✓ Gmail connect in seconds</span>
       <span className="flex items-center gap-1.5">✓ High deliverability</span>
       <span className="flex items-center gap-1.5">✓ AI-powered personalization</span>
       <span className="flex items-center gap-1.5">✓ No monthly contracts</span>
     </div>
   );
-}
+});
+TrustSignals.displayName = "TrustSignals";

@@ -150,7 +150,7 @@ export default function Index() {
                     <div>
                       <p className="font-medium text-foreground">{c.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {c.websiteUrl && <>{new URL(c.websiteUrl).hostname} · </>}
+                        {c.websiteUrl && <>{(() => { try { return new URL(c.websiteUrl).hostname; } catch { return c.websiteUrl; } })()} · </>}
                         {c.niche} · {c.leads.length} leads
                       </p>
                     </div>
