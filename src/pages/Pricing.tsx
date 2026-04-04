@@ -59,8 +59,8 @@ const faqs = [
     a: "We believe great marketing tools shouldn't cost a fortune. We keep costs low by focusing on what matters — lead generation and outreach — without the bloated feature sets that drive up prices elsewhere.",
   },
   {
-    q: "Do credits expire?",
-    a: "No. Your credits never expire. Use them whenever you're ready.",
+    q: "Do my emails expire?",
+    a: "No. Your email balance never expires. Use them whenever you're ready.",
   },
   {
     q: "Can I buy more credits anytime?",
