@@ -23,9 +23,11 @@ type Props = {
 export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
   const [sending, setSending] = useState(false);
   const [showLimitWarning, setShowLimitWarning] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [todaySendCount, setTodaySendCount] = useState(0);
   const [dailyLimit, setDailyLimit] = useState(500);
   const { user } = useAuth();
+  const { balance, refresh: refreshCredits } = useCredits();
 
   useEffect(() => {
     if (!user) return;
