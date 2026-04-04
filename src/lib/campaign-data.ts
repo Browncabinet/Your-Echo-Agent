@@ -51,6 +51,7 @@ export type Campaign = {
   websiteUrl: string;
   niche: string;
   targetAudience: string[];
+  sellingPoints: string[];
   leads: Lead[];
   emails: EmailTemplate[];
   batchSize: number;
@@ -83,6 +84,7 @@ export function createEmptyCampaign(): Campaign {
     websiteUrl: "",
     niche: "",
     targetAudience: [],
+    sellingPoints: [],
     leads: [],
     emails: [],
     batchSize: 50,

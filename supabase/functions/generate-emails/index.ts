@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { websiteUrl, goal, niche, targetAudience, leads } = await req.json();
+    const { websiteUrl, goal, niche, targetAudience, sellingPoints, leads } = await req.json();
 
     if (!goal || !leads || leads.length === 0) {
       return new Response(
@@ -32,6 +32,8 @@ serve(async (req) => {
           if (!formattedUrl.startsWith("http")) formattedUrl = `https://${formattedUrl}`;
 
           console.log("Scraping website for context:", formattedUrl);
+          const scrapeController = new AbortController();
+          const scrapeTimeout = setTimeout(() => scrapeController.abort(), 10000);
           const scrapeRes = await fetch("https://api.firecrawl.dev/v1/scrape", {
             method: "POST",
             headers: {
@@ -43,7 +45,9 @@ serve(async (req) => {
               formats: ["summary"],
               onlyMainContent: true,
             }),
+            signal: scrapeController.signal,
           });
+          clearTimeout(scrapeTimeout);
 
           if (scrapeRes.ok) {
             const scrapeData = await scrapeRes.json();
@@ -76,12 +80,16 @@ Rules:
 - No generic filler. Every sentence should add value.
 - Use a friendly, professional tone`;
 
+    const sellingPointsBlock = sellingPoints && sellingPoints.length > 0
+      ? `\n\nKEY SELLING POINTS TO INCLUDE (pick 2-3 as brief bullets or a short value proposition):\n${sellingPoints.map((p: string) => `• ${p}`).join("\n")}`
+      : "";
+
     const userPrompt = `Generate personalized cold email templates for the following campaign:
 
 CAMPAIGN GOAL: ${goal}
 NICHE: ${niche || "General"}
 TARGET AUDIENCE: ${(targetAudience || []).join(", ") || "Business professionals"}
-${businessContext}
+${businessContext}${sellingPointsBlock}
 
 LEADS TO PERSONALIZE FOR:
 ${leadsList}

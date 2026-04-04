@@ -57,6 +57,9 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
 
   const generateWithAI = async () => {
     setGenerating(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
+
     try {
       const { data, error } = await supabase.functions.invoke("generate-emails", {
         body: {
@@ -64,9 +67,12 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
           goal: campaign.goal,
           niche: campaign.niche,
           targetAudience: campaign.targetAudience,
+          sellingPoints: campaign.sellingPoints || [],
           leads: campaign.leads.slice(0, 10),
         },
       });
+
+      clearTimeout(timeoutId);
 
       if (error) throw error;
       if (data?.error) {
@@ -88,8 +94,13 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
         toast.success("AI-generated emails ready! Edit anything you'd like.");
       }
     } catch (err: any) {
+      clearTimeout(timeoutId);
       console.error("AI generation error:", err);
-      toast.error(err.message || "Failed to generate emails");
+      if (err.name === "AbortError") {
+        toast.error("Email generation is taking longer than expected. Please try again.");
+      } else {
+        toast.error(err.message || "Failed to generate emails. Please try again.");
+      }
     } finally {
       setGenerating(false);
     }

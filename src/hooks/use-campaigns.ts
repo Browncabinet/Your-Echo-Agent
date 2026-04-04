@@ -29,6 +29,7 @@ function rowToCampaign(row: any): Campaign {
     websiteUrl: row.website_url || "",
     niche: row.niche || "",
     targetAudience: (row.target_audience as string[]) || [],
+    sellingPoints: (row.selling_points as string[]) || [],
     leads: (row.leads as any[]) || [],
     emails: (row.emails as any[]) || [],
     batchSize: 50,
