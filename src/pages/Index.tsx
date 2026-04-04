@@ -30,9 +30,11 @@ export default function Index() {
   const [step, setStep] = useState(0);
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
   const [quickStartOpen, setQuickStartOpen] = useState(false);
+  const [buyCreditsOpen, setBuyCreditsOpen] = useState(false);
   const { campaigns, loading: campaignsLoading, saveCampaign } = useCampaigns();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { balance, loading: creditsLoading } = useCredits();
 
   const updateCampaign = (updates: Partial<Campaign>) => {
     setCampaign((c) => ({ ...c, ...updates }));
