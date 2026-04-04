@@ -11,7 +11,7 @@ const creditPacks = [
     price: "$10",
     perEmail: "$0.017",
     label: "Starter",
-    description: "Great for testing ideas",
+    description: "Send up to 600 emails",
     popular: true,
     badge: "Popular",
   },
@@ -20,7 +20,7 @@ const creditPacks = [
     price: "$25",
     perEmail: "$0.014",
     label: "Growth",
-    description: "Perfect for solo founders",
+    description: "Send up to 1,800 emails",
     popular: false,
     badge: "Best Value",
   },
@@ -29,7 +29,7 @@ const creditPacks = [
     price: "$50",
     perEmail: "$0.013",
     label: "Scale",
-    description: "Scale your outreach",
+    description: "Send up to 4,000 emails",
     popular: false,
     badge: null,
   },
@@ -38,14 +38,14 @@ const creditPacks = [
     price: "$100",
     perEmail: "$0.011",
     label: "Pro",
-    description: "Maximum value",
+    description: "Send up to 9,000 emails",
     popular: false,
     badge: null,
   },
 ];
 
 const included = [
-  "50 free credits on signup",
+  "50 free emails on signup",
   "AI-powered email writing",
   "Lead research & personalization",
   "Open & click tracking",
@@ -59,16 +59,16 @@ const faqs = [
     a: "We believe great marketing tools shouldn't cost a fortune. We keep costs low by focusing on what matters — lead generation and outreach — without the bloated feature sets that drive up prices elsewhere.",
   },
   {
-    q: "Do credits expire?",
-    a: "No. Your credits never expire. Use them whenever you're ready.",
+    q: "Do my emails expire?",
+    a: "No. Your email balance never expires. Use them whenever you're ready.",
   },
   {
-    q: "Can I buy more credits anytime?",
-    a: "Absolutely. Purchase additional credit packs whenever you need them — no subscriptions, no lock-in.",
+    q: "Can I buy more emails anytime?",
+    a: "Absolutely. Purchase additional email packs whenever you need them — no subscriptions, no lock-in.",
   },
   {
     q: "Is there a free tier?",
-    a: "Yes! Every new account gets 50 free credits to try out the platform. No credit card required.",
+    a: "Yes! Every new account gets 50 free emails to try out the platform. No credit card required.",
   },
 ];
 
@@ -106,7 +106,7 @@ export default function Pricing() {
             Simple, Honest Pricing
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            No subscriptions. No contracts. Buy credits when you need them and send personalized outreach at a fraction of the cost.
+            No subscriptions. No contracts. Buy email packs when you need them and send personalized outreach at a fraction of the cost.
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export default function Pricing() {
               <div className="mb-4 mt-2">
                 <Sparkles className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-3xl font-bold text-foreground">{pack.credits.toLocaleString()}</p>
-                <p className="text-sm text-muted-foreground">credits</p>
+                <p className="text-sm text-muted-foreground">emails</p>
               </div>
 
               <div className="mb-4">
