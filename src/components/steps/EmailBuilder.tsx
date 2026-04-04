@@ -177,22 +177,28 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
 
             {email.subjectB !== undefined && (
               <div>
-                <Label className="text-xs">Subject Line B (A/B test)</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-xs">Subject Line B (A/B test)</Label>
+                  <Pencil className="w-3 h-3 text-muted-foreground" />
+                </div>
                 <Input
                   value={email.subjectB}
                   onChange={(e) => updateEmail(email.id, { subjectB: e.target.value })}
-                  className="mt-1"
+                  className="mt-1 border-primary/15 focus:border-primary/40 bg-background"
                 />
               </div>
             )}
 
             <div>
-              <Label className="text-xs">Email Body</Label>
+              <div className="flex items-center gap-1.5">
+                <Label className="text-xs">Email Body</Label>
+                <Pencil className="w-3 h-3 text-muted-foreground" />
+              </div>
               <Textarea
                 value={email.body}
                 onChange={(e) => updateEmail(email.id, { body: e.target.value })}
                 rows={6}
-                className="mt-1 font-mono text-sm"
+                className="mt-1 font-mono text-sm border-primary/15 focus:border-primary/40 bg-background"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Use {"{{name}}"} and {"{{company}}"} for personalization
