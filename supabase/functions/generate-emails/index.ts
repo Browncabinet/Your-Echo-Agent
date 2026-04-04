@@ -119,6 +119,8 @@ Return a JSON object with this exact structure:
 }`;
 
     console.log("Calling AI for email generation...");
+    const aiController = new AbortController();
+    const aiTimeout = setTimeout(() => aiController.abort(), 25000);
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {

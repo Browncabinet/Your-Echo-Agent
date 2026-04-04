@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2, Pencil } from "lucide-react";
+import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2, Pencil, X } from "lucide-react";
 import { type Campaign, type EmailTemplate, generateEmailTemplates, generateId } from "@/lib/campaign-data";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,12 +20,19 @@ type Props = {
 export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
   const [emails, setEmails] = useState<EmailTemplate[]>(campaign.emails);
   const [generating, setGenerating] = useState(false);
+  const [newPointInput, setNewPointInput] = useState("");
+
+  const sellingPoints = campaign.sellingPoints || [];
 
   useEffect(() => {
-    if (emails.length === 0) {
-      const generated = generateEmailTemplates(campaign.name, campaign.goal);
-      setEmails(generated);
-      onUpdate({ emails: generated });
+    try {
+      if (emails.length === 0) {
+        const generated = generateEmailTemplates(campaign.name, campaign.goal);
+        setEmails(generated);
+        onUpdate({ emails: generated });
+      }
+    } catch (err) {
+      console.error("Template init error:", err);
     }
   }, []);
 
@@ -55,10 +62,20 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
     onUpdate({ emails: updated });
   };
 
+  const removeSellingPoint = (point: string) => {
+    onUpdate({ sellingPoints: sellingPoints.filter((p) => p !== point) });
+  };
+
+  const addSellingPoint = () => {
+    const trimmed = newPointInput.trim();
+    if (!trimmed || sellingPoints.includes(trimmed)) return;
+    onUpdate({ sellingPoints: [...sellingPoints, trimmed] });
+    setNewPointInput("");
+  };
+
   const generateWithAI = async () => {
+    if (generating) return;
     setGenerating(true);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-emails", {
@@ -71,8 +88,6 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
           leads: campaign.leads.slice(0, 10),
         },
       });
-
-      clearTimeout(timeoutId);
 
       if (error) throw error;
       if (data?.error) {
@@ -94,12 +109,11 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
         toast.success("AI-generated emails ready! Edit anything you'd like.");
       }
     } catch (err: any) {
-      clearTimeout(timeoutId);
       console.error("AI generation error:", err);
-      if (err.name === "AbortError") {
-        toast.error("Email generation is taking longer than expected. Please try again.");
+      if (err?.name === "AbortError") {
+        toast.error("Email generation timed out. Please try again.");
       } else {
-        toast.error(err.message || "Failed to generate emails. Please try again.");
+        toast.error(err?.message || "Failed to generate emails. Please try again.");
       }
     } finally {
       setGenerating(false);
@@ -136,6 +150,46 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
         <Pencil className="w-4 h-4 text-primary shrink-0" />
         <p className="text-sm text-foreground">Click any field below to edit your email drafts</p>
       </div>
+
+      {/* Editable Selling Points */}
+      <Card className="p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <Label className="text-sm font-semibold">Key Selling Points</Label>
+        </div>
+        {sellingPoints.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {sellingPoints.map((point) => (
+              <Badge key={point} variant="default" className="gap-1 pr-1.5 cursor-default">
+                {point}
+                <button
+                  onClick={() => removeSellingPoint(point)}
+                  className="ml-1 rounded-full hover:bg-primary-foreground/20 p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No selling points added yet.</p>
+        )}
+        {sellingPoints.length < 5 && (
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Add a selling point..."
+              value={newPointInput}
+              onChange={(e) => setNewPointInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSellingPoint(); } }}
+              className="h-8 text-sm flex-1"
+            />
+            <Button variant="outline" size="sm" className="h-8 gap-1" onClick={addSellingPoint} disabled={!newPointInput.trim()}>
+              <Plus className="w-3 h-3" /> Add
+            </Button>
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground">These are included in your AI-generated emails.</p>
+      </Card>
 
       {campaign.websiteUrl && (
         <p className="text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
