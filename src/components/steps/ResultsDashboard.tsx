@@ -1,10 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp } from "lucide-react";
+import { Mail, Eye, MousePointerClick, MessageSquare, ArrowLeft, TrendingUp, RefreshCw } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
 import { MetricsOverview } from "@/components/dashboard/MetricsOverview";
 import { ABTestingCard } from "@/components/dashboard/ABTestingCard";
 import { WeeklyInsightsCard } from "@/components/dashboard/WeeklyInsightsCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from "react";
 
 type Props = {
   campaign: Campaign;
@@ -26,21 +28,56 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
 }
 
 export function ResultsDashboard({ campaign, onBack }: Props) {
-  const approvedCount = campaign.leads.filter((l) => l.approved).length;
-  const stats = {
-    sent: approvedCount,
-    opened: Math.floor(approvedCount * 0.45),
-    clicked: Math.floor(approvedCount * 0.12),
-    replied: Math.floor(approvedCount * 0.08),
-  };
+  const [stats, setStats] = useState({ sent: 0, opened: 0, clicked: 0, replied: 0 });
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: sends } = await supabase
+        .from("campaign_sends")
+        .select("status, opened_at, clicked_at")
+        .eq("campaign_id", campaign.id);
+
+      const { count: replyCount } = await supabase
+        .from("email_replies")
+        .select("id", { count: "exact", head: true })
+        .eq("campaign_id", campaign.id);
+
+      const sentCount = sends?.filter(s => s.status === "sent").length || 0;
+      const openedCount = sends?.filter(s => s.opened_at).length || 0;
+      const clickedCount = sends?.filter(s => s.clicked_at).length || 0;
+
+      setStats({
+        sent: sentCount,
+        opened: openedCount,
+        clicked: clickedCount,
+        replied: replyCount || 0,
+      });
+    } catch (err) {
+      console.error("Failed to fetch stats:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [campaign.id]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const openRate = stats.sent > 0 ? ((stats.opened / stats.sent) * 100).toFixed(1) : "0";
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Campaign Results</h2>
-        <p className="text-sm text-muted-foreground mt-1">"{campaign.name}" — live performance</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Campaign Results</h2>
+          <p className="text-sm text-muted-foreground mt-1">"{campaign.name}" — live performance</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchStats} disabled={loading} className="gap-2">
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* NEW: Visual metrics with donut charts + progress bars */}

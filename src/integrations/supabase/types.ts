@@ -17,11 +17,13 @@ export type Database = {
       campaign_sends: {
         Row: {
           campaign_id: string
+          clicked_at: string | null
           created_at: string
           error_message: string | null
           id: string
           lead_email: string
           lead_name: string
+          opened_at: string | null
           sent_at: string | null
           status: string
           subject: string
@@ -29,11 +31,13 @@ export type Database = {
         }
         Insert: {
           campaign_id: string
+          clicked_at?: string | null
           created_at?: string
           error_message?: string | null
           id?: string
           lead_email: string
           lead_name?: string
+          opened_at?: string | null
           sent_at?: string | null
           status?: string
           subject?: string
@@ -41,11 +45,13 @@ export type Database = {
         }
         Update: {
           campaign_id?: string
+          clicked_at?: string | null
           created_at?: string
           error_message?: string | null
           id?: string
           lead_email?: string
           lead_name?: string
+          opened_at?: string | null
           sent_at?: string | null
           status?: string
           subject?: string

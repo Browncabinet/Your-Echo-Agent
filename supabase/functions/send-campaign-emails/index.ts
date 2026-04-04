@@ -120,14 +120,48 @@ serve(async (req) => {
     // Rate limit: max 15 per batch
     const batch = leads.slice(0, 15);
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+
     for (const lead of batch) {
       const subject = (emailTemplate.subject || "")
         .replace(/\{\{name\}\}/g, lead.name)
         .replace(/\{\{company\}\}/g, lead.company);
 
-      const body = (emailTemplate.body || "")
+      let body = (emailTemplate.body || "")
         .replace(/\{\{name\}\}/g, lead.name)
         .replace(/\{\{company\}\}/g, lead.company);
+
+      // Pre-create the send record to get an ID for tracking
+      const serviceClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+
+      const { data: sendRecord } = await serviceClient.from("campaign_sends").insert({
+        campaign_id,
+        user_id: userId,
+        lead_email: lead.email,
+        lead_name: lead.name,
+        subject,
+        status: "queued",
+      }).select("id").single();
+
+      const sendId = sendRecord?.id;
+
+      // Inject tracking into email body
+      if (sendId) {
+        const trackBase = `${supabaseUrl}/functions/v1/track`;
+        
+        // Wrap links for click tracking
+        body = body.replace(
+          /href="(https?:\/\/[^"]+)"/g,
+          (_, url) => `href="${trackBase}?id=${sendId}&t=c&url=${encodeURIComponent(url)}"`
+        );
+
+        // Add tracking pixel for open tracking
+        const pixel = `<img src="${trackBase}?id=${sendId}&t=o" width="1" height="1" style="display:none" alt="" />`;
+        body = body + pixel;
+      }
 
       try {
         await sendEmailViaSMTP(
@@ -141,21 +175,12 @@ serve(async (req) => {
           body
         );
 
-        // Log the send using service role to bypass RLS
-        const serviceClient = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
-
-        await serviceClient.from("campaign_sends").insert({
-          campaign_id,
-          user_id: userId,
-          lead_email: lead.email,
-          lead_name: lead.name,
-          subject,
-          status: "sent",
-          sent_at: new Date().toISOString(),
-        });
+        // Update status to sent
+        if (sendId) {
+          await serviceClient.from("campaign_sends")
+            .update({ status: "sent", sent_at: new Date().toISOString() })
+            .eq("id", sendId);
+        }
 
         results.push({ email: lead.email, status: "sent" });
 
@@ -164,20 +189,12 @@ serve(async (req) => {
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
 
-        const serviceClient = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
-
-        await serviceClient.from("campaign_sends").insert({
-          campaign_id,
-          user_id: userId,
-          lead_email: lead.email,
-          lead_name: lead.name,
-          subject,
-          status: "failed",
-          error_message: errorMsg,
-        });
+        // Update the pre-created record to failed
+        if (sendId) {
+          await serviceClient.from("campaign_sends")
+            .update({ status: "failed", error_message: errorMsg })
+            .eq("id", sendId);
+        }
 
         results.push({ email: lead.email, status: "failed", error: errorMsg });
       }
