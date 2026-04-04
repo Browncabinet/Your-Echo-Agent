@@ -84,6 +84,7 @@ export function createEmptyCampaign(): Campaign {
     goal: "",
     websiteUrl: "",
     niche: "",
+    location: "",
     targetAudience: [],
     sellingPoints: [],
     leads: [],

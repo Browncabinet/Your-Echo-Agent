@@ -37,10 +37,11 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         query,
-        limit: options?.limit || 10,
+        limit: options?.limit || 20,
         lang: options?.lang,
         country: options?.country,
-        scrapeOptions: { formats: ['markdown'] },
+        tbs: options?.tbs,
+        scrapeOptions: options?.scrapeOptions || { formats: ['markdown'] },
       }),
     });
 

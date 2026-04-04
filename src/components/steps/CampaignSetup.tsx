@@ -123,6 +123,18 @@ export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
         </div>
 
         <div>
+          <Label htmlFor="location">Target Location</Label>
+          <Input
+            id="location"
+            placeholder='e.g. "Miami, FL" or "California" or "United States"'
+            value={campaign.location || ""}
+            onChange={(e) => onUpdate({ location: e.target.value })}
+            className="mt-1.5"
+          />
+          <p className="text-xs text-muted-foreground mt-1">Helps find leads in a specific area</p>
+        </div>
+
+        <div>
           <Label>Main Niche</Label>
           <Select value={campaign.niche} onValueChange={(v) => onUpdate({ niche: v, targetAudience: [] })}>
             <SelectTrigger className="mt-1.5">
