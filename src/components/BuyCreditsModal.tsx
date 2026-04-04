@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/hooks/use-credits";
-import { Coins, Sparkles, Check, Calculator, Plus } from "lucide-react";
+import { Coins, Sparkles, Check, Calculator, Plus, ArrowLeft } from "lucide-react";
 
 const creditPacks = [
   { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Starter", label: "Popular" },
@@ -20,12 +20,6 @@ const quickTopUps = [
   { priceId: "credits_600_onetime", dollars: 10, credits: 600 },
   { priceId: "credits_1800_onetime", dollars: 25, credits: 1800 },
 ];
-
-// We need a $15 → 1,000 quick top-up. Since there's no exact Stripe product,
-// map it to the $10 pack for now (closest lower match).
-const QUICK_15: { priceId: string; dollars: number; credits: number } = {
-  priceId: "credits_600_onetime", dollars: 15, credits: 1000,
-};
 
 function getCustomRate(dollars: number): number {
   if (dollars >= 100) return 0.011;
@@ -76,8 +70,15 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
       <Dialog open={open} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); onOpenChange(o); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Complete Purchase</DialogTitle>
-            <DialogDescription>Secure checkout powered by Stripe</DialogDescription>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedPriceId(null)}>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div>
+                <DialogTitle>Complete Purchase</DialogTitle>
+                <DialogDescription>Secure checkout powered by Stripe</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           <StripeEmbeddedCheckout
             priceId={selectedPriceId}
@@ -145,7 +146,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
             Quick Add for this project
           </p>
           <div className="flex gap-2 mb-4">
-            {[quickTopUps[0], QUICK_15, quickTopUps[1]].map((item) => (
+            {quickTopUps.map((item) => (
               <Button
                 key={item.dollars}
                 variant="outline"
@@ -200,15 +201,22 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
           </div>
           {customDollars >= 10 && (
             <div className="mt-2 rounded-md bg-primary/5 border border-primary/10 p-3">
-              <p className="text-sm text-foreground font-medium">
-                ${customDollars} → ~{customCredits.toLocaleString()} emails
-                <span className="text-muted-foreground font-normal"> (${customRate}/email)</span>
-              </p>
-              {!creditPacks.find(p => p.price === customDollars) && bestPackForCustom && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  We'll use the <strong>${bestPackForCustom.price}</strong> pack ({bestPackForCustom.credits.toLocaleString()} credits) — the best match for your amount.
+              {creditPacks.find(p => p.price === customDollars) ? (
+                <p className="text-sm text-foreground font-medium">
+                  ${customDollars} → {customCredits.toLocaleString()} emails
+                  <span className="text-muted-foreground font-normal"> (${customRate}/email)</span>
                 </p>
-              )}
+              ) : bestPackForCustom ? (
+                <>
+                  <p className="text-sm text-foreground font-medium">
+                    You'll be charged <strong>${bestPackForCustom.price}</strong> for {bestPackForCustom.credits.toLocaleString()} emails
+                    <span className="text-muted-foreground font-normal"> ({bestPackForCustom.perEmail}/email)</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    We don't have a ${customDollars} pack — this is the closest match. Try ${creditPacks.map(p => p.price).join(', $')} for exact amounts.
+                  </p>
+                </>
+              ) : null}
             </div>
           )}
         </div>
