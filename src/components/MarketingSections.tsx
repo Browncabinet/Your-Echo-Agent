@@ -125,7 +125,7 @@ export const ComparisonSection = React.forwardRef<HTMLDivElement>((_, ref) => {
 });
 ComparisonSection.displayName = "ComparisonSection";
 
-export function TrustSignals() {
+export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div className="flex flex-wrap justify-center gap-6 mt-8 text-xs text-muted-foreground">
       <span className="flex items-center gap-1.5">✓ Gmail connect in seconds</span>
