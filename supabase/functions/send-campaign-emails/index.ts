@@ -189,20 +189,12 @@ serve(async (req) => {
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
 
-        const serviceClient = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
-
-        await serviceClient.from("campaign_sends").insert({
-          campaign_id,
-          user_id: userId,
-          lead_email: lead.email,
-          lead_name: lead.name,
-          subject,
-          status: "failed",
-          error_message: errorMsg,
-        });
+        // Update the pre-created record to failed
+        if (sendId) {
+          await serviceClient.from("campaign_sends")
+            .update({ status: "failed", error_message: errorMsg })
+            .eq("id", sendId);
+        }
 
         results.push({ email: lead.email, status: "failed", error: errorMsg });
       }
