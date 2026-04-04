@@ -45,7 +45,7 @@ const creditPacks = [
 ];
 
 const included = [
-  "50 free credits on signup",
+  "50 free emails on signup",
   "AI-powered email writing",
   "Lead research & personalization",
   "Open & click tracking",
