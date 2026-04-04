@@ -68,7 +68,7 @@ const faqs = [
   },
   {
     q: "Is there a free tier?",
-    a: "Yes! Every new account gets 50 free credits to try out the platform. No credit card required.",
+    a: "Yes! Every new account gets 50 free emails to try out the platform. No credit card required.",
   },
 ];
 
