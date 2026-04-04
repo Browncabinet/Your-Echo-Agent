@@ -21,12 +21,6 @@ const quickTopUps = [
   { priceId: "credits_1800_onetime", dollars: 25, credits: 1800 },
 ];
 
-// We need a $15 → 1,000 quick top-up. Since there's no exact Stripe product,
-// map it to the $10 pack for now (closest lower match).
-const QUICK_15: { priceId: string; dollars: number; credits: number } = {
-  priceId: "credits_600_onetime", dollars: 15, credits: 1000,
-};
-
 function getCustomRate(dollars: number): number {
   if (dollars >= 100) return 0.011;
   if (dollars >= 50) return 0.013;
