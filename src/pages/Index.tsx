@@ -280,8 +280,14 @@ export default function Index() {
     return (
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
-          <div className="container max-w-5xl mx-auto px-4 py-4 cursor-pointer" onClick={() => setView("home")}>
-            <Logo />
+          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="cursor-pointer" onClick={() => setView("home")}>
+              <Logo />
+            </div>
+            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")}>
+              <AvatarImage src={user?.user_metadata?.avatar_url} />
+              <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
+            </Avatar>
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8">
