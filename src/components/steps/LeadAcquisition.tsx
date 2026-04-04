@@ -351,7 +351,6 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
           )}
           <p className="text-xs text-muted-foreground">These personalize your emails. Click ✕ to remove.</p>
         </div>
-        )}
 
         {/* Data fields */}
         <div>

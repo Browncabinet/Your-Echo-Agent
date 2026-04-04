@@ -166,7 +166,9 @@ Return a JSON object with this exact structure:
         ],
         tool_choice: { type: "function", function: { name: "generate_email_templates" } },
       }),
+      signal: aiController.signal,
     });
+    clearTimeout(aiTimeout);
 
     if (!aiRes.ok) {
       if (aiRes.status === 429) {
