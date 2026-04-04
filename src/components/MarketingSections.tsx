@@ -71,9 +71,9 @@ export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
 });
 FeaturesSection.displayName = "FeaturesSection";
 
-export function ComparisonSection() {
+export const ComparisonSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div className="pt-4 mb-14">
+    <div ref={ref} className="pt-4 mb-14">
       <h3 className="text-center text-lg font-semibold text-foreground mb-2">
         Built Differently
       </h3>
