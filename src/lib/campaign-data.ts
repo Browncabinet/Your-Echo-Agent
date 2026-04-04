@@ -50,6 +50,7 @@ export type Campaign = {
   goal: string;
   websiteUrl: string;
   niche: string;
+  location: string;
   targetAudience: string[];
   sellingPoints: string[];
   leads: Lead[];
