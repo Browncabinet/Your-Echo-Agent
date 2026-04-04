@@ -312,13 +312,13 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
           </Card>
         )}
 
-        {/* Selling Points — shown after extraction */}
-        {sellingPoints.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <Label className="text-sm font-semibold">Selling Points (from your website)</Label>
-            </div>
+        {/* Selling Points — always visible */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <Label className="text-sm font-semibold">Key Selling Points</Label>
+          </div>
+          {sellingPoints.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {sellingPoints.map((point) => (
                 <Badge key={point} variant="default" className="gap-1 pr-1.5 cursor-default">
@@ -331,24 +331,26 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
                   </button>
                 </Badge>
               ))}
-              {sellingPoints.length < 5 && (
-                <div className="flex items-center gap-1">
-                  <Input
-                    placeholder="Add a point..."
-                    value={newPointInput}
-                    onChange={(e) => setNewPointInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSellingPoint(); } }}
-                    className="h-7 w-40 text-xs"
-                  />
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={addSellingPoint} disabled={!newPointInput.trim()}>
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                </div>
-              )}
             </div>
-            <p className="text-xs text-muted-foreground">These will be used to personalize your emails. Click ✕ to remove or add your own.</p>
-          </div>
-        )}
+          ) : (
+            <p className="text-sm text-muted-foreground">No selling points yet — click Find Leads to auto-extract from your website, or add manually below.</p>
+          )}
+          {sellingPoints.length < 5 && (
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Add a selling point..."
+                value={newPointInput}
+                onChange={(e) => setNewPointInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSellingPoint(); } }}
+                className="h-8 text-sm flex-1"
+              />
+              <Button variant="outline" size="sm" className="h-8 gap-1" onClick={addSellingPoint} disabled={!newPointInput.trim()}>
+                <Plus className="w-3 h-3" /> Add
+              </Button>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">These personalize your emails. Click ✕ to remove.</p>
+        </div>
 
         {/* Data fields */}
         <div>
