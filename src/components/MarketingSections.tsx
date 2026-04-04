@@ -122,7 +122,8 @@ export const ComparisonSection = React.forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </div>
   );
-}
+});
+ComparisonSection.displayName = "ComparisonSection";
 
 export function TrustSignals() {
   return (
