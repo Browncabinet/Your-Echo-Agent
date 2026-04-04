@@ -15,22 +15,9 @@ type Props = {
 
 export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
   const [customSub, setCustomSub] = useState("");
-  const [sellingPointInput, setSellingPointInput] = useState("");
   const subcats = TARGET_AUDIENCES[campaign.niche] || [];
 
   const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience.length > 0;
-
-  const addSellingPoint = () => {
-    const point = sellingPointInput.trim();
-    if (point && !campaign.sellingPoints?.includes(point) && (campaign.sellingPoints?.length || 0) < 5) {
-      onUpdate({ sellingPoints: [...(campaign.sellingPoints || []), point] });
-      setSellingPointInput("");
-    }
-  };
-
-  const removeSellingPoint = (point: string) => {
-    onUpdate({ sellingPoints: (campaign.sellingPoints || []).filter((p) => p !== point) });
-  };
 
   return (
     <div className="space-y-6 max-w-xl">
