@@ -69,9 +69,15 @@ export function ResultsDashboard({ campaign, onBack }: Props) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Campaign Results</h2>
-        <p className="text-sm text-muted-foreground mt-1">"{campaign.name}" — live performance</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Campaign Results</h2>
+          <p className="text-sm text-muted-foreground mt-1">"{campaign.name}" — live performance</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchStats} disabled={loading} className="gap-2">
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* NEW: Visual metrics with donut charts + progress bars */}
