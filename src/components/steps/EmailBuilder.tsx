@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2, Pencil } from "lucide-react";
 import { type Campaign, type EmailTemplate, generateEmailTemplates, generateId } from "@/lib/campaign-data";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -132,6 +132,11 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
         </Button>
       </div>
 
+      <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+        <Pencil className="w-4 h-4 text-primary shrink-0" />
+        <p className="text-sm text-foreground">Click any field below to edit your email drafts</p>
+      </div>
+
       {campaign.websiteUrl && (
         <p className="text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
           ✨ AI will analyze <span className="font-medium text-foreground">{campaign.websiteUrl}</span> to personalize emails to your business
@@ -159,32 +164,41 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
             </div>
 
             <div>
-              <Label className="text-xs">Subject Line A</Label>
+              <div className="flex items-center gap-1.5">
+                <Label className="text-xs">Subject Line A</Label>
+                <Pencil className="w-3 h-3 text-muted-foreground" />
+              </div>
               <Input
                 value={email.subject}
                 onChange={(e) => updateEmail(email.id, { subject: e.target.value })}
-                className="mt-1"
+                className="mt-1 border-primary/15 focus:border-primary/40 bg-background"
               />
             </div>
 
             {email.subjectB !== undefined && (
               <div>
-                <Label className="text-xs">Subject Line B (A/B test)</Label>
+                <div className="flex items-center gap-1.5">
+                  <Label className="text-xs">Subject Line B (A/B test)</Label>
+                  <Pencil className="w-3 h-3 text-muted-foreground" />
+                </div>
                 <Input
                   value={email.subjectB}
                   onChange={(e) => updateEmail(email.id, { subjectB: e.target.value })}
-                  className="mt-1"
+                  className="mt-1 border-primary/15 focus:border-primary/40 bg-background"
                 />
               </div>
             )}
 
             <div>
-              <Label className="text-xs">Email Body</Label>
+              <div className="flex items-center gap-1.5">
+                <Label className="text-xs">Email Body</Label>
+                <Pencil className="w-3 h-3 text-muted-foreground" />
+              </div>
               <Textarea
                 value={email.body}
                 onChange={(e) => updateEmail(email.id, { body: e.target.value })}
                 rows={6}
-                className="mt-1 font-mono text-sm"
+                className="mt-1 font-mono text-sm border-primary/15 focus:border-primary/40 bg-background"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Use {"{{name}}"} and {"{{company}}"} for personalization
