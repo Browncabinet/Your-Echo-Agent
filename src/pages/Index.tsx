@@ -9,7 +9,8 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, Zap, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins } from "lucide-react";
+import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
 import { useCredits } from "@/hooks/use-credits";
 import { BuyCreditsModal } from "@/components/BuyCreditsModal";
@@ -83,10 +84,7 @@ export default function Index() {
         <PaymentTestModeBanner />
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="w-6 h-6 text-primary" />
-              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
-            </div>
+            <Logo />
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => setBuyCreditsOpen(true)} className="gap-1.5 text-xs">
                 <Coins className="w-3.5 h-3.5 text-primary" />
@@ -230,9 +228,8 @@ export default function Index() {
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
-              <Zap className="w-6 h-6 text-primary" />
-              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+            <div className="cursor-pointer" onClick={() => setView("home")}>
+              <Logo />
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => setView("replies")} className="gap-1">
@@ -256,9 +253,8 @@ export default function Index() {
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
-              <Zap className="w-6 h-6 text-primary" />
-              <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+            <div className="cursor-pointer" onClick={() => setView("home")}>
+              <Logo />
             </div>
           </div>
         </header>
@@ -276,9 +272,8 @@ export default function Index() {
     return (
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
-          <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
-            <Zap className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
+          <div className="container max-w-5xl mx-auto px-4 py-4 cursor-pointer" onClick={() => setView("home")}>
+            <Logo />
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8">
@@ -292,10 +287,9 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("home")}>
-            <Zap className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-bold text-foreground">Your Echo Agent</h1>
-          </div>
+            <div className="cursor-pointer" onClick={() => setView("home")}>
+              <Logo />
+            </div>
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Zap } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export function Footer() {
   return (
@@ -8,9 +8,8 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-5 h-5 text-primary" />
-              <span className="font-bold text-foreground">Your Echo Agent</span>
+            <div className="mb-2">
+              <Logo size="sm" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               The affordable AI outreach tool for creators and solo builders.
