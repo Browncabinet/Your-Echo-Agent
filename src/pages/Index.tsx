@@ -9,7 +9,7 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2, Inbox, Globe, Mail, MessageSquareReply, TrendingUp } from "lucide-react";
+import { Plus, Zap, BarChart3, Share2, LogOut, CreditCard, Loader2, Inbox, Globe, Mail, MessageSquareReply, TrendingUp, Sparkles } from "lucide-react";
 import { RepliesInbox } from "@/components/steps/RepliesInbox";
 import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
 import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
+import { QuickStartModal } from "@/components/QuickStartModal";
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
 
@@ -24,6 +25,7 @@ export default function Index() {
   const [view, setView] = useState<View>("home");
   const [step, setStep] = useState(0);
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
+  const [quickStartOpen, setQuickStartOpen] = useState(false);
   const { campaigns, loading: campaignsLoading, saveCampaign } = useCampaigns();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +38,13 @@ export default function Index() {
     setCampaign(createEmptyCampaign());
     setStep(0);
     setView("campaign");
+  };
+
+  const handleQuickStart = (quickCampaign: Campaign) => {
+    setCampaign(quickCampaign);
+    setStep(1); // Skip setup, go straight to leads
+    setView("campaign");
+    setQuickStartOpen(false);
   };
 
   const handleSend = async () => {
@@ -88,9 +97,12 @@ export default function Index() {
               Find qualified leads, write personalized emails that sound like you, send them, and even handle replies — all from your website URL.
             </p>
 
-            <div className="flex justify-center mt-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
               <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
                 <Plus className="w-5 h-5" /> New Campaign
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
+                <Sparkles className="w-5 h-5" /> Quick Start: Paste URL Only
               </Button>
             </div>
 
@@ -227,6 +239,12 @@ export default function Index() {
             </div>
           )}
         </main>
+
+        <QuickStartModal
+          open={quickStartOpen}
+          onOpenChange={setQuickStartOpen}
+          onStartCampaign={handleQuickStart}
+        />
       </div>
     );
   }
