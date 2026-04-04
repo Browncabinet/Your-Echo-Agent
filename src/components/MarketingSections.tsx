@@ -22,7 +22,7 @@ const mobileComparisonRows = [
   { feature: "Best For", us: "Solo builders & multiple small projects", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
 ];
 
-export function FeaturesSection() {
+export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div className="mb-14">
       <h3 className="text-center text-lg font-semibold text-foreground mb-6">
