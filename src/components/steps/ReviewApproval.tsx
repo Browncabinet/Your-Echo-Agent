@@ -3,13 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, CheckCheck, Loader2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Send, CheckCheck, Loader2, AlertTriangle, ShieldCheck, Coins } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
 import { GmailConnect } from "@/components/GmailConnect";
+import { BuyCreditsModal } from "@/components/BuyCreditsModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/hooks/use-credits";
 
 type Props = {
   campaign: Campaign;
