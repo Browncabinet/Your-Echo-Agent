@@ -36,7 +36,16 @@ export default function Index() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { balance, loading: creditsLoading } = useCredits();
+  const [showWelcome, setShowWelcome] = useState(false);
 
+  useEffect(() => {
+    if (!user) return;
+    const key = `echo_welcomed_${user.id}`;
+    if (!localStorage.getItem(key)) {
+      setShowWelcome(true);
+      localStorage.setItem(key, "1");
+    }
+  }, [user]);
   const updateCampaign = (updates: Partial<Campaign>) => {
     setCampaign((c) => ({ ...c, ...updates }));
   };
