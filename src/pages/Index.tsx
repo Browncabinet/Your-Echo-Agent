@@ -40,9 +40,9 @@ export default function Index() {
     setView("campaign");
   };
 
-  const handleQuickStart = (quickCampaign: Campaign) => {
+  const handleQuickStart = (quickCampaign: Campaign, skipSetup = true) => {
     setCampaign(quickCampaign);
-    setStep(1); // Skip setup, go straight to leads
+    setStep(skipSetup ? 1 : 0);
     setView("campaign");
     setQuickStartOpen(false);
   };
@@ -102,7 +102,7 @@ export default function Index() {
                 <Plus className="w-5 h-5" /> New Campaign
               </Button>
               <Button size="lg" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
-                <Sparkles className="w-5 h-5" /> Quick Start: Paste URL Only
+                <Sparkles className="w-5 h-5" /> Fast Mode — Paste URL Only
               </Button>
             </div>
 

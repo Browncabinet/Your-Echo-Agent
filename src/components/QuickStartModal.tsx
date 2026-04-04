@@ -10,7 +10,7 @@ import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onStartCampaign: (campaign: Campaign) => void;
+  onStartCampaign: (campaign: Campaign, skipSetup?: boolean) => void;
 };
 
 type DetectedData = {
@@ -56,7 +56,7 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
       setDetected(data);
       setPhase("confirm");
     } catch (e: any) {
-      setError(e.message || "Detection failed — please try again.");
+      setError("Couldn't read that URL. Please try again or use the full New Campaign form.");
       setPhase("input");
     }
   };
@@ -114,7 +114,12 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
                 We'll analyze your site and auto-detect your niche, audience, and campaign goal.
               </p>
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && (
+              <div className="space-y-2">
+                <p className="text-sm text-destructive">{error}</p>
+                <Button variant="outline" size="sm" onClick={() => setError(null)}>Try Again</Button>
+              </div>
+            )}
             <Button onClick={handleDetect} disabled={!url.trim()} className="w-full gap-2" size="lg">
               <Sparkles className="w-4 h-4" /> Detect My Business
             </Button>
@@ -125,8 +130,8 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
           <div className="flex flex-col items-center gap-4 py-10">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <div className="text-center">
-              <p className="font-medium text-foreground">Analyzing your website…</p>
-              <p className="text-sm text-muted-foreground mt-1">Detecting niche, audience, and campaign goal</p>
+              <p className="font-medium text-foreground">Understanding your offer…</p>
+              <p className="text-sm text-muted-foreground mt-1">Finding your ideal customers and crafting your campaign</p>
             </div>
           </div>
         )}
@@ -166,9 +171,16 @@ export function QuickStartModal({ open, onOpenChange, onStartCampaign }: Props) 
               </div>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button variant="outline" onClick={() => { setPhase("input"); setDetected(null); }} className="flex-1">
                 Try Another URL
+              </Button>
+              <Button variant="ghost" onClick={() => {
+                const c: Campaign = { ...createEmptyCampaign(), name: detected.name, goal: detected.goal, websiteUrl: url.trim(), niche: detected.niche, targetAudience: detected.targetAudience };
+                onStartCampaign(c, false);
+                setUrl(""); setPhase("input"); setDetected(null);
+              }} className="flex-1 text-muted-foreground">
+                Use Full Form Instead
               </Button>
               <Button onClick={handleConfirm} className="flex-1 gap-2">
                 Looks Good — Continue <ArrowRight className="w-4 h-4" />
