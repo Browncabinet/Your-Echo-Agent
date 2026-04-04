@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Zap, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
+import { Logo } from "@/components/Logo";
 
 export default function Privacy() {
   return (
