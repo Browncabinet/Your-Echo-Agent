@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
+import { Footer } from "@/components/Footer";
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -122,10 +123,7 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="text-center py-4 text-xs text-muted-foreground border-t border-border">
-        The affordable outreach tool — built for developers
-      </footer>
+      <Footer />
     </div>
   );
 }
