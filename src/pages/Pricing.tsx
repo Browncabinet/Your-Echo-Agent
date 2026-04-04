@@ -2,7 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, ArrowLeft, Coins, Sparkles } from "lucide-react";
+import { Check, ArrowLeft, Coins, Sparkles } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const creditPacks = [
   {
