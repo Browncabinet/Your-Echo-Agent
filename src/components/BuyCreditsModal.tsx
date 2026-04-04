@@ -196,7 +196,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               }}
               className="shrink-0"
             >
-              Buy Credits
+              Buy Emails
             </Button>
           </div>
           {customDollars >= 10 && (
