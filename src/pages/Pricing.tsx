@@ -137,6 +137,7 @@ export default function Pricing() {
                 <span className="text-muted-foreground text-sm ml-1">one-time</span>
               </div>
 
+              <p className="text-xs font-medium text-primary mb-1">{pack.label}</p>
               <p className="text-sm text-muted-foreground mb-2">{pack.description}</p>
               <p className="text-xs text-muted-foreground mb-6">{pack.perEmail} per email</p>
 

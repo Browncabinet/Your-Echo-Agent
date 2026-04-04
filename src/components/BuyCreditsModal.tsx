@@ -172,7 +172,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               Buy Credits
             </Button>
           </div>
-          {customDollars >= 5 && (
+          {customDollars >= 10 && (
             <div className="mt-2 rounded-md bg-primary/5 border border-primary/10 p-3">
               <p className="text-sm text-foreground font-medium">
                 ${customDollars} → ~{customCredits.toLocaleString()} emails
