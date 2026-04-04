@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
 import { QuickStartModal } from "@/components/QuickStartModal";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
 
