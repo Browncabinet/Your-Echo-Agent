@@ -33,7 +33,7 @@ Return a JSON object with exactly these fields:
 
 Be specific and practical. Return ONLY valid JSON, no markdown fences.`;
 
-    const aiRes = await fetch("https://api.lovable.dev/v1/chat/completions", {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
