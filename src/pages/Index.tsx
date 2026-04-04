@@ -25,6 +25,7 @@ export default function Index() {
   const [view, setView] = useState<View>("home");
   const [step, setStep] = useState(0);
   const [campaign, setCampaign] = useState<Campaign>(createEmptyCampaign());
+  const [quickStartOpen, setQuickStartOpen] = useState(false);
   const { campaigns, loading: campaignsLoading, saveCampaign } = useCampaigns();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
