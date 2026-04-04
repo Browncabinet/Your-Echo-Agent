@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Plus, Trash2, Mail, Sparkles, Loader2, Pencil } from "lucide-react";
 import { type Campaign, type EmailTemplate, generateEmailTemplates, generateId } from "@/lib/campaign-data";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
