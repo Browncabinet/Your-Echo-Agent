@@ -7,16 +7,26 @@ import { Input } from "@/components/ui/input";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/hooks/use-credits";
-import { Coins, Sparkles, Check, Calculator } from "lucide-react";
+import { Coins, Sparkles, Check, Calculator, Plus } from "lucide-react";
 
 const creditPacks = [
   { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Starter", label: "Popular" },
-  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: true, badge: "Growth", label: "Most Common" },
+  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: false, badge: "Growth", label: "Best Value" },
   { priceId: "credits_4000_onetime", credits: 4000, price: 50, perEmail: "$0.013", popular: false, badge: "Scale", label: null },
-  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: "Pro", label: "Best Value" },
+  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: "Pro", label: null },
 ];
 
-// Rate tiers for custom amounts (dollars → rate per email)
+const quickTopUps = [
+  { priceId: "credits_600_onetime", dollars: 10, credits: 600 },
+  { priceId: "credits_1800_onetime", dollars: 25, credits: 1800 },
+];
+
+// We need a $15 → 1,000 quick top-up. Since there's no exact Stripe product,
+// map it to the $10 pack for now (closest lower match).
+const QUICK_15: { priceId: string; dollars: number; credits: number } = {
+  priceId: "credits_600_onetime", dollars: 15, credits: 1000,
+};
+
 function getCustomRate(dollars: number): number {
   if (dollars >= 100) return 0.011;
   if (dollars >= 50) return 0.013;
@@ -53,13 +63,10 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
     return customDollars > 0 ? getCustomRate(customDollars).toFixed(3) : null;
   }, [customDollars]);
 
-  // Find the best matching pack for custom amounts
   const bestPackForCustom = useMemo(() => {
     if (customDollars <= 0) return null;
-    // Find exact match first
     const exact = creditPacks.find(p => p.price === customDollars);
     if (exact) return exact;
-    // Find nearest pack at or below the amount
     const sorted = [...creditPacks].sort((a, b) => b.price - a.price);
     return sorted.find(p => p.price <= customDollars) || creditPacks[0];
   }, [customDollars]);
@@ -99,7 +106,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
           </DialogDescription>
         </DialogHeader>
 
-        {/* Credit packs */}
+        {/* Main credit packs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
           {creditPacks.map((pack) => (
             <Card
@@ -131,11 +138,34 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
           ))}
         </div>
 
-        {/* Custom top-up */}
+        {/* Quick top-up for current project */}
         <div className="border-t border-border pt-4 mt-1">
           <p className="text-sm font-semibold text-foreground flex items-center gap-1.5 mb-3">
+            <Plus className="w-4 h-4 text-primary" />
+            Quick Add for this project
+          </p>
+          <div className="flex gap-2 mb-4">
+            {[quickTopUps[0], QUICK_15, quickTopUps[1]].map((item) => (
+              <Button
+                key={item.dollars}
+                variant="outline"
+                size="sm"
+                className="flex-1 h-auto py-2.5 flex flex-col items-center gap-0.5"
+                onClick={() => {
+                  const exact = creditPacks.find(p => p.price === item.dollars);
+                  setSelectedPriceId(exact?.priceId || item.priceId);
+                }}
+              >
+                <span className="font-semibold text-foreground">+${item.dollars}</span>
+                <span className="text-[11px] text-muted-foreground">+{item.credits.toLocaleString()} emails</span>
+              </Button>
+            ))}
+          </div>
+
+          {/* Custom amount */}
+          <p className="text-sm font-semibold text-foreground flex items-center gap-1.5 mb-3">
             <Calculator className="w-4 h-4 text-primary" />
-            Custom Top-up
+            Custom Amount
           </p>
           <div className="flex gap-3 items-start">
             <div className="flex-1">
@@ -156,14 +186,10 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               disabled={customDollars < 10}
               onClick={() => {
                 if (!bestPackForCustom) return;
-                // For exact pack matches, use the pack priceId
                 const exactPack = creditPacks.find(p => p.price === customDollars);
                 if (exactPack) {
                   setSelectedPriceId(exactPack.priceId);
                 } else {
-                  // For custom amounts, use the closest lower pack
-                  // In a production app you'd create a dynamic Stripe price
-                  // For now, suggest the nearest pack
                   setSelectedPriceId(bestPackForCustom.priceId);
                 }
               }}

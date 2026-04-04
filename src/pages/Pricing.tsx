@@ -12,6 +12,7 @@ const creditPacks = [
     label: "Starter",
     description: "Great for testing ideas",
     popular: true,
+    badge: "Popular",
   },
   {
     credits: 1800,
@@ -19,7 +20,8 @@ const creditPacks = [
     perEmail: "$0.014",
     label: "Growth",
     description: "Perfect for solo founders",
-    popular: true,
+    popular: false,
+    badge: "Best Value",
   },
   {
     credits: 4000,
@@ -28,6 +30,7 @@ const creditPacks = [
     label: "Scale",
     description: "Scale your outreach",
     popular: false,
+    badge: null,
   },
   {
     credits: 9000,
@@ -36,6 +39,7 @@ const creditPacks = [
     label: "Pro",
     description: "Maximum value",
     popular: false,
+    badge: null,
   },
 ];
 
@@ -120,9 +124,9 @@ export default function Pricing() {
                   : ""
               }`}
             >
-              {pack.popular && (
+              {pack.badge && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-                  {pack.label}
+                  {pack.badge}
                 </Badge>
               )}
 
