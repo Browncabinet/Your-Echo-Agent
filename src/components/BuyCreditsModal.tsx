@@ -109,17 +109,17 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               }`}
               onClick={() => setSelectedPriceId(pack.priceId)}
             >
-              {pack.badge && (
-                <Badge className="absolute -top-2 right-3 text-[10px]">{pack.badge}</Badge>
+              {pack.label && (
+                <Badge className="absolute -top-2 right-3 text-[10px]">{pack.label}</Badge>
               )}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-foreground flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    {pack.credits.toLocaleString()} credits
+                    {pack.credits.toLocaleString()} emails
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {pack.perEmail}/email
+                    {pack.badge} · {pack.perEmail}/email
                   </p>
                 </div>
                 <div className="text-right">
