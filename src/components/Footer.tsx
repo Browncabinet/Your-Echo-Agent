@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Zap } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export function Footer() {
   return (
