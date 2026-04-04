@@ -222,7 +222,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
         </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-          <Check className="w-3 h-3" /> Credits never expire
+          <Check className="w-3 h-3" /> Emails never expire
           <span className="mx-1">·</span>
           <Check className="w-3 h-3" /> No subscription required
         </div>

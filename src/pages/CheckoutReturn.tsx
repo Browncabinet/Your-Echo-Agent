@@ -34,7 +34,7 @@ export default function CheckoutReturn() {
           <>
             <h1 className="text-xl font-bold text-foreground">No payment information found</h1>
             <p className="text-sm text-muted-foreground">
-              If you completed a purchase, your credits will appear shortly.
+              If you completed a purchase, your emails will appear shortly.
             </p>
           </>
         )}

@@ -89,7 +89,7 @@ export default function Index() {
               <Button variant="ghost" size="sm" onClick={() => setBuyCreditsOpen(true)} className="gap-1.5 text-xs">
                 <Coins className="w-3.5 h-3.5 text-primary" />
                 <span className="font-medium text-foreground">{creditsLoading ? "…" : balance}</span>
-                <span className="text-muted-foreground">credits</span>
+                <span className="text-muted-foreground">emails</span>
               </Button>
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />

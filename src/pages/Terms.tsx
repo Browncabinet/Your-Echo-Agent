@@ -100,7 +100,7 @@ export default function Terms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">Account Termination</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We reserve the right to suspend or terminate accounts that violate these terms or our Acceptable Use Policy. If we terminate your account, any remaining credits will be forfeited. You can delete your account at any time.
+              We reserve the right to suspend or terminate accounts that violate these terms or our Acceptable Use Policy. If we terminate your account, any remaining emails will be forfeited. You can delete your account at any time.
             </p>
           </section>
 

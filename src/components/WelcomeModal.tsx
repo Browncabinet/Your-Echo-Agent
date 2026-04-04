@@ -35,7 +35,7 @@ export function WelcomeModal({ open, onOpenChange, onTryFastMode }: WelcomeModal
           <div className="flex items-start gap-3 rounded-lg border border-border p-3">
             <Coins className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
-              <p className="text-sm font-medium text-foreground">50 free credits included</p>
+              <p className="text-sm font-medium text-foreground">50 free emails included</p>
               <p className="text-xs text-muted-foreground">
                 Enough to test a small campaign and see real results. No credit card needed.
               </p>

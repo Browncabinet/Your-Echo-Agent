@@ -189,7 +189,7 @@ export function ReviewApproval({ campaign, onUpdate, onSend, onBack }: Props) {
             </div>
           </div>
           <Button size="sm" onClick={() => setShowCreditsModal(true)} className="ml-8 gap-1.5">
-            <Coins className="w-3 h-3" /> Buy Credits
+            <Coins className="w-3 h-3" /> Buy Emails
           </Button>
         </Card>
       )}
