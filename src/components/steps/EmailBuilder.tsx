@@ -132,6 +132,11 @@ export function EmailBuilder({ campaign, onUpdate, onNext, onBack }: Props) {
         </Button>
       </div>
 
+      <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+        <Pencil className="w-4 h-4 text-primary shrink-0" />
+        <p className="text-sm text-foreground">Click any field below to edit your email drafts</p>
+      </div>
+
       {campaign.websiteUrl && (
         <p className="text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
           ✨ AI will analyze <span className="font-medium text-foreground">{campaign.websiteUrl}</span> to personalize emails to your business
