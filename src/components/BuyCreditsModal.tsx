@@ -10,11 +10,10 @@ import { useCredits } from "@/hooks/use-credits";
 import { Coins, Sparkles, Check, Calculator } from "lucide-react";
 
 const creditPacks = [
-  { priceId: "credits_250_onetime", credits: 250, price: 5, perEmail: "$0.020", popular: false, badge: null },
-  { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Popular" },
-  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: false, badge: null },
-  { priceId: "credits_4000_onetime", credits: 4000, price: 50, perEmail: "$0.013", popular: false, badge: "Best Value" },
-  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: null },
+  { priceId: "credits_600_onetime", credits: 600, price: 10, perEmail: "$0.017", popular: true, badge: "Starter", label: "Popular" },
+  { priceId: "credits_1800_onetime", credits: 1800, price: 25, perEmail: "$0.014", popular: true, badge: "Growth", label: "Most Common" },
+  { priceId: "credits_4000_onetime", credits: 4000, price: 50, perEmail: "$0.013", popular: false, badge: "Scale", label: null },
+  { priceId: "credits_9000_onetime", credits: 9000, price: 100, perEmail: "$0.011", popular: false, badge: "Pro", label: "Best Value" },
 ];
 
 // Rate tiers for custom amounts (dollars → rate per email)
@@ -22,8 +21,7 @@ function getCustomRate(dollars: number): number {
   if (dollars >= 100) return 0.011;
   if (dollars >= 50) return 0.013;
   if (dollars >= 25) return 0.014;
-  if (dollars >= 10) return 0.017;
-  return 0.020;
+  return 0.017;
 }
 
 function getCustomCredits(dollars: number): number {
@@ -44,7 +42,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
 
   const customDollars = useMemo(() => {
     const val = parseInt(customAmount, 10);
-    return isNaN(val) || val < 5 ? 0 : val;
+    return isNaN(val) || val < 10 ? 0 : val;
   }, [customAmount]);
 
   const customCredits = useMemo(() => {
@@ -111,17 +109,17 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               }`}
               onClick={() => setSelectedPriceId(pack.priceId)}
             >
-              {pack.badge && (
-                <Badge className="absolute -top-2 right-3 text-[10px]">{pack.badge}</Badge>
+              {pack.label && (
+                <Badge className="absolute -top-2 right-3 text-[10px]">{pack.label}</Badge>
               )}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-foreground flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    {pack.credits.toLocaleString()} credits
+                    {pack.credits.toLocaleString()} emails
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {pack.perEmail}/email
+                    {pack.badge} · {pack.perEmail}/email
                   </p>
                 </div>
                 <div className="text-right">
@@ -145,17 +143,17 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
                 <Input
                   type="number"
-                  min={5}
+                  min={10}
                   placeholder="Enter amount"
                   className="pl-7"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                 />
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">$5 minimum</p>
+              <p className="text-[11px] text-muted-foreground mt-1">$10 minimum</p>
             </div>
             <Button
-              disabled={customDollars < 5}
+              disabled={customDollars < 10}
               onClick={() => {
                 if (!bestPackForCustom) return;
                 // For exact pack matches, use the pack priceId
@@ -174,7 +172,7 @@ export function BuyCreditsModal({ open, onOpenChange, requiredCredits }: BuyCred
               Buy Credits
             </Button>
           </div>
-          {customDollars >= 5 && (
+          {customDollars >= 10 && (
             <div className="mt-2 rounded-md bg-primary/5 border border-primary/10 p-3">
               <p className="text-sm text-foreground font-medium">
                 ${customDollars} → ~{customCredits.toLocaleString()} emails

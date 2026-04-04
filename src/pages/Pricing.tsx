@@ -6,16 +6,10 @@ import { Check, Zap, ArrowLeft, Coins, Sparkles } from "lucide-react";
 
 const creditPacks = [
   {
-    credits: 250,
-    price: "$5",
-    perEmail: "$0.020",
-    description: "Quick test run",
-    popular: false,
-  },
-  {
     credits: 600,
     price: "$10",
     perEmail: "$0.017",
+    label: "Starter",
     description: "Great for testing ideas",
     popular: true,
   },
@@ -23,13 +17,15 @@ const creditPacks = [
     credits: 1800,
     price: "$25",
     perEmail: "$0.014",
+    label: "Growth",
     description: "Perfect for solo founders",
-    popular: false,
+    popular: true,
   },
   {
     credits: 4000,
     price: "$50",
     perEmail: "$0.013",
+    label: "Scale",
     description: "Scale your outreach",
     popular: false,
   },
@@ -37,6 +33,7 @@ const creditPacks = [
     credits: 9000,
     price: "$100",
     perEmail: "$0.011",
+    label: "Pro",
     description: "Maximum value",
     popular: false,
   },
@@ -113,7 +110,7 @@ export default function Pricing() {
         </div>
 
         {/* Credit Packs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {creditPacks.map((pack) => (
             <Card
               key={pack.credits}
@@ -125,7 +122,7 @@ export default function Pricing() {
             >
               {pack.popular && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-                  Best Value
+                  {pack.label}
                 </Badge>
               )}
 
@@ -140,6 +137,7 @@ export default function Pricing() {
                 <span className="text-muted-foreground text-sm ml-1">one-time</span>
               </div>
 
+              <p className="text-xs font-medium text-primary mb-1">{pack.label}</p>
               <p className="text-sm text-muted-foreground mb-2">{pack.description}</p>
               <p className="text-xs text-muted-foreground mb-6">{pack.perEmail} per email</p>
 
