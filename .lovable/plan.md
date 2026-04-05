@@ -1,66 +1,57 @@
 
 
-## Plan: Improve Lead Search Quality with AI-Powered Extraction
+## Plan: Fix Campaign Save + Improve Lead Extraction
 
-### Root Cause
-The current approach uses **regex email matching** (`/[\w.+-]+@[\w-]+\.[\w.]+/g`) on search result markdown. This fails because:
-- Most business pages obfuscate emails (e.g., "john [at] company [dot] com") or hide them behind contact forms
-- Search result snippets rarely contain full emails
-- The search queries are too generic ("directory contact list email") and don't target pages with exposed contact data
+### Issue 1: Campaign save fails — invalid UUID
 
-### Solution
-Replace the regex-based extraction with an **AI-powered extraction edge function** that can understand context, infer names/companies from surrounding text, and find emails even when partially obfuscated. Also improve search query variety to target richer data sources.
+The error `invalid input syntax for type uuid: "9gsxk9dwj8"` occurs because `generateId()` uses `Math.random().toString(36).substring(2, 15)` which produces short alphanumeric strings, not valid UUIDs. The `campaigns` table has `id uuid` column type.
 
-### Changes
+**Fix in `src/lib/campaign-data.ts`:**
+- Replace `generateId()` with `crypto.randomUUID()` which produces proper UUIDs
+- This fixes campaign saves, lead IDs, and email IDs
 
-**1. New Edge Function: `supabase/functions/extract-leads/index.ts`**
-- Accept `{ results: [{ title, url, markdown, description }], niche, targetAudience, batchSize }`
-- Use Lovable AI (gemini-3-flash-preview) to extract structured contacts from the combined search result content
-- Prompt instructs AI to find name, company, email, and LinkedIn from the text, including obfuscated emails
-- Return `{ leads: [{ name, company, email, linkedin }] }`
+### Issue 2: AI only extracts 1 lead from 91 results
 
-**2. Update `src/lib/api/firecrawl.ts`**
-- Keep `extractLeadsFromMarkdown` as a fallback
-- Add new function `extractLeadsWithAI(results, campaign)` that calls the new edge function
-- Falls back to regex extraction if AI extraction fails
+Root causes:
+- **Input truncation**: 91 results get combined then truncated to 30k chars. Most content is wasted — search result markdown contains navigation, ads, and irrelevant page chrome
+- **Single AI call**: One call with a massive prompt produces poor results. The AI gets overwhelmed by noise
+- **No `max_tokens` set**: The response may be truncated silently
 
-**3. Update `src/components/steps/LeadAcquisition.tsx`**
-- In `handleAutoSearch`, after collecting search results from all rounds, send the raw results to the AI extraction function instead of using regex
-- Add progress message: "AI is analyzing search results for contacts..."
-- Increase search rounds from 3 to 5 with more varied queries targeting:
-  - Industry directories and association member lists
-  - "Contact us" and "Our team" pages
-  - LinkedIn-style professional listings
-  - Chamber of commerce / BBB listings
-  - Industry-specific databases
+**Fix in `supabase/functions/extract-leads/index.ts`:**
+1. **Process in batches**: Split results into chunks of ~15 results each, make parallel AI calls, then merge
+2. **Smarter content trimming**: For each result, only send the first 1500 chars of markdown (where contact info usually lives), plus title/URL/description
+3. **Add `max_tokens: 4096`** to the AI request to prevent output truncation
+4. **Log `finish_reason`** to detect if truncation is still happening
+5. **Use `gemini-2.5-flash`** (already set — good for speed on multiple calls)
 
-**4. Update `supabase/functions/firecrawl-search/index.ts`**
-- No changes needed - already returns markdown content per result
+**Fix in `src/components/steps/LeadAcquisition.tsx`:**
+- Remove the `allSearchResults.length >= 80` early-stop cap so all 5 rounds always run
+- Increase per-round limit from 20 to 30
 
-### Search Query Strategy (improved)
+### Technical Details
+
+**generateId replacement:**
+```typescript
+export function generateId(): string {
+  return crypto.randomUUID();
+}
+```
+
+**Batch processing in extract-leads:**
 ```text
-Round 1: [user query] email contact directory [location]
-Round 2: [audience] [niche] list members email [location]
-Round 3: [niche] association directory [audience] [location]
-Round 4: [audience] [niche] "contact us" OR "our team" email [location]
-Round 5: [niche] professionals near [location] email linkedin
+91 results → split into chunks of 15
+→ 6-7 parallel AI calls, each analyzing ~15 results
+→ merge all extracted leads, deduplicate by email
+→ return combined list
 ```
 
-### AI Extraction Prompt (key idea)
-```
-Extract contacts from these web pages. Look for:
-- Full names and company names
-- Email addresses (including obfuscated: "at", "[at]", "(at)")
-- LinkedIn profile URLs
-- Infer company from email domain if not stated
-Return only real people with valid emails. Skip generic addresses.
-```
+Each chunk gets ~1500 chars per result = ~22k chars per batch (well within limits).
 
 ### Summary
 
 | File | Change |
 |------|--------|
-| `supabase/functions/extract-leads/index.ts` | New AI extraction edge function |
-| `src/lib/api/firecrawl.ts` | Add `extractLeadsWithAI()` wrapper |
-| `src/components/steps/LeadAcquisition.tsx` | Use AI extraction, add more search rounds with better queries |
+| `src/lib/campaign-data.ts` | `generateId()` → `crypto.randomUUID()` |
+| `supabase/functions/extract-leads/index.ts` | Batch processing, smarter truncation, add max_tokens |
+| `src/components/steps/LeadAcquisition.tsx` | Remove 80-result cap, increase per-round limit to 30 |
 
