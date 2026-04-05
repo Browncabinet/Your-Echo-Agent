@@ -161,12 +161,12 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
     try {
       for (let i = 0; i < uniqueQueries.length; i++) {
-        if (allSearchResults.length >= 80) break; // enough raw results
+        // Run all rounds — no early stop
 
         const q = uniqueQueries[i];
         setProgress((prev) => [...prev, `Round ${i + 1}: Searching "${q.slice(0, 60)}${q.length > 60 ? '…' : ''}"...`]);
 
-        const result = await firecrawlApi.search(q, { limit: 20 });
+        const result = await firecrawlApi.search(q, { limit: 30 });
         if (!result.success) {
           setProgress((prev) => [...prev, `Round ${i + 1}: Search failed ✓`]);
           continue;
