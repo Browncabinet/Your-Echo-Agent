@@ -84,7 +84,7 @@ export function extractLeadsFromMarkdown(markdown: string): Lead[] {
   return leads;
 }
 
-// Extract leads from search results (multiple pages)
+// Extract leads from search results (multiple pages) — regex fallback
 export function extractLeadsFromSearchResults(results: any[]): Lead[] {
   const allLeads: Lead[] = [];
   const seenEmails = new Set<string>();
@@ -92,7 +92,6 @@ export function extractLeadsFromSearchResults(results: any[]): Lead[] {
   console.log(`[LeadExtraction] Processing ${results.length} search results`);
 
   for (const result of results) {
-    // Combine markdown, description, title, and url for maximum extraction
     const parts = [
       result.markdown || '',
       result.description || '',
@@ -100,8 +99,6 @@ export function extractLeadsFromSearchResults(results: any[]): Lead[] {
       result.url || '',
     ];
     const combined = parts.join('\n');
-    console.log(`[LeadExtraction] Result "${result.title || result.url || '?'}" — ${combined.length} chars`);
-    
     const pageLeads = extractLeadsFromMarkdown(combined);
 
     for (const lead of pageLeads) {
@@ -114,4 +111,47 @@ export function extractLeadsFromSearchResults(results: any[]): Lead[] {
 
   console.log(`[LeadExtraction] Total unique leads found: ${allLeads.length}`);
   return allLeads;
+}
+
+// AI-powered lead extraction — calls edge function, falls back to regex
+export async function extractLeadsWithAI(
+  results: any[],
+  campaign: { niche: string; targetAudience: string[]; batchSize?: number }
+): Promise<Lead[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke('extract-leads', {
+      body: {
+        results: results.map((r) => ({
+          title: r.title || '',
+          url: r.url || '',
+          description: r.description || '',
+          markdown: r.markdown || '',
+        })),
+        niche: campaign.niche,
+        targetAudience: campaign.targetAudience,
+        batchSize: campaign.batchSize || 50,
+      },
+    });
+
+    if (error || !data?.success || !data?.leads?.length) {
+      console.warn('[LeadExtraction] AI extraction failed or empty, falling back to regex');
+      return extractLeadsFromSearchResults(results);
+    }
+
+    // Convert AI results to Lead objects
+    const leads: Lead[] = data.leads.map((l: any) => ({
+      id: generateId(),
+      name: l.name || '',
+      company: l.company || '',
+      email: l.email,
+      linkedin: l.linkedin || undefined,
+      approved: false,
+    }));
+
+    console.log(`[LeadExtraction] AI extracted ${leads.length} leads`);
+    return leads;
+  } catch (err) {
+    console.error('[LeadExtraction] AI extraction error:', err);
+    return extractLeadsFromSearchResults(results);
+  }
 }

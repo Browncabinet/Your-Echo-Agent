@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ArrowRight, ArrowLeft, Loader2, Check, Link2, Search, Info, MapPin, ChevronDown, X, Plus, Sparkles } from "lucide-react";
 import { type Campaign, BATCH_TIERS } from "@/lib/campaign-data";
-import { firecrawlApi, extractLeadsFromMarkdown, extractLeadsFromSearchResults } from "@/lib/api/firecrawl";
+import { firecrawlApi, extractLeadsFromMarkdown, extractLeadsWithAI } from "@/lib/api/firecrawl";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { type Lead } from "@/lib/campaign-data";
