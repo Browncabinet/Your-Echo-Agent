@@ -34,10 +34,6 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   const selectedBatch = campaign.batchSize || 50;
   const sellingPoints = campaign.sellingPoints || [];
 
-  const buildQuery = (base: string) => {
-    const loc = location.trim();
-    return loc ? `${base} ${loc}` : base;
-  };
 
   const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
     ? `${campaign.targetAudience.join(" ")} ${campaign.niche} directory contact list email`
