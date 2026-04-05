@@ -198,7 +198,6 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
         setProgress((prev) => [...prev, `AI found ${allLeads.length} contacts ✓`]);
       }
-      }
 
       setProgress([]);
 
