@@ -144,6 +144,7 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
     const seenEmails = new Set<string>();
     let allLeads: Lead[] = [];
+    let allSearchResults: any[] = [];
 
     const audience = campaign.targetAudience.join(" ");
     const niche = campaign.niche;
@@ -152,13 +153,15 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
       buildQuery(rawQuery.includes("directory") ? rawQuery : `${rawQuery} email contact directory`),
       buildQuery(`${audience} ${niche} list members email`),
       buildQuery(`${niche} association directory emails ${audience}`),
+      buildQuery(`${audience} ${niche} "contact us" OR "our team" email`),
+      buildQuery(`${niche} professionals email linkedin ${audience}`),
     ];
 
     const uniqueQueries = [...new Set(queries)];
 
     try {
       for (let i = 0; i < uniqueQueries.length; i++) {
-        if (allLeads.length >= selectedBatch) break;
+        if (allSearchResults.length >= 80) break; // enough raw results
 
         const q = uniqueQueries[i];
         setProgress((prev) => [...prev, `Round ${i + 1}: Searching "${q.slice(0, 60)}${q.length > 60 ? '…' : ''}"...`]);
@@ -171,18 +174,30 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
         const searchData = result.data || result;
         const results = Array.isArray(searchData) ? searchData : (searchData.data || searchData.results || []);
-        const roundLeads = extractLeadsFromSearchResults(results);
+        allSearchResults.push(...results);
 
-        let newCount = 0;
-        for (const lead of roundLeads) {
+        setProgress((prev) => [...prev, `Round ${i + 1}: Got ${results.length} results ✓`]);
+      }
+
+      // Use AI to extract leads from all collected search results
+      if (allSearchResults.length > 0) {
+        setProgress((prev) => [...prev, "AI is analyzing search results for contacts..."]);
+        
+        const extractedLeads = await extractLeadsWithAI(allSearchResults, {
+          niche: campaign.niche,
+          targetAudience: campaign.targetAudience,
+          batchSize: selectedBatch,
+        });
+
+        for (const lead of extractedLeads) {
           if (!seenEmails.has(lead.email) && allLeads.length < selectedBatch) {
             seenEmails.add(lead.email);
             allLeads.push(lead);
-            newCount++;
           }
         }
 
-        setProgress((prev) => [...prev, `Round ${i + 1}: Found ${newCount} new leads (${allLeads.length} total) ✓`]);
+        setProgress((prev) => [...prev, `AI found ${allLeads.length} contacts ✓`]);
+      }
       }
 
       setProgress([]);
