@@ -81,7 +81,7 @@ ${combinedContent}`;
 
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 25000);
+        const timeout = setTimeout(() => controller.abort(), 40000);
 
         const aiRes = await fetch('https://ai.gateway.lovable.dev/chat/completions', {
           method: 'POST',

@@ -34,10 +34,6 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
   const selectedBatch = campaign.batchSize || 50;
   const sellingPoints = campaign.sellingPoints || [];
 
-  const buildQuery = (base: string) => {
-    const loc = location.trim();
-    return loc ? `${base} ${loc}` : base;
-  };
 
   const suggestedQuery = campaign.niche && campaign.targetAudience.length > 0
     ? `${campaign.targetAudience.join(" ")} ${campaign.niche} directory contact list email`
@@ -148,25 +144,42 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
 
     const audience = campaign.targetAudience.join(" ");
     const niche = campaign.niche;
+    const loc = location.trim();
 
-    const queries = [
-      buildQuery(rawQuery.includes("directory") ? rawQuery : `${rawQuery} email contact directory`),
-      buildQuery(`${audience} ${niche} list members email`),
-      buildQuery(`${niche} association directory emails ${audience}`),
-      buildQuery(`${audience} ${niche} "contact us" OR "our team" email`),
-      buildQuery(`${niche} professionals email linkedin ${audience}`),
+    // Scale rounds and per-round limit based on batch size
+    const targetCount = selectedBatch;
+    const roundCount = targetCount <= 50 ? 5 : targetCount <= 200 ? 8 : targetCount <= 500 ? 12 : 15;
+    const perRoundLimit = targetCount <= 50 ? 30 : 50;
+
+    // Build targeted query templates
+    const baseQueries = [
+      `${rawQuery} email directory`,
+      `${audience} ${niche} email list`,
+      `site:yelp.com ${audience} ${niche}`,
+      `site:linkedin.com/in ${audience} ${niche}`,
+      `${niche} ${audience} "contact" OR "@"`,
+      `yellowpages ${audience} ${niche}`,
+      `${niche} association members directory`,
+      `${audience} ${niche} "our team" OR "staff" email`,
+      `${niche} ${audience} chamber of commerce directory`,
+      `BBB ${niche} ${audience} directory`,
+      `${audience} ${niche} professionals contact list`,
+      `${niche} ${audience} company directory email`,
+      `${audience} ${niche} "email" filetype:html`,
+      `${niche} ${audience} networking group members`,
+      `${audience} ${niche} local business directory`,
     ];
 
+    // Add location to each query
+    const queries = baseQueries.slice(0, roundCount).map((q) => (loc ? `${q} ${loc}` : q));
     const uniqueQueries = [...new Set(queries)];
 
     try {
       for (let i = 0; i < uniqueQueries.length; i++) {
-        // Run all rounds — no early stop
-
         const q = uniqueQueries[i];
-        setProgress((prev) => [...prev, `Round ${i + 1}: Searching "${q.slice(0, 60)}${q.length > 60 ? '…' : ''}"...`]);
+        setProgress((prev) => [...prev, `Round ${i + 1}/${uniqueQueries.length}: Searching "${q.slice(0, 55)}${q.length > 55 ? '…' : ''}"...`]);
 
-        const result = await firecrawlApi.search(q, { limit: 30 });
+        const result = await firecrawlApi.search(q, { limit: perRoundLimit });
         if (!result.success) {
           setProgress((prev) => [...prev, `Round ${i + 1}: Search failed ✓`]);
           continue;
@@ -179,31 +192,59 @@ export function LeadAcquisition({ campaign, onUpdate, onNext, onBack }: Props) {
         setProgress((prev) => [...prev, `Round ${i + 1}: Got ${results.length} results ✓`]);
       }
 
+      // Deep-scrape pass: find promising directory/team pages and scrape them fully
+      const directoryKeywords = ["directory", "team", "staff", "members", "contact", "agents", "list", "roster", "people"];
+      const promisingScrapeUrls = allSearchResults
+        .filter((r: any) => {
+          const text = `${r.title || ""} ${r.url || ""}`.toLowerCase();
+          return directoryKeywords.some((kw) => text.includes(kw));
+        })
+        .map((r: any) => r.url)
+        .filter((u: string) => u && !u.includes("linkedin.com") && !u.includes("facebook.com"))
+        .slice(0, 10);
+
+      if (promisingScrapeUrls.length > 0) {
+        setProgress((prev) => [...prev, `Deep-scraping ${promisingScrapeUrls.length} promising pages...`]);
+        const scrapePromises = promisingScrapeUrls.map(async (pageUrl: string) => {
+          try {
+            const scrapeResult = await firecrawlApi.scrape(pageUrl);
+            if (scrapeResult.success) {
+              const md = scrapeResult.data?.markdown || (scrapeResult as any).markdown || "";
+              return { title: pageUrl, url: pageUrl, markdown: md, description: "" };
+            }
+          } catch {}
+          return null;
+        });
+        const scrapeResults = (await Promise.all(scrapePromises)).filter(Boolean);
+        allSearchResults.push(...scrapeResults);
+        setProgress((prev) => [...prev, `Deep-scraped ${scrapeResults.length} pages ✓`]);
+      }
+
       // Use AI to extract leads from all collected search results
       if (allSearchResults.length > 0) {
-        setProgress((prev) => [...prev, "AI is analyzing search results for contacts..."]);
+        setProgress((prev) => [...prev, `AI is analyzing ${allSearchResults.length} results for contacts...`]);
         
         const extractedLeads = await extractLeadsWithAI(allSearchResults, {
           niche: campaign.niche,
           targetAudience: campaign.targetAudience,
-          batchSize: selectedBatch,
+          batchSize: targetCount,
         });
 
         for (const lead of extractedLeads) {
-          if (!seenEmails.has(lead.email) && allLeads.length < selectedBatch) {
+          if (!seenEmails.has(lead.email) && allLeads.length < targetCount) {
             seenEmails.add(lead.email);
             allLeads.push(lead);
           }
         }
 
-        setProgress((prev) => [...prev, `AI found ${allLeads.length} contacts ✓`]);
+        setProgress((prev) => [...prev, `Found ${allLeads.length} of ${targetCount} requested contacts ✓`]);
       }
 
       setProgress([]);
 
       if (allLeads.length > 0) {
         onUpdate({ leads: allLeads });
-        toast({ title: "Success!", description: `Found ${allLeads.length} contacts across ${uniqueQueries.length} search rounds.` });
+        toast({ title: "Success!", description: `Found ${allLeads.length} of ${targetCount} requested contacts across ${uniqueQueries.length} search rounds.` });
       } else {
         toast({ title: "No contacts found", description: "Try a more specific query or different location.", variant: "destructive" });
       }
