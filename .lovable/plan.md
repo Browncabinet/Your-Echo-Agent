@@ -1,57 +1,55 @@
 
 
-## Plan: Fix Campaign Save + Improve Lead Extraction
+## Plan: Improve Lead Search Precision and Volume
 
-### Issue 1: Campaign save fails — invalid UUID
+### Current System
+The app uses **Firecrawl Search API** to find web pages, then sends the results to an **AI Edge Function** (`extract-leads`) that uses Gemini 2.5 Flash to parse contacts from the page content. It runs 5 search rounds with 30 results each (max 150 raw results), then the AI extracts emails from the markdown.
 
-The error `invalid input syntax for type uuid: "9gsxk9dwj8"` occurs because `generateId()` uses `Math.random().toString(36).substring(2, 15)` which produces short alphanumeric strings, not valid UUIDs. The `campaigns` table has `id uuid` column type.
+### Why Results Are Low
+1. **Search queries are too generic** — queries like "agents brokers real estate list members email Miami, FL" return informational pages, not directories with actual contact data
+2. **Firecrawl search returns truncated content** — search result snippets often don't include the actual email addresses buried deeper in the page
+3. **No targeted data sources** — not searching LinkedIn, Yelp, Yellow Pages, industry-specific directories where contact data actually lives
+4. **Fixed 5 rounds regardless of batch size** — selecting "51-200" contacts should trigger more search rounds than "0-50"
 
-**Fix in `src/lib/campaign-data.ts`:**
-- Replace `generateId()` with `crypto.randomUUID()` which produces proper UUIDs
-- This fixes campaign saves, lead IDs, and email IDs
+### Solution
 
-### Issue 2: AI only extracts 1 lead from 91 results
+**1. Scale search rounds to match batch size**
+- 0-50 contacts: 5 rounds
+- 51-200: 8 rounds
+- 201-500: 12 rounds
+- 501-2000: 15 rounds
 
-Root causes:
-- **Input truncation**: 91 results get combined then truncated to 30k chars. Most content is wasted — search result markdown contains navigation, ads, and irrelevant page chrome
-- **Single AI call**: One call with a massive prompt produces poor results. The AI gets overwhelmed by noise
-- **No `max_tokens` set**: The response may be truncated silently
-
-**Fix in `supabase/functions/extract-leads/index.ts`:**
-1. **Process in batches**: Split results into chunks of ~15 results each, make parallel AI calls, then merge
-2. **Smarter content trimming**: For each result, only send the first 1500 chars of markdown (where contact info usually lives), plus title/URL/description
-3. **Add `max_tokens: 4096`** to the AI request to prevent output truncation
-4. **Log `finish_reason`** to detect if truncation is still happening
-5. **Use `gemini-2.5-flash`** (already set — good for speed on multiple calls)
-
-**Fix in `src/components/steps/LeadAcquisition.tsx`:**
-- Remove the `allSearchResults.length >= 80` early-stop cap so all 5 rounds always run
-- Increase per-round limit from 20 to 30
-
-### Technical Details
-
-**generateId replacement:**
-```typescript
-export function generateId(): string {
-  return crypto.randomUUID();
-}
-```
-
-**Batch processing in extract-leads:**
+**2. Better query templates targeting data-rich sources**
 ```text
-91 results → split into chunks of 15
-→ 6-7 parallel AI calls, each analyzing ~15 results
-→ merge all extracted leads, deduplicate by email
-→ return combined list
+Round 1: [query] email directory [location]
+Round 2: site:yelp.com [audience] [niche] [location]
+Round 3: site:linkedin.com/in [audience] [niche] [location]
+Round 4: [niche] [audience] email list [location]
+Round 5: [audience] [niche] "contact" OR "@" [location]
+Round 6: yellowpages [audience] [niche] [location]
+Round 7: [niche] association members directory [location]
+Round 8: [audience] [niche] "our team" OR "staff" email [location]
+Round 9+: Additional variations with BBB, chamber of commerce, etc.
 ```
 
-Each chunk gets ~1500 chars per result = ~22k chars per batch (well within limits).
+**3. Increase per-round search limit from 30 to 50** for larger batch sizes
 
-### Summary
+**4. Add a second pass: scrape top URLs** — After the initial search, identify the most promising URLs (directories, team pages) and do a full Firecrawl scrape on them to get complete page content instead of relying on truncated search snippets
+
+**5. Show progress with expected vs actual count** — Display "Found 23 of 100 requested contacts" so users know the status
+
+### Files Changed
 
 | File | Change |
 |------|--------|
-| `src/lib/campaign-data.ts` | `generateId()` → `crypto.randomUUID()` |
-| `supabase/functions/extract-leads/index.ts` | Batch processing, smarter truncation, add max_tokens |
-| `src/components/steps/LeadAcquisition.tsx` | Remove 80-result cap, increase per-round limit to 30 |
+| `src/components/steps/LeadAcquisition.tsx` | Scale rounds by batch size, better queries, add deep-scrape pass, show count vs target |
+| `supabase/functions/extract-leads/index.ts` | Increase batch timeout to 40s for larger payloads |
+
+### Technical Details
+
+The deep-scrape pass works like this:
+1. After all search rounds complete, filter results for URLs that look like directories (contain "directory", "team", "staff", "members", "contact" in URL/title)
+2. Scrape the top 10 most promising URLs via Firecrawl scrape (full markdown, not just search snippet)
+3. Send those full-page results through the AI extraction as an additional batch
+4. Merge and deduplicate with previously found leads
 
