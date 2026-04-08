@@ -111,8 +111,12 @@ serve(async (req) => {
       );
     }
 
-    // Fetch user's email settings (RLS ensures ownership)
-    const { data: settings, error: settingsError } = await supabase
+    // Fetch user's email settings using service role (smtp_password is column-restricted for authenticated)
+    const serviceClientForSettings = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const { data: settings, error: settingsError } = await serviceClientForSettings
       .from("user_email_settings")
       .select("*")
       .eq("user_id", userId)
