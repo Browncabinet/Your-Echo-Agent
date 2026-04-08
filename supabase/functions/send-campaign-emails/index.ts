@@ -95,8 +95,12 @@ serve(async (req) => {
       );
     }
 
-    // Get user's email settings
-    const { data: settings, error: settingsError } = await supabase
+    // Get user's email settings using service role (smtp_password is column-restricted for authenticated)
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const { data: settings, error: settingsError } = await serviceClient
       .from("user_email_settings")
       .select("*")
       .eq("user_id", userId)
@@ -132,10 +136,6 @@ serve(async (req) => {
         .replace(/\{\{company\}\}/g, lead.company);
 
       // Pre-create the send record to get an ID for tracking
-      const serviceClient = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
 
       const { data: sendRecord } = await serviceClient.from("campaign_sends").insert({
         campaign_id,
