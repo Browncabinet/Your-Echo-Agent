@@ -153,7 +153,7 @@ serve(async (req) => {
 
     // Update the reply record to "sent"
 
-    await serviceClient
+    await serviceClientForSettings
       .from("email_replies")
       .update({
         status: "sent",
