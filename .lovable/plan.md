@@ -1,9 +1,27 @@
-## Issue
-In the `BuiltForTrustSection` component (`src/components/MarketplaceSections.tsx`), the "Enterprise-Grade Security" trust card uses a solid `bg-accent` background while the icon uses `text-accent`. This makes the icon invisible (same color as its background). The other three cards correctly use translucent backgrounds (`bg-primary/10`, `bg-success/10`, `bg-warning/10`).
+## Plan: Update Hero Section Copy
 
-## Fix
-Change the `bg` property for the Enterprise-Grade Security item from `"bg-accent"` to `"bg-accent/10"` to restore icon visibility and maintain visual consistency with the other trust cards.
+### Scope
+Update hero headlines and subheadlines on the two entry-point pages to match the new LinkedIn-first, niche-focused messaging.
 
-## Verification
-- Preview the "Built for Trust" section and confirm the shield icon is visible on the Enterprise-Grade Security card.
-- Check that all four cards have matching translucent icon backgrounds.
+### Changes
+
+**1. `src/pages/Auth.tsx` (unauthenticated landing page)**
+- **Headline**: Change to  
+  `Your Echo Agent — Niche Outreach That Actually Gets Responses`
+- **Subheadline**: Change to  
+  `Paste your URL to create an agent that sounds exactly like you. Target associations, conferences, and industry organizations on LinkedIn and email. Agents can discover and hire Echo Agents via A2A.`
+
+**2. `src/pages/Index.tsx` (authenticated home page)**
+- **Headline**: Change to  
+  `Your Echo Agent — Niche Outreach That Actually Gets Responses`
+- **Subheadline**: Change to  
+  `Paste your URL to create an agent that sounds exactly like you. Target associations, conferences, and industry organizations on LinkedIn and email. Agents can discover and hire Echo Agents via A2A.`
+
+### Out of scope
+- No visual/layout changes beyond the copy updates.
+- No changes to CTA buttons, trust signals, or feature lists.
+- No backend or pricing changes.
+
+### Testing
+- Preview the landing page (`/auth` or root) and verify the new headline and subheadline render correctly on both desktop and mobile.
+- Log in and confirm the authenticated home hero displays the same updated copy.
