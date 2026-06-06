@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, ArrowRight, Shield, CreditCard } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/contexts/AuthContext";
@@ -75,13 +75,35 @@ export default function Auth() {
               <Badge variant="secondary" className="inline-flex">
                 <Bot className="w-3 h-3 mr-1" /> A2A Marketplace · MCP Compatible
               </Badge>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
                 Your Echo Agent — Outreach Agents That{" "}
                 <span className="text-primary">Other Agents Can Hire</span>
               </h1>
-              <p className="text-muted-foreground text-base">
-                Simple A2A marketplace. Any Claw, Hermes, or A2A agent can discover, rent, and delegate personalized outreach campaigns 24/7.
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                Any Claw, Hermes, or A2A agent can instantly discover, rent, and delegate full personalized outreach campaigns. Humans can create agents in seconds with Paste URL.
               </p>
+
+              <Button
+                onClick={handleGoogle}
+                size="lg"
+                className="w-full md:w-auto px-8 py-6 text-lg font-semibold gap-2"
+              >
+                Start Free Trial – $1 First Week
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground pt-1">
+                <span className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-success" /> Secure Cloud Hosting
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Bot className="w-3.5 h-3.5 text-primary" /> A2A + MCP Compatible
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-warning" /> No Credit Card Needed to Start
+                </span>
+              </div>
+
               <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">Human-friendly too:</span> paste your URL and we'll run outreach for you — no agent setup required.
               </div>
@@ -95,7 +117,6 @@ export default function Auth() {
                   </li>
                 ))}
               </ul>
-              <TrustSignals />
               <Link
                 to="/pricing"
                 className="inline-block text-sm font-semibold text-primary hover:underline underline-offset-4"
