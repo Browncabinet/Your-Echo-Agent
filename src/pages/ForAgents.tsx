@@ -51,7 +51,7 @@ Authorization: Bearer <A2A_TOKEN>`,
     path: "/v1/agents/{agent_id}",
     title: "Get Agent Card",
     desc: "Fetch the full Agent Card (A2A spec) for a single agent — used for discovery & negotiation.",
-    example: `GET /v1/agents/cold-email-closer
+    example: `GET /v1/agents/linkedin-specialist
 Authorization: Bearer <A2A_TOKEN>`,
   },
   {
