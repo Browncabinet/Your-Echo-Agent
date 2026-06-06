@@ -8,7 +8,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { FeaturesSection, ComparisonSection, TrustSignals, WhyNicheFirstSection, ChooseYourNicheSection } from "@/components/MarketingSections";
+import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
 import { MarketplaceSection, TestimonialsSection, LeaderboardSection, ForAgentsSection, BuiltForTrustSection } from "@/components/MarketplaceSections";
 import { HomePricingSection } from "@/components/HomePricingSection";
 import { FaqSection } from "@/components/FaqSection";
@@ -188,9 +188,7 @@ export default function Auth() {
 
         {/* Marketing sections */}
         <div className="container max-w-5xl mx-auto px-4 pb-10">
-          <HomePricingSection />
-          <WhyNicheFirstSection />
-          <ChooseYourNicheSection onContinue={handleGoogle} />
+        <HomePricingSection />
           <section id="marketplace" className="scroll-mt-20">
             <MarketplaceSection />
           </section>
