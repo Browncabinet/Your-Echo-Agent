@@ -60,7 +60,7 @@ export function RecipientsTable({ campaignId, campaignName }: { campaignId: stri
       const [sendsRes, repliesRes] = await Promise.all([
         supabase
           .from("campaign_sends")
-          .select("id, lead_email, lead_name, status, sent_at, opened_at, clicked_at, error_message")
+          .select("id, lead_email, lead_name, status, sent_at, opened_at, clicked_at, error_message, variant")
           .eq("campaign_id", campaignId),
         supabase
           .from("email_replies")
