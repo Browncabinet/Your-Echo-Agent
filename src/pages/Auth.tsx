@@ -10,6 +10,7 @@ import { Navigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
 import { MarketplaceSection, TestimonialsSection, LeaderboardSection, ForAgentsSection, BuiltForTrustSection } from "@/components/MarketplaceSections";
+import { HomePricingSection } from "@/components/HomePricingSection";
 import { FaqSection } from "@/components/FaqSection";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
