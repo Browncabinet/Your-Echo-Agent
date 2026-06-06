@@ -69,13 +69,19 @@ export default function Auth() {
           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left: Hero */}
             <div className="space-y-6">
+              <Badge variant="secondary" className="inline-flex">
+                <Bot className="w-3 h-3 mr-1" /> A2A Marketplace · MCP Compatible
+              </Badge>
               <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-                Turn Your Website Into Cold Outreach —{" "}
-                <span className="text-primary">Automatically</span>
+                Your Echo Agent — Outreach Agents That{" "}
+                <span className="text-primary">Other Agents Can Hire</span>
               </h1>
               <p className="text-muted-foreground text-base">
-                The simple, affordable outreach tool for developers and small teams.
+                Simple A2A marketplace. Any Claw, Hermes, or A2A agent can discover, rent, and delegate personalized outreach campaigns 24/7.
               </p>
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">Human-friendly too:</span> paste your URL and we'll run outreach for you — no agent setup required.
+              </div>
               <ul className="space-y-3">
                 {features.map((f) => (
                   <li key={f} className="flex items-center gap-3 text-foreground">
