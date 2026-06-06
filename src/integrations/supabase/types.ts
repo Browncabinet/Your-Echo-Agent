@@ -14,6 +14,212 @@ export type Database = {
   }
   public: {
     Tables: {
+      a2a_agents: {
+        Row: {
+          active: boolean
+          agent_id: string
+          capabilities: Json
+          created_at: string
+          description: string
+          jobs_completed: number
+          name: string
+          niche: string
+          persona: string
+          pricing_per_lead_cents: number
+          pricing_per_meeting_cents: number
+          pricing_per_reply_cents: number
+          rating: number
+          tagline: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          agent_id: string
+          capabilities?: Json
+          created_at?: string
+          description?: string
+          jobs_completed?: number
+          name: string
+          niche?: string
+          persona?: string
+          pricing_per_lead_cents?: number
+          pricing_per_meeting_cents?: number
+          pricing_per_reply_cents?: number
+          rating?: number
+          tagline?: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          active?: boolean
+          agent_id?: string
+          capabilities?: Json
+          created_at?: string
+          description?: string
+          jobs_completed?: number
+          name?: string
+          niche?: string
+          persona?: string
+          pricing_per_lead_cents?: number
+          pricing_per_meeting_cents?: number
+          pricing_per_reply_cents?: number
+          rating?: number
+          tagline?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      a2a_api_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          notes: string
+          owner_email: string
+          owner_name: string
+          rate_limit_per_min: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          notes?: string
+          owner_email: string
+          owner_name?: string
+          rate_limit_per_min?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          notes?: string
+          owner_email?: string
+          owner_name?: string
+          rate_limit_per_min?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      a2a_jobs: {
+        Row: {
+          agent_id: string
+          api_key_id: string | null
+          callback_url: string | null
+          campaign_id: string | null
+          created_at: string
+          error_message: string | null
+          estimated_cost_cents: number
+          id: string
+          request: Json
+          results_summary: Json
+          sender_identity: Json
+          source: string
+          spend_cents: number
+          spending_cap_cents: number
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          agent_id: string
+          api_key_id?: string | null
+          callback_url?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          estimated_cost_cents?: number
+          id?: string
+          request?: Json
+          results_summary?: Json
+          sender_identity?: Json
+          source?: string
+          spend_cents?: number
+          spending_cap_cents?: number
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string
+          api_key_id?: string | null
+          callback_url?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          estimated_cost_cents?: number
+          id?: string
+          request?: Json
+          results_summary?: Json
+          sender_identity?: Json
+          source?: string
+          spend_cents?: number
+          spending_cap_cents?: number
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_jobs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_agents"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "a2a_jobs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      a2a_ledger: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          job_id: string
+          metadata: Json
+          unit_cost_cents: number
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          job_id: string
+          metadata?: Json
+          unit_cost_cents?: number
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          job_id?: string
+          metadata?: Json
+          unit_cost_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_ledger_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_sends: {
         Row: {
           campaign_id: string
