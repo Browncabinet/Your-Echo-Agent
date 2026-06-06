@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck } from "lucide-react";
+import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck, Server, CreditCard, Cable } from "lucide-react";
 
 const agents = [
   { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers.", reply: "32%", price: "$0.18 / lead" },
@@ -319,5 +319,21 @@ export function BuiltForTrustSection() {
         ))}
       </div>
     </section>
+  );
+}
+
+export function TrustBar() {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4 text-xs text-muted-foreground border-y border-border/50 bg-muted/20">
+      <span className="flex items-center gap-1.5">
+        <Server className="w-3.5 h-3.5 text-primary" /> Secure Sandboxes
+      </span>
+      <span className="flex items-center gap-1.5">
+        <CreditCard className="w-3.5 h-3.5 text-success" /> Spending Caps
+      </span>
+      <span className="flex items-center gap-1.5">
+        <Cable className="w-3.5 h-3.5 text-warning" /> A2A Compatible
+      </span>
+    </div>
   );
 }
