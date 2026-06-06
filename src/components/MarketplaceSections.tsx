@@ -5,15 +5,25 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck, Server, CreditCard, Cable } from "lucide-react";
 
-const agents = [
-  { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers. Our top performer.", reply: "32%", price: "$0.18 / lead" },
-  { icon: Mail, name: "LinkedIn + Email Hybrid", desc: "LinkedIn-first with smart email fallback for maximum reach.", reply: "30%", price: "$0.15 / lead" },
-  { icon: Rocket, name: "SaaS Founder Outreach", desc: "Founder-to-founder voice on LinkedIn. Built for early-stage SaaS.", reply: "35%", price: "$0.22 / lead" },
-  { icon: Building2, name: "Enterprise BDR", desc: "Multi-threaded LinkedIn outreach into mid-market & enterprise accounts.", reply: "19%", price: "$0.45 / lead" },
-  { icon: Megaphone, name: "Creator Partnerships", desc: "Sponsorship + collab pitches to creators and brands via LinkedIn.", reply: "41%", price: "$0.15 / lead" },
-  { icon: Users, name: "Recruiter Agent", desc: "Sourcing + candidate outreach with personalized LinkedIn messages.", reply: "37%", price: "$0.20 / lead" },
-  { icon: Sparkles, name: "Investor Update Agent", desc: "Curates and pitches to relevant VCs and angels on LinkedIn.", reply: "24%", price: "$0.50 / lead" },
-  { icon: Bot, name: "Local Business Agent", desc: "Hyper-local LinkedIn outreach to SMBs in any city/niche.", reply: "29%", price: "$0.10 / lead" },
+export type MarketplaceAgent = {
+  id: string;
+  name: string;
+  niche: string;
+  goal: string;
+  audience: string[];
+  desc: string;
+  reply: string;
+};
+
+const agents: (MarketplaceAgent & { icon: typeof Bot })[] = [
+  { id: "linkedin-specialist", icon: Linkedin, name: "LinkedIn Specialist", niche: "B2B decision makers", goal: "Book intro calls with senior decision-makers via warm LinkedIn-style email outreach", audience: ["VP-level and above", "Mid-market & enterprise"], desc: "Warm intros + connection-first outreach to decision makers. Our top performer.", reply: "32%" },
+  { id: "linkedin-email-hybrid", icon: Mail, name: "LinkedIn + Email Hybrid", niche: "B2B SaaS buyers", goal: "Maximize reach with referencing-LinkedIn-activity email outreach", audience: ["SaaS buyers", "Heads of department"], desc: "Email outreach that references public LinkedIn activity for maximum reply rates.", reply: "30%" },
+  { id: "saas-founder", icon: Rocket, name: "SaaS Founder Outreach", niche: "Early-stage SaaS founders", goal: "Founder-to-founder intro emails for partnerships and design-partner calls", audience: ["Seed / Series A founders", "Indie SaaS founders"], desc: "Founder-to-founder voice. Built for early-stage SaaS partnerships.", reply: "35%" },
+  { id: "enterprise-bdr", icon: Building2, name: "Enterprise BDR", niche: "Enterprise accounts", goal: "Multi-threaded outreach into mid-market & enterprise buying committees", audience: ["VP Engineering", "VP Product", "Director of Ops"], desc: "Multi-threaded outreach into mid-market & enterprise accounts.", reply: "19%" },
+  { id: "creator-partnerships", icon: Megaphone, name: "Creator Partnerships", niche: "Creator economy", goal: "Pitch sponsorships and collabs to creators and brands", audience: ["Creators 10k-500k", "Brand partnership leads"], desc: "Sponsorship + collab pitches to creators and brands.", reply: "41%" },
+  { id: "recruiter", icon: Users, name: "Recruiter Agent", niche: "Tech recruiting", goal: "Source and reach out to candidates with personalized intros", audience: ["Senior engineers", "Product managers", "Designers"], desc: "Sourcing + candidate outreach with personalized messages.", reply: "37%" },
+  { id: "investor-update", icon: Sparkles, name: "Investor Outreach Agent", niche: "Venture capital", goal: "Reach relevant VCs and angels with concise, well-targeted pitches", audience: ["Seed VCs", "Angel investors", "Operator-angels"], desc: "Curates and pitches to relevant VCs and angels.", reply: "24%" },
+  { id: "local-business", icon: Bot, name: "Local Business Agent", niche: "Local SMBs", goal: "Hyper-local outreach to SMBs in your city or vertical", audience: ["Local SMB owners", "Service businesses"], desc: "Hyper-local outreach to SMBs in any city/niche.", reply: "29%" },
 ];
 
 const leaderboard = [
@@ -42,41 +52,48 @@ Content-Type: application/json
   "callback_url": "https://your-agent.example.com/a2a/callback"
 }`;
 
-export function MarketplaceSection() {
+type MarketplaceProps = { onHire?: (agent: MarketplaceAgent) => void };
+
+export function MarketplaceSection({ onHire }: MarketplaceProps = {}) {
   return (
-    <section className="mb-16">
+    <section id="marketplace" className="mb-16">
       <div className="text-center mb-8">
         <Badge variant="secondary" className="mb-3">
-          <Bot className="w-3 h-3 mr-1" /> A2A Marketplace
+          <Bot className="w-3 h-3 mr-1" /> Echo Agents
         </Badge>
         <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Available Echo Agents for Hire
+          Pick an agent. Start your campaign in 60 seconds.
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          Discover, rent, and delegate outreach to specialized AI agents — 24/7, no human in the loop.
+          Each Echo Agent comes pre-tuned for a niche. Click Start Campaign and we'll preload your wizard with the right goal, audience, and voice.
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {agents.map((a) => (
-          <Card key={a.name} className="p-5 flex flex-col hover:shadow-md hover:border-primary/30 transition-all">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-success/10 flex items-center justify-center mb-3">
-              <a.icon className="w-5 h-5 text-primary" />
-            </div>
-            <h3 className="font-semibold text-sm text-foreground mb-1">{a.name}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-4 flex-1">{a.desc}</p>
-            <div className="flex items-center justify-between text-xs mb-3">
-              <div>
-                <span className="text-muted-foreground">Reply rate</span>
-                <p className="font-semibold text-success">{a.reply}</p>
+        {agents.map((a) => {
+          const { icon: Icon, ...agent } = a;
+          return (
+            <Card key={a.id} className="p-5 flex flex-col hover:shadow-md hover:border-primary/30 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-success/10 flex items-center justify-center mb-3">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <div className="text-right">
-                <span className="text-muted-foreground">Price</span>
-                <p className="font-semibold text-foreground">{a.price}</p>
+              <h3 className="font-semibold text-sm text-foreground mb-1">{a.name}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-4 flex-1">{a.desc}</p>
+              <div className="flex items-center justify-between text-xs mb-3">
+                <div>
+                  <span className="text-muted-foreground">Niche</span>
+                  <p className="font-semibold text-foreground truncate max-w-[120px]">{a.niche}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-muted-foreground">Avg. reply</span>
+                  <p className="font-semibold text-success">{a.reply}</p>
+                </div>
               </div>
-            </div>
-            <Button size="sm" className="w-full">Hire Now</Button>
-          </Card>
-        ))}
+              <Button size="sm" className="w-full" onClick={() => onHire?.(agent)}>
+                Start Campaign
+              </Button>
+            </Card>
+          );
+        })}
       </div>
     </section>
   );

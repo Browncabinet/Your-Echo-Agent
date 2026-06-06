@@ -12,7 +12,8 @@ import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins, Linkedin, ArrowLeft, Pause, Play } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { FeaturesSection, ComparisonSection, TrustSignals, WhyNicheFirstSection, ChooseYourNicheSection } from "@/components/MarketingSections";
-import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
+import { MarketplaceSection, LeaderboardSection, ForAgentsSection, type MarketplaceAgent } from "@/components/MarketplaceSections";
+import { HomeDemoSection } from "@/components/HomeDemoSection";
 import { HomePricingSection } from "@/components/HomePricingSection";
 import { FaqSection } from "@/components/FaqSection";
 import { useCredits } from "@/hooks/use-credits";
@@ -67,6 +68,19 @@ export default function Index() {
     setStep(skipSetup ? 1 : 0);
     setView("campaign");
     setQuickStartOpen(false);
+  };
+
+  const handleHireAgent = (agent: MarketplaceAgent) => {
+    const preset: Campaign = {
+      ...createEmptyCampaign(),
+      name: `${agent.name} campaign`,
+      goal: agent.goal,
+      niche: agent.niche,
+      targetAudience: agent.audience,
+    };
+    setCampaign(preset);
+    setStep(0);
+    setView("campaign");
   };
 
   const handleSend = async () => {
@@ -140,12 +154,14 @@ export default function Index() {
             <TrustSignals />
           </div>
 
+          <HomeDemoSection onTryDemo={() => setQuickStartOpen(true)} />
+
           <HomePricingSection />
           <FeaturesSection />
           <ComparisonSection />
           <ChooseYourNicheSection onContinue={startNewCampaign} />
           <WhyNicheFirstSection />
-          <MarketplaceSection />
+          <MarketplaceSection onHire={handleHireAgent} />
           <LeaderboardSection />
           <ForAgentsSection />
           <FaqSection />
