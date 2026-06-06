@@ -110,6 +110,39 @@ export type Database = {
         }
         Relationships: []
       }
+      a2a_byo_smtp: {
+        Row: {
+          created_at: string
+          from_email: string
+          id: string
+          job_id: string
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_username: string
+        }
+        Insert: {
+          created_at?: string
+          from_email: string
+          id?: string
+          job_id: string
+          smtp_host: string
+          smtp_password: string
+          smtp_port?: number
+          smtp_username: string
+        }
+        Update: {
+          created_at?: string
+          from_email?: string
+          id?: string
+          job_id?: string
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_username?: string
+        }
+        Relationships: []
+      }
       a2a_jobs: {
         Row: {
           agent_id: string
@@ -117,9 +150,16 @@ export type Database = {
           callback_url: string | null
           campaign_id: string | null
           created_at: string
+          daily_send_cap: number
           error_message: string | null
           estimated_cost_cents: number
           id: string
+          last_event: string | null
+          last_event_at: string | null
+          last_run_at: string | null
+          leads_sent: number
+          leads_total: number
+          paused_at: string | null
           request: Json
           results_summary: Json
           sender_identity: Json
@@ -136,9 +176,16 @@ export type Database = {
           callback_url?: string | null
           campaign_id?: string | null
           created_at?: string
+          daily_send_cap?: number
           error_message?: string | null
           estimated_cost_cents?: number
           id?: string
+          last_event?: string | null
+          last_event_at?: string | null
+          last_run_at?: string | null
+          leads_sent?: number
+          leads_total?: number
+          paused_at?: string | null
           request?: Json
           results_summary?: Json
           sender_identity?: Json
@@ -155,9 +202,16 @@ export type Database = {
           callback_url?: string | null
           campaign_id?: string | null
           created_at?: string
+          daily_send_cap?: number
           error_message?: string | null
           estimated_cost_cents?: number
           id?: string
+          last_event?: string | null
+          last_event_at?: string | null
+          last_run_at?: string | null
+          leads_sent?: number
+          leads_total?: number
+          paused_at?: string | null
           request?: Json
           results_summary?: Json
           sender_identity?: Json
