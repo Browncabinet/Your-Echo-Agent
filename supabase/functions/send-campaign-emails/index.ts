@@ -118,6 +118,20 @@ serve(async (req) => {
       );
     }
 
+    // Block sending when the campaign is paused
+    const { data: campaignRow } = await serviceClient
+      .from("campaigns")
+      .select("status")
+      .eq("id", campaign_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (campaignRow?.status === "paused") {
+      return new Response(
+        JSON.stringify({ error: "Campaign is paused. Resume it to send emails." }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const results: { email: string; status: string; error?: string }[] = [];
     const emailTemplate = emails[0]; // Send first email template
 

@@ -72,7 +72,7 @@ export type Campaign = {
   leads: Lead[];
   emails: EmailTemplate[];
   batchSize: number;
-  status: "setup" | "leads" | "emails" | "review" | "sending" | "active" | "completed";
+  status: "setup" | "leads" | "emails" | "review" | "sending" | "active" | "paused" | "completed";
   stats: {
     sent: number;
     opened: number;
