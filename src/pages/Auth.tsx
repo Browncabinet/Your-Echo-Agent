@@ -175,14 +175,18 @@ export default function Auth() {
         {/* Marketing sections */}
         {/* Marketing sections */}
         <div className="container max-w-5xl mx-auto px-4 pb-10">
-          <MarketplaceSection />
+          <section id="marketplace" className="scroll-mt-20">
+            <MarketplaceSection />
+          </section>
           <TestimonialsSection />
           <LeaderboardSection />
           <BuiltForTrustSection />
           <ForAgentsSection />
           <FeaturesSection />
           <ComparisonSection />
-          <FaqSection />
+          <section id="faq" className="scroll-mt-20">
+            <FaqSection />
+          </section>
         </div>
       </div>
 
