@@ -135,8 +135,38 @@ serve(async (req) => {
     const results: { email: string; status: string; error?: string }[] = [];
     const emailTemplate = emails[0]; // Send first email template
 
-    // Rate limit: max 15 per batch
-    const batch = leads.slice(0, 15);
+    // Weekly cap enforcement
+    const { data: capsRaw } = await serviceClient.rpc("current_week_caps", { _user_id: userId });
+    const caps = Array.isArray(capsRaw) ? capsRaw[0] : capsRaw;
+
+    // Allow free welcome credits if no active subscription
+    let remainingThisWeek = Number.POSITIVE_INFINITY;
+    if (caps?.subscription_active) {
+      remainingThisWeek = Math.max(0, (caps.email_cap || 0) - (caps.emails_used || 0));
+      if (remainingThisWeek <= 0) {
+        return new Response(
+          JSON.stringify({ error: "You've hit your weekly email limit. Upgrade your plan or wait for the weekly reset." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      // Fall back to legacy user_credits balance
+      const { data: legacy } = await serviceClient
+        .from("user_credits")
+        .select("balance")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!legacy || legacy.balance <= 0) {
+        return new Response(
+          JSON.stringify({ error: "No active subscription and no welcome emails remaining. Choose a weekly plan to keep sending." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      remainingThisWeek = legacy.balance;
+    }
+
+    // Rate limit: max 15 per batch, capped by remaining quota
+    const batch = leads.slice(0, Math.min(15, remainingThisWeek));
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
@@ -225,15 +255,59 @@ serve(async (req) => {
       }
     }
 
+    const sentCount = results.filter((r) => r.status === "sent").length;
+
+    // Update weekly usage counters
+    if (sentCount > 0) {
+      if (caps?.subscription_active) {
+        const week = caps.week_start;
+        const { data: existing } = await serviceClient
+          .from("weekly_usage")
+          .select("emails_sent")
+          .eq("user_id", userId)
+          .eq("week_start", week)
+          .maybeSingle();
+        if (existing) {
+          await serviceClient
+            .from("weekly_usage")
+            .update({ emails_sent: (existing.emails_sent ?? 0) + sentCount, updated_at: new Date().toISOString() })
+            .eq("user_id", userId)
+            .eq("week_start", week);
+        } else {
+          await serviceClient.from("weekly_usage").insert({
+            user_id: userId,
+            week_start: week,
+            emails_sent: sentCount,
+            linkedin_actions: 0,
+          });
+        }
+      } else {
+        // Decrement legacy welcome credit balance
+        const { data: legacy } = await serviceClient
+          .from("user_credits")
+          .select("balance, total_used")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (legacy) {
+          await serviceClient
+            .from("user_credits")
+            .update({
+              balance: Math.max(0, legacy.balance - sentCount),
+              total_used: (legacy.total_used ?? 0) + sentCount,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("user_id", userId);
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
-        sent: results.filter((r) => r.status === "sent").length,
+        sent: sentCount,
         failed: results.filter((r) => r.status === "failed").length,
         results,
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

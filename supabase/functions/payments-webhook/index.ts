@@ -7,7 +7,7 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
-// Map price IDs to credit amounts
+// Legacy one-time credit packs (kept so prior purchases still resolve)
 const CREDIT_MAP: Record<string, number> = {
   credits_250_onetime: 250,
   credits_500_onetime: 500,
@@ -24,13 +24,27 @@ serve(async (req) => {
   }
 
   const url = new URL(req.url);
-  const env = (url.searchParams.get('env') || 'sandbox') as StripeEnv;
+  const rawEnv = url.searchParams.get("env");
+  if (rawEnv !== "sandbox" && rawEnv !== "live") {
+    return new Response(JSON.stringify({ received: true, ignored: "invalid env" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const env: StripeEnv = rawEnv;
 
   try {
     const event = await verifyWebhook(req, env);
     console.log("Received event:", event.type, "env:", env);
 
     switch (event.type) {
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+        await upsertSubscription(event.data.object, env);
+        break;
+      case "customer.subscription.deleted":
+        await markCanceled(event.data.object, env);
+        break;
       case "checkout.session.completed":
         await handleCheckoutCompleted(event.data.object, env);
         break;
@@ -48,52 +62,76 @@ serve(async (req) => {
   }
 });
 
+async function upsertSubscription(subscription: any, env: StripeEnv) {
+  const userId = subscription.metadata?.userId;
+  if (!userId) {
+    console.error("No userId in subscription metadata");
+    return;
+  }
+  const item = subscription.items?.data?.[0];
+  const priceId = item?.price?.lookup_key
+    || item?.price?.metadata?.lovable_external_id
+    || item?.price?.id;
+  const productId = item?.price?.product;
+  const periodStart = item?.current_period_start ?? subscription.current_period_start;
+  const periodEnd = item?.current_period_end ?? subscription.current_period_end;
+
+  await supabase.from("subscriptions").upsert(
+    {
+      user_id: userId,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer,
+      product_id: typeof productId === "string" ? productId : productId?.id || "",
+      price_id: priceId,
+      status: subscription.status,
+      current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
+      current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+      cancel_at_period_end: subscription.cancel_at_period_end || false,
+      environment: env,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "stripe_subscription_id" }
+  );
+}
+
+async function markCanceled(subscription: any, env: StripeEnv) {
+  await supabase
+    .from("subscriptions")
+    .update({ status: "canceled", updated_at: new Date().toISOString() })
+    .eq("stripe_subscription_id", subscription.id)
+    .eq("environment", env);
+}
+
 async function handleCheckoutCompleted(session: any, env: StripeEnv) {
+  // Subscriptions are handled by customer.subscription.* events.
   if (session.mode !== "payment") return;
 
   const userId = session.metadata?.userId;
-  if (!userId) {
-    console.error("No userId in session metadata");
-    return;
-  }
+  if (!userId) return;
 
-  // Retrieve line items to determine which credit pack was purchased
   const stripe = createStripeClient(env);
   const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price'] });
-  
-  let creditsToAdd = 0;
-  let amountCents = session.amount_total || 0;
 
+  let creditsToAdd = 0;
   for (const item of lineItems.data) {
     const lookupKey = (item.price as any)?.lookup_key;
     if (lookupKey && CREDIT_MAP[lookupKey]) {
       creditsToAdd += CREDIT_MAP[lookupKey] * (item.quantity || 1);
     }
   }
+  if (creditsToAdd === 0) return;
 
-  if (creditsToAdd === 0) {
-    console.error("Could not determine credits for session:", session.id);
-    return;
-  }
-
-  // Log the purchase (idempotent via unique stripe_session_id)
-  const { error: purchaseError } = await supabase.from("credit_purchases").upsert(
+  await supabase.from("credit_purchases").upsert(
     {
       user_id: userId,
       stripe_session_id: session.id,
       credits_added: creditsToAdd,
-      amount_cents: amountCents,
+      amount_cents: session.amount_total || 0,
       environment: env,
     },
     { onConflict: "stripe_session_id" }
   );
 
-  if (purchaseError) {
-    console.error("Failed to log purchase:", purchaseError);
-    return;
-  }
-
-  // Upsert user credits — add to balance
   const { data: existing } = await supabase
     .from("user_credits")
     .select("balance, total_purchased")
@@ -101,22 +139,16 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
     .maybeSingle();
 
   if (existing) {
-    await supabase
-      .from("user_credits")
-      .update({
-        balance: existing.balance + creditsToAdd,
-        total_purchased: existing.total_purchased + creditsToAdd,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId);
+    await supabase.from("user_credits").update({
+      balance: existing.balance + creditsToAdd,
+      total_purchased: existing.total_purchased + creditsToAdd,
+      updated_at: new Date().toISOString(),
+    }).eq("user_id", userId);
   } else {
-    // Use service role insert (bypasses RLS)
     await supabase.from("user_credits").insert({
       user_id: userId,
-      balance: 50 + creditsToAdd, // 50 free + purchased
+      balance: 50 + creditsToAdd,
       total_purchased: creditsToAdd,
     });
   }
-
-  console.log(`Added ${creditsToAdd} credits for user ${userId}`);
 }
