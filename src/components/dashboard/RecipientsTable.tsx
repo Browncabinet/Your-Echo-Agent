@@ -15,11 +15,13 @@ type Send = {
   opened_at: string | null;
   clicked_at: string | null;
   error_message: string | null;
+  variant: string | null;
 };
 
 type Row = Send & {
   derivedStatus: "replied" | "clicked" | "opened" | "failed" | "sent" | "queued";
   lastActivity: string | null;
+  replyAt: string | null;
 };
 
 const PAGE_SIZE = 25;
@@ -58,7 +60,7 @@ export function RecipientsTable({ campaignId, campaignName }: { campaignId: stri
       const [sendsRes, repliesRes] = await Promise.all([
         supabase
           .from("campaign_sends")
-          .select("id, lead_email, lead_name, status, sent_at, opened_at, clicked_at, error_message")
+          .select("id, lead_email, lead_name, status, sent_at, opened_at, clicked_at, error_message, variant")
           .eq("campaign_id", campaignId),
         supabase
           .from("email_replies")
@@ -91,7 +93,7 @@ export function RecipientsTable({ campaignId, campaignName }: { campaignId: stri
           ? candidates.reduce((a, b) => (new Date(a) > new Date(b) ? a : b))
           : null;
 
-        return { ...s, derivedStatus, lastActivity };
+        return { ...s, derivedStatus, lastActivity, replyAt };
       });
 
       computed.sort((a, b) => {
@@ -141,14 +143,29 @@ export function RecipientsTable({ campaignId, campaignName }: { campaignId: stri
   const visible = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
 
   const exportCsv = () => {
-    const header = ["Name", "Email", "Status", "Sent at", "Last activity", "Error"];
+    const header = [
+      "Name",
+      "Email",
+      "Variant",
+      "Send Status",
+      "Reply Status",
+      "Opened At",
+      "Clicked At",
+      "Sent At",
+      "Last Activity",
+      "Error Message",
+    ];
     const lines = [header.join(",")];
     filtered.forEach((r) => {
       lines.push(
         [
           csvEscape(r.lead_name),
           csvEscape(r.lead_email),
-          csvEscape(r.derivedStatus),
+          csvEscape(r.variant ?? ""),
+          csvEscape(r.status),
+          csvEscape(r.replyAt ? "Replied" : "No reply"),
+          csvEscape(r.opened_at ?? ""),
+          csvEscape(r.clicked_at ?? ""),
           csvEscape(r.sent_at ?? ""),
           csvEscape(r.lastActivity ?? ""),
           csvEscape(r.error_message ?? ""),
