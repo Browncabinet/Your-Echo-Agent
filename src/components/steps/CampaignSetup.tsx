@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,20 @@ type Props = {
 export function CampaignSetup({ campaign, onUpdate, onNext }: Props) {
   const [customSub, setCustomSub] = useState("");
   const subcats = TARGET_AUDIENCES[campaign.niche] || [];
+
+  useEffect(() => {
+    if (campaign.niche) return;
+    try {
+      const preferred = sessionStorage.getItem("preferredNiche");
+      if (preferred && (NICHES as readonly string[]).includes(preferred)) {
+        onUpdate({ niche: preferred, targetAudience: [] });
+        sessionStorage.removeItem("preferredNiche");
+      }
+    } catch {
+      /* ignore storage errors */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isValid = campaign.name.trim() && campaign.goal.trim() && campaign.niche && campaign.targetAudience.length > 0;
 
