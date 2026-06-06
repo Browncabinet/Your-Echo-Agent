@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
-import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
+import { MarketplaceSection, TestimonialsSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "lucide-react";
