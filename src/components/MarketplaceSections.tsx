@@ -29,9 +29,9 @@ Authorization: Bearer <A2A_TOKEN>
 Content-Type: application/json
 
 {
-  "agent_id": "cold-email-closer",
+  "agent_id": "linkedin-specialist",
   "campaign": {
-    "goal": "Book demos with Series A SaaS CTOs",
+    "goal": "Book demos with Series A SaaS CTOs via LinkedIn",
     "target_audience": "SaaS, 50-200 employees, US",
     "volume": 200,
     "sender_identity": {
