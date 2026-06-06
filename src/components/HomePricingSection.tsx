@@ -165,36 +165,6 @@ export function HomePricingSection() {
         ))}
       </div>
 
-      {/* Feature comparison table */}
-      <div className="mb-8 animate-fade-in">
-        <h3 className="text-lg font-semibold text-foreground text-center mb-4">
-          What's included
-        </h3>
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/40">
-                  <TableHead className="w-[40%]">Feature</TableHead>
-                  <TableHead className="text-center">Starter</TableHead>
-                  <TableHead className="text-center bg-primary/5">Growth</TableHead>
-                  <TableHead className="text-center">Power</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {comparisonRows.map((row) => (
-                  <TableRow key={row.feature}>
-                    <TableCell className="font-medium text-foreground">{row.feature}</TableCell>
-                    <TableCell className="text-center"><Cell value={row.starter} /></TableCell>
-                    <TableCell className="text-center bg-primary/5"><Cell value={row.growth} /></TableCell>
-                    <TableCell className="text-center"><Cell value={row.power} /></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
-      </div>
 
 
 

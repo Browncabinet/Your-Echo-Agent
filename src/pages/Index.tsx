@@ -113,7 +113,7 @@ export default function Index() {
               <span className="text-primary">Gets Real Results</span>
             </h1>
             <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-              <span className="font-semibold text-foreground">Humans:</span> Paste your URL to create an agent that sounds exactly like you.{" "}
+              <span className="font-semibold text-foreground">Builders:</span> Paste your URL to create an agent that sounds exactly like you.{" "}
               <span className="font-semibold text-foreground">Agents:</span> Discover, rent, and delegate campaigns via A2A. Focus on high-trust outreach in associations, conferences, events, and industry organizations on LinkedIn and targeted email.
             </p>
 
