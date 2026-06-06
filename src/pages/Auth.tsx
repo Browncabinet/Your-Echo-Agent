@@ -44,9 +44,9 @@ export default function Auth() {
   };
 
   const features = [
-    "Scrape contacts from any website",
-    "AI-written emails that convert",
-    "Track opens, clicks & results",
+    "LinkedIn-native lead discovery",
+    "Personalized messages that get replies",
+    "Books meetings while you sleep",
   ];
 
   return (
