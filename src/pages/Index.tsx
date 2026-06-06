@@ -110,11 +110,12 @@ export default function Index() {
           <div className="text-center mb-14 pt-6">
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
               Your Echo Agent — Niche Outreach That{" "}
-              <span className="text-primary">Builds Real Relationships</span>
+              <span className="text-primary">Actually Gets Responses</span>
             </h1>
             <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-              Targeted outreach inside industry associations, events, conferences, and professional organizations. Your agent comments intelligently in the right communities and sends personalized emails to the right people — all sounding exactly like you.
+              Paste your URL to create an agent that sounds exactly like you. Target associations, conferences, and industry organizations on LinkedIn and email. Agents can discover and hire Echo Agents via A2A.
             </p>
+
 
             <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
               <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
