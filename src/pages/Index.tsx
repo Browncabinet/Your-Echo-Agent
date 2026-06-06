@@ -11,7 +11,7 @@ import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins, Linkedin } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
+import { FeaturesSection, ComparisonSection, TrustSignals, WhyLinkedInFirstSection } from "@/components/MarketingSections";
 import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
 import { HomePricingSection } from "@/components/HomePricingSection";
 import { FaqSection } from "@/components/FaqSection";
