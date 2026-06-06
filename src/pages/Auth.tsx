@@ -52,18 +52,36 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <nav className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border">
         <Logo />
-        <div className="flex items-center gap-4">
-          <Link to="/for-agents" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            For Agents
-          </Link>
-          <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Pricing
-          </Link>
-          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            About
-          </Link>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
+          <a href="#marketplace" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Marketplace</a>
+          <Link to="/for-agents" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">For Agents</Link>
+          <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
+          <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">FAQ</a>
+          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">About</Link>
+          <Button onClick={handleGoogle} size="sm">Sign in</Button>
+        </div>
+        {/* Mobile nav */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Open menu">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <div className="flex flex-col gap-1 mt-8">
+                <SheetClose asChild><a href="#marketplace" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">Marketplace</a></SheetClose>
+                <SheetClose asChild><Link to="/for-agents" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">For Agents</Link></SheetClose>
+                <SheetClose asChild><Link to="/pricing" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">Pricing</Link></SheetClose>
+                <SheetClose asChild><a href="#faq" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">FAQ</a></SheetClose>
+                <SheetClose asChild><Link to="/about" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">About</Link></SheetClose>
+                <Button onClick={handleGoogle} className="mt-3">Sign in with Google</Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </nav>
 
