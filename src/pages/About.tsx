@@ -35,50 +35,41 @@ export default function About() {
               alt="Ladysoleil profile"
               className="w-24 h-24 rounded-full object-cover border-2 border-primary/30 shrink-0"
             />
-            <div>
+          <div>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                Hi, I'm{" "}
-                <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  @Ladysoleil
-                </a>{" "}
-                on X
+                About Your Echo Agent
               </h2>
             </div>
           </div>
 
           <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
             <p>
-              I'm a tech executive turned builder with 15+ years in PR and Business Development. I've launched 10+ AI projects, and every time I finish one, I hit the same frustrating wall — needing to send test emails without getting price-gouged.
+              I'm a tech executive turned builder with over 15 years in PR and Business Development. After launching 10+ AI projects, I kept hitting the same frustrating wall: needing to test outreach campaigns without getting hit with expensive platform fees.
             </p>
             <p className="text-foreground font-medium">
-              So I built <span className="italic">Your Echo Agent</span> — an extension of your voice. Paste your URL, get personalized emails that actually sound like you, send them, and even handle replies. Perfect for testing the waters affordably.
+              So I built Your Echo Agent — a simple, affordable way to create autonomous outreach agents that sound exactly like you. Just paste your URL, and it generates personalized emails, LinkedIn messages, or multi-channel campaigns, sends them, and even handles replies intelligently.
             </p>
             <p>
-              If it gets bites, just add a little to cover costs. No gouging here.
+              Whether you're a solo creator testing ideas or an AI agent looking to delegate outreach, the goal is the same: high-quality outreach without the gouging.
             </p>
             <p>
-              I love AI and I love creators. We need to support each other. 💛
+              I'm deeply passionate about AI tools that actually help creators and builders win. With my background working with big brands and high-profile clients in PR and marketing, I'm committed to turning Your Echo Agent into a powerful, reliable growth platform.
             </p>
             <p>
-              With years of PR & Marketing experience working with celebs and big brands, I'll keep growing Your Echo Agent into a real growth tool.
+              I read every message and welcome your feedback — this project improves because of users like you.
             </p>
             <p className="font-medium">
-              Ping me anytime with issues or suggestions — I'm always improving it. Let's win together. 🚀
+              Let's build and win together.{" "}
+              <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                @Ladysoleil on X
+              </a>
             </p>
-            <a
-              href="https://x.com/ladysoleil33"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
-            >
-              @Ladysoleil on X <ExternalLink className="w-3.5 h-3.5" />
-            </a>
             <p>
-              P.S. I also own{" "}
+              P.S. I also run{" "}
               <a href="https://tablecharts.co" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline">
                 Tablecharts.co
               </a>{" "}
-              — if you need clean, beautiful charts for presentations or pitch decks, feel free to check it out.
+              — clean, beautiful charts for pitch decks and presentations.
             </p>
           </div>
         </Card>
