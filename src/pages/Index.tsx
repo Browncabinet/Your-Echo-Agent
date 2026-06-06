@@ -133,7 +133,7 @@ export default function Index() {
           <HomePricingSection />
           <FeaturesSection />
           <ComparisonSection />
-          <ChooseYourNicheSection />
+          <ChooseYourNicheSection onContinue={startNewCampaign} />
           <WhyNicheFirstSection />
           <MarketplaceSection />
           <LeaderboardSection />
