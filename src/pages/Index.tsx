@@ -129,6 +129,7 @@ export default function Index() {
             <TrustSignals />
           </div>
 
+          <HomePricingSection />
           <FeaturesSection />
           <ComparisonSection />
           <ChooseYourNicheSection />
@@ -136,7 +137,6 @@ export default function Index() {
           <MarketplaceSection />
           <LeaderboardSection />
           <ForAgentsSection />
-          <HomePricingSection />
           <FaqSection />
 
           <QuickUpdateBar campaigns={campaigns} />
