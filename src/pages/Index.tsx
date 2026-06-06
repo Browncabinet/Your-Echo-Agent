@@ -313,10 +313,21 @@ export default function Index() {
             <div className="cursor-pointer" onClick={() => setView("home")}>
               <Logo />
             </div>
-            <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")}>
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
-            </Avatar>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => setView("home")} className="gap-1 text-muted-foreground">
+                <ArrowLeft className="w-3.5 h-3.5" /> Campaigns
+              </Button>
+              <Button variant="outline" size="sm" onClick={startNewCampaign} className="gap-1">
+                <Plus className="w-3 h-3" /> New Campaign
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setView("replies")} className="gap-1">
+                <Inbox className="w-3 h-3" /> Replies
+              </Button>
+              <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")}>
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8">
