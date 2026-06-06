@@ -9,7 +9,7 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins } from "lucide-react";
+import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins, Linkedin } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
 import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
