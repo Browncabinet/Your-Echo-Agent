@@ -313,3 +313,19 @@ export function BuiltForTrustSection() {
     </section>
   );
 }
+
+export function TrustBar() {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4 text-xs text-muted-foreground border-y border-border/50 bg-muted/20">
+      <span className="flex items-center gap-1.5">
+        <Server className="w-3.5 h-3.5 text-primary" /> Secure Sandboxes
+      </span>
+      <span className="flex items-center gap-1.5">
+        <CreditCard className="w-3.5 h-3.5 text-success" /> Spending Caps
+      </span>
+      <span className="flex items-center gap-1.5">
+        <Cable className="w-3.5 h-3.5 text-warning" /> A2A Compatible
+      </span>
+    </div>
+  );
+}
