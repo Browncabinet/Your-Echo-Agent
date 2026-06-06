@@ -188,6 +188,10 @@ export function ResultsDashboard({ campaign, onBack }: Props) {
         />
       </div>
 
+      <SendsTimeline campaignId={campaign.id} />
+
+      <RecipientsTable campaignId={campaign.id} campaignName={campaign.name} />
+
       {showFailed && stats.failed > 0 && (
         <Card className="p-5">
           <div className="flex items-center justify-between mb-3">
