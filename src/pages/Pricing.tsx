@@ -22,7 +22,7 @@ const weeklyTiers: WeeklyTier[] = [
   {
     id: "starter_weekly",
     name: "Starter Weekly",
-    price: 15,
+    price: 9,
     messages: "600–700 LinkedIn messages",
     description: "Perfect for testing and trying your first campaign",
     features: [
@@ -36,7 +36,7 @@ const weeklyTiers: WeeklyTier[] = [
   {
     id: "growth_weekly",
     name: "Growth Weekly",
-    price: 35,
+    price: 19,
     messages: "1,800–2,000 messages per week",
     description: "Best value for most users getting real results",
     features: [
@@ -52,7 +52,7 @@ const weeklyTiers: WeeklyTier[] = [
   {
     id: "power_weekly",
     name: "Power Weekly",
-    price: 69,
+    price: 39,
     messages: "4,000+ messages per week",
     description: "For power users and agencies scaling fast",
     features: [
@@ -213,9 +213,9 @@ export default function Pricing() {
                 Stay on a weekly plan for a full month and it works out to roughly:
               </p>
               <div className="flex flex-wrap justify-center gap-4 mt-3">
-                <Badge variant="outline">Starter ≈ $60/mo</Badge>
-                <Badge variant="outline">Growth ≈ $140/mo</Badge>
-                <Badge variant="outline">Power ≈ $276/mo</Badge>
+                <Badge variant="outline">Starter ≈ $36/mo</Badge>
+                <Badge variant="outline">Growth ≈ $76/mo</Badge>
+                <Badge variant="outline">Power ≈ $156/mo</Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 But you keep the flexibility to pause or cancel any week — no annual contract needed.
@@ -228,7 +228,7 @@ export default function Pricing() {
         <Card className="p-6 md:p-8 mb-16 max-w-3xl mx-auto border-primary/30 bg-primary/5 text-center">
           <Sparkles className="w-6 h-6 text-primary mx-auto mb-3" />
           <p className="text-foreground text-base sm:text-lg leading-relaxed">
-            Most users start with the <span className="font-bold">$15 Starter Weekly</span> to test safely. Once they begin seeing replies, booked calls, and revenue, they upgrade to <span className="font-bold">Growth or Power</span>.
+            Most users start with the <span className="font-bold">$9 Starter Weekly</span> to test safely. Once they begin seeing replies, booked calls, and revenue, they upgrade to <span className="font-bold">Growth or Power</span>.
           </p>
         </Card>
 
