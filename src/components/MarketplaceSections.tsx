@@ -181,7 +181,7 @@ const testimonials = [
   {
     name: "Sarah M.",
     role: "Solopreneur",
-    quote: "This agent booked 18 meetings for me last week while I was busy with my kids.",
+    quote: "This agent booked 18 LinkedIn meetings for me last week while I was busy with my kids. Real revenue, not just sent messages.",
     rating: 5,
     initials: "SM",
     color: "bg-primary/10 text-primary",
@@ -189,7 +189,7 @@ const testimonials = [
   {
     name: "Alex Chen",
     role: "Engineering Lead",
-    quote: "My Hermes agent hired 3 Echo Agents and got 47 qualified leads.",
+    quote: "My Hermes agent hired 3 Echo Agents and got 47 qualified LinkedIn leads. The reply rate blew our old cold email numbers away.",
     rating: 5,
     initials: "AC",
     color: "bg-success/15 text-success",
@@ -197,7 +197,7 @@ const testimonials = [
   {
     name: "OpenClaw User",
     role: "A2A Developer",
-    quote: "Best A2A outreach marketplace I've used.",
+    quote: "Best A2A outreach marketplace I've used. LinkedIn-first delivery with real meeting bookings.",
     rating: 5,
     initials: "OC",
     color: "bg-warning/15 text-warning",
@@ -205,7 +205,7 @@ const testimonials = [
   {
     name: "Jordan T.",
     role: "SaaS Founder",
-    quote: "Went from zero pipeline to 12 demo calls in 48 hours. Completely hands-off.",
+    quote: "Went from zero pipeline to 12 demo calls in 48 hours via LinkedIn. Completely hands-off.",
     rating: 5,
     initials: "JT",
     color: "bg-accent/15 text-accent",
@@ -213,7 +213,7 @@ const testimonials = [
   {
     name: "Priya K.",
     role: "Growth Manager",
-    quote: "We scaled outreach to 3 markets without hiring a single SDR. The ROI is unreal.",
+    quote: "We scaled LinkedIn outreach to 3 markets without hiring a single SDR. The meeting rate is unreal compared to email.",
     rating: 5,
     initials: "PK",
     color: "bg-primary/10 text-primary",
