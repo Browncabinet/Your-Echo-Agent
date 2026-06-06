@@ -9,7 +9,7 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins, Linkedin, ArrowLeft } from "lucide-react";
+import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins, Linkedin, ArrowLeft, Pause, Play } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { FeaturesSection, ComparisonSection, TrustSignals, WhyNicheFirstSection, ChooseYourNicheSection } from "@/components/MarketingSections";
 import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
@@ -72,6 +72,13 @@ export default function Index() {
     setCampaign(updated);
     await saveCampaign(updated);
     setView("dashboard");
+  };
+
+  const togglePause = async () => {
+    const next = campaign.status === "paused" ? "active" : "paused";
+    const updated = { ...campaign, status: next as Campaign["status"] };
+    setCampaign(updated);
+    await saveCampaign(updated);
   };
 
   const steps = [
@@ -247,6 +254,20 @@ export default function Index() {
               <Button variant="ghost" size="sm" onClick={() => setView("home")} className="gap-1 text-muted-foreground">
                 <ArrowLeft className="w-3.5 h-3.5" /> Campaigns
               </Button>
+              {(campaign.status === "active" || campaign.status === "paused") && (
+                <Button
+                  variant={campaign.status === "paused" ? "default" : "outline"}
+                  size="sm"
+                  onClick={togglePause}
+                  className="gap-1"
+                >
+                  {campaign.status === "paused" ? (
+                    <><Play className="w-3 h-3" /> Resume</>
+                  ) : (
+                    <><Pause className="w-3 h-3" /> Pause</>
+                  )}
+                </Button>
+              )}
               <Button variant="outline" size="sm" onClick={startNewCampaign} className="gap-1">
                 <Plus className="w-3 h-3" /> New Campaign
               </Button>
