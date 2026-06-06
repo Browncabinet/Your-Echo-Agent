@@ -289,7 +289,7 @@ const trustItems = [
     title: "Enterprise-Grade Security",
     desc: "SOC2-aligned controls, encrypted at rest and in transit, with routine third-party audits.",
     color: "text-accent",
-    bg: "bg-accent",
+    bg: "bg-accent/10",
   },
 ];
 
