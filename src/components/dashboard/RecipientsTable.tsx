@@ -93,7 +93,7 @@ export function RecipientsTable({ campaignId, campaignName }: { campaignId: stri
           ? candidates.reduce((a, b) => (new Date(a) > new Date(b) ? a : b))
           : null;
 
-        return { ...s, derivedStatus, lastActivity };
+        return { ...s, derivedStatus, lastActivity, replyAt };
       });
 
       computed.sort((a, b) => {
