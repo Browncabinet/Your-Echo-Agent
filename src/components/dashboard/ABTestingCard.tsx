@@ -1,22 +1,79 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { FlaskConical, Trophy, ChevronDown, ChevronUp } from "lucide-react";
+import { FlaskConical, Trophy } from "lucide-react";
 import { type Campaign } from "@/lib/campaign-data";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ABTestingCardProps {
   campaign: Campaign;
 }
 
+type VariantStats = {
+  variant: "A" | "B";
+  sent: number;
+  opened: number;
+  openRate: number;
+};
+
+const MIN_PER_VARIANT = 5;
+
 export function ABTestingCard({ campaign }: ABTestingCardProps) {
-  const [expanded, setExpanded] = useState(false);
+  const abEmail = campaign.emails.find((e) => e.subjectB && String(e.subjectB).trim());
+  const [stats, setStats] = useState<{ A: VariantStats; B: VariantStats } | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find emails that have a B variant
-  const abEmails = campaign.emails.filter((e) => e.subjectB);
+  useEffect(() => {
+    if (!abEmail) {
+      setLoading(false);
+      return;
+    }
 
-  if (abEmails.length === 0) {
+    let cancelled = false;
+    const load = async () => {
+      const { data } = await supabase
+        .from("campaign_sends")
+        .select("variant, status, opened_at")
+        .eq("campaign_id", campaign.id)
+        .in("variant", ["A", "B"]);
+
+      if (cancelled) return;
+
+      const tally = (v: "A" | "B"): VariantStats => {
+        const rows = (data || []).filter((r: any) => r.variant === v);
+        const sent = rows.filter((r: any) => r.status === "sent").length;
+        const opened = rows.filter((r: any) => r.opened_at).length;
+        return {
+          variant: v,
+          sent,
+          opened,
+          openRate: sent > 0 ? (opened / sent) * 100 : 0,
+        };
+      };
+
+      setStats({ A: tally("A"), B: tally("B") });
+      setLoading(false);
+    };
+
+    load();
+
+    const channel = supabase
+      .channel(`abtest:${campaign.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "campaign_sends", filter: `campaign_id=eq.${campaign.id}` },
+        () => load()
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [campaign.id, abEmail]);
+
+  if (!abEmail) {
     return (
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-2">
@@ -30,101 +87,86 @@ export function ABTestingCard({ campaign }: ABTestingCardProps) {
     );
   }
 
+  const enoughData =
+    stats && stats.A.sent >= MIN_PER_VARIANT && stats.B.sent >= MIN_PER_VARIANT;
+  const winner = enoughData
+    ? stats!.A.openRate >= stats!.B.openRate
+      ? "A"
+      : "B"
+    : null;
+
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <FlaskConical className="w-4 h-4 text-primary" />
           <h3 className="font-semibold text-sm text-foreground">A/B Subject Testing</h3>
-          <Badge variant="secondary" className="text-[10px]">
-            {abEmails.length} test{abEmails.length > 1 ? "s" : ""}
-          </Badge>
+          <Badge variant="secondary" className="text-[10px]">1 test</Badge>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setExpanded(!expanded)}
-          className="h-7 w-7 p-0"
-        >
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </Button>
+        {!enoughData && !loading && (
+          <span className="text-[10px] text-muted-foreground">
+            Need {MIN_PER_VARIANT}+ sends per variant
+          </span>
+        )}
       </div>
 
-      {/* Always show first test as preview */}
-      <ABTestRow email={abEmails[0]} index={0} />
-
-      {/* Show rest when expanded */}
-      {expanded &&
-        abEmails.slice(1).map((email, i) => (
-          <div key={email.id} className="mt-4 pt-4 border-t border-border">
-            <ABTestRow email={email} index={i + 1} />
-          </div>
-        ))}
+      <div className="space-y-3">
+        <VariantRow
+          letter="A"
+          subject={abEmail.subject}
+          stats={stats?.A}
+          isWinner={winner === "A"}
+          enoughData={!!enoughData}
+        />
+        <VariantRow
+          letter="B"
+          subject={abEmail.subjectB!}
+          stats={stats?.B}
+          isWinner={winner === "B"}
+          enoughData={!!enoughData}
+        />
+      </div>
     </Card>
   );
 }
 
-function ABTestRow({
-  email,
-  index,
+function VariantRow({
+  letter,
+  subject,
+  stats,
+  isWinner,
+  enoughData,
 }: {
-  email: { id: string; subject: string; subjectB?: string; type: string; openRateA?: number; openRateB?: number };
-  index: number;
+  letter: "A" | "B";
+  subject: string;
+  stats?: VariantStats;
+  isWinner: boolean;
+  enoughData: boolean;
 }) {
-  const hasData = typeof email.openRateA === "number" && typeof email.openRateB === "number";
+  const rate = stats?.openRate ?? 0;
+  const sent = stats?.sent ?? 0;
+  const opened = stats?.opened ?? 0;
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-muted-foreground font-medium">
-        Test #{index + 1} — {email.type === "initial" ? "Initial Email" : "Follow-up"}
-      </p>
-
-      {!hasData ? (
-        <div className="space-y-2">
-          <VariantLabel letter="A" subject={email.subject} />
-          <VariantLabel letter="B" subject={email.subjectB} />
-          <p className="text-xs text-muted-foreground italic mt-1">
-            Waiting for results… Data will appear once emails are sent and opened.
-          </p>
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Badge variant={isWinner ? "default" : "outline"} className="text-[10px] h-5 shrink-0">
+            {letter}
+          </Badge>
+          <span className="text-sm text-foreground truncate">{subject}</span>
+          {isWinner && <Trophy className="w-3 h-3 text-warning shrink-0" />}
         </div>
-      ) : (
-        <>
-          {/* Variant A */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Badge variant={email.openRateA! >= email.openRateB! ? "default" : "outline"} className="text-[10px] h-5">A</Badge>
-                <span className="text-sm text-foreground truncate max-w-[280px]">{email.subject}</span>
-                {email.openRateA! >= email.openRateB! && <Trophy className="w-3 h-3 text-warning" />}
-              </div>
-              <span className="text-xs font-medium text-muted-foreground">{email.openRateA}% open</span>
-            </div>
-            <Progress value={email.openRateA} className="h-2" />
-          </div>
-
-          {/* Variant B */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Badge variant={email.openRateB! > email.openRateA! ? "default" : "outline"} className="text-[10px] h-5">B</Badge>
-                <span className="text-sm text-foreground truncate max-w-[280px]">{email.subjectB}</span>
-                {email.openRateB! > email.openRateA! && <Trophy className="w-3 h-3 text-warning" />}
-              </div>
-              <span className="text-xs font-medium text-muted-foreground">{email.openRateB}% open</span>
-            </div>
-            <Progress value={email.openRateB} className="h-2" />
-          </div>
-        </>
+        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+          {sent === 0
+            ? "no sends yet"
+            : `${rate.toFixed(0)}% · ${opened}/${sent}`}
+        </span>
+      </div>
+      <Progress value={rate} className="h-2" />
+      {!enoughData && sent > 0 && (
+        <p className="text-[10px] text-muted-foreground italic">Gathering data…</p>
       )}
-    </div>
-  );
-}
-
-function VariantLabel({ letter, subject }: { letter: string; subject?: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Badge variant="outline" className="text-[10px] h-5">{letter}</Badge>
-      <span className="text-sm text-foreground truncate max-w-[280px]">{subject || "—"}</span>
     </div>
   );
 }

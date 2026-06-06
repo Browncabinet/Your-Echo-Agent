@@ -141,7 +141,17 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 
     for (const lead of batch) {
-      const subject = (emailTemplate.subject || "")
+      // A/B variant selection: if a subjectB is provided, pick A or B at random.
+      const hasVariant = !!(emailTemplate.subjectB && String(emailTemplate.subjectB).trim());
+      const variant: "A" | "B" | null = hasVariant
+        ? Math.random() < 0.5
+          ? "A"
+          : "B"
+        : null;
+      const rawSubject =
+        variant === "B" ? emailTemplate.subjectB : emailTemplate.subject;
+
+      const subject = (rawSubject || "")
         .replace(/\{\{name\}\}/g, lead.name)
         .replace(/\{\{company\}\}/g, lead.company);
 
@@ -158,6 +168,7 @@ serve(async (req) => {
         lead_name: lead.name,
         subject,
         status: "queued",
+        variant,
       }).select("id").single();
 
       const sendId = sendRecord?.id;
