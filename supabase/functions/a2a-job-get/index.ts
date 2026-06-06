@@ -50,8 +50,13 @@ Deno.serve(async (req) => {
     spend_cents: job.spend_cents,
     spending_cap_cents: job.spending_cap_cents,
     estimated_cost_cents: job.estimated_cost_cents,
+    leads_total: job.leads_total,
+    leads_sent: job.leads_sent,
+    last_event: job.last_event,
+    last_event_at: job.last_event_at,
     results: { ...job.results_summary, ...counts },
     created_at: job.created_at,
     updated_at: job.updated_at,
   });
 });
+
