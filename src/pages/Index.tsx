@@ -209,7 +209,14 @@ export default function Index() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-foreground">{c.name}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium text-foreground">{c.name}</p>
+                        {a2aCampaignIds.has(c.id) && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">
+                            Hired via A2A
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         {c.websiteUrl && <>{(() => { try { return new URL(c.websiteUrl).hostname; } catch { return c.websiteUrl; } })()} · </>}
                         {c.niche} · {c.leads.length} leads
