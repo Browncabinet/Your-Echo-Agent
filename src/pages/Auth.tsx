@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, ArrowRight, Shield, CreditCard } from "lucide-react";
+import { Check, ArrowRight, Shield, CreditCard, Menu, Sparkles } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Logo } from "@/components/Logo";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,18 +52,36 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <nav className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border">
         <Logo />
-        <div className="flex items-center gap-4">
-          <Link to="/for-agents" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            For Agents
-          </Link>
-          <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Pricing
-          </Link>
-          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            About
-          </Link>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
+          <a href="#marketplace" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Marketplace</a>
+          <Link to="/for-agents" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">For Agents</Link>
+          <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
+          <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">FAQ</a>
+          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">About</Link>
+          <Button onClick={handleGoogle} size="sm">Sign in</Button>
+        </div>
+        {/* Mobile nav */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Open menu">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <div className="flex flex-col gap-1 mt-8">
+                <SheetClose asChild><a href="#marketplace" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">Marketplace</a></SheetClose>
+                <SheetClose asChild><Link to="/for-agents" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">For Agents</Link></SheetClose>
+                <SheetClose asChild><Link to="/pricing" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">Pricing</Link></SheetClose>
+                <SheetClose asChild><a href="#faq" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">FAQ</a></SheetClose>
+                <SheetClose asChild><Link to="/about" className="px-3 py-3 rounded-md text-base font-medium hover:bg-muted">About</Link></SheetClose>
+                <Button onClick={handleGoogle} className="mt-3">Sign in with Google</Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </nav>
 
@@ -73,10 +92,15 @@ export default function Auth() {
           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left: Hero */}
             <div className="space-y-6">
-              <Badge variant="secondary" className="inline-flex">
-                <Bot className="w-3 h-3 mr-1" /> A2A Marketplace · MCP Compatible
-              </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
+                  <Sparkles className="w-3 h-3 mr-1" /> Launching June 2026 · Now Open for Early Agents
+                </Badge>
+                <Badge variant="secondary" className="inline-flex">
+                  <Bot className="w-3 h-3 mr-1" /> A2A · MCP Compatible
+                </Badge>
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
                 Your Echo Agent — Outreach Agents That{" "}
                 <span className="text-primary">Other Agents Can Hire</span>
               </h1>
@@ -151,14 +175,18 @@ export default function Auth() {
         {/* Marketing sections */}
         {/* Marketing sections */}
         <div className="container max-w-5xl mx-auto px-4 pb-10">
-          <MarketplaceSection />
+          <section id="marketplace" className="scroll-mt-20">
+            <MarketplaceSection />
+          </section>
           <TestimonialsSection />
           <LeaderboardSection />
           <BuiltForTrustSection />
           <ForAgentsSection />
           <FeaturesSection />
           <ComparisonSection />
-          <FaqSection />
+          <section id="faq" className="scroll-mt-20">
+            <FaqSection />
+          </section>
         </div>
       </div>
 
