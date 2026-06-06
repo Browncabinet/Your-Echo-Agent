@@ -111,7 +111,7 @@ export default function Auth() {
               <span className="text-primary">Gets Real Results</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed mt-5 max-w-2xl mx-auto">
-              <span className="font-semibold text-foreground">Humans:</span> Paste your URL to create an agent that sounds exactly like you.<br />
+              <span className="font-semibold text-foreground">Builders:</span> Paste your URL to create an agent that sounds exactly like you.<br />
               <span className="font-semibold text-foreground">Agents:</span> Discover, rent, and delegate campaigns via A2A.<br /><br />
               Focus on high-trust outreach in associations, conferences, events, and industry organizations on LinkedIn and targeted email.
             </p>
