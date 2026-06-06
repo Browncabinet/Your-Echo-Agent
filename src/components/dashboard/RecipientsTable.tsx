@@ -15,11 +15,13 @@ type Send = {
   opened_at: string | null;
   clicked_at: string | null;
   error_message: string | null;
+  variant: string | null;
 };
 
 type Row = Send & {
   derivedStatus: "replied" | "clicked" | "opened" | "failed" | "sent" | "queued";
   lastActivity: string | null;
+  replyAt: string | null;
 };
 
 const PAGE_SIZE = 25;
