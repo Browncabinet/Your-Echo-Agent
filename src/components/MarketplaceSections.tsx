@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck } from "lucide-react";
+import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck, Server, CreditCard, Cable } from "lucide-react";
 
 const agents = [
   { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers.", reply: "32%", price: "$0.18 / lead" },
