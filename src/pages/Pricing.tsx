@@ -3,15 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Check, ArrowLeft, Sparkles, CalendarClock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Check, ArrowLeft, Sparkles, CalendarClock, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/use-subscription";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 type WeeklyTier = {
   id: string;
   name: string;
   price: number;
-  messages: string;
+  emails: number;
+  linkedin: number;
   description: string;
   features: string[];
   highlight?: boolean;
@@ -23,13 +27,14 @@ const weeklyTiers: WeeklyTier[] = [
     id: "starter_weekly",
     name: "Starter Weekly",
     price: 19,
-    messages: "600–700 LinkedIn messages",
-    description: "Perfect for testing and trying your first campaign",
+    emails: 500,
+    linkedin: 50,
+    description: "Perfect for testing and your first campaign",
     features: [
-      "600–700 messages / week",
-      "1 Echo Agent",
-      "Niche targeting",
-      "Basic reply handling",
+      "500 emails / week",
+      "50 LinkedIn Assist actions / week",
+      "Full Echo Agent + Reply Handler",
+      "Niche-first targeting",
       "Cancel or pause anytime",
     ],
   },
@@ -37,12 +42,13 @@ const weeklyTiers: WeeklyTier[] = [
     id: "growth_weekly",
     name: "Growth Weekly",
     price: 39,
-    messages: "1,800–2,000 messages per week",
+    emails: 1500,
+    linkedin: 150,
     description: "Best value for most users getting real results",
     features: [
-      "1,800–2,000 messages / week",
-      "1 Echo Agent",
-      "Smart Reply Handling",
+      "1,500 emails / week",
+      "150 LinkedIn Assist actions / week",
+      "Full Echo Agent + Reply Handler",
       "Priority sending queue",
       "Cancel or pause anytime",
     ],
@@ -53,40 +59,43 @@ const weeklyTiers: WeeklyTier[] = [
     id: "power_weekly",
     name: "Power Weekly",
     price: 79,
-    messages: "4,000+ messages per week",
+    emails: 4000,
+    linkedin: 400,
     description: "For power users and agencies scaling fast",
     features: [
-      "4,000+ messages / week",
-      "Full A2A API access",
-      "Priority hosting",
-      "White-label branding",
+      "4,000 emails / week",
+      "400 LinkedIn Assist actions / week",
+      "Full Echo Agent + Reply Handler",
+      "Priority sending queue",
       "Cancel or pause anytime",
     ],
   },
 ];
 
 const faqs = [
-  {
-    q: "Can I cancel or pause anytime?",
-    a: "Yes — all weekly plans renew every 7 days. Pause, cancel, or switch tiers any time from your dashboard. No questions asked.",
-  },
-  {
-    q: "Should I start with Starter or Growth?",
-    a: "Most users begin with Starter Weekly to test safely in their niche. Once replies and booked calls start coming in, they upgrade to Growth or Power for more volume.",
-  },
-  {
-    q: "Is there a monthly or annual discount?",
-    a: "Weekly pricing keeps things flexible. If you stay on a plan for a full month, it works out to roughly the same as a monthly plan — but you keep the freedom to pause anytime.",
-  },
-  {
-    q: "What happens if I upgrade mid-week?",
-    a: "Your new plan starts immediately and you're billed the prorated difference. No wasted days.",
-  },
+  { q: "Can I cancel or change tiers anytime?", a: "Yes. All weekly plans renew every 7 days. Cancel, pause, or switch from your dashboard — access continues until the current week ends." },
+  { q: "What counts as a LinkedIn Assist action?", a: "Each AI generation that returns group suggestions plus comment/DM drafts counts as one action. You then post or message manually from LinkedIn." },
+  { q: "Does my email allowance roll over?", a: "No — every weekly plan resets every Monday so you always get a fresh quota. This keeps deliverability healthy." },
+  { q: "What happens if I hit my weekly cap?", a: "Sending pauses until the week resets, or you can upgrade instantly to keep going." },
 ];
 
 export default function Pricing() {
   const navigate = useNavigate();
-  const [showSavings, setShowSavings] = useState(false);
+  const { user } = useAuth();
+  const { openPortal, isActive } = useSubscription();
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+
+  const onChoose = (priceId: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    if (isActive) {
+      openPortal();
+      return;
+    }
+    setSelectedPriceId(priceId);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,39 +111,33 @@ export default function Pricing() {
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </Button>
-            <Button size="sm" onClick={() => navigate("/auth")}>
-              Sign In
-            </Button>
+            {!user && (
+              <Button size="sm" onClick={() => navigate("/auth")}>
+                Sign In
+              </Button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="container max-w-6xl mx-auto px-4 py-12">
-        {/* Hero */}
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
-            <Sparkles className="w-3 h-3 mr-1" /> Start Small and Grow as You Go
+            <Sparkles className="w-3 h-3 mr-1" /> Start Small, Grow As You Go
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Start Small and Grow as You Go
+            Simple Weekly Plans
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-            Flexible weekly packages. Cancel or pause anytime. No long-term commitments.
+            Email + LinkedIn outreach in one place. Resets every week. Cancel anytime.
           </p>
         </div>
 
-        {/* Weekly Plans */}
         <section className="mb-16">
           <div className="text-center mb-8">
             <Badge className="mb-3 bg-primary text-primary-foreground">
               <CalendarClock className="w-3 h-3 mr-1" /> Weekly Plans
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-              Weekly Plans
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Pick a plan that fits your stage. Upgrade or downgrade anytime.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -147,14 +150,12 @@ export default function Pricing() {
                     : "hover:border-primary/40 hover:shadow-md"
                 }`}
               >
-                {/* Cancel badge on every plan */}
                 <Badge
                   variant="secondary"
                   className="absolute -top-3 right-4 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
                 >
                   Cancel or change anytime
                 </Badge>
-
                 {tier.badge && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1">
                     <Sparkles className="w-3 h-3 mr-1" /> {tier.badge}
@@ -171,11 +172,7 @@ export default function Pricing() {
                 </div>
 
                 <ul className="space-y-3 mb-8 flex-1">
-                  <li className="flex items-start gap-2 text-sm text-foreground">
-                    <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                    <span className="font-medium">{tier.messages}</span>
-                  </li>
-                  {tier.features.slice(1).map((f) => (
+                  {tier.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-foreground">
                       <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                       <span>{f}</span>
@@ -187,56 +184,24 @@ export default function Pricing() {
                   size="lg"
                   variant={tier.highlight ? "default" : "outline"}
                   className="w-full"
-                  onClick={() => navigate("/auth")}
+                  onClick={() => onChoose(tier.id)}
                 >
-                  Start {tier.name}
+                  {isActive ? "Manage subscription" : `Start ${tier.name}`}
                 </Button>
               </Card>
             ))}
           </div>
         </section>
 
-        {/* Monthly / Annual equivalent toggle */}
-        <div className="flex flex-col items-center justify-center gap-3 mb-16">
-          <div className="flex items-center gap-3">
-            <span className={`text-sm font-medium ${!showSavings ? "text-foreground" : "text-muted-foreground"}`}>
-              Weekly
-            </span>
-            <Switch checked={showSavings} onCheckedChange={setShowSavings} aria-label="Toggle monthly equivalent" />
-            <span className={`text-sm font-medium ${showSavings ? "text-foreground" : "text-muted-foreground"}`}>
-              Monthly Equivalent
-            </span>
-          </div>
-          {showSavings && (
-            <div className="text-center mt-2">
-              <p className="text-sm text-muted-foreground">
-                Stay on a weekly plan for a full month and it works out to roughly:
-              </p>
-              <div className="flex flex-wrap justify-center gap-4 mt-3">
-                <Badge variant="outline">Starter ≈ $76/mo</Badge>
-                <Badge variant="outline">Growth ≈ $156/mo</Badge>
-                <Badge variant="outline">Power ≈ $316/mo</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                But you keep the flexibility to pause or cancel any week — no annual contract needed.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Important note */}
         <Card className="p-6 md:p-8 mb-16 max-w-3xl mx-auto border-primary/30 bg-primary/5 text-center">
           <Sparkles className="w-6 h-6 text-primary mx-auto mb-3" />
           <p className="text-foreground text-base sm:text-lg leading-relaxed">
-            Most users start with the <span className="font-bold">$19 Starter Weekly</span> to test safely. Once they begin seeing replies, booked calls, and revenue, they upgrade to <span className="font-bold">Growth or Power</span>.
+            Most users start with the <span className="font-bold">$19 Starter Weekly</span> to test safely. Once replies and booked calls come in, they upgrade to <span className="font-bold">Growth or Power</span>.
           </p>
         </Card>
 
-        {/* FAQ */}
         <div className="max-w-2xl mx-auto">
-          <h3 className="text-2xl font-bold text-foreground text-center mb-6">
-            Frequently Asked Questions
-          </h3>
+          <h3 className="text-2xl font-bold text-foreground text-center mb-6">Frequently Asked Questions</h3>
           <div className="space-y-4">
             {faqs.map((faq) => (
               <Card key={faq.q} className="p-5">
@@ -247,6 +212,24 @@ export default function Pricing() {
           </div>
         </div>
       </main>
+
+      <Dialog open={!!selectedPriceId} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Start your weekly plan</DialogTitle>
+            <DialogDescription>Secure checkout — cancel anytime from your dashboard.</DialogDescription>
+          </DialogHeader>
+          {selectedPriceId && user && (
+            <StripeEmbeddedCheckout
+              priceId={selectedPriceId}
+              customerEmail={user.email || undefined}
+              userId={user.id}
+              returnUrl={`${window.location.origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`}
+            />
+          )}
+          {!selectedPriceId && <Loader2 className="w-6 h-6 animate-spin mx-auto my-8 text-primary" />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
