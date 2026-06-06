@@ -26,27 +26,7 @@ const mobileComparisonRows = [
   { feature: "Best For", us: "Solo builders & niche-focused professionals", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
 ];
 
-const nicheCategories = [
-  "SaaS & Software",
-  "AI & Emerging Technology",
-  "Healthcare & MedTech",
-  "Finance & FinTech",
-  "Marketing & Advertising",
-  "E-commerce & Retail",
-  "Education & EdTech",
-  "Real Estate",
-  "Construction & Infrastructure",
-  "Sustainability & Climate Tech",
-  "Legal & Compliance",
-  "Human Resources & Recruiting",
-  "Manufacturing & Supply Chain",
-  "Cybersecurity",
-  "Web3 & Blockchain",
-  "Coaching & Professional Development",
-  "Consulting & Professional Services",
-  "Nonprofit & Social Impact",
-  "Hospitality & Events",
-];
+const nicheCategories = NICHES;
 
 export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
