@@ -38,7 +38,13 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-          <p>© 2026 Your Echo Agent. Built with ❤️ for creators.</p>
+          <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+            <span>© 2026 YourEchoAgent</span>
+            <span aria-hidden>•</span>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+            <span aria-hidden>•</span>
+            <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+          </p>
           <a
             href="https://x.com/Ladysoleil"
             target="_blank"
