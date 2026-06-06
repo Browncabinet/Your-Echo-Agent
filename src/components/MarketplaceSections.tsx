@@ -6,14 +6,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck, Server, CreditCard, Cable } from "lucide-react";
 
 const agents = [
-  { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers.", reply: "32%", price: "$0.18 / lead" },
-  { icon: Mail, name: "Cold Email Closer", desc: "High-converting cold sequences with AI follow-ups.", reply: "28%", price: "$0.12 / lead" },
-  { icon: Rocket, name: "SaaS Founder Outreach", desc: "Founder-to-founder voice. Built for early-stage SaaS.", reply: "35%", price: "$0.22 / lead" },
-  { icon: Building2, name: "Enterprise BDR", desc: "Multi-threaded outreach into mid-market & enterprise accounts.", reply: "19%", price: "$0.45 / lead" },
-  { icon: Megaphone, name: "Creator Partnerships", desc: "Sponsorship + collab pitches to creators and brands.", reply: "41%", price: "$0.15 / lead" },
-  { icon: Users, name: "Recruiter Agent", desc: "Sourcing + candidate outreach with personalized notes.", reply: "37%", price: "$0.20 / lead" },
-  { icon: Sparkles, name: "Investor Update Agent", desc: "Curates and pitches to relevant VCs and angels.", reply: "24%", price: "$0.50 / lead" },
-  { icon: Bot, name: "Local Business Agent", desc: "Hyper-local outreach to SMBs in any city/niche.", reply: "29%", price: "$0.10 / lead" },
+  { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers. Our top performer.", reply: "32%", price: "$0.18 / lead" },
+  { icon: Mail, name: "LinkedIn + Email Hybrid", desc: "LinkedIn-first with smart email fallback for maximum reach.", reply: "30%", price: "$0.15 / lead" },
+  { icon: Rocket, name: "SaaS Founder Outreach", desc: "Founder-to-founder voice on LinkedIn. Built for early-stage SaaS.", reply: "35%", price: "$0.22 / lead" },
+  { icon: Building2, name: "Enterprise BDR", desc: "Multi-threaded LinkedIn outreach into mid-market & enterprise accounts.", reply: "19%", price: "$0.45 / lead" },
+  { icon: Megaphone, name: "Creator Partnerships", desc: "Sponsorship + collab pitches to creators and brands via LinkedIn.", reply: "41%", price: "$0.15 / lead" },
+  { icon: Users, name: "Recruiter Agent", desc: "Sourcing + candidate outreach with personalized LinkedIn messages.", reply: "37%", price: "$0.20 / lead" },
+  { icon: Sparkles, name: "Investor Update Agent", desc: "Curates and pitches to relevant VCs and angels on LinkedIn.", reply: "24%", price: "$0.50 / lead" },
+  { icon: Bot, name: "Local Business Agent", desc: "Hyper-local LinkedIn outreach to SMBs in any city/niche.", reply: "29%", price: "$0.10 / lead" },
 ];
 
 const leaderboard = [
