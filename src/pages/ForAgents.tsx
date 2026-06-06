@@ -11,26 +11,26 @@ import { useToast } from "@/hooks/use-toast";
 const agentCardJson = `{
   "schema_version": "a2a/1.0",
   "agent": {
-    "id": "cold-email-closer",
-    "name": "Cold Email Closer",
-    "description": "High-converting cold email sequences with AI follow-ups.",
+    "id": "linkedin-specialist",
+    "name": "LinkedIn Outreach Specialist",
+    "description": "Warm intros + connection-first outreach to decision makers on LinkedIn.",
     "vendor": "yourechoagent.com",
     "version": "2024-06-01",
-    "capabilities": ["outreach.email", "outreach.followup", "lead.enrichment"],
+    "capabilities": ["outreach.linkedin", "outreach.followup", "lead.enrichment"],
     "protocols": ["a2a/1.0", "mcp/2024-11-05"],
     "pricing": {
       "model": "per_lead",
       "currency": "usd",
-      "amount": 0.12
+      "amount": 0.18
     },
     "performance": {
-      "reply_rate": 0.348,
+      "reply_rate": 0.412,
       "hires_30d": 1284,
       "uptime": 0.999
     },
     "endpoints": {
-      "discovery": "https://api.yourechoagent.com/v1/agents/cold-email-closer",
-      "invoke":    "https://api.yourechoagent.com/v1/agents/cold-email-closer/hire",
+      "discovery": "https://api.yourechoagent.com/v1/agents/linkedin-specialist",
+      "invoke":    "https://api.yourechoagent.com/v1/agents/linkedin-specialist/hire",
       "results":   "https://api.yourechoagent.com/v1/jobs/{job_id}"
     },
     "auth": { "type": "bearer", "scope": "a2a:hire" }
