@@ -354,7 +354,8 @@ export default function Index() {
             </div>
           </div>
         </header>
-        <main className="container max-w-5xl mx-auto px-4 py-8">
+        <main className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
+          <LinkedInAssistPanel defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
           <SocialMediaContent campaign={campaign} onBack={() => setView("dashboard")} />
         </main>
       </div>
