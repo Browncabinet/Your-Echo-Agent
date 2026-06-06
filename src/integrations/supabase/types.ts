@@ -448,6 +448,36 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_groups_research: {
+        Row: {
+          audience: string
+          created_at: string
+          expires_at: string
+          id: string
+          niche: string
+          results: Json
+          user_id: string
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          niche: string
+          results?: Json
+          user_id: string
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          niche?: string
+          results?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
