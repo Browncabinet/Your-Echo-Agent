@@ -1,126 +1,162 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowRight } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const payAsYouGo = [
-  { price: 9, messages: 250, label: "Test Pack", highlight: false },
-  { price: 25, messages: 1000, label: "Best for Starting", highlight: true },
-  { price: 49, messages: 2500, label: null, highlight: false },
-];
+type WeeklyTier = {
+  id: string;
+  name: string;
+  price: number;
+  messages: string;
+  description: string;
+  features: string[];
+  highlight?: boolean;
+  badge?: string;
+};
 
-const weeklyPlans = [
-  { price: 39, period: "week", messages: "~1,200 messages / week", features: ["1 Echo Agent", "Niche outreach", "Reply handling"] },
-];
-
-const monthlyPlans = [
-  { name: "Starter", price: 29, messages: "2,500 messages / month", features: ["1 Echo Agent", "Reply handling", "Email support"] },
-  { name: "Pro", price: 59, messages: "8,000 messages / month", features: ["Smart AI Replies", "Priority sending", "Priority support"], highlight: true },
-  { name: "Scale", price: 119, messages: "Unlimited messages", features: ["Full A2A API", "Dedicated hosting", "White-label branding"] },
+const weeklyTiers: WeeklyTier[] = [
+  {
+    id: "starter_weekly",
+    name: "Starter Weekly",
+    price: 15,
+    messages: "600–700 LinkedIn messages",
+    description: "Perfect for testing and trying your first campaign",
+    features: [
+      "600–700 messages / week",
+      "1 Echo Agent",
+      "Niche targeting",
+      "Cancel or pause anytime",
+    ],
+  },
+  {
+    id: "growth_weekly",
+    name: "Growth Weekly",
+    price: 35,
+    messages: "1,800–2,000 messages per week",
+    description: "Best value for most users getting real results",
+    features: [
+      "1,800–2,000 messages / week",
+      "Smart Reply Handling",
+      "Priority sending queue",
+      "Cancel or pause anytime",
+    ],
+    highlight: true,
+    badge: "Most Popular",
+  },
+  {
+    id: "power_weekly",
+    name: "Power Weekly",
+    price: 69,
+    messages: "4,000+ messages per week",
+    description: "For power users and agencies scaling fast",
+    features: [
+      "4,000+ messages / week",
+      "Full A2A API access",
+      "Priority hosting",
+      "Cancel or pause anytime",
+    ],
+  },
 ];
 
 export function HomePricingSection() {
   const navigate = useNavigate();
+  const [showSavings, setShowSavings] = useState(false);
+
   return (
     <section className="mb-16 scroll-mt-20" id="pricing">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-          Start Testing with No Pressure
+          Start Small and Grow as You Go
         </h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-xl mx-auto">
-          Start small with Pay-As-You-Go. Upgrade when you see replies and booked calls.
+          Flexible weekly packages. Cancel or pause anytime. No long-term commitments.
         </p>
       </div>
 
-      {/* Pay-As-You-Go Packs */}
-      <div className="mb-10">
-        <h3 className="text-sm font-semibold text-foreground mb-3 text-center">Pay-As-You-Go Packs</h3>
-        <div className="grid sm:grid-cols-3 gap-4">
-          {payAsYouGo.map((p) => (
-            <Card
-              key={p.price}
-              className={`p-5 flex flex-col items-center text-center ${
-                p.highlight ? "border-primary shadow-lg ring-1 ring-primary/30" : ""
-              }`}
-            >
-              {p.highlight && <Badge className="mb-2">Best Starter Pack</Badge>}
-              <div className="text-3xl font-bold text-foreground">${p.price}</div>
-              <p className="text-sm text-muted-foreground mt-1">{p.messages.toLocaleString()} messages</p>
-              {p.label && (
-                <p className="text-xs font-medium text-primary mt-1">{p.label}</p>
-              )}
-              <Button
-                variant={p.highlight ? "default" : "outline"}
-                onClick={() => navigate("/pricing")}
-                className="mt-4 w-full"
-              >
-                Buy Pack <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </Button>
-            </Card>
-          ))}
-        </div>
-      </div>
-
       {/* Weekly Plans */}
-      <div className="mb-10">
-        <h3 className="text-sm font-semibold text-foreground mb-3 text-center">Weekly Plans</h3>
-        <div className="max-w-sm mx-auto">
-          <Card className="p-5 flex flex-col items-center text-center border-dashed">
-            <div className="text-3xl font-bold text-foreground">${weeklyPlans[0].price}</div>
-            <p className="text-sm text-muted-foreground mt-1">per week</p>
-            <p className="text-xs text-muted-foreground mt-1">{weeklyPlans[0].messages}</p>
-            <ul className="mt-3 space-y-1">
-              {weeklyPlans[0].features.map((f) => (
-                <li key={f} className="flex items-center gap-1.5 text-xs text-foreground">
-                  <Check className="w-3.5 h-3.5 text-primary" /> {f}
+      <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        {weeklyTiers.map((tier) => (
+          <Card
+            key={tier.id}
+            className={`p-5 flex flex-col relative ${
+              tier.highlight ? "border-primary shadow-lg ring-1 ring-primary/30" : ""
+            }`}
+          >
+            {/* Cancel badge on every plan */}
+            <Badge
+              variant="secondary"
+              className="absolute -top-2 right-3 text-[10px] border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+            >
+              Cancel anytime
+            </Badge>
+
+            {tier.badge && <Badge className="mb-2 self-start">{tier.badge}</Badge>}
+
+            <h4 className="text-lg font-bold text-foreground">{tier.name}</h4>
+            <p className="text-xs text-muted-foreground mb-2">{tier.description}</p>
+
+            <div className="mb-3">
+              <span className="text-3xl font-bold text-foreground">${tier.price}</span>
+              <span className="text-muted-foreground text-sm">/wk</span>
+            </div>
+
+            <p className="text-xs font-medium text-primary mb-2">{tier.messages}</p>
+
+            <ul className="space-y-1.5 mb-5 flex-1">
+              {tier.features.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-foreground">
+                  <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                  <span>{f}</span>
                 </li>
               ))}
             </ul>
-            <Button variant="outline" onClick={() => navigate("/pricing")} className="mt-4 w-full">
-              Choose Weekly
+
+            <Button
+              variant={tier.highlight ? "default" : "outline"}
+              onClick={() => navigate("/pricing")}
+              className="w-full"
+            >
+              Start {tier.name.split(" ")[0]} <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </Button>
           </Card>
-        </div>
+        ))}
       </div>
 
-      {/* Monthly Plans */}
-      <div>
-        <h3 className="text-sm font-semibold text-foreground mb-3 text-center">Monthly Plans</h3>
-        <div className="grid sm:grid-cols-3 gap-4">
-          {monthlyPlans.map((t) => (
-            <Card
-              key={t.name}
-              className={`p-5 flex flex-col ${
-                t.highlight ? "border-primary shadow-lg ring-1 ring-primary/30" : ""
-              }`}
-            >
-              {t.highlight && <Badge className="self-start mb-2">Most Popular</Badge>}
-              <h4 className="text-lg font-bold text-foreground">{t.name}</h4>
-              <div className="mt-2 mb-1">
-                <span className="text-3xl font-bold text-foreground">${t.price}</span>
-                <span className="text-muted-foreground text-sm">/mo</span>
-              </div>
-              <p className="text-xs text-muted-foreground mb-3">{t.messages}</p>
-              <ul className="space-y-1.5 mb-5 flex-1">
-                {t.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-foreground">
-                    <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant={t.highlight ? "default" : "outline"}
-                onClick={() => navigate("/pricing")}
-                className="w-full"
-              >
-                Choose {t.name}
-              </Button>
-            </Card>
-          ))}
+      {/* Monthly equivalent toggle */}
+      <div className="flex flex-col items-center gap-3 mb-8">
+        <div className="flex items-center gap-3">
+          <span className={`text-sm font-medium ${!showSavings ? "text-foreground" : "text-muted-foreground"}`}>
+            Weekly
+          </span>
+          <Switch checked={showSavings} onCheckedChange={setShowSavings} aria-label="Toggle monthly equivalent" />
+          <span className={`text-sm font-medium ${showSavings ? "text-foreground" : "text-muted-foreground"}`}>
+            Monthly Equivalent
+          </span>
         </div>
+        {showSavings && (
+          <div className="text-center">
+            <div className="flex flex-wrap justify-center gap-2 mt-1">
+              <Badge variant="outline" className="text-xs">Starter ≈ $60/mo</Badge>
+              <Badge variant="outline" className="text-xs">Growth ≈ $140/mo</Badge>
+              <Badge variant="outline" className="text-xs">Power ≈ $276/mo</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto">
+              Weekly keeps you flexible. No annual contract needed.
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Strong note */}
+      <Card className="p-5 border-primary/30 bg-primary/5 text-center">
+        <Sparkles className="w-5 h-5 text-primary mx-auto mb-2" />
+        <p className="text-sm text-foreground leading-relaxed">
+          Most users start with the <span className="font-bold">$15 Starter Weekly</span> to test safely. Once they begin seeing replies, booked calls, and revenue, they upgrade to <span className="font-bold">Growth or Power</span>.
+        </p>
+      </Card>
     </section>
   );
 }
