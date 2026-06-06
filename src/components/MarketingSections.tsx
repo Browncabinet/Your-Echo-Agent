@@ -128,11 +128,65 @@ ComparisonSection.displayName = "ComparisonSection";
 export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div ref={ref} className="flex flex-wrap justify-center gap-6 mt-8 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1.5">✓ Gmail connect in seconds</span>
-      <span className="flex items-center gap-1.5">✓ High deliverability</span>
+      <span className="flex items-center gap-1.5">✓ LinkedIn-native outreach</span>
+      <span className="flex items-center gap-1.5">✓ 5-10x higher reply rates</span>
       <span className="flex items-center gap-1.5">✓ AI-powered personalization</span>
       <span className="flex items-center gap-1.5">✓ No monthly contracts</span>
     </div>
   );
 });
 TrustSignals.displayName = "TrustSignals";
+
+export const WhyLinkedInFirstSection = React.forwardRef<HTMLDivElement>((_, ref) => {
+  const reasons = [
+    {
+      icon: BarChart3,
+      stat: "5-10x",
+      label: "Higher Response Rates",
+      desc: "LinkedIn messages outperform cold email by a wide margin. Decision makers actually read and reply to personalized connection requests.",
+    },
+    {
+      icon: Target,
+      label: "Smart Intent Targeting",
+      desc: "Recent activity, job changes, funding rounds, and post engagement signal buying intent. Your agent finds the warmest leads first.",
+    },
+    {
+      icon: Users,
+      label: "Natural Conversation Style",
+      desc: "No salesy templates. Your agent writes like a real person — building rapport first, pitching second. Leads feel heard, not sold to.",
+    },
+    {
+      icon: Zap,
+      label: "Safe, Human-Like Behavior",
+      desc: "Smart pacing, realistic typing delays, and natural follow-up cadence keep your account healthy and restrictions at bay.",
+    },
+  ];
+
+  return (
+    <div ref={ref} className="mb-16">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          Why LinkedIn-First Works Better
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+          Real replies, real meetings, real revenue — not just sent counts in a dashboard.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {reasons.map((r) => (
+          <Card key={r.label} className="p-5 flex flex-col hover:border-primary/20 transition-all">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+              <r.icon className="w-5 h-5 text-primary" />
+            </div>
+            {r.stat && (
+              <p className="text-2xl font-bold text-foreground mb-1">{r.stat}</p>
+            )}
+            <h3 className="font-semibold text-sm text-foreground mb-1">{r.label}</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed flex-1">{r.desc}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+});
+WhyLinkedInFirstSection.displayName = "WhyLinkedInFirstSection";
