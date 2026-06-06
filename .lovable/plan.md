@@ -1,15 +1,20 @@
-## Problem Statement
-1. The "What's included" feature-comparison table inside `HomePricingSection` duplicates the detailed pricing page (`/pricing`). It appears on both the public landing page and the signed-in dashboard home.
-2. The signed-in dashboard hero (`Index.tsx`) still says **"Humans:"** instead of **"Builders:"** when describing the URL-paste feature, while the public landing page (`Auth.tsx`) was already updated.
+### Move Pricing below Marketplace on home page
 
-## Changes
-1. **Remove the "What's included" table block** from `src/components/HomePricingSection.tsx` (lines 168-197). Keep the tier cards, monthly toggle, and bottom note intact.
-2. **Update the dashboard home hero** in `src/pages/Index.tsx` line 116: change `<span className="font-semibold text-foreground">Humans:</span>` to `<span className="font-semibold text-foreground">Builders:</span>`.
+**Current order in `src/pages/Auth.tsx`:**
+1. Hero
+2. HomePricingSection
+3. MarketplaceSection
+4. TestimonialsSection / Leaderboard / BuiltForTrust / ForAgents / Features / Comparison / FAQ
 
-## Verification
-- Build the project and confirm no TypeScript/JSX errors.
-- Preview both the public landing page and the signed-in dashboard home to confirm the table is gone and the label reads "Builders:".
+**New order:**
+1. Hero
+2. MarketplaceSection
+3. HomePricingSection
+4. TestimonialsSection / Leaderboard / BuiltForTrust / ForAgents / Features / Comparison / FAQ
 
-## Impact
-- Cleaner home-page layout with less duplication.
-- Consistent "Builders" branding across public and signed-in experiences.
+**Technical details:**
+- Swap `<HomePricingSection />` and `<section id="marketplace"><MarketplaceSection /></section>` inside the container `<div>` in `src/pages/Auth.tsx`.
+- No other file changes needed. Pricing content in `HomePricingSection.tsx` remains unchanged.
+
+**Verification:**
+- Preview the home page to confirm the "Available Echo Agents for Hire" section appears before the "Start Small and Grow as You Go" pricing section.
