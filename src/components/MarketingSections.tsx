@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Globe, Mail, MessageSquareReply, TrendingUp } from "lucide-react";
+import { Globe, Linkedin, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target } from "lucide-react";
 
 const comparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", a: "✅ Very fast drafts", b: "— List upload required", c: "— Manual setup" },
