@@ -229,13 +229,13 @@ export const ChooseYourNicheSection = React.forwardRef<HTMLDivElement>((_, ref) 
     <div ref={ref} className="mb-16">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Choose Your Niche
+          Choose Your Industry
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          Stay within your industry for maximum trust and impact.
+          Your Echo Agent will focus outreach inside your specific niche — associations, conferences, events, and organizations — for maximum relevance and trust.
         </p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {nicheCategories.map((cat) => (
           <Card key={cat} className="p-4 text-center hover:border-primary/30 transition-all cursor-default">
             <p className="text-sm font-medium text-foreground">{cat}</p>
