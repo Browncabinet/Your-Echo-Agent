@@ -3,8 +3,48 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Check, ArrowRight, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+type ComparisonRow = {
+  feature: string;
+  starter: boolean | string;
+  growth: boolean | string;
+  power: boolean | string;
+};
+
+const comparisonRows: ComparisonRow[] = [
+  { feature: "Messages / week", starter: "600–700", growth: "1,800–2,000", power: "4,000+" },
+  { feature: "Echo Agents", starter: "1", growth: "1", power: "1" },
+  { feature: "Niche targeting", starter: true, growth: true, power: true },
+  { feature: "Basic reply handling", starter: true, growth: true, power: true },
+  { feature: "Smart Reply Handling", starter: false, growth: true, power: true },
+  { feature: "Priority sending queue", starter: false, growth: true, power: true },
+  { feature: "Full A2A API access", starter: false, growth: false, power: true },
+  { feature: "Priority hosting", starter: false, growth: false, power: true },
+  { feature: "White-label branding", starter: false, growth: false, power: true },
+  { feature: "Cancel or pause anytime", starter: true, growth: true, power: true },
+];
+
+function Cell({ value }: { value: boolean | string }) {
+  if (typeof value === "string") {
+    return <span className="text-sm font-medium text-foreground">{value}</span>;
+  }
+  return value ? (
+    <Check className="w-4 h-4 text-primary mx-auto" />
+  ) : (
+    <Minus className="w-4 h-4 text-muted-foreground/50 mx-auto" />
+  );
+}
 
 type WeeklyTier = {
   id: string;
