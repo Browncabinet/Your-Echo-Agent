@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Globe, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Globe, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target, ShieldCheck, Check, ArrowRight } from "lucide-react";
+import { NICHES } from "@/lib/campaign-data";
 
 const comparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", a: "✅ Very fast drafts", b: "— List upload required", c: "— Manual setup" },
@@ -24,27 +26,7 @@ const mobileComparisonRows = [
   { feature: "Best For", us: "Solo builders & niche-focused professionals", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
 ];
 
-const nicheCategories = [
-  "SaaS & Software",
-  "AI & Emerging Technology",
-  "Healthcare & MedTech",
-  "Finance & FinTech",
-  "Marketing & Advertising",
-  "E-commerce & Retail",
-  "Education & EdTech",
-  "Real Estate",
-  "Construction & Infrastructure",
-  "Sustainability & Climate Tech",
-  "Legal & Compliance",
-  "Human Resources & Recruiting",
-  "Manufacturing & Supply Chain",
-  "Cybersecurity",
-  "Web3 & Blockchain",
-  "Coaching & Professional Development",
-  "Consulting & Professional Services",
-  "Nonprofit & Social Impact",
-  "Hospitality & Events",
-];
+const nicheCategories = NICHES;
 
 export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
@@ -224,25 +206,84 @@ export const WhyNicheFirstSection = React.forwardRef<HTMLDivElement>((_, ref) =>
 });
 WhyNicheFirstSection.displayName = "WhyNicheFirstSection";
 
-export const ChooseYourNicheSection = React.forwardRef<HTMLDivElement>((_, ref) => {
-  return (
-    <div ref={ref} className="mb-16">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Choose Your Industry
-        </h2>
-        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          Your Echo Agent will focus outreach inside your specific niche — associations, conferences, events, and organizations — for maximum relevance and trust.
-        </p>
+type ChooseYourNicheSectionProps = {
+  onContinue?: (niche: string) => void;
+};
+
+export const ChooseYourNicheSection = React.forwardRef<HTMLDivElement, ChooseYourNicheSectionProps>(
+  ({ onContinue }, ref) => {
+    const [selected, setSelected] = useState<string | null>(null);
+
+    const handleContinue = () => {
+      if (!selected) return;
+      try {
+        sessionStorage.setItem("preferredNiche", selected);
+      } catch {
+        /* ignore storage errors */
+      }
+      onContinue?.(selected);
+    };
+
+    return (
+      <div ref={ref} className="mb-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            Choose Your Industry
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+            Your Echo Agent will focus outreach inside your specific niche — associations, conferences, events, and organizations — for maximum relevance and trust.
+          </p>
+        </div>
+        <div
+          role="radiogroup"
+          aria-label="Choose your primary niche"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+        >
+          {nicheCategories.map((cat) => {
+            const isSelected = selected === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                onClick={() => setSelected(cat)}
+                className={`text-left rounded-lg border p-4 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                  isSelected
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border bg-card hover:border-primary/30"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-foreground">{cat}</span>
+                  {isSelected && (
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-3 h-3 text-primary-foreground" />
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in">
+          {selected ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Primary niche: <span className="font-semibold text-foreground">{selected}</span>
+              </p>
+              <Button onClick={handleContinue} size="sm" className="gap-2">
+                Continue with {selected}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground">Pick one to get started — you can change it anytime.</p>
+          )}
+        </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {nicheCategories.map((cat) => (
-          <Card key={cat} className="p-4 text-center hover:border-primary/30 transition-all cursor-default">
-            <p className="text-sm font-medium text-foreground">{cat}</p>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-});
+    );
+  }
+);
 ChooseYourNicheSection.displayName = "ChooseYourNicheSection";
