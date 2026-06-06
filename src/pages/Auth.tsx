@@ -44,9 +44,9 @@ export default function Auth() {
   };
 
   const features = [
-    "LinkedIn-native lead discovery",
-    "Personalized messages that get replies",
-    "Books meetings while you sleep",
+    "Niche-focused community outreach",
+    "Personalized emails & comments that build trust",
+    "Turns conversations into opportunities",
   ];
 
   return (
@@ -106,11 +106,11 @@ export default function Auth() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
-              Your Echo Agent — LinkedIn Outreach That{" "}
-              <span className="text-primary">Actually Gets Responses</span>
+              Your Echo Agent — Niche Outreach That{" "}
+              <span className="text-primary">Builds Real Relationships</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed mt-5 max-w-2xl mx-auto">
-              Create autonomous agents that sound exactly like you. Find warm leads on LinkedIn, send personalized messages, follow up intelligently, and book meetings — all on autopilot.
+              Targeted outreach inside industry associations, events, conferences, and professional organizations. Your agent comments intelligently in the right communities and sends personalized emails to the right people — all sounding exactly like you.
             </p>
 
             {/* Primary CTA + Google sign-in unified */}
