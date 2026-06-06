@@ -25,10 +25,25 @@ const mobileComparisonRows = [
 ];
 
 const nicheCategories = [
-  "SaaS", "Healthcare", "Finance", "Real Estate", "E-commerce",
-  "Education", "Legal", "Marketing Agencies", "Nonprofits", "Construction",
-  "Retail", "Hospitality", "Manufacturing", "Technology", "Consulting",
-  "Insurance", "Fitness & Wellness", "Food & Beverage", "Entertainment", "Logistics",
+  "SaaS & Software",
+  "AI & Emerging Technology",
+  "Healthcare & MedTech",
+  "Finance & FinTech",
+  "Marketing & Advertising",
+  "E-commerce & Retail",
+  "Education & EdTech",
+  "Real Estate",
+  "Construction & Infrastructure",
+  "Sustainability & Climate Tech",
+  "Legal & Compliance",
+  "Human Resources & Recruiting",
+  "Manufacturing & Supply Chain",
+  "Cybersecurity",
+  "Web3 & Blockchain",
+  "Coaching & Professional Development",
+  "Consulting & Professional Services",
+  "Nonprofit & Social Impact",
+  "Hospitality & Events",
 ];
 
 export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
