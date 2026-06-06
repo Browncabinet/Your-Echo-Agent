@@ -28,6 +28,7 @@ export type Database = {
           status: string
           subject: string
           user_id: string
+          variant: string | null
         }
         Insert: {
           campaign_id: string
@@ -42,6 +43,7 @@ export type Database = {
           status?: string
           subject?: string
           user_id: string
+          variant?: string | null
         }
         Update: {
           campaign_id?: string
@@ -56,6 +58,7 @@ export type Database = {
           status?: string
           subject?: string
           user_id?: string
+          variant?: string | null
         }
         Relationships: []
       }
