@@ -44,6 +44,21 @@ export default function Index() {
   const navigate = useNavigate();
   const { balance, loading: creditsLoading } = useCredits();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [a2aCampaignIds, setA2aCampaignIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase
+        .from("a2a_jobs")
+        .select("campaign_id, source")
+        .eq("user_id", user.id);
+      if (data) {
+        setA2aCampaignIds(new Set(data.filter((j) => j.source === "a2a").map((j) => j.campaign_id).filter(Boolean) as string[]));
+      }
+    })();
+  }, [user, campaigns.length]);
 
   useEffect(() => {
     if (!user) return;
