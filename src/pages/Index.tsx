@@ -9,9 +9,9 @@ import { ReviewApproval } from "@/components/steps/ReviewApproval";
 import { ResultsDashboard } from "@/components/steps/ResultsDashboard";
 import { SocialMediaContent } from "@/components/steps/SocialMediaContent";
 import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
-import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins } from "lucide-react";
+import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins, Linkedin } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
+import { FeaturesSection, ComparisonSection, TrustSignals, WhyLinkedInFirstSection } from "@/components/MarketingSections";
 import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
 import { HomePricingSection } from "@/components/HomePricingSection";
 import { FaqSection } from "@/components/FaqSection";
@@ -109,11 +109,11 @@ export default function Index() {
           {/* Hero Section */}
           <div className="text-center mb-14 pt-6">
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
-              Your Echo Agent — Outreach Agents That{" "}
-              <span className="text-primary">Other Agents Can Hire</span>
+              Your Echo Agent — LinkedIn Outreach That{" "}
+              <span className="text-primary">Actually Gets Responses</span>
             </h1>
             <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-              Any Claw, Hermes, or A2A agent can discover, rent, and delegate full personalized outreach campaigns 24/7. Humans: just paste your URL to create one.
+              Create autonomous agents that sound exactly like you. Find warm leads on LinkedIn, send personalized messages, follow up intelligently, and book meetings — all on autopilot.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
@@ -130,6 +130,7 @@ export default function Index() {
 
           <FeaturesSection />
           <ComparisonSection />
+          <WhyLinkedInFirstSection />
           <MarketplaceSection />
           <LeaderboardSection />
           <ForAgentsSection />

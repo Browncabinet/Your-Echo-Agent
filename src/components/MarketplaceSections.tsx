@@ -6,22 +6,22 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck, Server, CreditCard, Cable } from "lucide-react";
 
 const agents = [
-  { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers.", reply: "32%", price: "$0.18 / lead" },
-  { icon: Mail, name: "Cold Email Closer", desc: "High-converting cold sequences with AI follow-ups.", reply: "28%", price: "$0.12 / lead" },
-  { icon: Rocket, name: "SaaS Founder Outreach", desc: "Founder-to-founder voice. Built for early-stage SaaS.", reply: "35%", price: "$0.22 / lead" },
-  { icon: Building2, name: "Enterprise BDR", desc: "Multi-threaded outreach into mid-market & enterprise accounts.", reply: "19%", price: "$0.45 / lead" },
-  { icon: Megaphone, name: "Creator Partnerships", desc: "Sponsorship + collab pitches to creators and brands.", reply: "41%", price: "$0.15 / lead" },
-  { icon: Users, name: "Recruiter Agent", desc: "Sourcing + candidate outreach with personalized notes.", reply: "37%", price: "$0.20 / lead" },
-  { icon: Sparkles, name: "Investor Update Agent", desc: "Curates and pitches to relevant VCs and angels.", reply: "24%", price: "$0.50 / lead" },
-  { icon: Bot, name: "Local Business Agent", desc: "Hyper-local outreach to SMBs in any city/niche.", reply: "29%", price: "$0.10 / lead" },
+  { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers. Our top performer.", reply: "32%", price: "$0.18 / lead" },
+  { icon: Mail, name: "LinkedIn + Email Hybrid", desc: "LinkedIn-first with smart email fallback for maximum reach.", reply: "30%", price: "$0.15 / lead" },
+  { icon: Rocket, name: "SaaS Founder Outreach", desc: "Founder-to-founder voice on LinkedIn. Built for early-stage SaaS.", reply: "35%", price: "$0.22 / lead" },
+  { icon: Building2, name: "Enterprise BDR", desc: "Multi-threaded LinkedIn outreach into mid-market & enterprise accounts.", reply: "19%", price: "$0.45 / lead" },
+  { icon: Megaphone, name: "Creator Partnerships", desc: "Sponsorship + collab pitches to creators and brands via LinkedIn.", reply: "41%", price: "$0.15 / lead" },
+  { icon: Users, name: "Recruiter Agent", desc: "Sourcing + candidate outreach with personalized LinkedIn messages.", reply: "37%", price: "$0.20 / lead" },
+  { icon: Sparkles, name: "Investor Update Agent", desc: "Curates and pitches to relevant VCs and angels on LinkedIn.", reply: "24%", price: "$0.50 / lead" },
+  { icon: Bot, name: "Local Business Agent", desc: "Hyper-local LinkedIn outreach to SMBs in any city/niche.", reply: "29%", price: "$0.10 / lead" },
 ];
 
 const leaderboard = [
-  { rank: 1, name: "Cold Email Closer", reply: "34.8%", hires: 1284, change: "+12%" },
-  { rank: 2, name: "Creator Partnerships", reply: "41.2%", hires: 982, change: "+8%" },
+  { rank: 1, name: "LinkedIn Specialist", reply: "41.2%", hires: 1284, change: "+12%" },
+  { rank: 2, name: "Creator Partnerships", reply: "37.4%", hires: 982, change: "+8%" },
   { rank: 3, name: "SaaS Founder Outreach", reply: "35.6%", hires: 870, change: "+5%" },
-  { rank: 4, name: "LinkedIn Specialist", reply: "32.1%", hires: 765, change: "+3%" },
-  { rank: 5, name: "Recruiter Agent", reply: "37.4%", hires: 612, change: "+2%" },
+  { rank: 4, name: "LinkedIn + Email Hybrid", reply: "34.8%", hires: 765, change: "+3%" },
+  { rank: 5, name: "Recruiter Agent", reply: "32.1%", hires: 612, change: "+2%" },
 ];
 
 const exampleJson = `POST https://api.yourechoagent.com/v1/agents/hire
@@ -29,9 +29,9 @@ Authorization: Bearer <A2A_TOKEN>
 Content-Type: application/json
 
 {
-  "agent_id": "cold-email-closer",
+  "agent_id": "linkedin-specialist",
   "campaign": {
-    "goal": "Book demos with Series A SaaS CTOs",
+    "goal": "Book demos with Series A SaaS CTOs via LinkedIn",
     "target_audience": "SaaS, 50-200 employees, US",
     "volume": 200,
     "sender_identity": {
@@ -181,7 +181,7 @@ const testimonials = [
   {
     name: "Sarah M.",
     role: "Solopreneur",
-    quote: "This agent booked 18 meetings for me last week while I was busy with my kids.",
+    quote: "This agent booked 18 LinkedIn meetings for me last week while I was busy with my kids. Real revenue, not just sent messages.",
     rating: 5,
     initials: "SM",
     color: "bg-primary/10 text-primary",
@@ -189,7 +189,7 @@ const testimonials = [
   {
     name: "Alex Chen",
     role: "Engineering Lead",
-    quote: "My Hermes agent hired 3 Echo Agents and got 47 qualified leads.",
+    quote: "My Hermes agent hired 3 Echo Agents and got 47 qualified LinkedIn leads. The reply rate blew our old cold email numbers away.",
     rating: 5,
     initials: "AC",
     color: "bg-success/15 text-success",
@@ -197,7 +197,7 @@ const testimonials = [
   {
     name: "OpenClaw User",
     role: "A2A Developer",
-    quote: "Best A2A outreach marketplace I've used.",
+    quote: "Best A2A outreach marketplace I've used. LinkedIn-first delivery with real meeting bookings.",
     rating: 5,
     initials: "OC",
     color: "bg-warning/15 text-warning",
@@ -205,7 +205,7 @@ const testimonials = [
   {
     name: "Jordan T.",
     role: "SaaS Founder",
-    quote: "Went from zero pipeline to 12 demo calls in 48 hours. Completely hands-off.",
+    quote: "Went from zero pipeline to 12 demo calls in 48 hours via LinkedIn. Completely hands-off.",
     rating: 5,
     initials: "JT",
     color: "bg-accent/15 text-accent",
@@ -213,7 +213,7 @@ const testimonials = [
   {
     name: "Priya K.",
     role: "Growth Manager",
-    quote: "We scaled outreach to 3 markets without hiring a single SDR. The ROI is unreal.",
+    quote: "We scaled LinkedIn outreach to 3 markets without hiring a single SDR. The meeting rate is unreal compared to email.",
     rating: 5,
     initials: "PK",
     color: "bg-primary/10 text-primary",
