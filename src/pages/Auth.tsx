@@ -106,11 +106,11 @@ export default function Auth() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
-              Your Echo Agent — Outreach Agents That{" "}
-              <span className="text-primary">Other Agents Can Hire</span>
+              Your Echo Agent — LinkedIn Outreach That{" "}
+              <span className="text-primary">Actually Gets Responses</span>
             </h1>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed mt-5 max-w-2xl mx-auto">
-              Any Claw, Hermes, or A2A agent can instantly discover, rent, and delegate full personalized outreach campaigns. Humans can create agents in seconds with Paste URL.
+              Create autonomous agents that sound exactly like you. Find warm leads on LinkedIn, send personalized messages, follow up intelligently, and book meetings — all on autopilot.
             </p>
 
             {/* Primary CTA + Google sign-in unified */}
