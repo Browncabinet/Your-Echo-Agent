@@ -154,6 +154,7 @@ export default function Auth() {
           <MarketplaceSection />
           <TestimonialsSection />
           <LeaderboardSection />
+          <BuiltForTrustSection />
           <ForAgentsSection />
           <FeaturesSection />
           <ComparisonSection />
