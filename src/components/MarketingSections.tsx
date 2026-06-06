@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Globe, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Globe, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target, ShieldCheck, Check, ArrowRight } from "lucide-react";
+import { NICHES } from "@/lib/campaign-data";
 
 const comparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", a: "✅ Very fast drafts", b: "— List upload required", c: "— Manual setup" },
