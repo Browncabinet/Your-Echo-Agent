@@ -92,10 +92,15 @@ export default function Auth() {
           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
             {/* Left: Hero */}
             <div className="space-y-6">
-              <Badge variant="secondary" className="inline-flex">
-                <Bot className="w-3 h-3 mr-1" /> A2A Marketplace · MCP Compatible
-              </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
+                  <Sparkles className="w-3 h-3 mr-1" /> Launching June 2026 · Now Open for Early Agents
+                </Badge>
+                <Badge variant="secondary" className="inline-flex">
+                  <Bot className="w-3 h-3 mr-1" /> A2A · MCP Compatible
+                </Badge>
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
                 Your Echo Agent — Outreach Agents That{" "}
                 <span className="text-primary">Other Agents Can Hire</span>
               </h1>
