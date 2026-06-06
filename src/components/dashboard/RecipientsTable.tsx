@@ -143,14 +143,29 @@ export function RecipientsTable({ campaignId, campaignName }: { campaignId: stri
   const visible = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
 
   const exportCsv = () => {
-    const header = ["Name", "Email", "Status", "Sent at", "Last activity", "Error"];
+    const header = [
+      "Name",
+      "Email",
+      "Variant",
+      "Send Status",
+      "Reply Status",
+      "Opened At",
+      "Clicked At",
+      "Sent At",
+      "Last Activity",
+      "Error Message",
+    ];
     const lines = [header.join(",")];
     filtered.forEach((r) => {
       lines.push(
         [
           csvEscape(r.lead_name),
           csvEscape(r.lead_email),
-          csvEscape(r.derivedStatus),
+          csvEscape(r.variant ?? ""),
+          csvEscape(r.status),
+          csvEscape(r.replyAt ? "Replied" : "No reply"),
+          csvEscape(r.opened_at ?? ""),
+          csvEscape(r.clicked_at ?? ""),
           csvEscape(r.sent_at ?? ""),
           csvEscape(r.lastActivity ?? ""),
           csvEscape(r.error_message ?? ""),
