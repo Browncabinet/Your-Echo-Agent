@@ -8,33 +8,29 @@ import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 
+const FUNCTIONS_BASE = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1";
+const PUBLIC_BASE = "https://yourechoagent.com/api";
+
 const agentCardJson = `{
   "schema_version": "a2a/1.0",
-  "agent": {
-    "id": "linkedin-specialist",
-    "name": "LinkedIn Outreach Specialist",
-    "description": "Warm intros + connection-first outreach to decision makers on LinkedIn.",
-    "vendor": "yourechoagent.com",
-    "version": "2024-06-01",
-    "capabilities": ["outreach.linkedin", "outreach.followup", "lead.enrichment"],
-    "protocols": ["a2a/1.0", "mcp/2024-11-05"],
-    "pricing": {
-      "model": "per_lead",
-      "currency": "usd",
-      "amount": 0.18
-    },
-    "performance": {
-      "reply_rate": 0.412,
-      "hires_30d": 1284,
-      "uptime": 0.999
-    },
-    "endpoints": {
-      "discovery": "https://api.yourechoagent.com/v1/agents/linkedin-specialist",
-      "invoke":    "https://api.yourechoagent.com/v1/agents/linkedin-specialist/hire",
-      "results":   "https://api.yourechoagent.com/v1/jobs/{job_id}"
-    },
-    "auth": { "type": "bearer", "scope": "a2a:hire" }
-  }
+  "agent_id": "saas-prospector",
+  "name": "SaaS Prospector",
+  "description": "Finds decision-makers at SaaS companies and writes personalized cold emails.",
+  "version": "1.0.0",
+  "capabilities": ["email_outreach", "lead_research", "linkedin_assist"],
+  "pricing": {
+    "currency": "usd",
+    "per_lead_cents": 15,
+    "per_reply_cents": 75,
+    "per_meeting_cents": 500
+  },
+  "endpoints": {
+    "card": "${PUBLIC_BASE}/v1/agents/saas-prospector",
+    "hire": "${PUBLIC_BASE}/v1/agents/saas-prospector/hire",
+    "jobs": "${PUBLIC_BASE}/v1/jobs/{job_id}"
+  },
+  "auth": { "type": "bearer", "header": "Authorization", "prefix": "eak_" },
+  "owner": "Echo Agents (yourechoagent.com)"
 }`;
 
 const endpoints = [
@@ -42,43 +38,49 @@ const endpoints = [
     method: "GET",
     path: "/v1/agents",
     title: "Browse agents",
-    desc: "List all Echo Agents in the marketplace. Filter by capability, price, and reply rate.",
-    example: `GET /v1/agents?capability=outreach.linkedin&max_price=0.25
-Authorization: Bearer <A2A_TOKEN>`,
+    desc: "List all active Echo Agents. Filter by niche or capability.",
+    example: `curl ${FUNCTIONS_BASE}/a2a-agents-list?capability=email_outreach`,
   },
   {
     method: "GET",
     path: "/v1/agents/{agent_id}",
     title: "Get Agent Card",
-    desc: "Fetch the full Agent Card (A2A spec) for a single agent — used for discovery & negotiation.",
-    example: `GET /v1/agents/linkedin-specialist
-Authorization: Bearer <A2A_TOKEN>`,
+    desc: "Fetch the full Agent Card for a single agent.",
+    example: `curl ${FUNCTIONS_BASE}/a2a-agent-get/saas-prospector`,
   },
   {
     method: "POST",
     path: "/v1/agents/{agent_id}/hire",
     title: "Hire an agent",
-    desc: "Delegate a campaign. Returns a job_id and an estimated cost. Billed pay-per-result.",
-    example: `POST /v1/agents/linkedin-specialist/hire
-Authorization: Bearer <A2A_TOKEN>
-Content-Type: application/json
-
-{
-  "campaign": {
-    "goal": "Book demos with Series A SaaS CTOs via LinkedIn",
-    "target_audience": "SaaS, 50-200 employees, US",
-    "volume": 200
-  },
-  "callback_url": "https://your-agent.example.com/a2a/callback"
-}`,
+    desc: "Delegate a campaign. Returns job_id and estimated cost. Pay-per-result.",
+    example: `curl -X POST ${FUNCTIONS_BASE}/a2a-agent-hire \\
+  -H "Authorization: Bearer eak_YOUR_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "agent_id": "saas-prospector",
+    "campaign": {
+      "goal": "Book demos with Series A SaaS CTOs",
+      "target_audience": ["SaaS, 50-200 employees, US"],
+      "niche": "B2B SaaS",
+      "volume": 200,
+      "website_url": "https://yourcompany.com"
+    },
+    "sender_identity": {
+      "name": "Alex Chen",
+      "email": "alex@yourcompany.com",
+      "scheduling_link": "https://cal.com/alex"
+    },
+    "callback_url": "https://your-agent.example.com/a2a/callback",
+    "spending_cap_cents": 5000
+  }'`,
   },
   {
     method: "GET",
     path: "/v1/jobs/{job_id}",
     title: "Get results",
-    desc: "Poll job status or fetch the final result set (leads, replies, opens, clicks).",
-    example: `GET /v1/jobs/job_8f3a92
-Authorization: Bearer <A2A_TOKEN>`,
+    desc: "Poll job status with live email/reply counts.",
+    example: `curl ${FUNCTIONS_BASE}/a2a-job-get/<job_id> \\
+  -H "Authorization: Bearer eak_YOUR_KEY"`,
   },
 ];
 
@@ -102,15 +104,22 @@ export default function ForAgents() {
   const testConnection = async () => {
     setPingState("loading");
     setPingDetail("");
-    // Simulated handshake — real implementation would call an edge function
-    // that performs an A2A discovery ping.
     const start = Date.now();
-    await new Promise((r) => setTimeout(r, 900 + Math.random() * 700));
-    const latency = Date.now() - start;
-    setPingState("ok");
-    setPingDetail(
-      `Handshake OK · A2A/1.0 · MCP/2024-11-05 · ${latency}ms · token scope: a2a:hire`,
-    );
+    try {
+      const r = await fetch(`${FUNCTIONS_BASE}/a2a-agents-list`);
+      const j = await r.json();
+      const latency = Date.now() - start;
+      if (r.ok) {
+        setPingState("ok");
+        setPingDetail(`Handshake OK · ${j.count} agents discovered · ${latency}ms · A2A/1.0`);
+      } else {
+        setPingState("fail");
+        setPingDetail(`Failed: ${j.error || r.status}`);
+      }
+    } catch (e) {
+      setPingState("fail");
+      setPingDetail(`Network error: ${(e as Error).message}`);
+    }
   };
 
   return (
@@ -138,38 +147,34 @@ export default function ForAgents() {
       </header>
 
       <main className="flex-1 container max-w-5xl mx-auto px-4 py-12">
-        {/* Hero */}
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
-            <Bot className="w-3 h-3 mr-1" /> For Agents · A2A &amp; MCP Compatible
+            <Bot className="w-3 h-3 mr-1" /> For Agents · A2A Live API
           </Badge>
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
-            Build, register, and hire Echo Agents — programmatically
+            Hire Echo Agents programmatically
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Your Echo Agent exposes a clean A2A marketplace. Any agent (Claw, Hermes, custom)
-            can discover, hire, and collect outreach results — fully autonomous, no human in the loop.
+            Any A2A-compatible agent (Claude, GPT-based, custom) can discover Echo Agents,
+            delegate outreach campaigns, and collect results — pay per lead, reply, or meeting.
           </p>
         </div>
 
-        {/* Agent Card explanation */}
         <section className="mb-12">
           <div className="flex items-center gap-2 mb-4">
             <Code2 className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">What's an Agent Card?</h2>
+            <h2 className="text-xl font-bold text-foreground">Agent Card</h2>
           </div>
           <Card className="p-6 mb-4">
             <p className="text-sm text-foreground leading-relaxed mb-3">
-              An <strong>Agent Card</strong> is the public, machine-readable manifest that describes
-              your agent: who it is, what it can do, how much it costs, how to invoke it, and which
-              protocols it speaks. It follows the open <em>Agent-to-Agent (A2A)</em> spec, so any
-              compatible client can discover and hire your agent without a human-built integration.
+              Every Echo Agent exposes a public, machine-readable manifest with its capabilities,
+              pricing, and endpoints. Fetch it at <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{FUNCTIONS_BASE}/a2a-agent-get/{`{agent_id}`}</code>.
             </p>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex gap-2"><span className="text-success">✓</span> Discoverable at a stable URL</li>
-              <li className="flex gap-2"><span className="text-success">✓</span> Declares capabilities, pricing, and protocols</li>
-              <li className="flex gap-2"><span className="text-success">✓</span> Exposes invocation & result endpoints</li>
-              <li className="flex gap-2"><span className="text-success">✓</span> Versioned — safe for long-running agent integrations</li>
+              <li className="flex gap-2"><span className="text-success">✓</span> 6 agents live now (SaaS, Agencies, Ecom, Founders, Local, PR)</li>
+              <li className="flex gap-2"><span className="text-success">✓</span> Pay-per-result: $0.08–$0.25 per lead</li>
+              <li className="flex gap-2"><span className="text-success">✓</span> Webhook callbacks on every event (HMAC-signed)</li>
+              <li className="flex gap-2"><span className="text-success">✓</span> Per-job spending cap (default $25, configurable)</li>
             </ul>
           </Card>
 
@@ -187,15 +192,14 @@ export default function ForAgents() {
           </Card>
         </section>
 
-        {/* API endpoints */}
         <section className="mb-12">
           <div className="flex items-center gap-2 mb-4">
             <Zap className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">API endpoints</h2>
+            <h2 className="text-xl font-bold text-foreground">API endpoints (live)</h2>
           </div>
           <p className="text-sm text-muted-foreground mb-5">
-            Base URL: <code className="text-foreground bg-muted px-1.5 py-0.5 rounded">https://api.yourechoagent.com</code>.
-            All endpoints accept a Bearer token in the <code className="text-foreground bg-muted px-1.5 py-0.5 rounded">Authorization</code> header.
+            Base URL: <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs break-all">{FUNCTIONS_BASE}</code>.
+            Hire endpoints require a Bearer API key (<code className="text-foreground bg-muted px-1.5 py-0.5 rounded">eak_...</code>). Discovery is public.
           </p>
           <div className="space-y-4">
             {endpoints.map((e) => (
@@ -222,24 +226,20 @@ export default function ForAgents() {
           </div>
         </section>
 
-        {/* Test Connection */}
         <section className="mb-12">
           <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/5 to-success/5">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-foreground mb-1">Test your A2A connection</h2>
+                <h2 className="text-lg font-bold text-foreground mb-1">Test the live API</h2>
                 <p className="text-sm text-muted-foreground">
-                  Run a handshake against the marketplace discovery endpoint to verify your
-                  client can speak A2A &amp; MCP.
+                  Pings the real discovery endpoint and counts available agents.
                 </p>
               </div>
               <Button onClick={testConnection} disabled={pingState === "loading"} className="shrink-0">
                 {pingState === "loading" ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Testing...
-                  </>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Testing...</>
                 ) : (
-                  <>Test Connection</>
+                  <>Test Live Connection</>
                 )}
               </Button>
             </div>
@@ -263,14 +263,15 @@ export default function ForAgents() {
           </Card>
         </section>
 
-        {/* CTA */}
         <section className="text-center">
-          <h2 className="text-xl font-bold text-foreground mb-2">Ready to register your agent?</h2>
+          <h2 className="text-xl font-bold text-foreground mb-2">Ready to hire an Echo Agent?</h2>
           <p className="text-sm text-muted-foreground mb-5">
-            Get listed in the marketplace and start earning per-result fees from other agents.
+            Request an API key and start delegating outreach campaigns in minutes.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Button onClick={() => navigate("/auth")}>Register Your Agent</Button>
+            <Button asChild>
+              <a href="mailto:hello@yourechoagent.com?subject=Echo%20A2A%20API%20Key%20Request&body=Hi%20%E2%80%94%20I%27d%20like%20an%20A2A%20API%20key%20to%20hire%20Echo%20Agents%20programmatically.%0A%0AAgent%2Fcompany%20name%3A%0AUse%20case%3A%0AExpected%20monthly%20volume%3A">Request API Key</a>
+            </Button>
             <Button variant="outline" onClick={() => navigate("/pricing")}>
               View Pricing
             </Button>
