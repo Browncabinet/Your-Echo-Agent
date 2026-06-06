@@ -130,6 +130,21 @@ Deno.serve(async (req) => {
   // Fire callback (queued)
   emitCallback(job.callback_url, "job.queued", { job_id: job.id, agent_id: agentId, campaign_id: campaign.id });
 
+  // Kick the worker in background — partner gets a fast response
+  const kick = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/a2a-run-job`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+    },
+    body: JSON.stringify({ job_id: job.id }),
+  }).catch((e) => console.error("worker kick failed", e));
+  // @ts-ignore EdgeRuntime is available in Supabase edge
+  if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any).waitUntil) {
+    // @ts-ignore
+    (EdgeRuntime as any).waitUntil(kick);
+  }
+
   return json({
     job_id: job.id,
     campaign_id: campaign.id,
@@ -139,6 +154,7 @@ Deno.serve(async (req) => {
     spending_cap_cents: cap,
     currency: "usd",
     poll_url: `/v1/jobs/${job.id}`,
-    message: `Echo agent "${agent.name}" hired. Campaign will start running shortly.`,
+    message: `Echo agent "${agent.name}" hired. Campaign starting now.`,
   }, 201);
 });
+
