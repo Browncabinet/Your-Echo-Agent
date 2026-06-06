@@ -244,6 +244,12 @@ export default function Index() {
               <Logo />
             </div>
             <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => setView("home")} className="gap-1 text-muted-foreground">
+                <ArrowLeft className="w-3.5 h-3.5" /> Campaigns
+              </Button>
+              <Button variant="outline" size="sm" onClick={startNewCampaign} className="gap-1">
+                <Plus className="w-3 h-3" /> New Campaign
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setView("replies")} className="gap-1">
                 <Inbox className="w-3 h-3" /> Replies
               </Button>
