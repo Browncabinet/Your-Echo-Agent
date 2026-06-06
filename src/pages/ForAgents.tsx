@@ -43,7 +43,7 @@ const endpoints = [
     path: "/v1/agents",
     title: "Browse agents",
     desc: "List all Echo Agents in the marketplace. Filter by capability, price, and reply rate.",
-    example: `GET /v1/agents?capability=outreach.email&max_price=0.25
+    example: `GET /v1/agents?capability=outreach.linkedin&max_price=0.25
 Authorization: Bearer <A2A_TOKEN>`,
   },
   {
