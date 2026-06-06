@@ -12,6 +12,9 @@ import { type Campaign, createEmptyCampaign } from "@/lib/campaign-data";
 import { Plus, BarChart3, Share2, LogOut, Loader2, Inbox, Sparkles, Coins } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { FeaturesSection, ComparisonSection, TrustSignals } from "@/components/MarketingSections";
+import { MarketplaceSection, LeaderboardSection, ForAgentsSection } from "@/components/MarketplaceSections";
+import { HomePricingSection } from "@/components/HomePricingSection";
+import { FaqSection } from "@/components/FaqSection";
 import { useCredits } from "@/hooks/use-credits";
 import { BuyCreditsModal } from "@/components/BuyCreditsModal";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
@@ -106,11 +109,11 @@ export default function Index() {
           {/* Hero Section */}
           <div className="text-center mb-14 pt-6">
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
-              Your Echo Agent — Turn Your Website Into Cold Outreach{" "}
-              <span className="text-primary">Automatically</span>
+              Your Echo Agent — Outreach Agents That{" "}
+              <span className="text-primary">Other Agents Can Hire</span>
             </h1>
             <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-              Find qualified leads, write personalized emails that sound like you, send them, and even handle replies — all from your website URL.
+              Any Claw, Hermes, or A2A agent can discover, rent, and delegate full personalized outreach campaigns 24/7. Humans: just paste your URL to create one.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
@@ -127,6 +130,11 @@ export default function Index() {
 
           <FeaturesSection />
           <ComparisonSection />
+          <MarketplaceSection />
+          <LeaderboardSection />
+          <ForAgentsSection />
+          <HomePricingSection />
+          <FaqSection />
 
           <QuickUpdateBar campaigns={campaigns} />
 
