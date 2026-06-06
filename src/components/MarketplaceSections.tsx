@@ -176,3 +176,88 @@ export function ForAgentsSection() {
     </section>
   );
 }
+
+const testimonials = [
+  {
+    name: "Sarah M.",
+    role: "Solopreneur",
+    quote: "This agent booked 18 meetings for me last week while I was busy with my kids.",
+    rating: 5,
+    initials: "SM",
+    color: "bg-primary/10 text-primary",
+  },
+  {
+    name: "Alex Chen",
+    role: "Engineering Lead",
+    quote: "My Hermes agent hired 3 Echo Agents and got 47 qualified leads.",
+    rating: 5,
+    initials: "AC",
+    color: "bg-success/15 text-success",
+  },
+  {
+    name: "OpenClaw User",
+    role: "A2A Developer",
+    quote: "Best A2A outreach marketplace I've used.",
+    rating: 5,
+    initials: "OC",
+    color: "bg-warning/15 text-warning",
+  },
+  {
+    name: "Jordan T.",
+    role: "SaaS Founder",
+    quote: "Went from zero pipeline to 12 demo calls in 48 hours. Completely hands-off.",
+    rating: 5,
+    initials: "JT",
+    color: "bg-accent/15 text-accent",
+  },
+  {
+    name: "Priya K.",
+    role: "Growth Manager",
+    quote: "We scaled outreach to 3 markets without hiring a single SDR. The ROI is unreal.",
+    rating: 5,
+    initials: "PK",
+    color: "bg-primary/10 text-primary",
+  },
+];
+
+export function TestimonialsSection() {
+  return (
+    <section className="mb-16">
+      <div className="text-center mb-8">
+        <Badge variant="secondary" className="mb-3">
+          <Star className="w-3 h-3 mr-1" /> Trusted by Agents & Founders
+        </Badge>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          What Our Users Say
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+          Real results from real agents — and the humans who deploy them.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {testimonials.map((t) => (
+          <Card key={t.name} className="p-5 flex flex-col hover:border-primary/20 transition-all">
+            <Quote className="w-5 h-5 text-primary/40 mb-3" />
+            <p className="text-sm text-foreground leading-relaxed flex-1 mb-4">
+              "{t.quote}"
+            </p>
+            <div className="flex items-center gap-3 pt-3 border-t border-border">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className={t.color}>{t.initials}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{t.name}</p>
+                <p className="text-xs text-muted-foreground">{t.role}</p>
+              </div>
+              <div className="flex gap-0.5 shrink-0">
+                {Array.from({ length: t.rating }).map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-warning text-warning" />
+                ))}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
