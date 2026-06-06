@@ -1,27 +1,33 @@
-## Plan: Update Hero Section Copy
+## Overview
+Add a clean feature comparison table to `HomePricingSection.tsx` so visitors can quickly see what is included in Starter, Growth, and Power.
 
-### Scope
-Update hero headlines and subheadlines on the two entry-point pages to match the new LinkedIn-first, niche-focused messaging.
+## Where
+`src/components/HomePricingSection.tsx` — directly below the existing weekly plan cards and above the monthly-equivalent toggle.
 
-### Changes
+## Table content
+Derive rows from the existing plan data and a unified feature set:
 
-**1. `src/pages/Auth.tsx` (unauthenticated landing page)**
-- **Headline**: Change to  
-  `Your Echo Agent — Niche Outreach That Actually Gets Responses`
-- **Subheadline**: Change to  
-  `Paste your URL to create an agent that sounds exactly like you. Target associations, conferences, and industry organizations on LinkedIn and email. Agents can discover and hire Echo Agents via A2A.`
+| Feature | Starter | Growth | Power |
+|---|---|---|---|
+| Messages / week | 600–700 | 1,800–2,000 | 4,000+ |
+| Echo Agents | 1 | 1 | 1 |
+| Niche targeting | Check | Check | Check |
+| Basic reply handling | Check | Check | Check |
+| Smart Reply Handling | — | Check | Check |
+| Priority sending queue | — | Check | Check |
+| Full A2A API access | — | — | Check |
+| Priority hosting | — | — | Check |
+| White-label branding | — | — | Check |
+| Cancel or pause anytime | Check | Check | Check |
 
-**2. `src/pages/Index.tsx` (authenticated home page)**
-- **Headline**: Change to  
-  `Your Echo Agent — Niche Outreach That Actually Gets Responses`
-- **Subheadline**: Change to  
-  `Paste your URL to create an agent that sounds exactly like you. Target associations, conferences, and industry organizations on LinkedIn and email. Agents can discover and hire Echo Agents via A2A.`
+## Implementation
+- Use the existing `src/components/ui/table.tsx` shadcn component.
+- Keep styling minimal: thin borders, muted text for missing features ("—"), green check icons for included features.
+- Add a small heading above the table: "What's included".
+- Use subtle Framer Motion fade-in for the table on scroll, consistent with existing micro-interactions.
+- No changes to `Pricing.tsx`.
 
-### Out of scope
-- No visual/layout changes beyond the copy updates.
-- No changes to CTA buttons, trust signals, or feature lists.
-- No backend or pricing changes.
-
-### Testing
-- Preview the landing page (`/auth` or root) and verify the new headline and subheadline render correctly on both desktop and mobile.
-- Log in and confirm the authenticated home hero displays the same updated copy.
+## Not in scope
+- No new dependencies.
+- No changes to tier prices or plan definitions.
+- No backend / data changes.

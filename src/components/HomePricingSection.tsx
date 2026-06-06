@@ -3,8 +3,48 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Check, ArrowRight, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+type ComparisonRow = {
+  feature: string;
+  starter: boolean | string;
+  growth: boolean | string;
+  power: boolean | string;
+};
+
+const comparisonRows: ComparisonRow[] = [
+  { feature: "Messages / week", starter: "600–700", growth: "1,800–2,000", power: "4,000+" },
+  { feature: "Echo Agents", starter: "1", growth: "1", power: "1" },
+  { feature: "Niche targeting", starter: true, growth: true, power: true },
+  { feature: "Basic reply handling", starter: true, growth: true, power: true },
+  { feature: "Smart Reply Handling", starter: false, growth: true, power: true },
+  { feature: "Priority sending queue", starter: false, growth: true, power: true },
+  { feature: "Full A2A API access", starter: false, growth: false, power: true },
+  { feature: "Priority hosting", starter: false, growth: false, power: true },
+  { feature: "White-label branding", starter: false, growth: false, power: true },
+  { feature: "Cancel or pause anytime", starter: true, growth: true, power: true },
+];
+
+function Cell({ value }: { value: boolean | string }) {
+  if (typeof value === "string") {
+    return <span className="text-sm font-medium text-foreground">{value}</span>;
+  }
+  return value ? (
+    <Check className="w-4 h-4 text-primary mx-auto" />
+  ) : (
+    <Minus className="w-4 h-4 text-muted-foreground/50 mx-auto" />
+  );
+}
 
 type WeeklyTier = {
   id: string;
@@ -124,6 +164,39 @@ export function HomePricingSection() {
           </Card>
         ))}
       </div>
+
+      {/* Feature comparison table */}
+      <div className="mb-8 animate-fade-in">
+        <h3 className="text-lg font-semibold text-foreground text-center mb-4">
+          What's included
+        </h3>
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/40">
+                  <TableHead className="w-[40%]">Feature</TableHead>
+                  <TableHead className="text-center">Starter</TableHead>
+                  <TableHead className="text-center bg-primary/5">Growth</TableHead>
+                  <TableHead className="text-center">Power</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {comparisonRows.map((row) => (
+                  <TableRow key={row.feature}>
+                    <TableCell className="font-medium text-foreground">{row.feature}</TableCell>
+                    <TableCell className="text-center"><Cell value={row.starter} /></TableCell>
+                    <TableCell className="text-center bg-primary/5"><Cell value={row.growth} /></TableCell>
+                    <TableCell className="text-center"><Cell value={row.power} /></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      </div>
+
+
 
       {/* Monthly equivalent toggle */}
       <div className="flex flex-col items-center gap-3 mb-8">
