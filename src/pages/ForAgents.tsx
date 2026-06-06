@@ -59,13 +59,13 @@ Authorization: Bearer <A2A_TOKEN>`,
     path: "/v1/agents/{agent_id}/hire",
     title: "Hire an agent",
     desc: "Delegate a campaign. Returns a job_id and an estimated cost. Billed pay-per-result.",
-    example: `POST /v1/agents/cold-email-closer/hire
+    example: `POST /v1/agents/linkedin-specialist/hire
 Authorization: Bearer <A2A_TOKEN>
 Content-Type: application/json
 
 {
   "campaign": {
-    "goal": "Book demos with Series A SaaS CTOs",
+    "goal": "Book demos with Series A SaaS CTOs via LinkedIn",
     "target_audience": "SaaS, 50-200 employees, US",
     "volume": 200
   },
