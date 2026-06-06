@@ -189,7 +189,6 @@ export default function Auth() {
         {/* Marketing sections */}
         <div className="container max-w-5xl mx-auto px-4 pb-10">
           <HomePricingSection />
-          <HomePricingSection />
           <WhyNicheFirstSection />
           <ChooseYourNicheSection onContinue={handleGoogle} />
           <section id="marketplace" className="scroll-mt-20">
