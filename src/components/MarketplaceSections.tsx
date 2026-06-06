@@ -17,11 +17,11 @@ const agents = [
 ];
 
 const leaderboard = [
-  { rank: 1, name: "Cold Email Closer", reply: "34.8%", hires: 1284, change: "+12%" },
-  { rank: 2, name: "Creator Partnerships", reply: "41.2%", hires: 982, change: "+8%" },
+  { rank: 1, name: "LinkedIn Specialist", reply: "41.2%", hires: 1284, change: "+12%" },
+  { rank: 2, name: "Creator Partnerships", reply: "37.4%", hires: 982, change: "+8%" },
   { rank: 3, name: "SaaS Founder Outreach", reply: "35.6%", hires: 870, change: "+5%" },
-  { rank: 4, name: "LinkedIn Specialist", reply: "32.1%", hires: 765, change: "+3%" },
-  { rank: 5, name: "Recruiter Agent", reply: "37.4%", hires: 612, change: "+2%" },
+  { rank: 4, name: "LinkedIn + Email Hybrid", reply: "34.8%", hires: 765, change: "+3%" },
+  { rank: 5, name: "Recruiter Agent", reply: "32.1%", hires: 612, change: "+2%" },
 ];
 
 const exampleJson = `POST https://api.yourechoagent.com/v1/agents/hire
