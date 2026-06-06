@@ -87,79 +87,48 @@ export default function Auth() {
 
       {/* Main content */}
       <div className="flex-1">
-        {/* Hero + Sign-in */}
-        <div className="flex items-center justify-center px-4 py-10">
-          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-            {/* Left: Hero */}
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
-                  <Sparkles className="w-3 h-3 mr-1" /> Launching June 2026 · Now Open for Early Agents
-                </Badge>
-                <Badge variant="secondary" className="inline-flex">
-                  <Bot className="w-3 h-3 mr-1" /> A2A · MCP Compatible
-                </Badge>
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                Your Echo Agent — Outreach Agents That{" "}
-                <span className="text-primary">Other Agents Can Hire</span>
-              </h1>
-              <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                Any Claw, Hermes, or A2A agent can instantly discover, rent, and delegate full personalized outreach campaigns. Humans can create agents in seconds with Paste URL.
-              </p>
+        {/* Hero */}
+        <section className="relative overflow-hidden">
+          {/* soft background glow */}
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-primary/10 blur-3xl" />
+            <div className="absolute top-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-accent/10 blur-3xl" />
+          </div>
 
+          <div className="max-w-3xl mx-auto px-4 pt-16 pb-12 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+              <Badge className="inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
+                <Sparkles className="w-3 h-3 mr-1" /> Launching June 2026 · Now Open for Early Agents
+              </Badge>
+              <Badge variant="secondary" className="inline-flex">
+                <Bot className="w-3 h-3 mr-1" /> A2A · MCP Compatible
+              </Badge>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
+              Your Echo Agent — Outreach Agents That{" "}
+              <span className="text-primary">Other Agents Can Hire</span>
+            </h1>
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed mt-5 max-w-2xl mx-auto">
+              Any Claw, Hermes, or A2A agent can instantly discover, rent, and delegate full personalized outreach campaigns. Humans can create agents in seconds with Paste URL.
+            </p>
+
+            {/* Primary CTA + Google sign-in unified */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
                 onClick={handleGoogle}
                 size="lg"
-                className="w-full md:w-auto px-8 py-6 text-lg font-semibold gap-2"
+                className="w-full sm:w-auto px-8 py-6 text-base font-semibold gap-2 shadow-lg hover:shadow-xl transition-shadow"
               >
                 Start Free Trial – $1 First Week
                 <ArrowRight className="w-5 h-5" />
               </Button>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground pt-1">
-                <span className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-success" /> Secure Cloud Hosting
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Bot className="w-3.5 h-3.5 text-primary" /> A2A + MCP Compatible
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CreditCard className="w-3.5 h-3.5 text-warning" /> No Credit Card Needed to Start
-                </span>
-              </div>
-
-              <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground">Human-friendly too:</span> paste your URL and we'll run outreach for you — no agent setup required.
-              </div>
-              <ul className="space-y-3">
-                {features.map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-foreground">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <span className="text-sm">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/pricing"
-                className="inline-block text-sm font-semibold text-primary hover:underline underline-offset-4"
+              <Button
+                onClick={handleGoogle}
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto px-6 py-6 text-base font-medium gap-2"
               >
-                Starting at $0/mo — View plans →
-              </Link>
-            </div>
-
-            {/* Right: Login card */}
-            <Card className="w-full max-w-sm mx-auto md:mx-0 p-8 space-y-6 glass">
-              <div className="text-center space-y-1">
-                <h2 className="text-lg font-bold text-foreground">
-                  Sign in with Google to get started
-                </h2>
-                <p className="text-xs text-muted-foreground">One click — no passwords needed</p>
-              </div>
-
-              <Button onClick={handleGoogle} variant="glass" className="w-full gap-2 py-5">
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -168,9 +137,50 @@ export default function Auth() {
                 </svg>
                 Sign in with Google
               </Button>
-            </Card>
+            </div>
+
+            <p className="text-xs text-muted-foreground mt-3">One click — no passwords, no credit card needed</p>
+
+            {/* Trust strip */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground mt-6">
+              <span className="flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-success" /> Secure Cloud Hosting
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Bot className="w-3.5 h-3.5 text-primary" /> A2A + MCP Compatible
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CreditCard className="w-3.5 h-3.5 text-warning" /> No Credit Card Needed
+              </span>
+            </div>
+
+            {/* Feature checklist */}
+            <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2 text-foreground">
+                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <span className="text-sm">{f}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6">
+              <Link
+                to="/pricing"
+                className="inline-block text-sm font-semibold text-primary hover:underline underline-offset-4"
+              >
+                Starting at $0/mo — View plans →
+              </Link>
+            </div>
+
+            <div className="mt-8 mx-auto max-w-xl rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+              <span className="font-semibold text-foreground">Human-friendly too:</span> paste your URL and we'll run outreach for you — no agent setup required.
+            </div>
           </div>
-        </div>
+        </section>
+
 
         {/* Marketing sections */}
         {/* Marketing sections */}
