@@ -53,6 +53,9 @@ export default function Auth() {
       <nav className="flex items-center justify-between px-6 py-4 border-b border-border">
         <Logo />
         <div className="flex items-center gap-4">
+          <Link to="/for-agents" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            For Agents
+          </Link>
           <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Pricing
           </Link>

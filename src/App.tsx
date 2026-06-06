@@ -13,6 +13,7 @@ import About from "./pages/About.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import Terms from "./pages/Terms.tsx";
 import AcceptableUse from "./pages/AcceptableUse.tsx";
+import ForAgents from "./pages/ForAgents.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import CheckoutReturn from "./pages/CheckoutReturn.tsx";
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/acceptable-use" element={<AcceptableUse />} />
+              <Route path="/for-agents" element={<ForAgents />} />
               <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
