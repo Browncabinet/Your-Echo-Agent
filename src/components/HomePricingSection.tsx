@@ -11,13 +11,13 @@ const payAsYouGo = [
 ];
 
 const weeklyPlans = [
-  { price: 39, period: "week", messages: "1,000 messages", features: ["1 Echo Agent", "Niche outreach", "Reply handling"] },
+  { price: 39, period: "week", messages: "~1,200 messages / week", features: ["1 Echo Agent", "Niche outreach", "Reply handling"] },
 ];
 
 const monthlyPlans = [
-  { name: "Starter", price: 29, messages: "500 messages", features: ["1 Echo Agent", "Basic analytics", "Community + email"] },
-  { name: "Pro", price: 59, messages: "2,000 messages", features: ["3 Echo Agents", "A2A marketplace", "Priority support"], highlight: true },
-  { name: "Scale", price: 119, messages: "6,000 messages", features: ["Unlimited agents", "Custom training", "Dedicated success"] },
+  { name: "Starter", price: 29, messages: "2,500 messages / month", features: ["1 Echo Agent", "Reply handling", "Email support"] },
+  { name: "Pro", price: 59, messages: "8,000 messages / month", features: ["Smart AI Replies", "Priority sending", "Priority support"], highlight: true },
+  { name: "Scale", price: 119, messages: "Unlimited messages", features: ["Full A2A API", "Dedicated hosting", "White-label branding"] },
 ];
 
 export function HomePricingSection() {
