@@ -28,14 +28,18 @@ serve(async (req) => {
   }
 
   const stripePrice = prices.data[0];
+  const isRecurring = stripePrice.type === "recurring";
 
   const session = await stripe.checkout.sessions.create({
     line_items: [{ price: stripePrice.id, quantity: quantity || 1 }],
-    mode: "payment",
+    mode: isRecurring ? "subscription" : "payment",
     ui_mode: "embedded",
     return_url: returnUrl || `${req.headers.get("origin")}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     ...(customerEmail && { customer_email: customerEmail }),
-    ...(userId && { metadata: { userId } }),
+    ...(userId && {
+      metadata: { userId },
+      ...(isRecurring && { subscription_data: { metadata: { userId } } }),
+    }),
   });
 
   return new Response(JSON.stringify({ clientSecret: session.client_secret }), responseHeaders);
