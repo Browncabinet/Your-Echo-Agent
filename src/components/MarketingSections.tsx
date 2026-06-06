@@ -4,20 +4,20 @@ import { Globe, Linkedin, MessageSquareReply, TrendingUp, BarChart3, Zap, Users,
 
 const comparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", a: "✅ Very fast drafts", b: "— List upload required", c: "— Manual setup" },
-  { feature: "AI Research & Personalization", us: "✅ Reads your site + target sites", a: "✅ Strong deep research", b: "⚠️ Template + basic AI", c: "✅ Large database + signals" },
-  { feature: "Sending Emails", us: "✅ Built-in sending", a: "✅ Drafts only (sending separate)", b: "✅ Strong sending", c: "✅ Good sending" },
-  { feature: "Reply Handling", us: "✅ AI classifies + drafts replies", a: "— Limited / not included", b: "⚠️ Basic sequences", c: "⚠️ Basic" },
-  { feature: "Open & Click Tracking", us: "✅ Real-time + AI insights", a: "✅ Basic", b: "✅ Excellent", c: "✅ Excellent" },
+  { feature: "AI Research & Personalization", us: "✅ Reads your site + LinkedIn intent signals", a: "✅ Strong deep research", b: "⚠️ Template + basic AI", c: "✅ Large database + signals" },
+  { feature: "LinkedIn Outreach", us: "✅ Native LinkedIn messages + connections", a: "— Email only", b: "— Email only", c: "— Email only" },
+  { feature: "Reply Handling", us: "✅ AI classifies + books meetings", a: "— Limited / not included", b: "⚠️ Basic sequences", c: "⚠️ Basic" },
+  { feature: "Meeting Booking", us: "✅ Auto-books calls into your calendar", a: "— Not included", b: "— Not included", c: "— Not included" },
   { feature: "Pricing Model", us: "🟢 Flexible – pay as you grow", a: "💰 Monthly subscription", b: "💰 $30–$300+/mo", c: "💰 $49+/mo+" },
   { feature: "Best For", us: "Solo builders & multiple small projects", a: "Teams wanting fast AI drafts", b: "High-volume sending teams", c: "Large sales teams" },
 ];
 
 const mobileComparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", others: "AutoGTM: ✅ Fast drafts · Instantly: — List upload · Apollo: — Manual" },
-  { feature: "AI Research & Personalization", us: "✅ Reads your site + target sites", others: "AutoGTM: ✅ Deep research · Instantly: ⚠️ Basic AI · Apollo: ✅ Large DB" },
-  { feature: "Sending Emails", us: "✅ Built-in sending", others: "AutoGTM: ✅ Drafts only (sending separate) · Instantly: ✅ Strong · Apollo: ✅ Good" },
-  { feature: "Reply Handling", us: "✅ AI classifies + drafts replies", others: "AutoGTM: — Limited / not included · Instantly: ⚠️ Basic · Apollo: ⚠️ Basic" },
-  { feature: "Open & Click Tracking", us: "✅ Real-time + AI insights", others: "AutoGTM: ✅ Basic · Instantly: ✅ Excellent · Apollo: ✅ Excellent" },
+  { feature: "AI Research & Personalization", us: "✅ Reads your site + LinkedIn intent signals", others: "AutoGTM: ✅ Deep research · Instantly: ⚠️ Basic AI · Apollo: ✅ Large DB" },
+  { feature: "LinkedIn Outreach", us: "✅ Native LinkedIn messages + connections", others: "AutoGTM: — Email only · Instantly: — Email only · Apollo: — Email only" },
+  { feature: "Reply Handling", us: "✅ AI classifies + books meetings", others: "AutoGTM: — Limited · Instantly: ⚠️ Basic · Apollo: ⚠️ Basic" },
+  { feature: "Meeting Booking", us: "✅ Auto-books calls into your calendar", others: "AutoGTM: — Not included · Instantly: — Not included · Apollo: — Not included" },
   { feature: "Pricing Model", us: "🟢 Flexible – pay as you grow", others: "AutoGTM: 💰 Monthly · Instantly: 💰 $30–$300+/mo · Apollo: 💰 $49+/mo" },
   { feature: "Best For", us: "Solo builders & multiple small projects", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
 ];
