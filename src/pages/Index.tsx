@@ -91,11 +91,11 @@ export default function Index() {
                 <span className="font-medium text-foreground">{creditsLoading ? "…" : balance}</span>
                 <span className="text-muted-foreground">emails</span>
               </Button>
-              <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")}>
+              <Avatar className="h-8 w-8 cursor-pointer" onClick={() => setView("home")} role="button" aria-label="Go to home">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="text-xs">{user?.email?.[0]?.toUpperCase() ?? "U"}</AvatarFallback>
               </Avatar>
-              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1 text-muted-foreground">
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1 text-muted-foreground" aria-label="Sign out">
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>
@@ -105,10 +105,10 @@ export default function Index() {
         <main className="container max-w-5xl mx-auto px-4 py-10">
           {/* Hero Section */}
           <div className="text-center mb-14 pt-6">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
-              Turn Your Website Into Cold Outreach —{" "}
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
+              Your Echo Agent — Turn Your Website Into Cold Outreach{" "}
               <span className="text-primary">Automatically</span>
-            </h2>
+            </h1>
             <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
               Find qualified leads, write personalized emails that sound like you, send them, and even handle replies — all from your website URL.
             </p>

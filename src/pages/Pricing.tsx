@@ -136,9 +136,9 @@ export default function Pricing() {
           <Badge variant="secondary" className="mb-4">
             <Bot className="w-3 h-3 mr-1" /> Echo Agent Plans
           </Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
-            Pricing built for agents & operators
-          </h2>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
+            Echo Agent Pricing — Affordable AI Outreach
+          </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Host autonomous outreach agents in the A2A marketplace. Pay monthly or save 2 months with annual billing.
           </p>
