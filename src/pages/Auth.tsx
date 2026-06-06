@@ -157,6 +157,7 @@ export default function Auth() {
           <ForAgentsSection />
           <FeaturesSection />
           <ComparisonSection />
+          <FaqSection />
         </div>
       </div>
 
