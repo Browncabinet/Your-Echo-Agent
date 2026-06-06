@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Check, ArrowRight, Sparkles, Minus } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Minus, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -23,15 +23,13 @@ type ComparisonRow = {
 };
 
 const comparisonRows: ComparisonRow[] = [
-  { feature: "Messages / week", starter: "600–700", growth: "1,800–2,000", power: "4,000+" },
-  { feature: "Echo Agents", starter: "1", growth: "1", power: "1" },
-  { feature: "Niche targeting", starter: true, growth: true, power: true },
-  { feature: "Basic reply handling", starter: true, growth: true, power: true },
-  { feature: "Smart Reply Handling", starter: false, growth: true, power: true },
-  { feature: "Priority sending queue", starter: false, growth: true, power: true },
-  { feature: "Full A2A API access", starter: false, growth: false, power: true },
-  { feature: "Priority hosting", starter: false, growth: false, power: true },
-  { feature: "White-label branding", starter: false, growth: false, power: true },
+  { feature: "Emails / week", starter: "500", growth: "1,500", power: "4,000" },
+  { feature: "LinkedIn Assist drafts / week", starter: "50", growth: "150", power: "400" },
+  { feature: "Echo Agent + Reply Handler", starter: true, growth: true, power: true },
+  { feature: "Niche-first targeting", starter: true, growth: true, power: true },
+  { feature: "Smart Reply Handling", starter: true, growth: true, power: true },
+  { feature: "Priority sending queue", starter: true, growth: true, power: true },
+  { feature: "Analytics + tracking", starter: true, growth: true, power: true },
   { feature: "Cancel or pause anytime", starter: true, growth: true, power: true },
 ];
 
@@ -50,7 +48,7 @@ type WeeklyTier = {
   id: string;
   name: string;
   price: number;
-  messages: string;
+  headline: string;
   description: string;
   features: string[];
   highlight?: boolean;
@@ -62,12 +60,13 @@ const weeklyTiers: WeeklyTier[] = [
     id: "starter_weekly",
     name: "Starter Weekly",
     price: 19,
-    messages: "600–700 LinkedIn messages",
-    description: "Perfect for testing and trying your first campaign",
+    headline: "500 emails + 50 LinkedIn Assist actions",
+    description: "Perfect for testing and your first campaign",
     features: [
-      "600–700 messages / week",
-      "1 Echo Agent",
-      "Niche targeting",
+      "500 emails / week",
+      "50 LinkedIn Assist drafts / week",
+      "Full Echo Agent + Reply Handler",
+      "Niche-first targeting",
       "Cancel or pause anytime",
     ],
   },
@@ -75,11 +74,12 @@ const weeklyTiers: WeeklyTier[] = [
     id: "growth_weekly",
     name: "Growth Weekly",
     price: 39,
-    messages: "1,800–2,000 messages per week",
+    headline: "1,500 emails + 150 LinkedIn Assist",
     description: "Best value for most users getting real results",
     features: [
-      "1,800–2,000 messages / week",
-      "Smart Reply Handling",
+      "1,500 emails / week",
+      "150 LinkedIn Assist drafts / week",
+      "Full Echo Agent + Reply Handler",
       "Priority sending queue",
       "Cancel or pause anytime",
     ],
@@ -90,12 +90,13 @@ const weeklyTiers: WeeklyTier[] = [
     id: "power_weekly",
     name: "Power Weekly",
     price: 79,
-    messages: "4,000+ messages per week",
+    headline: "4,000 emails + 400 LinkedIn Assist",
     description: "For power users and agencies scaling fast",
     features: [
-      "4,000+ messages / week",
-      "Full A2A API access",
-      "Priority hosting",
+      "4,000 emails / week",
+      "400 LinkedIn Assist drafts / week",
+      "Full Echo Agent + Reply Handler",
+      "Priority sending queue",
       "Cancel or pause anytime",
     ],
   },
@@ -107,12 +108,18 @@ export function HomePricingSection() {
 
   return (
     <section className="mb-16 scroll-mt-20" id="pricing">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground">
           Start Small and Grow as You Go
         </h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-xl mx-auto">
           Flexible weekly packages. Cancel or pause anytime. No long-term commitments.
+        </p>
+        <p className="text-xs text-muted-foreground mt-3 max-w-xl mx-auto flex items-center justify-center gap-1.5">
+          <Info className="w-3.5 h-3.5 shrink-0" />
+          <span>
+            LinkedIn Assist = AI-drafted comments and DMs you post manually. We never log into LinkedIn for you.
+          </span>
         </p>
       </div>
 
@@ -125,7 +132,6 @@ export function HomePricingSection() {
               tier.highlight ? "border-primary shadow-lg ring-1 ring-primary/30" : ""
             }`}
           >
-            {/* Cancel badge on every plan */}
             <Badge
               variant="secondary"
               className="absolute -top-2 right-3 text-[10px] border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
@@ -143,7 +149,7 @@ export function HomePricingSection() {
               <span className="text-muted-foreground text-sm">/wk</span>
             </div>
 
-            <p className="text-xs font-medium text-primary mb-2">{tier.messages}</p>
+            <p className="text-xs font-medium text-primary mb-2">{tier.headline}</p>
 
             <ul className="space-y-1.5 mb-5 flex-1">
               {tier.features.map((f) => (
@@ -165,8 +171,29 @@ export function HomePricingSection() {
         ))}
       </div>
 
-
-
+      {/* Comparison table */}
+      <Card className="p-2 sm:p-4 mb-8 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[40%]">What's included</TableHead>
+              <TableHead className="text-center">Starter</TableHead>
+              <TableHead className="text-center">Growth</TableHead>
+              <TableHead className="text-center">Power</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {comparisonRows.map((row) => (
+              <TableRow key={row.feature}>
+                <TableCell className="text-sm text-foreground">{row.feature}</TableCell>
+                <TableCell className="text-center"><Cell value={row.starter} /></TableCell>
+                <TableCell className="text-center"><Cell value={row.growth} /></TableCell>
+                <TableCell className="text-center"><Cell value={row.power} /></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
 
       {/* Monthly equivalent toggle */}
       <div className="flex flex-col items-center gap-3 mb-8">
@@ -182,9 +209,9 @@ export function HomePricingSection() {
         {showSavings && (
           <div className="text-center">
             <div className="flex flex-wrap justify-center gap-2 mt-1">
-              <Badge variant="outline" className="text-xs">Starter ≈ $76/mo</Badge>
-              <Badge variant="outline" className="text-xs">Growth ≈ $156/mo</Badge>
-              <Badge variant="outline" className="text-xs">Power ≈ $316/mo</Badge>
+              <Badge variant="outline" className="text-xs">Starter ≈ $82/mo</Badge>
+              <Badge variant="outline" className="text-xs">Growth ≈ $169/mo</Badge>
+              <Badge variant="outline" className="text-xs">Power ≈ $342/mo</Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto">
               Weekly keeps you flexible. No annual contract needed.
