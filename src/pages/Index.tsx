@@ -30,6 +30,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
 import { QuickStartModal } from "@/components/QuickStartModal";
 import { WelcomeModal } from "@/components/WelcomeModal";
+import { A2AJobMeter } from "@/components/dashboard/A2AJobMeter";
+
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
 
@@ -262,7 +264,9 @@ export default function Index() {
                     </div>
                   </div>
                   <CampaignQuickSummary campaign={c} />
+                  {a2aCampaignIds.has(c.id) && <A2AJobMeter campaignId={c.id} />}
                 </Card>
+
               ))}
             </div>
           )}
