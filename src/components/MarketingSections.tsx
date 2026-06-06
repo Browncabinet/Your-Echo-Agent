@@ -1,25 +1,34 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Globe, Linkedin, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target } from "lucide-react";
+import { Globe, MessageSquareReply, TrendingUp, BarChart3, Zap, Users, Target, ShieldCheck } from "lucide-react";
 
 const comparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", a: "✅ Very fast drafts", b: "— List upload required", c: "— Manual setup" },
-  { feature: "AI Research & Personalization", us: "✅ Reads your site + LinkedIn intent signals", a: "✅ Strong deep research", b: "⚠️ Template + basic AI", c: "✅ Large database + signals" },
-  { feature: "LinkedIn Outreach", us: "✅ Native LinkedIn messages + connections", a: "— Email only", b: "— Email only", c: "— Email only" },
+  { feature: "AI Research & Personalization", us: "✅ Reads your site + niche community signals", a: "✅ Strong deep research", b: "⚠️ Template + basic AI", c: "✅ Large database + signals" },
+  { feature: "Niche & Association Outreach", us: "✅ Targets industry events, associations & communities", a: "— Email only", b: "— Email only", c: "— Email only" },
+  { feature: "Community Comment + Email Hybrid", us: "✅ Comments in communities + targeted emails", a: "— Limited / not included", b: "⚠️ Basic sequences", c: "⚠️ Basic" },
   { feature: "Reply Handling", us: "✅ AI classifies + books meetings", a: "— Limited / not included", b: "⚠️ Basic sequences", c: "⚠️ Basic" },
   { feature: "Meeting Booking", us: "✅ Auto-books calls into your calendar", a: "— Not included", b: "— Not included", c: "— Not included" },
   { feature: "Pricing Model", us: "🟢 Flexible – pay as you grow", a: "💰 Monthly subscription", b: "💰 $30–$300+/mo", c: "💰 $49+/mo+" },
-  { feature: "Best For", us: "Solo builders & multiple small projects", a: "Teams wanting fast AI drafts", b: "High-volume sending teams", c: "Large sales teams" },
+  { feature: "Best For", us: "Solo builders & niche-focused professionals", a: "Teams wanting fast AI drafts", b: "High-volume sending teams", c: "Large sales teams" },
 ];
 
 const mobileComparisonRows = [
   { feature: "Paste URL → Campaign", us: "✅ Zero-form Quick Start + Guided mode", others: "AutoGTM: ✅ Fast drafts · Instantly: — List upload · Apollo: — Manual" },
-  { feature: "AI Research & Personalization", us: "✅ Reads your site + LinkedIn intent signals", others: "AutoGTM: ✅ Deep research · Instantly: ⚠️ Basic AI · Apollo: ✅ Large DB" },
-  { feature: "LinkedIn Outreach", us: "✅ Native LinkedIn messages + connections", others: "AutoGTM: — Email only · Instantly: — Email only · Apollo: — Email only" },
+  { feature: "AI Research & Personalization", us: "✅ Reads your site + niche community signals", others: "AutoGTM: ✅ Deep research · Instantly: ⚠️ Basic AI · Apollo: ✅ Large DB" },
+  { feature: "Niche & Association Outreach", us: "✅ Targets industry events, associations & communities", others: "AutoGTM: — Email only · Instantly: — Email only · Apollo: — Email only" },
+  { feature: "Community Comment + Email Hybrid", us: "✅ Comments in communities + targeted emails", others: "AutoGTM: — Limited · Instantly: ⚠️ Basic · Apollo: ⚠️ Basic" },
   { feature: "Reply Handling", us: "✅ AI classifies + books meetings", others: "AutoGTM: — Limited · Instantly: ⚠️ Basic · Apollo: ⚠️ Basic" },
   { feature: "Meeting Booking", us: "✅ Auto-books calls into your calendar", others: "AutoGTM: — Not included · Instantly: — Not included · Apollo: — Not included" },
   { feature: "Pricing Model", us: "🟢 Flexible – pay as you grow", others: "AutoGTM: 💰 Monthly · Instantly: 💰 $30–$300+/mo · Apollo: 💰 $49+/mo" },
-  { feature: "Best For", us: "Solo builders & multiple small projects", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
+  { feature: "Best For", us: "Solo builders & niche-focused professionals", others: "AutoGTM: AI-first teams · Instantly: High-volume · Apollo: Large sales teams" },
+];
+
+const nicheCategories = [
+  "SaaS", "Healthcare", "Finance", "Real Estate", "E-commerce",
+  "Education", "Legal", "Marketing Agencies", "Nonprofits", "Construction",
+  "Retail", "Hospitality", "Manufacturing", "Technology", "Consulting",
+  "Insurance", "Fitness & Wellness", "Food & Beverage", "Entertainment", "Logistics",
 ];
 
 export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
@@ -28,7 +37,16 @@ export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
       <h3 className="text-center text-lg font-semibold text-foreground mb-6">
         How Your Echo Agent Works
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="p-5 text-center">
+          <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
+          <h4 className="font-semibold text-sm text-foreground mb-1">Choose Your Niche</h4>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Pick your industry or association. Your agent stays focused where trust matters most.
+          </p>
+        </Card>
         <Card className="p-5 text-center">
           <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
             <Globe className="w-5 h-5 text-primary" />
@@ -40,29 +58,29 @@ export const FeaturesSection = React.forwardRef<HTMLDivElement>((_, ref) => {
         </Card>
         <Card className="p-5 text-center">
           <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
-            <Linkedin className="w-5 h-5 text-primary" />
+            <Users className="w-5 h-5 text-primary" />
           </div>
-          <h4 className="font-semibold text-sm text-foreground mb-1">Find Warm Leads on LinkedIn</h4>
+          <h4 className="font-semibold text-sm text-foreground mb-1">Find Relevant Discussions</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Intent-based targeting surfaces prospects by recent activity, job changes, and funding — automatically.
+            Discovers conversations inside associations, events, and professional communities.
           </p>
         </Card>
         <Card className="p-5 text-center">
           <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
             <MessageSquareReply className="w-5 h-5 text-primary" />
           </div>
-          <h4 className="font-semibold text-sm text-foreground mb-1">Messages That Sound Like You</h4>
+          <h4 className="font-semibold text-sm text-foreground mb-1">Comments + Targeted Emails</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Personalized connection requests and follow-ups crafted from your voice — not generic sales templates.
+            Posts helpful comments and sends personalized emails inside the same niche — all sounding like you.
           </p>
         </Card>
         <Card className="p-5 text-center">
           <div className="mx-auto w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-3">
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
-          <h4 className="font-semibold text-sm text-foreground mb-1">Replies, Meetings & Revenue</h4>
+          <h4 className="font-semibold text-sm text-foreground mb-1">Turn Conversations Into Opportunities</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            AI handles replies, books calls into your calendar, and tracks real revenue — not just "sent" counts.
+            Handles replies, books calls, and tracks real relationships — not just sent counts.
           </p>
         </Card>
       </div>
@@ -128,8 +146,8 @@ ComparisonSection.displayName = "ComparisonSection";
 export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div ref={ref} className="flex flex-wrap justify-center gap-6 mt-8 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1.5">✓ LinkedIn-native outreach</span>
-      <span className="flex items-center gap-1.5">✓ 5-10x higher reply rates</span>
+      <span className="flex items-center gap-1.5">✓ Niche-native outreach</span>
+      <span className="flex items-center gap-1.5">✓ 3-5x higher trust & response</span>
       <span className="flex items-center gap-1.5">✓ AI-powered personalization</span>
       <span className="flex items-center gap-1.5">✓ No monthly contracts</span>
     </div>
@@ -137,28 +155,28 @@ export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
 });
 TrustSignals.displayName = "TrustSignals";
 
-export const WhyLinkedInFirstSection = React.forwardRef<HTMLDivElement>((_, ref) => {
+export const WhyNicheFirstSection = React.forwardRef<HTMLDivElement>((_, ref) => {
   const reasons = [
     {
-      icon: BarChart3,
-      stat: "5-10x",
-      label: "Higher Response Rates",
-      desc: "LinkedIn messages outperform cold email by a wide margin. Decision makers actually read and reply to personalized connection requests.",
+      icon: ShieldCheck,
+      stat: "3-5x",
+      label: "Higher Trust & Response",
+      desc: "Outreach inside industry associations and events feels natural. Recipients see you as a peer, not a stranger.",
     },
     {
       icon: Target,
-      label: "Smart Intent Targeting",
-      desc: "Recent activity, job changes, funding rounds, and post engagement signal buying intent. Your agent finds the warmest leads first.",
+      label: "Precision Targeting",
+      desc: "Your agent finds the right discussions, job changes, and funding news inside your specific niche — no spray-and-pray.",
     },
     {
       icon: Users,
-      label: "Natural Conversation Style",
-      desc: "No salesy templates. Your agent writes like a real person — building rapport first, pitching second. Leads feel heard, not sold to.",
+      label: "Community-First Conversations",
+      desc: "Helpful comments in the right communities build reputation before you ever send an email. Relationships first, pitches second.",
     },
     {
       icon: Zap,
-      label: "Safe, Human-Like Behavior",
-      desc: "Smart pacing, realistic typing delays, and natural follow-up cadence keep your account healthy and restrictions at bay.",
+      label: "Sustainable, Long-Term Growth",
+      desc: "Staying inside your industry protects your reputation and creates a compounding network of warm connections.",
     },
   ];
 
@@ -166,10 +184,10 @@ export const WhyLinkedInFirstSection = React.forwardRef<HTMLDivElement>((_, ref)
     <div ref={ref} className="mb-16">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Why LinkedIn-First Works Better
+          Why Niche-First Works Better
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          Real replies, real meetings, real revenue — not just sent counts in a dashboard.
+          Real replies, real meetings, real revenue — built on trust inside the communities you belong to.
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -189,4 +207,27 @@ export const WhyLinkedInFirstSection = React.forwardRef<HTMLDivElement>((_, ref)
     </div>
   );
 });
-WhyLinkedInFirstSection.displayName = "WhyLinkedInFirstSection";
+WhyNicheFirstSection.displayName = "WhyNicheFirstSection";
+
+export const ChooseYourNicheSection = React.forwardRef<HTMLDivElement>((_, ref) => {
+  return (
+    <div ref={ref} className="mb-16">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          Choose Your Niche
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+          Stay within your industry for maximum trust and impact.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {nicheCategories.map((cat) => (
+          <Card key={cat} className="p-4 text-center hover:border-primary/30 transition-all cursor-default">
+            <p className="text-sm font-medium text-foreground">{cat}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+});
+ChooseYourNicheSection.displayName = "ChooseYourNicheSection";
