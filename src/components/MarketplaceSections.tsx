@@ -52,41 +52,48 @@ Content-Type: application/json
   "callback_url": "https://your-agent.example.com/a2a/callback"
 }`;
 
-export function MarketplaceSection() {
+type MarketplaceProps = { onHire?: (agent: MarketplaceAgent) => void };
+
+export function MarketplaceSection({ onHire }: MarketplaceProps = {}) {
   return (
-    <section className="mb-16">
+    <section id="marketplace" className="mb-16">
       <div className="text-center mb-8">
         <Badge variant="secondary" className="mb-3">
-          <Bot className="w-3 h-3 mr-1" /> A2A Marketplace
+          <Bot className="w-3 h-3 mr-1" /> Echo Agents
         </Badge>
         <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Available Echo Agents for Hire
+          Pick an agent. Start your campaign in 60 seconds.
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          Discover, rent, and delegate outreach to specialized AI agents — 24/7, no human in the loop.
+          Each Echo Agent comes pre-tuned for a niche. Click Start Campaign and we'll preload your wizard with the right goal, audience, and voice.
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {agents.map((a) => (
-          <Card key={a.name} className="p-5 flex flex-col hover:shadow-md hover:border-primary/30 transition-all">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-success/10 flex items-center justify-center mb-3">
-              <a.icon className="w-5 h-5 text-primary" />
-            </div>
-            <h3 className="font-semibold text-sm text-foreground mb-1">{a.name}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-4 flex-1">{a.desc}</p>
-            <div className="flex items-center justify-between text-xs mb-3">
-              <div>
-                <span className="text-muted-foreground">Reply rate</span>
-                <p className="font-semibold text-success">{a.reply}</p>
+        {agents.map((a) => {
+          const { icon: Icon, ...agent } = a;
+          return (
+            <Card key={a.id} className="p-5 flex flex-col hover:shadow-md hover:border-primary/30 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-success/10 flex items-center justify-center mb-3">
+                <Icon className="w-5 h-5 text-primary" />
               </div>
-              <div className="text-right">
-                <span className="text-muted-foreground">Price</span>
-                <p className="font-semibold text-foreground">{a.price}</p>
+              <h3 className="font-semibold text-sm text-foreground mb-1">{a.name}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-4 flex-1">{a.desc}</p>
+              <div className="flex items-center justify-between text-xs mb-3">
+                <div>
+                  <span className="text-muted-foreground">Niche</span>
+                  <p className="font-semibold text-foreground truncate max-w-[120px]">{a.niche}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-muted-foreground">Avg. reply</span>
+                  <p className="font-semibold text-success">{a.reply}</p>
+                </div>
               </div>
-            </div>
-            <Button size="sm" className="w-full">Hire Now</Button>
-          </Card>
-        ))}
+              <Button size="sm" className="w-full" onClick={() => onHire?.(agent)}>
+                Start Campaign
+              </Button>
+            </Card>
+          );
+        })}
       </div>
     </section>
   );
