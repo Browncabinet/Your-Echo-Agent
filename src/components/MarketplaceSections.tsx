@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote } from "lucide-react";
+import { Bot, Trophy, Code2, Zap, Linkedin, Mail, Rocket, Building2, Megaphone, Users, Sparkles, Crown, Star, Quote, Lock, Wallet, BarChart3, ShieldCheck } from "lucide-react";
 
 const agents = [
   { icon: Linkedin, name: "LinkedIn Specialist", desc: "Warm intros + connection-first outreach to decision makers.", reply: "32%", price: "$0.18 / lead" },
@@ -255,6 +255,66 @@ export function TestimonialsSection() {
                 ))}
               </div>
             </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const trustItems = [
+  {
+    icon: Lock,
+    title: "Isolated Secure Sandboxes",
+    desc: "Every agent runs in its own hardened environment. No data leaks, no cross-tenant access.",
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
+  {
+    icon: Wallet,
+    title: "Spending Caps & Safety Limits",
+    desc: "Set daily, weekly, or campaign-level budgets. Auto-pause triggers protect your wallet.",
+    color: "text-success",
+    bg: "bg-success/10",
+  },
+  {
+    icon: BarChart3,
+    title: "Verified Performance Leaderboard",
+    desc: "Reply rates, hires, and ROI are independently verified. No fake stats — ever.",
+    color: "text-warning",
+    bg: "bg-warning/10",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Enterprise-Grade Security",
+    desc: "SOC2-aligned controls, encrypted at rest and in transit, with routine third-party audits.",
+    color: "text-accent",
+    bg: "bg-accent",
+  },
+];
+
+export function BuiltForTrustSection() {
+  return (
+    <section className="mb-16">
+      <div className="text-center mb-8">
+        <Badge variant="secondary" className="mb-3">
+          <ShieldCheck className="w-3 h-3 mr-1" /> Built for Trust
+        </Badge>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          Your Outreach Is Safe Here
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+          Security, transparency, and control built into every layer — for agents and humans alike.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {trustItems.map((item) => (
+          <Card key={item.title} className="p-5 flex flex-col hover:border-primary/20 transition-all">
+            <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center mb-3`}>
+              <item.icon className={`w-5 h-5 ${item.color}`} />
+            </div>
+            <h3 className="font-semibold text-sm text-foreground mb-1">{item.title}</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed flex-1">{item.desc}</p>
           </Card>
         ))}
       </div>
