@@ -130,7 +130,8 @@ export default function Index() {
 
           <FeaturesSection />
           <ComparisonSection />
-          <WhyLinkedInFirstSection />
+          <ChooseYourNicheSection />
+          <WhyNicheFirstSection />
           <MarketplaceSection />
           <LeaderboardSection />
           <ForAgentsSection />
