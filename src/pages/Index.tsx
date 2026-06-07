@@ -149,129 +149,145 @@ export default function Index() {
         </header>
 
         <main className="container max-w-5xl mx-auto px-4 py-10">
-          <WeeklyUsageStrip />
-          {/* Hero Section */}
-          <div className="text-center mb-14 pt-6">
-            <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
-              Your Echo Agent — Niche Outreach That{" "}
-              <span className="text-primary">Gets Real Results</span>
-            </h1>
-            <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-              <span className="font-semibold text-foreground">Builders:</span> Paste your URL to create an agent that sounds exactly like you.{" "}
-              <span className="font-semibold text-foreground">Agents:</span> Discover, rent, and delegate campaigns via A2A. Focus on high-trust outreach in associations, conferences, events, and industry organizations on LinkedIn and targeted email.
-            </p>
+          {user ? (
+            <>
+              <WeeklyUsageStrip />
 
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 mt-2">
+                <h1 className="text-2xl font-semibold text-foreground">Your campaigns</h1>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button size="sm" onClick={startNewCampaign} className="gap-2">
+                    <Plus className="w-4 h-4" /> New Campaign
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 border-primary/30 text-primary hover:bg-primary/5">
+                    <Sparkles className="w-4 h-4" /> Fast Mode — Paste URL Only
+                  </Button>
+                </div>
+              </div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
-              <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
-                <Plus className="w-5 h-5" /> New Campaign
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
-                <Sparkles className="w-5 h-5" /> Fast Mode — Paste URL Only
-              </Button>
-            </div>
+              <QuickUpdateBar campaigns={campaigns} />
 
-            <TrustSignals />
-          </div>
+              {campaignsLoading && (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              )}
 
-          <HomeDemoSection onTryDemo={() => setQuickStartOpen(true)} />
-
-          <HomePricingSection />
-          <FeaturesSection />
-          <ComparisonSection />
-          <ChooseYourNicheSection onContinue={startNewCampaign} />
-          <WhyNicheFirstSection />
-          <MarketplaceSection onHire={handleHireAgent} />
-          <LeaderboardSection />
-          <ForAgentsSection />
-          <FaqSection />
-
-          <QuickUpdateBar campaigns={campaigns} />
-
-          {campaignsLoading && (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-          )}
-
-          {!campaignsLoading && campaigns.length === 0 && (
-            <Card className="p-8 text-center border-dashed">
-              <p className="text-muted-foreground text-sm">No campaigns yet. Create your first one above.</p>
-            </Card>
-          )}
-
-          {campaigns.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-foreground">Your Recent Campaigns</h3>
-              {campaigns.map((c) => (
-                <Card
-                  key={c.id}
-                  className="p-4 cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => {
-                    setCampaign(c);
-                    setView("dashboard");
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium text-foreground">{c.name}</p>
-                        {a2aCampaignIds.has(c.id) && (
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">
-                            Hired via A2A
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {c.websiteUrl && <>{(() => { try { return new URL(c.websiteUrl).hostname; } catch { return c.websiteUrl; } })()} · </>}
-                        {c.niche} · {c.leads.length} leads
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCampaign(c);
-                          setView("dashboard");
-                        }}
-                      >
-                        <BarChart3 className="w-3 h-3" /> Results
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCampaign(c);
-                          setView("replies");
-                        }}
-                      >
-                        <Inbox className="w-3 h-3" /> Replies
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCampaign(c);
-                          setView("social");
-                        }}
-                      >
-                        <Share2 className="w-3 h-3" /> Social
-                      </Button>
-                    </div>
-                  </div>
-                  <CampaignQuickSummary campaign={c} />
-                  {a2aCampaignIds.has(c.id) && <A2AJobMeter campaignId={c.id} />}
+              {!campaignsLoading && campaigns.length === 0 && (
+                <Card className="p-8 text-center border-dashed">
+                  <p className="text-muted-foreground text-sm">No campaigns yet. Create your first one above.</p>
                 </Card>
+              )}
 
-              ))}
-            </div>
+              {campaigns.length > 0 && (
+                <div className="space-y-4">
+                  {campaigns.map((c) => (
+                    <Card
+                      key={c.id}
+                      className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        setCampaign(c);
+                        setView("dashboard");
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-foreground">{c.name}</p>
+                            {a2aCampaignIds.has(c.id) && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">
+                                Hired via A2A
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {c.websiteUrl && <>{(() => { try { return new URL(c.websiteUrl).hostname; } catch { return c.websiteUrl; } })()} · </>}
+                            {c.niche} · {c.leads.length} leads
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCampaign(c);
+                              setView("dashboard");
+                            }}
+                          >
+                            <BarChart3 className="w-3 h-3" /> Results
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCampaign(c);
+                              setView("replies");
+                            }}
+                          >
+                            <Inbox className="w-3 h-3" /> Replies
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCampaign(c);
+                              setView("social");
+                            }}
+                          >
+                            <Share2 className="w-3 h-3" /> Social
+                          </Button>
+                        </div>
+                      </div>
+                      <CampaignQuickSummary campaign={c} />
+                      {a2aCampaignIds.has(c.id) && <A2AJobMeter campaignId={c.id} />}
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <WeeklyUsageStrip />
+              {/* Hero Section */}
+              <div className="text-center mb-14 pt-6">
+                <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
+                  Your Echo Agent — Niche Outreach That{" "}
+                  <span className="text-primary">Gets Real Results</span>
+                </h1>
+                <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
+                  <span className="font-semibold text-foreground">Builders:</span> Paste your URL to create an agent that sounds exactly like you.{" "}
+                  <span className="font-semibold text-foreground">Agents:</span> Discover, rent, and delegate campaigns via A2A. Focus on high-trust outreach in associations, conferences, events, and industry organizations on LinkedIn and targeted email.
+                </p>
+
+                <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
+                  <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
+                    <Plus className="w-5 h-5" /> New Campaign
+                  </Button>
+                  <Button size="lg" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
+                    <Sparkles className="w-5 h-5" /> Fast Mode — Paste URL Only
+                  </Button>
+                </div>
+
+                <TrustSignals />
+              </div>
+
+              <HomeDemoSection onTryDemo={() => setQuickStartOpen(true)} />
+              <HomePricingSection />
+              <FeaturesSection />
+              <ComparisonSection />
+              <ChooseYourNicheSection onContinue={startNewCampaign} />
+              <WhyNicheFirstSection />
+              <MarketplaceSection onHire={handleHireAgent} />
+              <LeaderboardSection />
+              <ForAgentsSection />
+              <FaqSection />
+            </>
           )}
         </main>
 
