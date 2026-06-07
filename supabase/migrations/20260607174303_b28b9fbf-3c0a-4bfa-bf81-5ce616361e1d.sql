@@ -1,0 +1,1 @@
+CREATE POLICY "service role only rate buckets" ON public.a2a_rate_buckets FOR ALL TO service_role USING (true) WITH CHECK (true);
