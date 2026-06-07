@@ -81,6 +81,7 @@ export type Database = {
           notes: string
           owner_email: string
           owner_name: string
+          owner_user_id: string | null
           rate_limit_per_min: number
           status: string
         }
@@ -93,6 +94,7 @@ export type Database = {
           notes?: string
           owner_email: string
           owner_name?: string
+          owner_user_id?: string | null
           rate_limit_per_min?: number
           status?: string
         }
@@ -105,6 +107,7 @@ export type Database = {
           notes?: string
           owner_email?: string
           owner_name?: string
+          owner_user_id?: string | null
           rate_limit_per_min?: number
           status?: string
         }
@@ -295,6 +298,8 @@ export type Database = {
           created_at: string
           current_invoice_id: string | null
           id: string
+          owner_user_id: string | null
+          pending_credit_cents: number
           stripe_customer_id: string | null
           total_spent_cents: number
           updated_at: string
@@ -307,6 +312,8 @@ export type Database = {
           created_at?: string
           current_invoice_id?: string | null
           id?: string
+          owner_user_id?: string | null
+          pending_credit_cents?: number
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
@@ -319,6 +326,8 @@ export type Database = {
           created_at?: string
           current_invoice_id?: string | null
           id?: string
+          owner_user_id?: string | null
+          pending_credit_cents?: number
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
