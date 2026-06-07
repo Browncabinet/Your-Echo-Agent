@@ -58,6 +58,24 @@ const CLASSIFICATION_CONFIG: Record<
     icon: AlertTriangle,
     bgClass: "bg-orange-100 text-orange-700",
   },
+  unsubscribe: {
+    label: "Unsubscribe",
+    color: "text-destructive",
+    icon: XCircle,
+    bgClass: "bg-destructive/10 text-destructive",
+  },
+  wrong_person: {
+    label: "Wrong Person",
+    color: "text-muted-foreground",
+    icon: AlertTriangle,
+    bgClass: "bg-muted text-muted-foreground",
+  },
+  needs_info: {
+    label: "Needs Info",
+    color: "text-[hsl(var(--warning))]",
+    icon: HelpCircle,
+    bgClass: "bg-[hsl(var(--warning))]/10 text-[hsl(var(--warning))]",
+  },
   unknown: {
     label: "Unclassified",
     color: "text-muted-foreground",
@@ -163,13 +181,13 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
     }
   };
 
-  const toggleExpand = (id: string, draftReply: string) => {
+  const toggleExpand = (id: string, draftReply: string, suggestedReply?: string) => {
     if (expandedId === id) {
       setExpandedId(null);
     } else {
       setExpandedId(id);
       if (!editedDraft[id]) {
-        setEditedDraft((prev) => ({ ...prev, [id]: draftReply }));
+        setEditedDraft((prev) => ({ ...prev, [id]: suggestedReply || draftReply }));
       }
     }
   };
@@ -301,7 +319,7 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
 
                 <div
                   className="p-4 cursor-pointer"
-                  onClick={() => toggleExpand(reply.id, reply.ai_draft_reply)}
+                  onClick={() => toggleExpand(reply.id, reply.ai_draft_reply, (reply as any).suggested_reply)}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -314,6 +332,11 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
                           <Badge variant="outline" className={`text-[10px] ${cfg.bgClass}`}>
                             {cfg.label}
                           </Badge>
+                          {((reply as any).intent_score ?? 0) > 0 && (
+                            <Badge variant="outline" className="text-[10px] font-mono">
+                              intent {(reply as any).intent_score}
+                            </Badge>
+                          )}
                           {isSent && (
                             <Badge variant="outline" className="text-[10px] bg-[hsl(var(--success-light))] text-[hsl(var(--success))]">
                               ✓ Replied
@@ -338,6 +361,7 @@ export function RepliesInbox({ campaignId, onBack }: Props) {
                     </div>
                   </div>
                 </div>
+
 
                 {/* Expanded detail */}
                 {isExpanded && (
