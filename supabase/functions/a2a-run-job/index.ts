@@ -137,13 +137,19 @@ async function processJob(jobId: string) {
     return { completed: true };
   }
 
-  // Pick leads not yet sent
+  // Pick leads not yet sent and not unsubscribed
   const { data: alreadySent } = await sb
     .from("campaign_sends")
     .select("lead_email")
     .eq("campaign_id", job.campaign_id);
   const sentSet = new Set((alreadySent || []).map((r) => r.lead_email.toLowerCase()));
-  const remaining = leads.filter((l: any) => l.email && !sentSet.has(String(l.email).toLowerCase()));
+
+  const leadEmailsLower = leads.map((l: any) => String(l.email || "").toLowerCase()).filter(Boolean);
+  const { data: unsubs } = await sb.from("unsubscribes").select("email").eq("user_id", job.user_id).in("email", leadEmailsLower);
+  const unsubSet = new Set((unsubs || []).map((u: any) => u.email));
+
+  const remaining = leads.filter((l: any) => l.email && !sentSet.has(String(l.email).toLowerCase()) && !unsubSet.has(String(l.email).toLowerCase()));
+
   if (remaining.length === 0) {
     await setEvent(sb, jobId, "job.completed", { status: "completed" });
     emitCallback(job.callback_url, "job.completed", { job_id: jobId, leads_sent: job.leads_sent, spend_cents: job.spend_cents });
@@ -191,7 +197,9 @@ async function processJob(jobId: string) {
       body = body.replace(/href="(https?:\/\/[^"]+)"/g, (_, u) =>
         `href="${trackBase}?id=${sendId}&t=c&url=${encodeURIComponent(u)}"`);
       body = body + `<img src="${trackBase}?id=${sendId}&t=o" width="1" height="1" style="display:none" alt="" />`;
+      body = body + `<br><br><p style="font-size:11px;color:#94A3B8;text-align:center;margin-top:24px">You're receiving this from ${smtp.email_address}. <a href="${supabaseUrl}/functions/v1/unsubscribe?u=${sendId}" style="color:#94A3B8">Unsubscribe</a>.</p>`;
     }
+
 
     try {
       const client = new SmtpClient();
