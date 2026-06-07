@@ -18,6 +18,8 @@ import ForAgents from "./pages/ForAgents.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import CheckoutReturn from "./pages/CheckoutReturn.tsx";
 import PartnerBilling from "./pages/PartnerBilling.tsx";
+import PartnerDashboard from "./pages/PartnerDashboard.tsx";
+import ForAgentsDocs from "./pages/ForAgentsDocs.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ const App = () => (
                 <Route path="/acceptable-use" element={<AcceptableUse />} />
                 <Route path="/for-agents" element={<ForAgents />} />
                 <Route path="/for-agents/billing" element={<ProtectedRoute><PartnerBilling /></ProtectedRoute>} />
+                <Route path="/for-agents/dashboard" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
+                <Route path="/for-agents/docs" element={<ForAgentsDocs />} />
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
                 <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

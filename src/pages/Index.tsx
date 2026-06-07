@@ -35,6 +35,8 @@ import { QuickStartModal } from "@/components/QuickStartModal";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { A2AJobMeter } from "@/components/dashboard/A2AJobMeter";
 import { GetStartedChecklist } from "@/components/GetStartedChecklist";
+import { HotRepliesCard } from "@/components/HotRepliesCard";
+import { DeliverabilityCard } from "@/components/DeliverabilityCard";
 
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
@@ -171,6 +173,13 @@ export default function Index() {
                 onNewCampaign={startNewCampaign}
                 onFastMode={() => setQuickStartOpen(true)}
               />
+
+              <HotRepliesCard onOpenReplies={(cid) => {
+                const c = campaigns.find((x) => x.id === cid);
+                if (c) { setCampaign(c); setView("replies"); }
+              }} />
+
+              <DeliverabilityCard />
 
               <QuickUpdateBar campaigns={campaigns} />
 

@@ -38,7 +38,6 @@ export type ApiKeyRow = {
   rate_limit_per_min: number;
 };
 
-/** Validates `Authorization: Bearer <key>` against a2a_api_keys. Returns row or null. */
 export async function authenticateApiKey(req: Request): Promise<ApiKeyRow | null> {
   const auth = req.headers.get("authorization") || "";
   const m = auth.match(/^Bearer\s+(.+)$/i);
@@ -54,12 +53,10 @@ export async function authenticateApiKey(req: Request): Promise<ApiKeyRow | null
     .eq("status", "active")
     .maybeSingle();
   if (error || !data) return null;
-  // fire-and-forget last_used_at update
   sb.from("a2a_api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", data.id).then(() => {});
   return data as ApiKeyRow;
 }
 
-/** Sign a webhook payload with HMAC-SHA256 using A2A_CALLBACK_SIGNING_SECRET. */
 export async function signPayload(payload: string): Promise<string> {
   const secret = Deno.env.get("A2A_CALLBACK_SIGNING_SECRET") || "dev-secret-change-me";
   const key = await crypto.subtle.importKey(
@@ -75,13 +72,50 @@ export async function signPayload(payload: string): Promise<string> {
     .join("");
 }
 
-/** Best-effort callback delivery. */
-export async function emitCallback(url: string | null | undefined, event: string, data: unknown) {
-  if (!url) return;
+/** Best-effort callback delivery + log to a2a_callbacks_log. */
+export async function emitCallback(
+  url: string | null | undefined,
+  event: string,
+  data: unknown,
+  ctx?: { job_id?: string; api_key_id?: string | null; partner_id?: string | null },
+) {
+  const sb = admin();
+  let partnerId = ctx?.partner_id || null;
+  let apiKeyId = ctx?.api_key_id || null;
+
+  // Resolve partner / api_key from job if not given
+  if (!partnerId && ctx?.job_id) {
+    const { data: job } = await sb.from("a2a_jobs").select("api_key_id").eq("id", ctx.job_id).maybeSingle();
+    if (job?.api_key_id) {
+      apiKeyId = job.api_key_id;
+      const { data: p } = await sb.from("a2a_partners").select("id").eq("api_key_id", job.api_key_id).maybeSingle();
+      if (p) partnerId = p.id;
+    }
+  }
+
+  const payload = { event, data, ts: new Date().toISOString() };
+  const body = JSON.stringify(payload);
+
+  if (!url) {
+    await sb.from("a2a_callbacks_log").insert({
+      partner_id: partnerId,
+      api_key_id: apiKeyId,
+      job_id: ctx?.job_id || null,
+      event_type: event,
+      callback_url: "",
+      payload,
+      delivered: false,
+      error_message: "no_callback_url",
+    });
+    return;
+  }
+
+  let status: number | null = null;
+  let errMsg: string | null = null;
+  let respBody = "";
   try {
-    const body = JSON.stringify({ event, data, ts: new Date().toISOString() });
     const sig = await signPayload(body);
-    await fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -90,46 +124,68 @@ export async function emitCallback(url: string | null | undefined, event: string
       },
       body,
     });
+    status = res.status;
+    try { respBody = (await res.text()).slice(0, 500); } catch { /* ignore */ }
   } catch (e) {
-    console.error("callback failed", url, e);
+    errMsg = e instanceof Error ? e.message : String(e);
+    console.error("callback failed", url, errMsg);
   }
+  await sb.from("a2a_callbacks_log").insert({
+    partner_id: partnerId,
+    api_key_id: apiKeyId,
+    job_id: ctx?.job_id || null,
+    event_type: event,
+    callback_url: url,
+    payload,
+    response_status: status,
+    response_body: respBody,
+    delivered: status !== null && status >= 200 && status < 300,
+    error_message: errMsg,
+  });
 }
 
-/** Build an A2A-spec-shaped Agent Card from a DB row. */
+/** Token-bucket rate limit using a2a_rate_buckets. Returns true if allowed. */
+export async function checkRateLimit(apiKeyId: string, limitPerMin: number): Promise<{ allowed: boolean; count: number; limit: number }> {
+  const sb = admin();
+  const now = new Date();
+  const windowStart = new Date(Math.floor(now.getTime() / 60000) * 60000).toISOString();
+
+  // Atomic upsert+increment via two-step (best effort; small volume).
+  const { data: existing } = await sb
+    .from("a2a_rate_buckets")
+    .select("count")
+    .eq("api_key_id", apiKeyId)
+    .eq("window_start", windowStart)
+    .maybeSingle();
+  const nextCount = (existing?.count || 0) + 1;
+  if (existing) {
+    await sb.from("a2a_rate_buckets").update({ count: nextCount }).eq("api_key_id", apiKeyId).eq("window_start", windowStart);
+  } else {
+    await sb.from("a2a_rate_buckets").insert({ api_key_id: apiKeyId, window_start: windowStart, count: 1 });
+    // opportunistic cleanup of old buckets
+    sb.from("a2a_rate_buckets").delete().lt("window_start", new Date(now.getTime() - 600000).toISOString()).then(() => {});
+  }
+  return { allowed: nextCount <= limitPerMin, count: nextCount, limit: limitPerMin };
+}
+
 export function toAgentCard(a: Record<string, unknown>, baseUrl: string) {
   return {
-    agent_id: a.agent_id,
+    schemaVersion: "0.3.0",
     name: a.name,
-    tagline: a.tagline,
     description: a.description,
-    niche: a.niche,
-    persona: a.persona,
+    url: `${baseUrl}/v1/agents/${a.agent_id}`,
     version: a.version,
     capabilities: a.capabilities,
     pricing: {
+      perLeadCents: a.pricing_per_lead_cents,
+      perReplyCents: a.pricing_per_reply_cents,
+      perMeetingCents: a.pricing_per_meeting_cents,
       currency: "usd",
-      per_lead_cents: a.pricing_per_lead_cents,
-      per_reply_cents: a.pricing_per_reply_cents,
-      per_meeting_cents: a.pricing_per_meeting_cents,
     },
-    stats: { rating: a.rating, jobs_completed: a.jobs_completed },
-    endpoints: {
-      card: `${baseUrl}/v1/agents/${a.agent_id}`,
-      hire: `${baseUrl}/v1/agents/${a.agent_id}/hire`,
-      jobs: `${baseUrl}/v1/jobs/{job_id}`,
-    },
-    auth: { type: "bearer", header: "Authorization", prefix: "eak_" },
-    owner: "Echo Agents (yourechoagent.com)",
-    active: a.active,
+    rating: a.rating,
+    jobsCompleted: a.jobs_completed,
+    niche: a.niche,
+    tagline: a.tagline,
+    persona: a.persona,
   };
-}
-
-export function publicBaseUrl(req: Request) {
-  // Prefer canonical brand URL for docs; functions still callable via SUPABASE_URL
-  return "https://yourechoagent.com/api";
-}
-
-export function functionsBaseUrl() {
-  const url = new URL(Deno.env.get("SUPABASE_URL")!);
-  return `https://${url.host}/functions/v1`;
 }

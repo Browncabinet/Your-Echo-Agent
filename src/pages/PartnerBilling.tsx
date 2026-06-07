@@ -71,8 +71,8 @@ export default function PartnerBilling() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/for-agents" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
+          <Link to="/for-agents/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
           <h1 className="font-bold">Partner Billing</h1>
         </div>

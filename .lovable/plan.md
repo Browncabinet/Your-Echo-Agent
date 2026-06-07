@@ -1,77 +1,71 @@
-## Day 2 & Day 3 verification
+# Day 4 — Ship remaining options (1 + 3 + 4)
 
-### ✅ Day 2 — A2A Engine Integration (shipped + verified)
-- `a2a_jobs` extended (`leads_total`, `leads_sent`, `spend_cents`, `daily_send_cap`).
-- `a2a-run-job` orchestrator wired to existing lead/email pipeline.
-- Pause/resume + spend caps enforced.
-- Partner callbacks firing on `email.sent` / `reply.received` / `billing.insufficient_funds`.
+Onboarding (Option 2) already shipped. Now building the rest in one pass.
 
-### ✅ Day 3 — A2A Monetization + LinkedIn Activity (shipped + verified)
-**Track A (billing):**
-- `a2a_partners` table + `a2a_ledger.billed*` columns live.
-- Edge fns `a2a-billing-charge`, `a2a-agent-hire`, `a2a-run-job`, `payments-webhook`, `create-checkout` updated.
-- Stripe products `a2a_credit_25/100/500_once` created in sandbox.
-- E2E SQL simulation passed: happy-path debit (500→470¢), insufficient-funds pause confirmed.
-- Real user subscription test passed: Growth Weekly $39 sandbox checkout → row created, webhook fired, caps live.
-- Checkout modal scroll fix shipped (Pricing + PartnerBilling).
+## Option 1 — Reply intelligence loop (~4h)
+**Goal:** Replies drive automation, not just an inbox.
 
-**Track B (LinkedIn):**
-- `linkedin_actions` table + `linkedin-generate-actions` edge fn.
-- LinkedInActivityTab default surface in campaign dashboard tabs.
-- Group research → "Use as primary" → action generation flow working.
+**Schema changes (single migration):**
+- `email_replies` add: `intent_score int default 0`, `suggested_reply text default ''`, `auto_paused bool default false`
+  *(classification + ai_draft_reply already exist)*
+- New `reply_actions_log` table to record auto-pause / auto-draft events (campaign_id, reply_id, action, created_at, user_id) + RLS + GRANTs.
 
-**Dashboard cleanup (today):** Marketing sections gated to logged-out visitors; logged-in users get clean campaigns dashboard.
+**Edge function updates:**
+- Extend `check-replies` (or `reply-handler`) classification prompt to also output `intent_score` (0–100) and `suggested_reply`.
+- On classification:
+  - `not_interested` / `unsubscribe` / `wrong_person` → mark lead suppressed in `campaign_sends` (status='suppressed' for any queued), set `email_replies.auto_paused=true`, log action.
+  - `interested` / `needs_info` → generate `suggested_reply` via Lovable AI, store on row, log action.
+- After processing, POST `a2a_callback` of type `reply.classified` to job's `callback_url` when reply ties to an a2a job.
 
-### ⚠️ Still untested live
-- **A2A partner top-up checkout** — Stripe-hosted $25 pack on `/for-agents/billing` was never clicked through with a real test card. Only the webhook math was simulated in SQL. Should be exercised once end-to-end before opening the marketplace to outside agents.
-- **Live `a2a-run-job` execution** — billing-charge math was validated via SQL clone, not by actually invoking the edge function with a service-role call.
+**UI:**
+- New `HotRepliesCard.tsx` on Index (logged-in) — top 5 replies with intent_score≥60, "Open & reply" button → opens RepliesInbox prefilled with `suggested_reply`.
+- RepliesInbox: show classification badge + intent score, prefill draft textarea with `suggested_reply` when present.
 
----
+## Option 3 — Marketplace public launch readiness (~5h)
+**Goal:** Outside agents can actually onboard, top up, and call the API.
 
-## Suggested next steps (Day 4)
+**New page `/for-agents/dashboard`** (`PartnerDashboard.tsx`):
+- API key display + masked, copy button, "Rotate key" action (new edge fn `a2a-rotate-key` — creates new key_hash, deactivates old).
+- Balance + total_spent (from `a2a_partners`).
+- Recent jobs table (from `a2a_jobs` joined by api_key_id).
+- Callback log: query `a2a_callbacks_log` table (NEW — needs migration: id, partner_id, event_type, payload jsonb, status, response_code, created_at + RLS + GRANTs). Modify `emitCallback` in `_shared/a2a.ts` to write rows here.
 
-Pick 1–2 of these. They build on what's now stable.
+**Rate limiting:** new edge fn helper in `_shared/a2a.ts` `checkRateLimit(api_key_id, limit_per_min)` using new `a2a_rate_buckets` table (api_key_id, window_start, count) — applied in `a2a-agent-hire`. Returns 429 on exceed.
 
-### Option 1 — Reply intelligence loop (highest ROI for existing users)
-Right now replies land in the inbox but don't influence anything downstream. Wire the existing `reply-handler` classification into:
-- Auto-pause sequences for "not interested" / "unsubscribe" / "wrong person".
-- Auto-draft a follow-up for "interested" / "needs info" using the campaign's voice.
-- Surface a **Hot Replies** card on the dashboard (top 5 positive replies needing response).
-- Fire an `a2a_callback` of type `reply.classified` so partner agents see qualified leads in real time.
+**Public docs page `/for-agents/docs`:** simple static MDX-style React page with curl examples for list / get / hire / job-status, and link to dashboard.
 
-Effort: ~4h. No new tables, just extends `email_replies` with `classification`, `intent_score`, `suggested_reply`.
+**Live top-up test:** add a "Test top-up ($1)" button (sandbox only) on PartnerBilling that creates a $1 Stripe Checkout via existing `create-checkout` extended with `a2a_credit_test_100` price. Webhook already handles `a2a_credit_*` SKUs.
 
-### Option 2 — Onboarding polish + first-campaign success
-The dashboard is now clean but a brand-new user lands on an empty state with no guidance. Add:
-- 3-step **Get Started** checklist card (Connect email → Run Fast Mode → Review first batch).
-- Sample campaign auto-seeded for new users (read-only, demo data).
-- Inline "Why this matters" tooltips on Setup / Leads / Emails steps.
-- Track activation funnel via a `user_activation` table.
+## Option 4 — Deliverability hardening (~3h)
+**Goal:** Protect sender reputation.
 
-Effort: ~3h. Boosts trial→paid conversion before more growth spend.
+**Schema:**
+- `domain_throttle` table: user_id, domain, sends_today, last_sent_at, daily_cap (default 50). RLS + GRANTs.
+- `bounce_events` table: send_id, type ('hard'|'soft'|'complaint'), reason, created_at. RLS + GRANTs.
+- `sender_warmup` table: user_id, domain, day_index, daily_limit (computed 20→50→100→200→500 over 5 days), started_at. RLS + GRANTs.
 
-### Option 3 — Marketplace public launch readiness
-To actually invite outside agents to hire your agents:
-- `/for-agents/dashboard` showing partner's API key, balance, recent jobs, callback log.
-- API key rotation UI (currently DB-only).
-- Public `GET /v1/agents` docs page with live "Try in browser" curl examples.
-- Real top-up checkout test (the missing piece from Day 3).
-- Rate limiting on `/v1/agents/{id}/hire` (currently unbounded).
+**Send pipeline updates (`send-campaign-emails` + `a2a-run-job`):**
+- Before each send, extract recipient domain → check `domain_throttle.sends_today` < cap → otherwise defer (mark `queued_throttled`).
+- Check warm-up daily_limit for sender domain → defer if exceeded.
+- Append mandatory unsubscribe footer (audit + ensure present): plain-text link `?u={send_id}` → existing or new `unsubscribe` edge fn flips `email_replies` style suppression row.
+- On SMTP error containing bounce-class codes (5.x.x hard, 4.x.x soft, complaint keyword) → insert `bounce_events`, mark send `bounced`.
 
-Effort: ~5h. Required before any external partner hits the API.
+**UI surface:** small `DeliverabilityCard.tsx` on Index showing today's throttle status, warm-up day, bounce rate (last 7d).
 
-### Option 4 — Deliverability hardening
-Subscriptions are live; users will start sending real volume. Verify:
-- Per-domain throttle is honored across concurrent campaigns.
-- Bounce/complaint feedback loop wired (currently only opens/clicks).
-- Mandatory unsubscribe footer present on every send (audit `send-email` template).
-- Warm-up ramp for new sender domains.
+## Order of execution
+1. All migrations (one combined) — DB foundation for 1+3+4.
+2. Edge function changes (reply classification upgrade, callback logging, rate limit, rotate key, throttle/warmup/bounce, unsubscribe).
+3. Frontend: HotRepliesCard, PartnerDashboard, ForAgentsDocs, DeliverabilityCard, RepliesInbox tweaks, route registrations.
+4. Memory file updates.
 
-Effort: ~3h. Prevents the first abuse incident from torching your sending reputation.
+## Out of scope
+- No automatic external email send-tests; user can verify in preview.
+- LinkedIn flow untouched (assist-only constraint).
+- Pricing/products unchanged ($19/$39/$79 weekly + $25/$100/$500 a2a packs); only adds the sandbox $1 test SKU behind a feature flag.
 
----
+## Risks
+- Reply classification prompt change could regress current accuracy — keeping fallback default classification='unknown'.
+- Throttle defaults set conservatively (50/day/domain); user-tunable later.
+- Rate limit uses table-based counter (not Redis); fine at current volume.
 
-## My recommendation
-Ship **Option 2 (Onboarding)** + **Option 4 (Deliverability)** this week. Option 2 makes the $39 subscriptions you just verified actually convert; Option 4 protects them from the first user who blasts 1,500 emails to a stale list. Save Options 1 and 3 for next week once activation data confirms users are sticking.
-
-Tell me which option(s) to plan in detail and I'll write the implementation plan.
+Ready to ship on approval.
