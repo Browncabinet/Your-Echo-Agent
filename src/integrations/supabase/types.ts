@@ -508,6 +508,48 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_actions: {
+        Row: {
+          campaign_id: string | null
+          completed_at: string | null
+          context_url: string
+          created_at: string
+          draft_text: string
+          id: string
+          kind: string
+          status: string
+          target_group: string
+          target_person: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          completed_at?: string | null
+          context_url?: string
+          created_at?: string
+          draft_text?: string
+          id?: string
+          kind: string
+          status?: string
+          target_group?: string
+          target_person?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          completed_at?: string | null
+          context_url?: string
+          created_at?: string
+          draft_text?: string
+          id?: string
+          kind?: string
+          status?: string
+          target_group?: string
+          target_person?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       linkedin_groups_research: {
         Row: {
           audience: string
