@@ -213,62 +213,49 @@ async function classifyReply(
   classification: string;
   draftReply: string;
   suggestedAction: string;
+  intentScore: number;
+  suggestedReply: string;
 }> {
   const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-
-  if (!lovableApiKey) {
-    // Fallback: simple keyword classification
-    return keywordClassify(subject, body);
-  }
+  if (!lovableApiKey) return keywordClassify(subject, body);
 
   try {
-    const prompt = `You are an AI assistant for a cold email outreach tool. Classify the following email reply and draft a helpful response.
+    const prompt = `Classify this email reply and draft a response.
 
 EMAIL SUBJECT: ${subject}
 EMAIL BODY: ${body}
 
-CLASSIFICATION (pick exactly one):
-- "interested" — the prospect shows interest, wants to learn more, or agrees to a meeting
-- "not_interested" — the prospect declines, unsubscribes, or says no
-- "question" — the prospect asks a question or wants more information
-- "objection" — the prospect raises a concern, price issue, or pushback
+CLASSIFICATIONS:
+- "interested" — wants to learn more, agrees to meet
+- "not_interested" — declines, says no
+- "unsubscribe" — asks to be removed, stop emailing
+- "wrong_person" — wrong contact, forwarded elsewhere
+- "question" — asks question / wants info
+- "objection" — concern, pushback, price issue
+- "needs_info" — wants more details before deciding
 
 RESPONSE FORMAT (JSON only, no markdown):
 {
-  "classification": "interested|not_interested|question|objection",
-  "draftReply": "A natural, professional reply draft (2-4 sentences). ${
-    schedulingLink
-      ? `If they seem interested in meeting, include this scheduling link: ${schedulingLink}`
-      : ""
-  }",
-  "suggestedAction": "A brief one-line action item for the user (e.g., 'Send the draft reply', 'Remove from campaign', 'Follow up with case study')"
+  "classification": "interested|not_interested|unsubscribe|wrong_person|question|objection|needs_info",
+  "intent_score": 0-100,
+  "draftReply": "Natural 2-4 sentence reply${schedulingLink ? `. If interested, include this scheduling link: ${schedulingLink}` : ""}",
+  "suggestedReply": "A polished, ready-to-send reply tailored to their message (3-5 sentences)",
+  "suggestedAction": "Brief action item"
 }`;
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${lovableApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      console.error("AI classification failed, falling back to keywords");
-      return keywordClassify(subject, body);
-    }
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${lovableApiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+      }),
+    });
+    if (!response.ok) return keywordClassify(subject, body);
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
-
-    // Parse JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
@@ -276,9 +263,10 @@ RESPONSE FORMAT (JSON only, no markdown):
         classification: parsed.classification || "unknown",
         draftReply: parsed.draftReply || "",
         suggestedAction: parsed.suggestedAction || "",
+        intentScore: Math.max(0, Math.min(100, Number(parsed.intent_score) || 0)),
+        suggestedReply: parsed.suggestedReply || parsed.draftReply || "",
       };
     }
-
     return keywordClassify(subject, body);
   } catch (err) {
     console.error("AI classification error:", err);
@@ -286,75 +274,24 @@ RESPONSE FORMAT (JSON only, no markdown):
   }
 }
 
-function keywordClassify(
-  _subject: string,
-  body: string
-): {
-  classification: string;
-  draftReply: string;
-  suggestedAction: string;
-} {
+function keywordClassify(_subject: string, body: string) {
   const lower = body.toLowerCase();
-
-  if (
-    lower.includes("unsubscribe") ||
-    lower.includes("not interested") ||
-    lower.includes("remove me") ||
-    lower.includes("stop emailing")
-  ) {
-    return {
-      classification: "not_interested",
-      draftReply: "",
-      suggestedAction: "Remove this lead from future campaigns",
-    };
-  }
-
-  if (
-    lower.includes("interested") ||
-    lower.includes("schedule") ||
-    lower.includes("let's talk") ||
-    lower.includes("set up a call") ||
-    lower.includes("sounds good")
-  ) {
-    return {
-      classification: "interested",
-      draftReply: "",
-      suggestedAction: "Send a meeting invite or follow up to schedule a call",
-    };
-  }
-
-  if (
-    lower.includes("?") ||
-    lower.includes("how") ||
-    lower.includes("what") ||
-    lower.includes("tell me more")
-  ) {
-    return {
-      classification: "question",
-      draftReply: "",
-      suggestedAction: "Answer their question and provide more details",
-    };
-  }
-
-  if (
-    lower.includes("too expensive") ||
-    lower.includes("not sure") ||
-    lower.includes("concern") ||
-    lower.includes("but")
-  ) {
-    return {
-      classification: "objection",
-      draftReply: "",
-      suggestedAction: "Address their concern with a tailored response",
-    };
-  }
-
-  return {
-    classification: "unknown",
-    draftReply: "",
-    suggestedAction: "Review this reply manually",
-  };
+  const base = { draftReply: "", suggestedReply: "" };
+  if (lower.includes("unsubscribe") || lower.includes("remove me") || lower.includes("stop emailing"))
+    return { ...base, classification: "unsubscribe", suggestedAction: "Suppress this lead", intentScore: 0 };
+  if (lower.includes("not interested"))
+    return { ...base, classification: "not_interested", suggestedAction: "Remove from future campaigns", intentScore: 5 };
+  if (lower.includes("wrong person") || lower.includes("not the right"))
+    return { ...base, classification: "wrong_person", suggestedAction: "Find the right contact", intentScore: 10 };
+  if (lower.includes("interested") || lower.includes("schedule") || lower.includes("let's talk") || lower.includes("sounds good"))
+    return { ...base, classification: "interested", suggestedAction: "Send a meeting invite", intentScore: 80 };
+  if (lower.includes("?") || lower.includes("how") || lower.includes("what") || lower.includes("tell me more"))
+    return { ...base, classification: "question", suggestedAction: "Answer their question", intentScore: 55 };
+  if (lower.includes("too expensive") || lower.includes("concern") || lower.includes("not sure"))
+    return { ...base, classification: "objection", suggestedAction: "Address their concern", intentScore: 40 };
+  return { ...base, classification: "unknown", suggestedAction: "Review manually", intentScore: 20 };
 }
+
 
 // ─── Main handler ────────────────────────────────────────────────────────────
 
