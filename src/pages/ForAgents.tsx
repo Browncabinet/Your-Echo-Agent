@@ -133,6 +133,9 @@ export default function ForAgents() {
             <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Pricing
             </Link>
+            <Link to="/for-agents/billing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Billing
+            </Link>
             <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               About
             </Link>
