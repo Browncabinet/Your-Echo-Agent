@@ -146,6 +146,51 @@ export type Database = {
         }
         Relationships: []
       }
+      a2a_callbacks_log: {
+        Row: {
+          api_key_id: string | null
+          callback_url: string
+          created_at: string
+          delivered: boolean
+          error_message: string | null
+          event_type: string
+          id: string
+          job_id: string | null
+          partner_id: string | null
+          payload: Json
+          response_body: string
+          response_status: number | null
+        }
+        Insert: {
+          api_key_id?: string | null
+          callback_url?: string
+          created_at?: string
+          delivered?: boolean
+          error_message?: string | null
+          event_type: string
+          id?: string
+          job_id?: string | null
+          partner_id?: string | null
+          payload?: Json
+          response_body?: string
+          response_status?: number | null
+        }
+        Update: {
+          api_key_id?: string | null
+          callback_url?: string
+          created_at?: string
+          delivered?: boolean
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          job_id?: string | null
+          partner_id?: string | null
+          payload?: Json
+          response_body?: string
+          response_status?: number | null
+        }
+        Relationships: []
+      }
       a2a_jobs: {
         Row: {
           agent_id: string
@@ -334,6 +379,54 @@ export type Database = {
         }
         Relationships: []
       }
+      a2a_rate_buckets: {
+        Row: {
+          api_key_id: string
+          count: number
+          window_start: string
+        }
+        Insert: {
+          api_key_id: string
+          count?: number
+          window_start: string
+        }
+        Update: {
+          api_key_id?: string
+          count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
+      bounce_events: {
+        Row: {
+          bounce_type: string
+          created_at: string
+          id: string
+          lead_email: string
+          reason: string
+          send_id: string | null
+          user_id: string
+        }
+        Insert: {
+          bounce_type?: string
+          created_at?: string
+          id?: string
+          lead_email?: string
+          reason?: string
+          send_id?: string | null
+          user_id: string
+        }
+        Update: {
+          bounce_type?: string
+          created_at?: string
+          id?: string
+          lead_email?: string
+          reason?: string
+          send_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_sends: {
         Row: {
           campaign_id: string
@@ -457,53 +550,92 @@ export type Database = {
         }
         Relationships: []
       }
+      domain_throttle: {
+        Row: {
+          daily_cap: number
+          domain: string
+          id: string
+          last_sent_at: string | null
+          send_date: string
+          sends_today: number
+          user_id: string
+        }
+        Insert: {
+          daily_cap?: number
+          domain: string
+          id?: string
+          last_sent_at?: string | null
+          send_date?: string
+          sends_today?: number
+          user_id: string
+        }
+        Update: {
+          daily_cap?: number
+          domain?: string
+          id?: string
+          last_sent_at?: string | null
+          send_date?: string
+          sends_today?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_replies: {
         Row: {
           ai_draft_reply: string
           ai_suggested_action: string
+          auto_paused: boolean
           body: string
           campaign_id: string
           classification: string
           created_at: string
           id: string
+          intent_score: number
           lead_email: string
           lead_name: string
           received_at: string
           sent_at: string | null
           status: string
           subject: string
+          suggested_reply: string
           user_id: string
         }
         Insert: {
           ai_draft_reply?: string
           ai_suggested_action?: string
+          auto_paused?: boolean
           body?: string
           campaign_id: string
           classification?: string
           created_at?: string
           id?: string
+          intent_score?: number
           lead_email: string
           lead_name?: string
           received_at?: string
           sent_at?: string | null
           status?: string
           subject?: string
+          suggested_reply?: string
           user_id: string
         }
         Update: {
           ai_draft_reply?: string
           ai_suggested_action?: string
+          auto_paused?: boolean
           body?: string
           campaign_id?: string
           classification?: string
           created_at?: string
           id?: string
+          intent_score?: number
           lead_email?: string
           lead_name?: string
           received_at?: string
           sent_at?: string | null
           status?: string
           subject?: string
+          suggested_reply?: string
           user_id?: string
         }
         Relationships: []
@@ -580,6 +712,69 @@ export type Database = {
         }
         Relationships: []
       }
+      reply_actions_log: {
+        Row: {
+          action: string
+          campaign_id: string
+          created_at: string
+          detail: Json
+          id: string
+          reply_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          campaign_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          reply_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          campaign_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          reply_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sender_warmup: {
+        Row: {
+          daily_limit: number
+          day_index: number
+          domain: string
+          id: string
+          last_sent_date: string | null
+          sent_today: number
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          daily_limit?: number
+          day_index?: number
+          domain: string
+          id?: string
+          last_sent_date?: string | null
+          sent_today?: number
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          daily_limit?: number
+          day_index?: number
+          domain?: string
+          id?: string
+          last_sent_date?: string | null
+          sent_today?: number
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -624,6 +819,30 @@ export type Database = {
           stripe_customer_id?: string
           stripe_subscription_id?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      unsubscribes: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string
           user_id?: string
         }
         Relationships: []
