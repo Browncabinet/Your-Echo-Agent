@@ -34,6 +34,7 @@ import { useCampaigns } from "@/hooks/use-campaigns";
 import { QuickStartModal } from "@/components/QuickStartModal";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { A2AJobMeter } from "@/components/dashboard/A2AJobMeter";
+import { GetStartedChecklist } from "@/components/GetStartedChecklist";
 
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
@@ -164,6 +165,12 @@ export default function Index() {
                   </Button>
                 </div>
               </div>
+
+              <GetStartedChecklist
+                campaigns={campaigns}
+                onNewCampaign={startNewCampaign}
+                onFastMode={() => setQuickStartOpen(true)}
+              />
 
               <QuickUpdateBar campaigns={campaigns} />
 
