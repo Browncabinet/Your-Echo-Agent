@@ -20,6 +20,7 @@ import { useCredits } from "@/hooks/use-credits";
 import { BuyCreditsModal } from "@/components/BuyCreditsModal";
 import { WeeklyUsageStrip } from "@/components/WeeklyUsageStrip";
 import { LinkedInAssistPanel } from "@/components/LinkedInAssistPanel";
+import { LinkedInGroupsResearch } from "@/components/LinkedInGroupsResearch";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { RepliesInbox } from "@/components/steps/RepliesInbox";
 import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
@@ -397,6 +398,7 @@ export default function Index() {
           </div>
         </header>
         <main className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
+          <LinkedInGroupsResearch defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
           <LinkedInAssistPanel defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
           <SocialMediaContent campaign={campaign} onBack={() => setView("dashboard")} />
         </main>
