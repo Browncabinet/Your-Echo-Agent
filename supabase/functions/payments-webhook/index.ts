@@ -102,15 +102,46 @@ async function markCanceled(subscription: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
+// Maps a2a credit price lookup_keys to amounts in cents
+const A2A_CREDIT_MAP: Record<string, number> = {
+  a2a_credit_25_once: 2500,
+  a2a_credit_100_once: 10000,
+  a2a_credit_500_once: 50000,
+};
+
 async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   // Subscriptions are handled by customer.subscription.* events.
   if (session.mode !== "payment") return;
 
-  const userId = session.metadata?.userId;
-  if (!userId) return;
-
   const stripe = createStripeClient(env);
   const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price'] });
+
+  // A2A partner credit purchase
+  const partnerId = session.metadata?.a2a_partner_id;
+  if (partnerId) {
+    let creditCents = 0;
+    for (const item of lineItems.data) {
+      const lookupKey = (item.price as any)?.lookup_key;
+      if (lookupKey && A2A_CREDIT_MAP[lookupKey]) {
+        creditCents += A2A_CREDIT_MAP[lookupKey] * (item.quantity || 1);
+      }
+    }
+    if (creditCents === 0) return;
+
+    const { data: partner } = await supabase
+      .from("a2a_partners").select("balance_cents").eq("id", partnerId).maybeSingle();
+    if (!partner) return;
+    await supabase.from("a2a_partners").update({
+      balance_cents: (partner.balance_cents || 0) + creditCents,
+      updated_at: new Date().toISOString(),
+    }).eq("id", partnerId);
+    console.log("A2A partner credited", partnerId, creditCents);
+    return;
+  }
+
+  // Legacy app credit purchase
+  const userId = session.metadata?.userId;
+  if (!userId) return;
 
   let creditsToAdd = 0;
   for (const item of lineItems.data) {

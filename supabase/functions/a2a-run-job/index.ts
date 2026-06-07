@@ -238,8 +238,19 @@ async function processJob(jobId: string) {
     updated_at: new Date().toISOString(),
   }).eq("id", jobId);
 
-  // If we just sent the last lead, complete
-  if (remaining.length <= batch.length) {
+  // Bill the partner for these sends (no-op for human-flow jobs)
+  if (sentCount > 0 && job.api_key_id) {
+    try {
+      const billRes = await callFn("a2a-billing-charge", { job_id: jobId });
+      if (!billRes.ok) console.error("billing-charge failed", await billRes.text());
+    } catch (e) {
+      console.error("billing-charge error", e);
+    }
+  }
+
+  // If we just sent the last lead, complete (unless billing paused us)
+  const { data: updatedJob } = await sb.from("a2a_jobs").select("status").eq("id", jobId).maybeSingle();
+  if (updatedJob?.status !== "paused" && remaining.length <= batch.length) {
     await setEvent(sb, jobId, "job.completed", { status: "completed" });
     emitCallback(job.callback_url, "job.completed", {
       job_id: jobId,
