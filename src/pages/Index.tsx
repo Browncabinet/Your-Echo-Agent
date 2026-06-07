@@ -407,7 +407,7 @@ export default function Index() {
               <TabsTrigger value="social">Other Social</TabsTrigger>
             </TabsList>
             <TabsContent value="linkedin" className="space-y-6">
-              <LinkedInGroupsResearch defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
+              <LinkedInGroupsResearch defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} campaignId={campaign.id} />
               <LinkedInActivityTab
                 campaignId={campaign.id}
                 niche={campaign.niche}

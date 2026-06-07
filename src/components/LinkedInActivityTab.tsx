@@ -34,17 +34,33 @@ export function LinkedInActivityTab({
   campaignId,
   niche,
   leads = [],
-  primaryGroup,
 }: {
   campaignId?: string;
   niche: string;
   leads?: any[];
-  primaryGroup?: { name: string; url: string } | null;
 }) {
   const { user } = useAuth();
   const [actions, setActions] = useState<Action[]>([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const primaryKey = `lk_primary_${campaignId || "default"}`;
+  const [primaryGroup, setPrimaryGroup] = useState<{ name: string; url: string } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const name = localStorage.getItem(primaryKey + "_name");
+    if (!name) return null;
+    return { name, url: localStorage.getItem(primaryKey + "_url") || "" };
+  });
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail;
+      if (d?.campaignId === campaignId || (!d?.campaignId && !campaignId)) {
+        setPrimaryGroup({ name: d.name, url: d.url || "" });
+      }
+    };
+    window.addEventListener("lk-primary-changed", handler);
+    return () => window.removeEventListener("lk-primary-changed", handler);
+  }, [campaignId]);
 
   const load = async () => {
     if (!user) return;
