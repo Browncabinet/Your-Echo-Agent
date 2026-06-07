@@ -241,27 +241,39 @@ export type Database = {
       }
       a2a_ledger: {
         Row: {
+          billed: boolean
+          billed_at: string | null
+          billing_method: string | null
           created_at: string
           event_type: string
           id: string
           job_id: string
           metadata: Json
+          stripe_invoice_item_id: string | null
           unit_cost_cents: number
         }
         Insert: {
+          billed?: boolean
+          billed_at?: string | null
+          billing_method?: string | null
           created_at?: string
           event_type: string
           id?: string
           job_id: string
           metadata?: Json
+          stripe_invoice_item_id?: string | null
           unit_cost_cents?: number
         }
         Update: {
+          billed?: boolean
+          billed_at?: string | null
+          billing_method?: string | null
           created_at?: string
           event_type?: string
           id?: string
           job_id?: string
           metadata?: Json
+          stripe_invoice_item_id?: string | null
           unit_cost_cents?: number
         }
         Relationships: [
@@ -273,6 +285,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      a2a_partners: {
+        Row: {
+          api_key_id: string
+          auto_charge: boolean
+          balance_cents: number
+          billing_email: string
+          created_at: string
+          current_invoice_id: string | null
+          id: string
+          stripe_customer_id: string | null
+          total_spent_cents: number
+          updated_at: string
+        }
+        Insert: {
+          api_key_id: string
+          auto_charge?: boolean
+          balance_cents?: number
+          billing_email?: string
+          created_at?: string
+          current_invoice_id?: string | null
+          id?: string
+          stripe_customer_id?: string | null
+          total_spent_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          api_key_id?: string
+          auto_charge?: boolean
+          balance_cents?: number
+          billing_email?: string
+          created_at?: string
+          current_invoice_id?: string | null
+          id?: string
+          stripe_customer_id?: string | null
+          total_spent_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       campaign_sends: {
         Row: {
