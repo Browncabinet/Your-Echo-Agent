@@ -477,16 +477,19 @@ serve(async (req) => {
       suggested_action: string;
     }> = [];
 
+    const SUPPRESSED = new Set(["unsubscribe", "not_interested", "wrong_person"]);
+
     for (const email of matchedEmails) {
       const key = `${email.from}::${email.subject}`;
       if (existingKeys.has(key)) continue;
 
-      const { classification, draftReply, suggestedAction } =
+      const { classification, draftReply, suggestedAction, intentScore, suggestedReply } =
         await classifyReply(email.subject, email.body, schedulingLink);
 
       const campaignInfo = emailToCampaign[email.from];
+      const isSuppressed = SUPPRESSED.has(classification);
 
-      await serviceClient.from("email_replies").insert({
+      const { data: replyRow } = await serviceClient.from("email_replies").insert({
         user_id: userId,
         campaign_id: campaignInfo.campaignId,
         lead_email: email.from,
@@ -497,8 +500,49 @@ serve(async (req) => {
         classification,
         ai_draft_reply: draftReply,
         ai_suggested_action: suggestedAction,
+        intent_score: intentScore,
+        suggested_reply: suggestedReply,
+        auto_paused: isSuppressed,
         status: "pending",
-      });
+      }).select("id").single();
+
+      // Auto-actions for negative classifications: suppress + add to unsubscribes
+      if (isSuppressed) {
+        await serviceClient.from("unsubscribes").upsert(
+          { user_id: userId, email: email.from.toLowerCase(), source: classification },
+          { onConflict: "user_id,email" }
+        );
+        await serviceClient.from("campaign_sends")
+          .update({ status: "suppressed" })
+          .eq("user_id", userId).eq("lead_email", email.from).eq("status", "queued");
+        await serviceClient.from("reply_actions_log").insert({
+          user_id: userId,
+          reply_id: replyRow?.id,
+          campaign_id: campaignInfo.campaignId,
+          action: "auto_suppress",
+          detail: { classification, lead_email: email.from },
+        });
+      } else if (classification === "interested" || classification === "needs_info") {
+        await serviceClient.from("reply_actions_log").insert({
+          user_id: userId,
+          reply_id: replyRow?.id,
+          campaign_id: campaignInfo.campaignId,
+          action: "auto_draft",
+          detail: { classification, intent_score: intentScore },
+        });
+      }
+
+      // Best-effort a2a callback if this campaign is tied to a partner job
+      try {
+        const { data: job } = await serviceClient.from("a2a_jobs")
+          .select("id, callback_url, api_key_id").eq("campaign_id", campaignInfo.campaignId).maybeSingle();
+        if (job?.callback_url) {
+          const { emitCallback } = await import("../_shared/a2a.ts");
+          await emitCallback(job.callback_url, "reply.classified", {
+            job_id: job.id, lead_email: email.from, classification, intent_score: intentScore,
+          }, { job_id: job.id });
+        }
+      } catch (e) { console.error("a2a callback failed", e); }
 
       newReplies.push({
         lead_email: email.from,
@@ -511,6 +555,7 @@ serve(async (req) => {
       newCount++;
       existingKeys.add(key);
     }
+
 
     return new Response(
       JSON.stringify({
