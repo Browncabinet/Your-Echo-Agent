@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Sparkles, Loader2, ExternalLink, RefreshCw, Building2 } from "lucide-react";
+import { Users, Sparkles, Loader2, ExternalLink, RefreshCw, Building2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,12 +19,22 @@ type Result = {
   engagement_tip?: string;
 };
 
-export function LinkedInGroupsResearch({ defaultNiche = "", defaultAudience = "" }: { defaultNiche?: string; defaultAudience?: string }) {
+export function LinkedInGroupsResearch({ defaultNiche = "", defaultAudience = "", campaignId }: { defaultNiche?: string; defaultAudience?: string; campaignId?: string }) {
   const [niche, setNiche] = useState(defaultNiche);
   const [audience, setAudience] = useState(defaultAudience);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Result[]>([]);
   const [cached, setCached] = useState(false);
+  const primaryKey = `lk_primary_${campaignId || "default"}`;
+  const [primaryName, setPrimaryName] = useState<string>(() => (typeof window !== "undefined" ? localStorage.getItem(primaryKey + "_name") || "" : ""));
+
+  const markPrimary = (r: Result) => {
+    localStorage.setItem(primaryKey + "_name", r.name);
+    localStorage.setItem(primaryKey + "_url", r.url || "");
+    setPrimaryName(r.name);
+    toast.success(`"${r.name}" set as primary group`);
+    window.dispatchEvent(new CustomEvent("lk-primary-changed", { detail: { campaignId, name: r.name, url: r.url } }));
+  };
 
   const run = async (force = false) => {
     if (!niche.trim()) return toast.error("Add a niche first (e.g. Real Estate, Aerospace)");
