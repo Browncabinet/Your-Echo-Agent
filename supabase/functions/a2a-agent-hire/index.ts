@@ -97,6 +97,19 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Ensure a partner billing row exists for this API key
+  if (apiKey && apiKeyId) {
+    const { data: existingP } = await sb.from("a2a_partners").select("id").eq("api_key_id", apiKeyId).maybeSingle();
+    if (!existingP) {
+      await sb.from("a2a_partners").insert({
+        api_key_id: apiKeyId,
+        billing_email: apiKey.owner_email,
+        owner_user_id: campaignOwnerId,
+        balance_cents: 0,
+      });
+    }
+  }
+
   // Create campaign (real row in our outreach engine)
   const { data: campaign, error: campErr } = await sb.from("campaigns").insert({
     user_id: campaignOwnerId!,

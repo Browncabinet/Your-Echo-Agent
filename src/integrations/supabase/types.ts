@@ -81,6 +81,7 @@ export type Database = {
           notes: string
           owner_email: string
           owner_name: string
+          owner_user_id: string | null
           rate_limit_per_min: number
           status: string
         }
@@ -93,6 +94,7 @@ export type Database = {
           notes?: string
           owner_email: string
           owner_name?: string
+          owner_user_id?: string | null
           rate_limit_per_min?: number
           status?: string
         }
@@ -105,6 +107,7 @@ export type Database = {
           notes?: string
           owner_email?: string
           owner_name?: string
+          owner_user_id?: string | null
           rate_limit_per_min?: number
           status?: string
         }
@@ -295,6 +298,8 @@ export type Database = {
           created_at: string
           current_invoice_id: string | null
           id: string
+          owner_user_id: string | null
+          pending_credit_cents: number
           stripe_customer_id: string | null
           total_spent_cents: number
           updated_at: string
@@ -307,6 +312,8 @@ export type Database = {
           created_at?: string
           current_invoice_id?: string | null
           id?: string
+          owner_user_id?: string | null
+          pending_credit_cents?: number
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
@@ -319,6 +326,8 @@ export type Database = {
           created_at?: string
           current_invoice_id?: string | null
           id?: string
+          owner_user_id?: string | null
+          pending_credit_cents?: number
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
@@ -495,6 +504,48 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      linkedin_actions: {
+        Row: {
+          campaign_id: string | null
+          completed_at: string | null
+          context_url: string
+          created_at: string
+          draft_text: string
+          id: string
+          kind: string
+          status: string
+          target_group: string
+          target_person: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          completed_at?: string | null
+          context_url?: string
+          created_at?: string
+          draft_text?: string
+          id?: string
+          kind: string
+          status?: string
+          target_group?: string
+          target_person?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          completed_at?: string | null
+          context_url?: string
+          created_at?: string
+          draft_text?: string
+          id?: string
+          kind?: string
+          status?: string
+          target_group?: string
+          target_person?: string
           user_id?: string
         }
         Relationships: []

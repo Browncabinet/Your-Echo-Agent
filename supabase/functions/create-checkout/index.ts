@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { priceId, quantity, customerEmail, userId, returnUrl, environment } = await req.json();
+    const { priceId, quantity, customerEmail, userId, returnUrl, environment, metadata: extraMetadata } = await req.json();
     if (!priceId || typeof priceId !== "string" || !/^[a-zA-Z0-9_-]+$/.test(priceId)) {
       return new Response(JSON.stringify({ error: "Invalid priceId" }), { status: 400, ...responseHeaders });
     }
@@ -44,6 +44,16 @@ serve(async (req) => {
       productDescription = product.name;
     }
 
+    // Sanitize extra metadata: only string keys/values, max 50 keys, max 500 chars per value
+    const safeExtra: Record<string, string> = {};
+    if (extraMetadata && typeof extraMetadata === "object") {
+      for (const [k, v] of Object.entries(extraMetadata).slice(0, 50)) {
+        if (typeof v === "string" || typeof v === "number") {
+          safeExtra[k.slice(0, 40)] = String(v).slice(0, 500);
+        }
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: quantity || 1 }],
       mode: isRecurring ? "subscription" : "payment",
@@ -51,10 +61,8 @@ serve(async (req) => {
       return_url: returnUrl || `${req.headers.get("origin")}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       ...(customerId && { customer: customerId }),
       ...(!isRecurring && productDescription && { payment_intent_data: { description: productDescription } }),
-      ...(userId && {
-        metadata: { userId, priceId, managed_payments: "true" },
-        ...(isRecurring && { subscription_data: { metadata: { userId, priceId } } }),
-      }),
+      metadata: { ...(userId && { userId, priceId }), managed_payments: "true", ...safeExtra },
+      ...(isRecurring && userId && { subscription_data: { metadata: { userId, priceId } } }),
       managed_payments: { enabled: true },
     } as any);
 

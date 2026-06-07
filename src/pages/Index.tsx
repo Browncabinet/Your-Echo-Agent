@@ -21,6 +21,8 @@ import { BuyCreditsModal } from "@/components/BuyCreditsModal";
 import { WeeklyUsageStrip } from "@/components/WeeklyUsageStrip";
 import { LinkedInAssistPanel } from "@/components/LinkedInAssistPanel";
 import { LinkedInGroupsResearch } from "@/components/LinkedInGroupsResearch";
+import { LinkedInActivityTab } from "@/components/LinkedInActivityTab";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { RepliesInbox } from "@/components/steps/RepliesInbox";
 import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
@@ -397,10 +399,28 @@ export default function Index() {
             </div>
           </div>
         </header>
-        <main className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
-          <LinkedInGroupsResearch defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
-          <LinkedInAssistPanel defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
-          <SocialMediaContent campaign={campaign} onBack={() => setView("dashboard")} />
+        <main className="container max-w-5xl mx-auto px-4 py-8">
+          <Tabs defaultValue="linkedin" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="linkedin">LinkedIn Activity</TabsTrigger>
+              <TabsTrigger value="email">Email Assist</TabsTrigger>
+              <TabsTrigger value="social">Other Social</TabsTrigger>
+            </TabsList>
+            <TabsContent value="linkedin" className="space-y-6">
+              <LinkedInGroupsResearch defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} campaignId={campaign.id} />
+              <LinkedInActivityTab
+                campaignId={campaign.id}
+                niche={campaign.niche}
+                leads={campaign.leads}
+              />
+            </TabsContent>
+            <TabsContent value="email">
+              <LinkedInAssistPanel defaultNiche={campaign.niche} defaultAudience={(campaign.targetAudience || []).join(", ")} />
+            </TabsContent>
+            <TabsContent value="social">
+              <SocialMediaContent campaign={campaign} onBack={() => setView("dashboard")} />
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
     );
