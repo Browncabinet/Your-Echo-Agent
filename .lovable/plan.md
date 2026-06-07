@@ -1,75 +1,47 @@
-# Day 3 — A2A Monetization + LinkedIn Activity Tab
+# End-to-End A2A Billing Test Plan
 
-Two tracks, shipped in this order so monetization lands first, then the LinkedIn dashboard layer that drives results.
+Goal: prove the full prepaid-balance loop works against your live Stripe **sandbox** — top-up → balance credited → job runs → ledger billed → balance drawn down → insufficient-funds pauses job.
 
----
+## Prerequisites to verify first
+1. Stripe sandbox products `a2a_credit_25_once` / `a2a_credit_100_once` / `a2a_credit_500_once` exist (create via `payments--batch_create_product` + `create_price` if missing — tax code `txcd_10103001`, one-time).
+2. `payments-webhook` is registered for sandbox (already auto-registered).
+3. At least one `a2a_api_keys` row exists for your user, and one published agent in `a2a_agents`.
 
-## Track A — A2A per-result billing (revenue)
+## Test steps
 
-**Goal:** When a hired Echo Agent delivers (email sent / reply / meeting), the partner is invoiced via Stripe at the agent's posted price.
+### 1. Provision partner row
+- Curl `a2a-agent-hire` with your sandbox API key + a tiny `lead_count` (e.g. 2) to ensure an `a2a_partners` row is created.
+- SQL check: `select * from a2a_partners where api_key_id = '<key>'` → balance = 0.
 
-1. **Partner billing table**
-   - New `a2a_partners` table: `api_key_id`, `stripe_customer_id`, `billing_email`, `auto_charge` (bool), `balance_cents` (prepaid credit).
-   - Migration + GRANTs + service-role-only RLS.
+### 2. Top up $25 via embedded checkout
+- Open `/for-agents/billing` in preview, click **$25**, pay with `4242 4242 4242 4242` / future expiry / any CVC.
+- Watch `payments-webhook` edge logs for `checkout.session.completed` + `A2A partner credited <id> 2500`.
+- SQL check: `balance_cents = 2500`.
 
-2. **Charge engine**
-   - New edge function `a2a-billing-charge` — invoked from `a2a-run-job` after each ledger event (`email.sent`, `reply.received`, `meeting.booked`).
-   - Logic: look up the agent's per-event price → debit partner balance first, else queue invoice line on `current_period_invoice_id`.
-   - Per-event metadata stamped on Stripe invoice line.
+### 3. Run a billable job
+- Trigger `a2a-run-job` for the hire from step 1 (small batch, 2 leads).
+- After send, `a2a-billing-charge` should debit per `unit_cost_cents` from ledger rows.
+- Verify in logs: `{ ok: true, charged_cents: N, items: 2 }`.
+- SQL check: `a2a_ledger.billed = true, billing_method='prepaid_balance'`; `a2a_partners.balance_cents = 2500 - N`; `total_spent_cents = N`.
 
-3. **Weekly invoice cron**
-   - Sunday 00:00 UTC: finalize each partner's open invoice and email it via Stripe-hosted invoice.
-   - Spend cap on the job (`spending_cap_cents`) is the hard ceiling — already enforced in worker.
+### 4. Force insufficient funds
+- Manually set `balance_cents = 1` via SQL.
+- Trigger another send batch.
+- Expect: job `status='paused'`, `last_event='billing.insufficient_funds'`, callback fired (if `callback_url` set), response `{ ok:false, paused:true }`.
 
-4. **Partner self-serve (light)**
-   - New page `/for-agents/billing`: shows current period spend, balance, invoice history (pulls via `get-stripe-data`).
-   - "Add prepaid credit" button → Stripe checkout for $25 / $100 / $500 packs (one-time, `managed_payments: true`).
+### 5. Recover via top-up
+- Top up $25 again from `/for-agents/billing`.
+- Manually re-`resume` job via `a2a-job-control` and confirm next batch charges cleanly.
 
-5. **Docs update**
-   - `/for-agents` page: add Pricing section showing default per-event prices ($0.005/send, $0.50/reply, $5/meeting — already on agent records).
-   - Note: prices are agent-set, partner sees them on Agent Card before hire.
+## What I'll use
+- `supabase--curl_edge_functions` to drive `a2a-agent-hire`, `a2a-run-job`, `a2a-billing-charge`, `a2a-job-control`.
+- `supabase--read_query` for SQL assertions after each step.
+- `supabase--edge_function_logs` to confirm webhook + charge logs.
+- Manual: you complete the Stripe checkout in preview (I can't type card numbers into the iframe).
 
----
+## What I need from you
+1. Confirm I can use **your logged-in preview session** for the checkout step (you'll click pay with the test card).
+2. Confirm an existing `a2a_api_keys` row + agent_id I should hire — or say "create fresh" and I'll bootstrap one.
+3. Approve creating the three Stripe credit products if they don't exist yet.
 
-## Track B — LinkedIn Activity tab + multi-channel campaigns
-
-**Goal:** Make LinkedIn the primary surface in the dashboard, with email as the follow-up.
-
-1. **New tab on campaign dashboard**
-   - Add `Tabs` (LinkedIn Activity | Email | Replies | Settings) above the existing campaign view.
-   - Default tab = LinkedIn Activity.
-
-2. **LinkedIn Activity tab contents**
-   - **Top:** `LinkedInGroupsResearch` (already shipped) — collapsed by default once results exist.
-   - **Middle: "Pending Actions" queue** — new table `linkedin_actions`:
-     - `kind`: `comment` | `connection_request` | `follow_up_message` | `profile_view`
-     - `target_group`, `target_person`, `draft_text`, `context_url`, `status` (pending/done/skipped), `created_at`
-     - Generated by an upgraded `linkedin-assist` edge function that takes the campaign's leads + chosen group and produces 5-10 concrete actions in one batch.
-   - **Bottom: Metrics strip** — counts of comments suggested vs marked done, connection notes copied, replies logged manually.
-
-3. **Action card UI**
-   - Each pending action: type badge, target, draft text (editable), "Copy & Open LinkedIn" button (deep-links to the group/profile URL), "Mark done" / "Skip" buttons.
-   - One-click `navigator.clipboard.writeText(draft)` + `window.open(context_url, '_blank')`.
-
-4. **Email follow-up integration**
-   - In the Email tab, generated emails get a new opening-line variant: "Following up on my comment in the [Group name] about [topic]…" when the user has marked a comment as Done in that group.
-   - Wire via campaign metadata: store last 3 done LinkedIn actions on the campaign, pass into `generate-emails` as `linkedin_context`.
-
-5. **Campaign wizard reorder**
-   - Step 2 (Lead Acquisition) gets a new sub-step: "Pick your primary LinkedIn group" using `linkedin-groups-research` results.
-   - That group becomes the campaign's anchor for action generation in Track B step 2.
-
----
-
-## Technical notes
-- All new tables get GRANTs + RLS scoped to `auth.uid()`.
-- LinkedIn remains assist-only — no auto-post, no auto-connect (per core memory).
-- Stripe calls use the existing `_shared/stripe.ts` gateway helper. New products: `a2a_credit_25`, `a2a_credit_100`, `a2a_credit_500` (one-time).
-- Track A reuses the existing `subscriptions` table; partner billing rows live in `a2a_partners` to keep marketplace billing separate from app subscriptions.
-
-## Timeline
-- **~4-6h:** Track A (tables, charge engine, weekly cron, billing page, docs).
-- **~4-6h:** Track B (tabs, action queue table+function, action cards, email integration, wizard reorder).
-- Test end-to-end after each track lands.
-
-Approve and I'll start with Track A.
+Approve and I'll execute steps 1, 3, 4, 5 (everything except the manual card entry in step 2) and report results after each.
