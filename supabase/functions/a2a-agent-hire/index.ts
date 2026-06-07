@@ -1,5 +1,5 @@
 // POST /v1/agents/{agent_id}/hire — main hire endpoint
-import { corsHeaders, json, admin, authenticateApiKey, emitCallback } from "../_shared/a2a.ts";
+import { corsHeaders, json, admin, authenticateApiKey, emitCallback, checkRateLimit } from "../_shared/a2a.ts";
 
 type HireBody = {
   agent_id?: string;
@@ -43,8 +43,11 @@ Deno.serve(async (req) => {
 
   const apiKey = await authenticateApiKey(req);
   if (apiKey) {
+    const rl = await checkRateLimit(apiKey.id, apiKey.rate_limit_per_min || 60);
+    if (!rl.allowed) return json({ error: "rate_limit_exceeded", limit_per_min: rl.limit, count: rl.count }, 429);
     apiKeyId = apiKey.id;
     source = "a2a";
+
   } else {
     // Try Supabase JWT (human flow)
     const auth = req.headers.get("authorization") || "";
@@ -141,7 +144,7 @@ Deno.serve(async (req) => {
   if (jobErr || !job) return json({ error: "failed_to_create_job", detail: jobErr?.message }, 500);
 
   // Fire callback (queued)
-  emitCallback(job.callback_url, "job.queued", { job_id: job.id, agent_id: agentId, campaign_id: campaign.id });
+  emitCallback(job.callback_url, "job.queued", { job_id: job.id, agent_id: agentId, campaign_id: campaign.id }, { job_id: job.id, api_key_id: apiKeyId });
 
   // Kick the worker in background — partner gets a fast response
   const kick = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/a2a-run-job`, {
