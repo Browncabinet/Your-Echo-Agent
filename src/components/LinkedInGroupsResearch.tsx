@@ -120,6 +120,16 @@ export function LinkedInGroupsResearch({ defaultNiche = "", defaultAudience = ""
                   <span className="font-semibold">First move: </span>{r.engagement_tip}
                 </p>
               )}
+              <div className="mt-3">
+                <Button
+                  size="sm"
+                  variant={primaryName === r.name ? "default" : "outline"}
+                  onClick={() => markPrimary(r)}
+                >
+                  <Star className="w-3 h-3 mr-1" />
+                  {primaryName === r.name ? "Primary group" : "Use as primary"}
+                </Button>
+              </div>
             </motion.div>
           ))}
         </div>
