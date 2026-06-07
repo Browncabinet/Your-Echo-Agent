@@ -165,10 +165,18 @@ serve(async (req) => {
       remainingThisWeek = legacy.balance;
     }
 
+    // Filter out unsubscribed recipients
+    const leadEmails = leads.map((l: any) => String(l.email || "").toLowerCase()).filter(Boolean);
+    const { data: unsubs } = await serviceClient.from("unsubscribes").select("email").eq("user_id", userId).in("email", leadEmails);
+    const unsubSet = new Set((unsubs || []).map((u: any) => u.email));
+    const eligible = leads.filter((l: any) => l.email && !unsubSet.has(String(l.email).toLowerCase()));
+
     // Rate limit: max 15 per batch, capped by remaining quota
-    const batch = leads.slice(0, Math.min(15, remainingThisWeek));
+    const batch = eligible.slice(0, Math.min(15, remainingThisWeek));
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const unsubLink = (sendId: string) => `${supabaseUrl}/functions/v1/unsubscribe?u=${sendId}`;
+
 
     for (const lead of batch) {
       // A/B variant selection: if a subjectB is provided, pick A or B at random.
@@ -219,6 +227,11 @@ serve(async (req) => {
       }
 
       try {
+        // Append mandatory unsubscribe footer
+        if (sendId) {
+          body = body + `<br><br><p style="font-size:11px;color:#94A3B8;text-align:center;margin-top:24px">You're receiving this from ${settings.email_address}. <a href="${unsubLink(sendId)}" style="color:#94A3B8">Unsubscribe</a>.</p>`;
+        }
+
         await sendEmailViaSMTP(
           settings.smtp_host,
           settings.smtp_port,
@@ -229,6 +242,7 @@ serve(async (req) => {
           subject,
           body
         );
+
 
         // Update status to sent
         if (sendId) {
@@ -243,16 +257,21 @@ serve(async (req) => {
         await new Promise((r) => setTimeout(r, 1000));
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
-
-        // Update the pre-created record to failed
+        const isHardBounce = /\b5\d\d\b|user unknown|no such user|mailbox unavailable|address rejected/i.test(errorMsg);
+        const isComplaint = /complaint|spam/i.test(errorMsg);
         if (sendId) {
           await serviceClient.from("campaign_sends")
-            .update({ status: "failed", error_message: errorMsg })
+            .update({ status: isHardBounce ? "bounced" : "failed", error_message: errorMsg })
             .eq("id", sendId);
+          await serviceClient.from("bounce_events").insert({
+            user_id: userId, send_id: sendId, lead_email: lead.email,
+            bounce_type: isComplaint ? "complaint" : (isHardBounce ? "hard" : "soft"),
+            reason: errorMsg.slice(0, 500),
+          });
         }
-
         results.push({ email: lead.email, status: "failed", error: errorMsg });
       }
+
     }
 
     const sentCount = results.filter((r) => r.status === "sent").length;
