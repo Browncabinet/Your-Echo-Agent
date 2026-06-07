@@ -166,6 +166,12 @@ export default function Index() {
                 </div>
               </div>
 
+              <GetStartedChecklist
+                campaigns={campaigns}
+                onNewCampaign={startNewCampaign}
+                onFastMode={() => setQuickStartOpen(true)}
+              />
+
               <QuickUpdateBar campaigns={campaigns} />
 
               {campaignsLoading && (
