@@ -159,14 +159,68 @@ async function processJob(jobId: string) {
   const batch = remaining.slice(0, Math.min(BATCH_SIZE, job.daily_send_cap || 100));
   await setEvent(sb, jobId, "send.batch_start", { status: "running", last_run_at: new Date().toISOString() });
 
-  // Reuse send-campaign-emails by calling as the owning user via service-role-minted JWT is non-trivial;
-  // simpler: call SMTP send inline using same helper. We invoke the existing function with a service-role header,
-  // which it rejects (needs user JWT). Instead, we directly insert + send here.
   const { SmtpClient } = await import("https://deno.land/x/smtp@v0.7.0/mod.ts");
   const tpl = emails[0] || {};
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   let sentCount = 0;
   const perLeadCost = (agent?.pricing_per_lead_cents as number) || 10;
+
+  // Per-recipient-domain daily throttle (default 50/day)
+  const today = new Date().toISOString().slice(0, 10);
+  const throttleCache = new Map<string, { sends_today: number; daily_cap: number }>();
+  const getThrottle = async (domain: string) => {
+    if (throttleCache.has(domain)) return throttleCache.get(domain)!;
+    const { data } = await sb.from("domain_throttle")
+      .select("sends_today, daily_cap, send_date")
+      .eq("user_id", job.user_id).eq("domain", domain).maybeSingle();
+    const row = data && data.send_date === today
+      ? { sends_today: data.sends_today, daily_cap: data.daily_cap }
+      : { sends_today: 0, daily_cap: 50 };
+    throttleCache.set(domain, row);
+    return row;
+  };
+  const bumpThrottle = async (domain: string) => {
+    const row = throttleCache.get(domain)!;
+    row.sends_today += 1;
+    throttleCache.set(domain, row);
+    await sb.from("domain_throttle").upsert({
+      user_id: job.user_id, domain, send_date: today,
+      sends_today: row.sends_today, daily_cap: row.daily_cap,
+      last_sent_at: new Date().toISOString(),
+    }, { onConflict: "user_id,domain,send_date" });
+  };
+
+  // Warm-up enforcement per sender domain
+  const senderDomain = String(smtp.email_address || "").split("@")[1]?.toLowerCase() || "";
+  let warmup: { day_index: number; daily_limit: number; sent_today: number } | null = null;
+  if (senderDomain) {
+    const { data: wrow } = await sb.from("sender_warmup")
+      .select("day_index, daily_limit, sent_today, last_sent_date")
+      .eq("user_id", job.user_id).eq("domain", senderDomain).maybeSingle();
+    if (!wrow) {
+      warmup = { day_index: 1, daily_limit: 20, sent_today: 0 };
+      await sb.from("sender_warmup").insert({
+        user_id: job.user_id, domain: senderDomain,
+        day_index: 1, daily_limit: 20, sent_today: 0, last_sent_date: today,
+      });
+    } else if (wrow.last_sent_date && wrow.last_sent_date < today) {
+      const newDay = (wrow.day_index || 1) + 1;
+      const newLimit = Math.min(20 + (newDay - 1) * 20, 200);
+      warmup = { day_index: newDay, daily_limit: newLimit, sent_today: 0 };
+      await sb.from("sender_warmup").update({
+        day_index: newDay, daily_limit: newLimit, sent_today: 0, last_sent_date: today,
+      }).eq("user_id", job.user_id).eq("domain", senderDomain);
+    } else {
+      warmup = { day_index: wrow.day_index, daily_limit: wrow.daily_limit, sent_today: wrow.sent_today };
+    }
+  }
+  const bumpWarmup = async () => {
+    if (!warmup || !senderDomain) return;
+    warmup.sent_today += 1;
+    await sb.from("sender_warmup").update({
+      sent_today: warmup.sent_today, last_sent_date: today,
+    }).eq("user_id", job.user_id).eq("domain", senderDomain);
+  };
 
   for (const lead of batch) {
     if ((job.spend_cents || 0) + sentCount * perLeadCost >= (job.spending_cap_cents || 0)) break;
