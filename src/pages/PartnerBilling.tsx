@@ -136,6 +136,14 @@ export default function PartnerBilling() {
                   </button>
                 ))}
               </div>
+              <div className="mt-4 pt-4 border-t">
+                <button
+                  onClick={() => setCheckoutPriceId("a2a_credit_test_1_once")}
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                >
+                  Run $1 sandbox test top-up →
+                </button>
+              </div>
             </Card>
 
             <Card className="p-6">
