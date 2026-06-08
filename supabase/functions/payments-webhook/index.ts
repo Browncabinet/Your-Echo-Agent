@@ -104,6 +104,7 @@ async function markCanceled(subscription: any, env: StripeEnv) {
 
 // Maps a2a credit price lookup_keys to amounts in cents
 const A2A_CREDIT_MAP: Record<string, number> = {
+  a2a_credit_test_1_once: 100,
   a2a_credit_25_once: 2500,
   a2a_credit_100_once: 10000,
   a2a_credit_500_once: 50000,
