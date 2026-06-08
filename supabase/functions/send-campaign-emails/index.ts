@@ -177,8 +177,45 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const unsubLink = (sendId: string) => `${supabaseUrl}/functions/v1/unsubscribe?u=${sendId}`;
 
+    // Deliverability: per-recipient-domain daily throttle (default 50/day/domain)
+    const today = new Date().toISOString().slice(0, 10);
+    const throttleCache = new Map<string, { sends_today: number; daily_cap: number }>();
+    const getThrottle = async (domain: string) => {
+      if (throttleCache.has(domain)) return throttleCache.get(domain)!;
+      const { data } = await serviceClient.from("domain_throttle")
+        .select("sends_today, daily_cap, send_date")
+        .eq("user_id", userId).eq("domain", domain).maybeSingle();
+      const row = data && data.send_date === today
+        ? { sends_today: data.sends_today, daily_cap: data.daily_cap }
+        : { sends_today: 0, daily_cap: 50 };
+      throttleCache.set(domain, row);
+      return row;
+    };
+    const bumpThrottle = async (domain: string) => {
+      const row = throttleCache.get(domain)!;
+      row.sends_today += 1;
+      throttleCache.set(domain, row);
+      await serviceClient.from("domain_throttle").upsert({
+        user_id: userId, domain, send_date: today,
+        sends_today: row.sends_today, daily_cap: row.daily_cap,
+        last_sent_at: new Date().toISOString(),
+      }, { onConflict: "user_id,domain,send_date" });
+    };
 
     for (const lead of batch) {
+      const recipientDomain = String(lead.email || "").split("@")[1]?.toLowerCase() || "";
+      if (recipientDomain) {
+        const t = await getThrottle(recipientDomain);
+        if (t.sends_today >= t.daily_cap) {
+          await serviceClient.from("campaign_sends").insert({
+            campaign_id, user_id: userId, lead_email: lead.email, lead_name: lead.name,
+            subject: "", status: "queued_throttled",
+            error_message: `Daily cap reached for ${recipientDomain}`,
+          });
+          results.push({ email: lead.email, status: "throttled" });
+          continue;
+        }
+      }
       // A/B variant selection: if a subjectB is provided, pick A or B at random.
       const hasVariant = !!(emailTemplate.subjectB && String(emailTemplate.subjectB).trim());
       const variant: "A" | "B" | null = hasVariant
