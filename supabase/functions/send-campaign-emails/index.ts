@@ -249,6 +249,16 @@ serve(async (req) => {
           continue;
         }
       }
+      // Warm-up cap per sender domain
+      if (warmup && warmup.sent_today >= warmup.daily_limit) {
+        await serviceClient.from("campaign_sends").insert({
+          campaign_id, user_id: userId, lead_email: lead.email, lead_name: lead.name,
+          subject: "", status: "queued_warmup",
+          error_message: `Warm-up day ${warmup.day_index}: ${warmup.sent_today}/${warmup.daily_limit} sent`,
+        });
+        results.push({ email: lead.email, status: "warmup" });
+        continue;
+      }
       // A/B variant selection: if a subjectB is provided, pick A or B at random.
       const hasVariant = !!(emailTemplate.subjectB && String(emailTemplate.subjectB).trim());
       const variant: "A" | "B" | null = hasVariant
