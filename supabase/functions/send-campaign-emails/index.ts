@@ -288,6 +288,7 @@ serve(async (req) => {
             .eq("id", sendId);
         }
 
+        if (recipientDomain) await bumpThrottle(recipientDomain);
         results.push({ email: lead.email, status: "sent" });
 
         // Small delay between sends (1 second)
