@@ -1,0 +1,2 @@
+ALTER TABLE public.domain_throttle DROP CONSTRAINT IF EXISTS domain_throttle_user_domain_date_key;
+ALTER TABLE public.domain_throttle ADD CONSTRAINT domain_throttle_user_domain_date_key UNIQUE (user_id, domain, send_date);
