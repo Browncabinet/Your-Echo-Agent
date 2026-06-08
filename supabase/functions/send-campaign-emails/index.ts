@@ -202,6 +202,39 @@ serve(async (req) => {
       }, { onConflict: "user_id,domain,send_date" });
     };
 
+    // Warm-up enforcement: per sender-domain ramp (20/day → +20/day, cap 200)
+    const senderDomain = String(settings.email_address || "").split("@")[1]?.toLowerCase() || "";
+    let warmup: { day_index: number; daily_limit: number; sent_today: number; last_sent_date: string | null } | null = null;
+    if (senderDomain) {
+      const { data: wrow } = await serviceClient.from("sender_warmup")
+        .select("day_index, daily_limit, sent_today, last_sent_date")
+        .eq("user_id", userId).eq("domain", senderDomain).maybeSingle();
+      if (!wrow) {
+        warmup = { day_index: 1, daily_limit: 20, sent_today: 0, last_sent_date: today };
+        await serviceClient.from("sender_warmup").insert({
+          user_id: userId, domain: senderDomain,
+          day_index: 1, daily_limit: 20, sent_today: 0, last_sent_date: today,
+        });
+      } else if (wrow.last_sent_date && wrow.last_sent_date < today) {
+        const newDay = (wrow.day_index || 1) + 1;
+        const newLimit = Math.min(20 + (newDay - 1) * 20, 200);
+        warmup = { day_index: newDay, daily_limit: newLimit, sent_today: 0, last_sent_date: today };
+        await serviceClient.from("sender_warmup").update({
+          day_index: newDay, daily_limit: newLimit, sent_today: 0, last_sent_date: today,
+        }).eq("user_id", userId).eq("domain", senderDomain);
+      } else {
+        warmup = { day_index: wrow.day_index, daily_limit: wrow.daily_limit, sent_today: wrow.sent_today, last_sent_date: wrow.last_sent_date };
+      }
+    }
+    const bumpWarmup = async () => {
+      if (!warmup || !senderDomain) return;
+      warmup.sent_today += 1;
+      warmup.last_sent_date = today;
+      await serviceClient.from("sender_warmup").update({
+        sent_today: warmup.sent_today, last_sent_date: today,
+      }).eq("user_id", userId).eq("domain", senderDomain);
+    };
+
     for (const lead of batch) {
       const recipientDomain = String(lead.email || "").split("@")[1]?.toLowerCase() || "";
       if (recipientDomain) {
