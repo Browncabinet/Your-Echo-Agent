@@ -225,6 +225,29 @@ async function processJob(jobId: string) {
   for (const lead of batch) {
     if ((job.spend_cents || 0) + sentCount * perLeadCost >= (job.spending_cap_cents || 0)) break;
 
+    const recipientDomain = String(lead.email || "").split("@")[1]?.toLowerCase() || "";
+    if (recipientDomain) {
+      const t = await getThrottle(recipientDomain);
+      if (t.sends_today >= t.daily_cap) {
+        await sb.from("campaign_sends").insert({
+          campaign_id: job.campaign_id, user_id: job.user_id,
+          lead_email: lead.email, lead_name: lead.name || "",
+          subject: "", status: "queued_throttled",
+          error_message: `Daily cap reached for ${recipientDomain}`,
+        });
+        continue;
+      }
+    }
+    if (warmup && warmup.sent_today >= warmup.daily_limit) {
+      await sb.from("campaign_sends").insert({
+        campaign_id: job.campaign_id, user_id: job.user_id,
+        lead_email: lead.email, lead_name: lead.name || "",
+        subject: "", status: "queued_warmup",
+        error_message: `Warm-up day ${warmup.day_index}: ${warmup.sent_today}/${warmup.daily_limit} sent`,
+      });
+      continue;
+    }
+
     const hasVariant = !!(tpl.subjectB && String(tpl.subjectB).trim());
     const variant = hasVariant ? (Math.random() < 0.5 ? "A" : "B") : null;
     const rawSubject = variant === "B" ? tpl.subjectB : tpl.subject;
@@ -275,6 +298,8 @@ async function processJob(jobId: string) {
         await sb.from("campaign_sends").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", sendId);
       }
       sentCount++;
+      if (recipientDomain) await bumpThrottle(recipientDomain);
+      await bumpWarmup();
       await sb.from("a2a_ledger").insert({
         job_id: jobId,
         event_type: "email_sent",
@@ -285,8 +310,15 @@ async function processJob(jobId: string) {
       await new Promise((r) => setTimeout(r, 1000));
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
+      const isHardBounce = /\b5\d\d\b|user unknown|no such user|mailbox unavailable|address rejected/i.test(msg);
+      const isComplaint = /complaint|spam/i.test(msg);
       if (sendId) {
-        await sb.from("campaign_sends").update({ status: "failed", error_message: msg }).eq("id", sendId);
+        await sb.from("campaign_sends").update({ status: isHardBounce ? "bounced" : "failed", error_message: msg }).eq("id", sendId);
+        await sb.from("bounce_events").insert({
+          user_id: job.user_id, send_id: sendId, lead_email: lead.email,
+          bounce_type: isComplaint ? "complaint" : (isHardBounce ? "hard" : "soft"),
+          reason: msg.slice(0, 500),
+        });
       }
       emitCallback(job.callback_url, "email.failed", { job_id: jobId, lead_email: lead.email, error: msg });
     }
