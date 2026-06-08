@@ -202,6 +202,39 @@ serve(async (req) => {
       }, { onConflict: "user_id,domain,send_date" });
     };
 
+    // Warm-up enforcement: per sender-domain ramp (20/day → +20/day, cap 200)
+    const senderDomain = String(settings.email_address || "").split("@")[1]?.toLowerCase() || "";
+    let warmup: { day_index: number; daily_limit: number; sent_today: number; last_sent_date: string | null } | null = null;
+    if (senderDomain) {
+      const { data: wrow } = await serviceClient.from("sender_warmup")
+        .select("day_index, daily_limit, sent_today, last_sent_date")
+        .eq("user_id", userId).eq("domain", senderDomain).maybeSingle();
+      if (!wrow) {
+        warmup = { day_index: 1, daily_limit: 20, sent_today: 0, last_sent_date: today };
+        await serviceClient.from("sender_warmup").insert({
+          user_id: userId, domain: senderDomain,
+          day_index: 1, daily_limit: 20, sent_today: 0, last_sent_date: today,
+        });
+      } else if (wrow.last_sent_date && wrow.last_sent_date < today) {
+        const newDay = (wrow.day_index || 1) + 1;
+        const newLimit = Math.min(20 + (newDay - 1) * 20, 200);
+        warmup = { day_index: newDay, daily_limit: newLimit, sent_today: 0, last_sent_date: today };
+        await serviceClient.from("sender_warmup").update({
+          day_index: newDay, daily_limit: newLimit, sent_today: 0, last_sent_date: today,
+        }).eq("user_id", userId).eq("domain", senderDomain);
+      } else {
+        warmup = { day_index: wrow.day_index, daily_limit: wrow.daily_limit, sent_today: wrow.sent_today, last_sent_date: wrow.last_sent_date };
+      }
+    }
+    const bumpWarmup = async () => {
+      if (!warmup || !senderDomain) return;
+      warmup.sent_today += 1;
+      warmup.last_sent_date = today;
+      await serviceClient.from("sender_warmup").update({
+        sent_today: warmup.sent_today, last_sent_date: today,
+      }).eq("user_id", userId).eq("domain", senderDomain);
+    };
+
     for (const lead of batch) {
       const recipientDomain = String(lead.email || "").split("@")[1]?.toLowerCase() || "";
       if (recipientDomain) {
@@ -215,6 +248,16 @@ serve(async (req) => {
           results.push({ email: lead.email, status: "throttled" });
           continue;
         }
+      }
+      // Warm-up cap per sender domain
+      if (warmup && warmup.sent_today >= warmup.daily_limit) {
+        await serviceClient.from("campaign_sends").insert({
+          campaign_id, user_id: userId, lead_email: lead.email, lead_name: lead.name,
+          subject: "", status: "queued_warmup",
+          error_message: `Warm-up day ${warmup.day_index}: ${warmup.sent_today}/${warmup.daily_limit} sent`,
+        });
+        results.push({ email: lead.email, status: "warmup" });
+        continue;
       }
       // A/B variant selection: if a subjectB is provided, pick A or B at random.
       const hasVariant = !!(emailTemplate.subjectB && String(emailTemplate.subjectB).trim());
@@ -289,6 +332,7 @@ serve(async (req) => {
         }
 
         if (recipientDomain) await bumpThrottle(recipientDomain);
+        await bumpWarmup();
         results.push({ email: lead.email, status: "sent" });
 
         // Small delay between sends (1 second)
