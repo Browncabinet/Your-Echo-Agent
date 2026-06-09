@@ -341,12 +341,12 @@ function A2ASection() {
 /* ------------------------------------------------------------------ */
 const TIERS = [
   {
-    name: "Starter Clone",
+    name: "Starter ​Fast Track",
     price: "$19",
     cadence: "/ week",
     desc: "Clone yourself + run one niche agent.",
     features: ["1 cloned agent", "500 emails/week", "Reply inbox + AI drafts", "Email tracking"],
-    cta: "Start Clone",
+    cta: "Start ​Fast Track",
   },
   {
     name: "Growth",
@@ -433,7 +433,7 @@ function Pricing() {
 /* ------------------------------------------------------------------ */
 const STEPS = [
   { icon: LinkIcon, t: "Paste your URL", d: "Twitter, LinkedIn, or website — we ingest your voice in seconds." },
-  { icon: Bot,      t: "We clone you",   d: "An agent learns your tone, ICP, and writing style." },
+  { icon: Bot,      t: "We ​Fast Track you",   d: "An agent learns your tone, ICP, and writing style." },
   { icon: Mail,     t: "Agent goes live",d: "It sends, replies, and books meetings 24/7 — you approve hot ones." },
   { icon: Activity, t: "You review",     d: "Daily AI summary, hot replies, and one-tap escalations." },
 ];
