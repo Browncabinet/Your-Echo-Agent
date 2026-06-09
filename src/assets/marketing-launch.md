@@ -118,5 +118,5 @@ We've seen 3-5x higher response rates compared to generic cold email. Not becaus
 
 If you're a Tablecharts user, you already know I care about relationships over volume. Your Echo Agent is that philosophy, automated.
 
-Try 50 free emails. No card needed.
+Weekly plans from $19. Cancel anytime.
 → yourechoagent.com
