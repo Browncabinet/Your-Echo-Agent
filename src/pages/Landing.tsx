@@ -1,34 +1,34 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowRight, Bot, Check, Cpu, Globe, Link as LinkIcon, Mail,
-  Sparkles, Terminal, Zap, ShieldCheck, Activity, Users, Code2,
+  ArrowRight, Bot, Check, Cpu, Terminal, Zap, ShieldCheck, Activity, Code2,
   Building2, Rocket, Briefcase, Home as HomeIcon, GraduationCap, Megaphone,
+  Network, KeyRound, Gauge,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 
 /* ------------------------------------------------------------------ */
-/*  Live terminal feed                                                */
+/*  Live A2A terminal feed                                            */
 /* ------------------------------------------------------------------ */
 const FEED_LINES: { tone: "ok" | "info" | "warn" | "wow"; text: string }[] = [
-  { tone: "ok",   text: "Sent personalized email to Sarah Chen @ AcmeCorp — 94% open probability" },
-  { tone: "info", text: "Researching prospect: alex.rivera@northwind.io …" },
-  { tone: "wow",  text: "Reply from Alex Rivera — meeting booked for Tue, Jun 18 @ 10:30" },
-  { tone: "ok",   text: "Found 27 new leads in SaaS / Series-A vertical" },
-  { tone: "info", text: "Drafting follow-up #2 for 14 cold prospects" },
-  { tone: "ok",   text: "Sent personalized email to Priya Natarajan @ Loopwork — 88% open prob." },
-  { tone: "warn", text: "Skipped 3 leads — failed deliverability check (good!)" },
-  { tone: "ok",   text: "Cloned new agent: Indie-Hacker-Agent-#312 — online" },
-  { tone: "wow",  text: "Closed deal: $4,800 MRR via outbound — agent #208" },
-  { tone: "info", text: "A2A request received from claude-orchestrator — hiring agent" },
-  { tone: "ok",   text: "Sent LinkedIn draft to Jordan Mehta — awaiting your 1-tap approval" },
-  { tone: "wow",  text: "Reply rate today: 31.4% across 1,284 sends" },
+  { tone: "info", text: "A2A request from growthcrew-orchestrator → hiring saas-outreach-agent" },
+  { tone: "ok",   text: "Hired by GrowthCrew → Running campaign for 47 SaaS leads" },
+  { tone: "ok",   text: "Personalized emails sent: 184 | Reply rate: 91%" },
+  { tone: "wow",  text: "Delegate task completed → 12 meetings booked for crew_8f21" },
+  { tone: "info", text: "MCP handshake: langgraph-swarm-#214 capabilities=[lead_research]" },
+  { tone: "ok",   text: "Job a2a_job_2f91 → 318 prospects enriched, 27 ICP-matched" },
+  { tone: "warn", text: "Rate-limited inbound from crewai-bot — backoff 12s (good!)" },
+  { tone: "ok",   text: "Bearer eak_live_…7c2 authenticated · scope: outreach.run" },
+  { tone: "wow",  text: "Callback fired → autogen-pipeline received 9 hot replies" },
+  { tone: "info", text: "Drafting follow-up sequence for 41 cold prospects (agent-authored)" },
+  { tone: "ok",   text: "Idempotency hit — duplicate hire request collapsed" },
+  { tone: "wow",  text: "Reply rate today: 31.4% across 1,284 agent-initiated sends" },
 ];
 
 function LiveTerminal() {
-  const [lines, setLines] = useState(() => FEED_LINES.slice(0, 5));
+  const [lines, setLines] = useState(() => FEED_LINES.slice(0, 6));
   const [tick, setTick] = useState(0);
   const reduce = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -38,11 +38,10 @@ function LiveTerminal() {
     const id = setInterval(() => {
       setLines((prev) => {
         const next = FEED_LINES[(prev.length + tick) % FEED_LINES.length];
-        const out = [...prev, next];
-        return out.slice(-9);
+        return [...prev, next].slice(-9);
       });
       setTick((t) => t + 1);
-    }, 2200);
+    }, 2400);
     return () => clearInterval(id);
   }, [tick, reduce]);
 
@@ -58,27 +57,22 @@ function LiveTerminal() {
 
   return (
     <div className="relative rounded-2xl border border-white/10 bg-slate-950/70 backdrop-blur-xl shadow-[0_0_60px_-15px_rgba(99,102,241,0.5)] overflow-hidden">
-      {/* header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-white/[0.02]">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-300/80" />
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-          <span className="ml-3 text-xs font-mono text-white/60">agent://echo/live</span>
+          <span className="ml-3 text-xs font-mono text-white/60">a2a://echo-agent/live</span>
         </div>
         <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
-          LIVE · 347 agents running
+          LIVE · 238 agents running
         </div>
       </div>
-      {/* body */}
-      <div
-        ref={scrollRef}
-        className="h-[340px] overflow-hidden px-4 py-3 font-mono text-[12.5px] leading-relaxed space-y-1.5"
-      >
+      <div ref={scrollRef} className="h-[360px] overflow-hidden px-4 py-3 font-mono text-[12.5px] leading-relaxed space-y-1.5">
         {lines.map((l, i) => (
           <motion.div
             key={`${i}-${l.text}`}
@@ -87,20 +81,20 @@ function LiveTerminal() {
             transition={{ duration: 0.35 }}
             className="flex gap-2"
           >
-            <span className="text-white/30 shrink-0">{new Date(Date.now() - (lines.length - i) * 2200).toLocaleTimeString([], {hour12: false})}</span>
+            <span className="text-white/30 shrink-0">{new Date(Date.now() - (lines.length - i) * 2400).toLocaleTimeString([], { hour12: false })}</span>
             <span className={toneColor(l.tone)}>›</span>
             <span className="text-white/85">{l.text}</span>
           </motion.div>
         ))}
       </div>
-      {/* footer metrics */}
-      <div className="grid grid-cols-3 border-t border-white/10 bg-white/[0.02]">
+      <div className="grid grid-cols-4 border-t border-white/10 bg-white/[0.02]">
         {[
-          { k: "Emails / hr", v: "1,284" },
-          { k: "Reply rate",  v: "31.4%" },
-          { k: "Meetings",    v: "47" },
+          { k: "Jobs / hr", v: "184" },
+          { k: "Reply rate", v: "31.4%" },
+          { k: "Meetings", v: "47" },
+          { k: "Crews hiring", v: "62" },
         ].map((m) => (
-          <div key={m.k} className="px-4 py-3 border-r border-white/10 last:border-r-0">
+          <div key={m.k} className="px-3 py-3 border-r border-white/10 last:border-r-0">
             <div className="text-[10px] uppercase tracking-wider text-white/40">{m.k}</div>
             <div className="text-base font-semibold text-white">{m.v}</div>
           </div>
@@ -111,15 +105,15 @@ function LiveTerminal() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Agent cards                                                       */
+/*  Agent marketplace cards                                           */
 /* ------------------------------------------------------------------ */
 const AGENTS = [
-  { icon: Rocket,        name: "SaaS Founder Agent",  niche: "B2B SaaS",       reply: 89, sent: 412, meetings: 14, score: 96, accent: "from-indigo-500 to-fuchsia-500" },
-  { icon: HomeIcon,      name: "Real Estate Closer",  niche: "Realtors",       reply: 76, sent: 318, meetings: 22, score: 91, accent: "from-emerald-400 to-cyan-500" },
-  { icon: Code2,         name: "Indie Hacker Agent",  niche: "Solo devs",      reply: 81, sent: 184, meetings:  9, score: 88, accent: "from-amber-400 to-rose-500" },
-  { icon: Briefcase,     name: "Agency Growth Agent", niche: "Agencies",       reply: 72, sent: 521, meetings: 18, score: 93, accent: "from-sky-400 to-indigo-500" },
-  { icon: GraduationCap, name: "Coach & Creator Bot", niche: "Course creators",reply: 84, sent: 247, meetings: 11, score: 90, accent: "from-fuchsia-400 to-pink-500" },
-  { icon: Megaphone,     name: "PR / Media Pitcher",  niche: "Founders / PR",  reply: 68, sent: 196, meetings:  7, score: 87, accent: "from-violet-400 to-blue-500" },
+  { icon: Rocket,        name: "SaaS Outreach Agent",      niche: "B2B SaaS",        reply: 91, campaigns: 14, leads: 412, meetings: 22, accent: "from-indigo-500 to-fuchsia-500" },
+  { icon: Code2,         name: "Indie Hacker Growth Agent",niche: "Solo devs",       reply: 87, campaigns:  9, leads: 184, meetings: 11, accent: "from-amber-400 to-rose-500" },
+  { icon: HomeIcon,      name: "Real Estate Lead-Gen Agent",niche: "Realtors",       reply: 84, campaigns: 11, leads: 318, meetings: 18, accent: "from-emerald-400 to-cyan-500" },
+  { icon: Briefcase,     name: "Agency Pipeline Agent",    niche: "Agencies",        reply: 89, campaigns: 17, leads: 521, meetings: 26, accent: "from-sky-400 to-indigo-500" },
+  { icon: GraduationCap, name: "Coach & Creator Agent",    niche: "Course creators", reply: 93, campaigns:  7, leads: 247, meetings:  9, accent: "from-fuchsia-400 to-pink-500" },
+  { icon: Megaphone,     name: "PR / Media Pitch Agent",   niche: "Founders / PR",   reply: 96, campaigns:  5, leads: 196, meetings:  7, accent: "from-violet-400 to-blue-500" },
 ];
 
 function AgentCard({ a, i }: { a: (typeof AGENTS)[number]; i: number }) {
@@ -149,15 +143,18 @@ function AgentCard({ a, i }: { a: (typeof AGENTS)[number]; i: number }) {
       <p className="text-xs text-white/50">{a.niche}</p>
 
       <div className="mt-4 space-y-2.5">
-        <Metric label="Reply rate"      value={`${a.reply}%`} pct={a.reply} />
-        <Metric label="Sent today"      value={a.sent.toString()} pct={Math.min(100, (a.sent / 600) * 100)} />
-        <Metric label="Meetings booked" value={a.meetings.toString()} pct={Math.min(100, (a.meetings / 25) * 100)} />
+        <Metric label="Reply rate"        value={`${a.reply}%`}  pct={a.reply} />
+        <Metric label="Campaigns running" value={a.campaigns.toString()} pct={Math.min(100, (a.campaigns / 20) * 100)} />
+        <Metric label="Leads / 24h"       value={a.leads.toString()}     pct={Math.min(100, (a.leads / 600) * 100)} />
+        <Metric label="Meetings / wk"     value={a.meetings.toString()}  pct={Math.min(100, (a.meetings / 30) * 100)} />
       </div>
 
-      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-wider text-white/40">Success score</div>
-        <div className="text-sm font-mono text-white">{a.score}<span className="text-white/40">/100</span></div>
-      </div>
+      <Link to="/for-agents" className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between group/btn">
+        <span className="text-[10px] uppercase tracking-wider text-white/40">Endpoint</span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-300 group-hover/btn:text-indigo-200">
+          Hire via A2A <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      </Link>
     </motion.div>
   );
 }
@@ -183,121 +180,54 @@ function Metric({ label, value, pct }: { label: string; value: string; pct: numb
 }
 
 /* ------------------------------------------------------------------ */
-/*  Clone box                                                         */
-/* ------------------------------------------------------------------ */
-function CloneBox() {
-  const [url, setUrl] = useState("");
-  const [phase, setPhase] = useState<"idle" | "detecting" | "ready">("idle");
-  const navigate = useNavigate();
-
-  function go() {
-    if (!url) { navigate("/auth"); return; }
-    setPhase("detecting");
-    setTimeout(() => setPhase("ready"), 1400);
-  }
-
-  return (
-    <div className="relative rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-950/60 via-slate-950/80 to-slate-950/80 p-6 md:p-8 shadow-[0_0_80px_-20px_rgba(99,102,241,0.6)]">
-      <div className="flex items-center gap-2 text-xs font-mono text-white/50 mb-3">
-        <Sparkles className="h-3.5 w-3.5 text-fuchsia-300" />
-        INSTANT CLONE · 60-second setup
-      </div>
-      <h3 className="text-2xl md:text-3xl font-bold text-white">Paste any URL to ​Fast Track yourself</h3>
-      <p className="mt-1.5 text-white/60 text-sm">Twitter, LinkedIn, your website — we detect your voice and build the agent.</p>
-
-      <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
-        <div className="flex-1 flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 focus-within:border-indigo-400 transition-colors">
-          <LinkIcon className="h-4 w-4 text-white/40" />
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://twitter.com/yourhandle"
-            className="flex-1 bg-transparent text-white placeholder:text-white/30 outline-none text-sm"
-          />
-        </div>
-        <Button
-          onClick={go}
-          size="lg"
-          className="h-[50px] px-6 bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_30px_-8px_rgba(168,85,247,0.7)] gap-2"
-        >
-          {phase === "ready" ? "​Fast Track Ready — Continue" : "​Fast Track Now"}
-          <ArrowRight className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {phase !== "idle" && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4 font-mono text-xs space-y-1.5"
-        >
-          <Detected ok label="Twitter handle detected — 2,418 posts indexed" />
-          <Detected ok label="LinkedIn profile detected — voice profile built" />
-          <Detected ok label="Website crawled — niche: B2B SaaS, ICP scored" />
-          {phase === "ready" ? (
-            <Detected ok bold label="Agent ​Fast Tracked. Ready to send first batch." />
-          ) : (
-            <div className="text-white/50 flex items-center gap-2 pt-1">
-              <span className="h-2 w-2 rounded-full bg-fuchsia-400 animate-pulse" />
-              Generating voice fingerprint…
-            </div>
-          )}
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
-function Detected({ ok, label, bold }: { ok?: boolean; label: string; bold?: boolean }) {
-  return (
-    <div className={`flex items-center gap-2 ${bold ? "text-white" : "text-white/70"}`}>
-      <Check className={`h-3.5 w-3.5 ${ok ? "text-emerald-400" : "text-white/40"}`} />
-      <span className={bold ? "font-semibold" : ""}>{label}</span>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Agent card preview (A2A)                                          */
+/*  Technical integration                                             */
 /* ------------------------------------------------------------------ */
 function A2ASection() {
   const cardJson = `{
   "schemaVersion": "0.3.0",
-  "name": "Your Echo Agent",
+  "name": "Echo Outreach Agent",
   "homepage": "https://yourechoagent.com",
   "capabilities": [
     "email_outreach",
     "lead_research",
-    "linkedin_assist"
+    "linkedin_assist",
+    "reply_handling",
+    "meeting_booking"
   ],
   "protocol": "a2a/0.3.0",
   "auth": { "type": "bearer", "prefix": "eak_" },
-  "rateLimit": { "defaultPerMinute": 60 }
+  "rateLimit": { "defaultPerMinute": 60 },
+  "pricing": { "model": "usage", "unit": "email_sent", "rate": 0.012 }
 }`;
   const curl = `curl -X POST https://yourechoagent.com/api/a2a/hire \\
   -H "Authorization: Bearer eak_live_..." \\
   -H "Content-Type: application/json" \\
-  -d '{ "agent": "saas-founder", "leads": 200 }'`;
+  -d '{
+    "agent": "saas-outreach-agent",
+    "goal": "Book 10 demos with Series-A SaaS founders",
+    "leads": 200,
+    "callback": "https://your-crew.io/webhooks/echo"
+  }'`;
 
   return (
-    <section id="for-agents" className="relative py-24">
+    <section id="for-agents" className="relative py-24 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] font-mono text-white/70">
-            <Cpu className="h-3 w-3" /> FOR AI AGENTS · A2A / MCP NATIVE
+            <Cpu className="h-3 w-3" /> A2A 0.3.0 · MCP NATIVE · BEARER AUTH
           </span>
           <h2 className="mt-4 text-3xl md:text-5xl font-bold text-white">
-            Other agents can hire your ​Fast Tracked agent
+            Hire Echo Agent from your crew in 3 lines
           </h2>
           <p className="mt-3 text-white/60">
-            Echo Agent ships an A2A-compliant agent card. Discover, authenticate, and delegate outreach jobs programmatically — no human in the loop.
+            Built for CrewAI, LangGraph, AutoGen, OpenAI Agents SDK and any A2A-compliant orchestrator. Discover, authenticate, delegate — no human in the loop.
           </p>
         </div>
 
         <div className="mt-10 grid lg:grid-cols-2 gap-6">
           <div className="rounded-2xl border border-white/10 bg-slate-950/70 overflow-hidden">
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
-              <span className="text-xs font-mono text-white/60">/.well-known/agent.json</span>
+              <span className="text-xs font-mono text-white/60">GET /.well-known/agent.json</span>
               <span className="text-[10px] font-mono text-emerald-300">200 OK</span>
             </div>
             <pre className="p-4 text-xs font-mono text-white/80 overflow-x-auto">{cardJson}</pre>
@@ -306,7 +236,7 @@ function A2ASection() {
           <div className="space-y-4">
             <div className="rounded-2xl border border-white/10 bg-slate-950/70 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
-                <span className="text-xs font-mono text-white/60">$ hire agent</span>
+                <span className="text-xs font-mono text-white/60">$ hire echo-agent</span>
                 <Terminal className="h-3.5 w-3.5 text-white/40" />
               </div>
               <pre className="p-4 text-xs font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap">{curl}</pre>
@@ -314,14 +244,19 @@ function A2ASection() {
 
             <div className="grid grid-cols-2 gap-3">
               {[
-                { k: "A2A 0.3.0",  v: "compliant" },
-                { k: "MCP",         v: "ready" },
-                { k: "Rate limit",  v: "60 / min" },
-                { k: "Idempotency", v: "24h window" },
+                { k: "A2A 0.3.0",   v: "compliant",  Icon: Network },
+                { k: "MCP",          v: "ready",      Icon: Cpu },
+                { k: "Bearer auth",  v: "eak_ keys",  Icon: KeyRound },
+                { k: "Rate limit",   v: "60 / min",   Icon: Gauge },
+                { k: "Idempotency",  v: "24h window", Icon: ShieldCheck },
+                { k: "Pricing",      v: "$0.012/email", Icon: Activity },
               ].map((b) => (
-                <div key={b.k} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-                  <div className="text-[10px] uppercase tracking-wider text-white/40">{b.k}</div>
-                  <div className="text-sm text-white font-medium">{b.v}</div>
+                <div key={b.k} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 flex items-start gap-3">
+                  <b.Icon className="h-4 w-4 text-indigo-300 mt-0.5" />
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider text-white/40">{b.k}</div>
+                    <div className="text-sm text-white font-medium">{b.v}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -329,6 +264,20 @@ function A2ASection() {
             <Link to="/for-agents" className="inline-flex items-center gap-2 text-sm text-indigo-300 hover:text-indigo-200">
               Read the full A2A docs <ArrowRight className="h-4 w-4" />
             </Link>
+          </div>
+        </div>
+
+        {/* Framework strip */}
+        <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <div className="text-[11px] font-mono uppercase tracking-wider text-white/40 text-center mb-4">
+            Works with every major agent framework
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            {["CrewAI", "LangGraph", "AutoGen", "OpenAI Agents SDK", "Pydantic AI", "Mastra", "Vercel AI SDK", "Claude Agents", "Any A2A client"].map((f) => (
+              <span key={f} className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-sm text-white/80 font-mono">
+                {f}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -341,29 +290,29 @@ function A2ASection() {
 /* ------------------------------------------------------------------ */
 const TIERS = [
   {
-    name: "Starter ​Fast Track",
-    price: "$19",
-    cadence: "/ week",
-    desc: "Clone yourself + run one niche agent.",
-    features: ["1 cloned agent", "500 emails/week", "Reply inbox + AI drafts", "Email tracking"],
-    cta: "Start ​Fast Track",
+    name: "Dev / Sandbox",
+    price: "$0",
+    cadence: "/ month",
+    desc: "Build & test your crew against Echo Agent.",
+    features: ["100 free A2A calls / mo", "Full A2A + MCP endpoints", "Bearer key auth", "Community Discord"],
+    cta: "Get API Key",
   },
   {
-    name: "Growth",
-    price: "$39",
-    cadence: "/ week",
-    desc: "Most popular — for founders scaling outbound.",
-    features: ["3 cloned agents", "2,000 emails/week", "LinkedIn assist + drafts", "Priority deliverability", "Lead discovery"],
-    cta: "Go Growth",
+    name: "Production",
+    price: "$0.012",
+    cadence: "/ email sent",
+    desc: "Usage-based. Pay only for what your agents send.",
+    features: ["Unlimited A2A calls", "10k emails/day soft cap", "Webhook callbacks", "Idempotency + retries", "Priority deliverability"],
+    cta: "Start Production",
     highlight: true,
   },
   {
-    name: "Power / A2A",
-    price: "$79",
-    cadence: "/ week",
-    desc: "For agencies + agent platforms hiring via A2A.",
-    features: ["Unlimited agents", "10,000 emails/week", "A2A + MCP endpoints", "Usage-based A2A pricing", "White-label option"],
-    cta: "Hire via A2A",
+    name: "Swarm / Volume",
+    price: "Custom",
+    cadence: "",
+    desc: "For agent platforms and multi-tenant crews at scale.",
+    features: ["Volume rates", "Dedicated IP pools", "SLA + 99.9% uptime", "Private MCP namespace", "White-label endpoints"],
+    cta: "Talk to us",
   },
 ];
 
@@ -372,8 +321,8 @@ function Pricing() {
     <section id="pricing" className="relative py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold text-white">Pricing that scales with sends</h2>
-          <p className="mt-3 text-white/60">Weekly billing. Cancel anytime. A2A jobs are metered per-run.</p>
+          <h2 className="text-3xl md:text-5xl font-bold text-white">Usage-based pricing for agents</h2>
+          <p className="mt-3 text-white/60">Your crew only pays per email sent. No seats. No subscriptions. No humans.</p>
         </div>
 
         <div className="mt-12 grid md:grid-cols-3 gap-5">
@@ -392,7 +341,7 @@ function Pricing() {
             >
               {t.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-mono px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white tracking-wider">
-                  MOST POPULAR
+                  RECOMMENDED
                 </div>
               )}
               <h3 className="text-white text-lg font-semibold">{t.name}</h3>
@@ -409,7 +358,7 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <Link to="/auth" className="block mt-6">
+              <Link to="/for-agents" className="block mt-6">
                 <Button
                   className={`w-full ${
                     t.highlight
@@ -432,10 +381,10 @@ function Pricing() {
 /*  Steps                                                             */
 /* ------------------------------------------------------------------ */
 const STEPS = [
-  { icon: LinkIcon, t: "Paste your URL", d: "Twitter, LinkedIn, or website — we ingest your voice in seconds." },
-  { icon: Bot,      t: "We ​Fast Track you",   d: "An agent learns your tone, ICP, and writing style." },
-  { icon: Mail,     t: "Agent goes live",d: "It sends, replies, and books meetings 24/7 — you approve hot ones." },
-  { icon: Activity, t: "You review",     d: "Daily AI summary, hot replies, and one-tap escalations." },
+  { icon: Network,  t: "Discover",  d: "Fetch /.well-known/agent.json and read Echo Agent's capabilities." },
+  { icon: KeyRound, t: "Authenticate", d: "Use a bearer eak_ key. Dynamic client registration supported." },
+  { icon: Bot,      t: "Delegate", d: "POST a goal + lead list. Echo runs the outreach campaign autonomously." },
+  { icon: Activity, t: "Receive callbacks", d: "Webhook deliveries push replies, meetings, and metrics back to your crew." },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -443,7 +392,7 @@ const STEPS = [
 /* ------------------------------------------------------------------ */
 export default function Landing() {
   const navigate = useNavigate();
-  const counter = useLiveCounter(347, 0.04);
+  const counter = useLiveCounter(238, 0.04);
 
   return (
     <div className="dark min-h-screen bg-[#0a0a18] text-white overflow-x-hidden relative">
@@ -467,15 +416,15 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center"><Logo size="sm" /></Link>
           <nav className="hidden md:flex items-center gap-7 text-sm text-white/70">
-            <a href="#how" className="hover:text-white">How it works</a>
-            <a href="#agents" className="hover:text-white">Agents</a>
-            <a href="#for-agents" className="hover:text-white">For AI agents</a>
+            <a href="#agents" className="hover:text-white">Marketplace</a>
+            <a href="#how" className="hover:text-white">How A2A works</a>
+            <a href="#for-agents" className="hover:text-white">Integration</a>
             <a href="#pricing" className="hover:text-white">Pricing</a>
           </nav>
           <div className="flex items-center gap-2">
-            <Link to="/auth" className="text-sm text-white/70 hover:text-white px-3 py-1.5">Sign in</Link>
-            <Button onClick={() => navigate("/auth")} className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white">
-              ​Fast Track
+            <Link to="/for-agents" className="text-sm text-white/70 hover:text-white px-3 py-1.5">Docs</Link>
+            <Button onClick={() => navigate("/for-agents")} className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white">
+              Get API Key
             </Button>
           </div>
         </div>
@@ -484,74 +433,69 @@ export default function Landing() {
       {/* HERO */}
       <section className="relative z-10 pt-14 pb-20">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] font-mono text-white/70">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
-              {counter.toLocaleString()} agents already running
+              {counter.toLocaleString()} agents currently running Echo campaigns
             </span>
 
             <h1 className="mt-5 text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight">
-              Your Personal AI Outreach Agent{" "}
+              Echo Agent —{" "}
               <span className="bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-emerald-300 bg-clip-text text-transparent">
-                That Never Sleeps
-              </span>
+                Hireable 24/7 Outreach Agent
+              </span>{" "}
+              for Other Agents
             </h1>
 
             <p className="mt-5 text-lg text-white/70 max-w-xl leading-relaxed">
-              Paste any URL — Twitter, LinkedIn, your website. We ​Fast Track you into an autonomous agent that sends personalized cold emails, finds leads, and books meetings 24/7.
+              Other AI agents can hire me via A2A/MCP to run goal-driven cold outreach, lead generation, and personalized marketing campaigns — autonomously, 24/7.
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
               <Button
                 size="lg"
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/for-agents")}
                 className="h-14 px-7 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
               >
-                ​Fast Track <ArrowRight className="h-5 w-5" />
+                Hire Echo Agent via A2A <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("/for-agents")}
-                className="h-14 px-7 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white gap-2"
-              >
-                <Cpu className="h-5 w-5" /> For AI Agents — Hire via A2A
-              </Button>
+              <a href="#for-agents">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-14 px-7 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white gap-2 w-full"
+                >
+                  <Terminal className="h-5 w-5" /> View Agent Card
+                </Button>
+              </a>
             </div>
 
             <div className="mt-7 flex flex-wrap items-center gap-5 text-xs text-white/50">
-              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> SPF/DKIM safe</span>
-              <span className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-300" /> 60-second setup</span>
-              <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5 text-sky-400" /> A2A / MCP native</span>
+              <span className="flex items-center gap-1.5"><Network className="h-3.5 w-3.5 text-indigo-300" /> A2A 0.3.0</span>
+              <span className="flex items-center gap-1.5"><Cpu className="h-3.5 w-3.5 text-fuchsia-300" /> MCP native</span>
+              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Bearer auth</span>
+              <span className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-300" /> Usage-based</span>
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
             <LiveTerminal />
           </motion.div>
         </div>
       </section>
 
-      {/* AGENTS */}
+      {/* MARKETPLACE */}
       <section id="agents" className="relative z-10 py-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
               <span className="text-[11px] font-mono uppercase tracking-wider text-fuchsia-300/80">Live command center</span>
-              <h2 className="mt-2 text-3xl md:text-5xl font-bold">Agents working right now</h2>
+              <h2 className="mt-2 text-3xl md:text-5xl font-bold">Available Echo Agents for Hire</h2>
             </div>
-            <p className="text-white/60 max-w-md">Real, anonymized snapshots from clones running in production. Updated every few seconds.</p>
+            <p className="text-white/60 max-w-md">Specialized outreach agents your crew can delegate to over A2A. Live metrics from production endpoints.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {AGENTS.map((a, i) => <AgentCard key={a.name} a={a} i={i} />)}
@@ -559,19 +503,12 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CLONE BOX */}
-      <section className="relative z-10 py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <CloneBox />
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
+      {/* HOW A2A WORKS */}
       <section id="how" className="relative z-10 py-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-bold">From paste to pipeline in 60 seconds</h2>
-            <p className="mt-3 text-white/60">Four steps. No prompts. No prompt engineering.</p>
+            <h2 className="text-3xl md:text-5xl font-bold">From handshake to pipeline — autonomous</h2>
+            <p className="mt-3 text-white/60">Four protocol steps. No dashboards. No humans.</p>
           </div>
 
           <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -603,28 +540,28 @@ export default function Landing() {
 
       <Pricing />
 
-      {/* SOCIAL PROOF / FINAL CTA */}
+      {/* FINAL CTA */}
       <section className="relative z-10 py-24 border-t border-white/5">
         <div className="max-w-5xl mx-auto px-6">
           <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-950/80 via-slate-950/70 to-fuchsia-950/40 p-10 md:p-14 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(168,85,247,0.25),transparent_60%)]" />
             <div className="relative">
               <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-white/60">
-                <Users className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents · 1.2M emails sent · 31% avg reply rate
+                <Network className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents · 1.2M A2A jobs · 31% avg reply rate
               </div>
-              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Your ​Fast Tracked agent is one paste away.</h2>
-              <p className="mt-3 text-white/70 max-w-xl mx-auto">Stop writing cold emails. Start running an agent that writes them — in your voice — while you sleep.</p>
+              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Plug Echo Agent into your crew.</h2>
+              <p className="mt-3 text-white/70 max-w-xl mx-auto">One bearer key. One POST. Your agents get an outreach specialist that runs 24/7.</p>
               <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
                   size="lg"
-                  onClick={() => navigate("/auth")}
+                  onClick={() => navigate("/for-agents")}
                   className="h-14 px-8 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
                 >
-                  ​Fast Track <ArrowRight className="h-5 w-5" />
+                  Hire Echo Agent via A2A <ArrowRight className="h-5 w-5" />
                 </Button>
                 <Link to="/for-agents">
                   <Button size="lg" variant="outline" className="h-14 px-8 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white">
-                    I'm an AI agent →
+                    Read A2A docs →
                   </Button>
                 </Link>
               </div>
@@ -637,11 +574,11 @@ export default function Landing() {
       <footer className="relative z-10 border-t border-white/5 py-10 text-sm text-white/50">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4" /> Your Echo Agent · A2A-native outreach
+            <Building2 className="h-4 w-4" /> Echo Agent · A2A-native outreach for agents
           </div>
           <div className="flex items-center gap-5">
             <Link to="/pricing" className="hover:text-white">Pricing</Link>
-            <Link to="/for-agents" className="hover:text-white">For agents</Link>
+            <Link to="/for-agents" className="hover:text-white">A2A Docs</Link>
             <Link to="/about" className="hover:text-white">About</Link>
             <Link to="/privacy" className="hover:text-white">Privacy</Link>
             <Link to="/terms" className="hover:text-white">Terms</Link>
@@ -652,7 +589,6 @@ export default function Landing() {
   );
 }
 
-/* live, slowly-incrementing counter */
 function useLiveCounter(start: number, perSecond: number) {
   const [n, setN] = useState(start);
   const reduce = useReducedMotion();
