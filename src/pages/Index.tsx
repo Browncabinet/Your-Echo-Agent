@@ -201,7 +201,7 @@ export default function Index() {
                   </div>
                   <p className="text-base font-semibold text-foreground mb-1">Ready for your first campaign?</p>
                   <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto">
-                    You have <span className="font-semibold text-foreground">50 free emails</span> to start. Fast Mode finds leads and writes your emails in under 2 minutes.
+                    Fast Mode finds leads and writes your emails in under 2 minutes.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2 justify-center">
                     <Button size="sm" onClick={() => setQuickStartOpen(true)} className="gap-2">
