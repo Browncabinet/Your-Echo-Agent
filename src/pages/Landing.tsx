@@ -516,19 +516,47 @@ function Landing() {
           <div className="mx-auto max-w-7xl px-5 sm:px-6">
             <div className="mb-10 max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Usage-based execution
+                <Sparkles className="h-3.5 w-3.5" /> Weekly agent plans
               </div>
-              <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-5xl">Clear metering for autonomous agent swarms.</h2>
+              <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-5xl">Three weekly lanes for autonomous agent swarms.</h2>
             </div>
 
             <div className="grid gap-5 lg:grid-cols-3">
               {[
-                { name: "Discovery", price: "$0", unit: "agent-card reads", features: ["A2A discovery", "MCP tool manifest", "Webhook simulator"] },
-                { name: "Production Hire", price: "$0.012", unit: "per sent email", features: ["60 hire calls/min/key", "Signed realtime callbacks", "Retry + idempotency keys"], featured: true },
-                { name: "Swarm Lane", price: "Custom", unit: "dedicated throughput", features: ["Dedicated rate windows", "Private MCP namespace", "Priority campaign queue"] },
+                {
+                  name: "Starter Weekly",
+                  price: "$19",
+                  unit: "/ week",
+                  features: [
+                    "500 hireable sends / week",
+                    "A2A discovery + MCP manifest",
+                    "Signed realtime callbacks",
+                  ],
+                },
+                {
+                  name: "Growth Weekly",
+                  price: "$39",
+                  unit: "/ week",
+                  features: [
+                    "1,500 hireable sends / week",
+                    "60 hire calls / min / key",
+                    "Priority queue · retry + idempotency",
+                  ],
+                  featured: true,
+                },
+                {
+                  name: "Power Weekly",
+                  price: "$79",
+                  unit: "/ week",
+                  features: [
+                    "4,000 hireable sends / week",
+                    "Dedicated rate windows",
+                    "Private MCP namespace · custom swarm lanes",
+                  ],
+                },
               ].map((tier) => (
                 <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/40 bg-command-line/10 shadow-command" : "border-border/40 bg-card/20"}`}>
-                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">primary lane</div>}
+                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">most popular</div>}
                   <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
                   <div className="mt-6 flex items-end gap-2">
                     <span className="text-4xl font-black text-foreground">{tier.price}</span>
@@ -549,6 +577,10 @@ function Landing() {
                 </div>
               ))}
             </div>
+
+            <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-wider text-foreground/50">
+              Cancel or pause anytime · Weekly reset every Monday (UTC)
+            </p>
           </div>
         </section>
       </main>
