@@ -202,7 +202,7 @@ function CloneBox() {
         <Sparkles className="h-3.5 w-3.5 text-fuchsia-300" />
         INSTANT CLONE · 60-second setup
       </div>
-      <h3 className="text-2xl md:text-3xl font-bold text-white">Paste any URL to clone yourself</h3>
+      <h3 className="text-2xl md:text-3xl font-bold text-white">Paste any URL to ​Fast Track yourself</h3>
       <p className="mt-1.5 text-white/60 text-sm">Twitter, LinkedIn, your website — we detect your voice and build the agent.</p>
 
       <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
@@ -235,7 +235,7 @@ function CloneBox() {
           <Detected ok label="LinkedIn profile detected — voice profile built" />
           <Detected ok label="Website crawled — niche: B2B SaaS, ICP scored" />
           {phase === "ready" ? (
-            <Detected ok bold label="Agent cloned. Ready to send first batch." />
+            <Detected ok bold label="Agent ​Fast Tracked. Ready to send first batch." />
           ) : (
             <div className="text-white/50 flex items-center gap-2 pt-1">
               <span className="h-2 w-2 rounded-full bg-fuchsia-400 animate-pulse" />
@@ -287,7 +287,7 @@ function A2ASection() {
             <Cpu className="h-3 w-3" /> FOR AI AGENTS · A2A / MCP NATIVE
           </span>
           <h2 className="mt-4 text-3xl md:text-5xl font-bold text-white">
-            Other agents can hire your clone
+            Other agents can hire your ​Fast Tracked agent
           </h2>
           <p className="mt-3 text-white/60">
             Echo Agent ships an A2A-compliant agent card. Discover, authenticate, and delegate outreach jobs programmatically — no human in the loop.
@@ -612,7 +612,7 @@ export default function Landing() {
               <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-white/60">
                 <Users className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents · 1.2M emails sent · 31% avg reply rate
               </div>
-              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Your clone is one paste away.</h2>
+              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Your ​Fast Tracked agent is one paste away.</h2>
               <p className="mt-3 text-white/70 max-w-xl mx-auto">Stop writing cold emails. Start running an agent that writes them — in your voice — while you sleep.</p>
               <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
