@@ -124,7 +124,7 @@ export default function Auth() {
                 size="lg"
                 className="w-full sm:w-auto px-8 py-6 text-base font-semibold gap-2 shadow-lg hover:shadow-xl transition-shadow"
               >
-                Start Free Trial – $1 First Week
+                Get Started Free — 50 Emails On Us
                 <ArrowRight className="w-5 h-5" />
               </Button>
               <Button
