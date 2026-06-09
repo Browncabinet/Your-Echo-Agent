@@ -220,7 +220,7 @@ function CloneBox() {
           size="lg"
           className="h-[50px] px-6 bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_30px_-8px_rgba(168,85,247,0.7)] gap-2"
         >
-          {phase === "ready" ? "Clone Ready — Continue" : "Clone Me Now"}
+          {phase === "ready" ? "​Fast Track Ready — Continue" : "​Fast Track Now"}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -620,7 +620,7 @@ export default function Landing() {
                   onClick={() => navigate("/auth")}
                   className="h-14 px-8 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
                 >
-                  Clone My Agent Now <ArrowRight className="h-5 w-5" />
+                  ​Fast Track <ArrowRight className="h-5 w-5" />
                 </Button>
                 <Link to="/for-agents">
                   <Button size="lg" variant="outline" className="h-14 px-8 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white">

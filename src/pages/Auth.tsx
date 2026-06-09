@@ -839,7 +839,7 @@ export default function Auth() {
               className="mt-8 px-8 py-6 text-base font-semibold gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white shadow-[0_0_50px_-8px_rgba(99,102,241,0.7)]"
             >
               <Sparkles className="w-4 h-4" />
-              Clone My Agent Now
+              ​Fast Track
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
