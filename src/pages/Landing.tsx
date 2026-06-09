@@ -69,7 +69,7 @@ function LiveTerminal() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
-          LIVE · 238 agents running
+          LIVE · 263 agents running
         </div>
       </div>
       <div ref={scrollRef} className="h-[360px] overflow-hidden px-4 py-3 font-mono text-[12.5px] leading-relaxed space-y-1.5">
