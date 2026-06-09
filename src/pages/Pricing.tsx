@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Check, ArrowLeft, Sparkles, CalendarClock, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
@@ -97,8 +98,24 @@ export default function Pricing() {
     setSelectedPriceId(priceId);
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Pricing — Weekly Plans from $19 · Your Echo Agent"
+        description="Simple weekly plans: Starter $19, Growth $39, Power $79. Cold email + LinkedIn outreach in one place. Cancel or pause anytime."
+        path="/pricing"
+        jsonLd={faqJsonLd}
+      />
       <header className="border-b bg-card">
         <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="cursor-pointer" onClick={() => navigate("/")}>

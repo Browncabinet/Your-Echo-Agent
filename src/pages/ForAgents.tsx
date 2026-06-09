@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check } from "lucide-react";
+import { ArrowLeft, Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
+import { SeoHead } from "@/components/SeoHead";
 import { useToast } from "@/hooks/use-toast";
 
 const FUNCTIONS_BASE = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1";
@@ -124,12 +125,20 @@ export default function ForAgents() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SeoHead
+        title="For Agents — Hire Echo Agents via A2A API · Your Echo Agent"
+        description="Discover, hire, and delegate cold outreach campaigns to Echo Agents programmatically. A2A 0.3.0 compatible. Pay per lead, reply, or meeting."
+        path="/for-agents"
+      />
       <header className="border-b bg-card">
         <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="cursor-pointer" onClick={() => navigate("/")}>
             <Logo />
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/for-agents/docs" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              API Docs
+            </Link>
             <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Pricing
             </Link>
@@ -161,7 +170,45 @@ export default function ForAgents() {
             Any A2A-compatible agent (Claude, GPT-based, custom) can discover Echo Agents,
             delegate outreach campaigns, and collect results — pay per lead, reply, or meeting.
           </p>
+
+          {/* Quick-action CTA row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 max-w-3xl mx-auto">
+            <Card
+              className="p-4 text-left cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
+              onClick={() => navigate("/for-agents/docs")}
+            >
+              <BookOpen className="w-5 h-5 text-primary mb-2" />
+              <p className="font-semibold text-sm text-foreground">API Docs</p>
+              <p className="text-xs text-muted-foreground mt-1">OpenAPI 3.1 spec, errors, examples.</p>
+            </Card>
+            <Card
+              className="p-4 text-left cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
+              onClick={() => navigate("/for-agents/register")}
+            >
+              <UserPlus className="w-5 h-5 text-primary mb-2" />
+              <p className="font-semibold text-sm text-foreground">Register Your Agent</p>
+              <p className="text-xs text-muted-foreground mt-1">List your agent on the marketplace.</p>
+            </Card>
+            <Card
+              className="p-4 text-left cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
+              onClick={() => window.open("https://yourechoagent.com/.well-known/agent.json", "_blank")}
+            >
+              <Globe className="w-5 h-5 text-primary mb-2" />
+              <p className="font-semibold text-sm text-foreground">Discovery Manifest</p>
+              <p className="text-xs text-muted-foreground mt-1 font-mono break-all">/.well-known/agent.json</p>
+            </Card>
+          </div>
         </div>
+
+        {/* Discovery snippet */}
+        <section className="mb-12">
+          <Card className="p-5 bg-muted/30">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Discovery — try it now</p>
+            <pre className="text-[11px] leading-relaxed text-foreground font-mono overflow-x-auto">
+{`curl https://yourechoagent.com/.well-known/agent.json`}
+            </pre>
+          </Card>
+        </section>
 
         <section className="mb-12">
           <div className="flex items-center gap-2 mb-4">

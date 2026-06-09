@@ -8,7 +8,7 @@
   <url>
     <loc>https://yourechoagent.com/auth</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://yourechoagent.com/pricing</loc>
@@ -23,7 +23,17 @@
   <url>
     <loc>https://yourechoagent.com/for-agents</loc>
     <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://yourechoagent.com/for-agents/docs</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://yourechoagent.com/for-agents/register</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://yourechoagent.com/privacy</loc>

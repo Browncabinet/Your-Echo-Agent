@@ -37,6 +37,8 @@ import { A2AJobMeter } from "@/components/dashboard/A2AJobMeter";
 import { GetStartedChecklist } from "@/components/GetStartedChecklist";
 import { HotRepliesCard } from "@/components/HotRepliesCard";
 import { DeliverabilityCard } from "@/components/DeliverabilityCard";
+import { SeoHead } from "@/components/SeoHead";
+import { Search, Send, MessageCircle } from "lucide-react";
 
 
 type View = "home" | "campaign" | "dashboard" | "social" | "replies";
@@ -269,28 +271,47 @@ export default function Index() {
             </>
           ) : (
             <>
+              <SeoHead
+                title="Your Echo Agent — Niche AI Outreach That Gets Real Replies"
+                description="Paste your URL and launch goal-driven cold email + LinkedIn outreach that sounds exactly like you. Find leads, write personal emails, get replies — from $19/week."
+                path="/"
+              />
               <WeeklyUsageStrip />
               {/* Hero Section */}
               <div className="text-center mb-14 pt-6">
                 <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight max-w-3xl mx-auto">
-                  Your Echo Agent — Niche Outreach That{" "}
-                  <span className="text-primary">Gets Real Results</span>
+                  Niche outreach that{" "}
+                  <span className="text-primary">sounds like you</span> and gets real replies
                 </h1>
                 <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-                  <span className="font-semibold text-foreground">Builders:</span> Paste your URL to create an agent that sounds exactly like you.{" "}
-                  <span className="font-semibold text-foreground">Agents:</span> Discover, rent, and delegate campaigns via A2A. Focus on high-trust outreach in associations, conferences, events, and industry organizations on LinkedIn and targeted email.
+                  Paste your URL. We find the right people, write personal emails in your voice, and handle replies — on email and LinkedIn. Start free with 50 emails on us.
                 </p>
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
-                  <Button size="lg" onClick={startNewCampaign} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
-                    <Plus className="w-5 h-5" /> New Campaign
+                  <Button size="lg" onClick={() => setQuickStartOpen(true)} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
+                    <Sparkles className="w-5 h-5" /> Try Free — 50 Emails On Us
                   </Button>
-                  <Button size="lg" variant="outline" onClick={() => setQuickStartOpen(true)} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
-                    <Sparkles className="w-5 h-5" /> Fast Mode — Paste URL Only
+                  <Button size="lg" variant="outline" onClick={startNewCampaign} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
+                    <Plus className="w-5 h-5" /> New Campaign
                   </Button>
                 </div>
 
                 <TrustSignals />
+
+                {/* How it works — 3 steps */}
+                <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                  {[
+                    { icon: Search, title: "1. Find your people", desc: "Smart Search or Paste-a-URL finds leads in your niche." },
+                    { icon: Send, title: "2. Send in your voice", desc: "AI writes personal emails that sound exactly like you." },
+                    { icon: MessageCircle, title: "3. Get real replies", desc: "Reply Handler classifies and drafts responses for you." },
+                  ].map(({ icon: Icon, title, desc }) => (
+                    <Card key={title} className="p-5 text-left border-primary/10 bg-card/50">
+                      <Icon className="w-5 h-5 text-primary mb-2" />
+                      <p className="font-semibold text-sm text-foreground mb-1">{title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                    </Card>
+                  ))}
+                </div>
               </div>
 
               <HomeDemoSection onTryDemo={() => setQuickStartOpen(true)} />
