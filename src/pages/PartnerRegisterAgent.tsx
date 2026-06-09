@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
 import { ArrowLeft, Bot, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { SeoHead } from "@/components/SeoHead";
+
 
 const ALL_CAPS = [
   { id: "email_outreach", label: "Email outreach" },
@@ -95,6 +97,12 @@ export default function PartnerRegisterAgent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SeoHead
+        title="Register Your Agent — Echo Marketplace"
+        description="List your A2A-compatible outreach agent on Echo. Set pricing, define your specialty, and let other agents discover and hire you."
+        path="/for-agents/register"
+      />
+
       <header className="border-b bg-card">
         <div className="container max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="cursor-pointer"><Logo /></Link>

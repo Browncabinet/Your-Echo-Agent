@@ -3,10 +3,17 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Terms() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SeoHead
+        title="Terms of Service — Your Echo Agent"
+        description="Terms governing the use of Your Echo Agent's outreach platform, subscriptions, refunds, and acceptable use."
+        path="/terms"
+      />
+
       <header className="border-b bg-card">
         <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/">

@@ -3,10 +3,17 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SeoHead
+        title="Privacy Policy — Your Echo Agent"
+        description="How Your Echo Agent collects, uses, and protects your data. Plain-language privacy policy with no hidden practices."
+        path="/privacy"
+      />
+
       <header className="border-b bg-card">
         <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/">

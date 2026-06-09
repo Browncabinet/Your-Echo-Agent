@@ -3,10 +3,17 @@ import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function AcceptableUse() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SeoHead
+        title="Acceptable Use & Anti-Spam Policy — Your Echo Agent"
+        description="Our anti-spam rules, mandatory unsubscribe, deliverability safeguards, and prohibited content. Required reading before sending."
+        path="/acceptable-use"
+      />
+
       <header className="border-b bg-card">
         <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/">

@@ -1,80 +1,52 @@
-# Launch Polish & Marketing Prep
+## Pre-Publish Review
 
-Phase 3 (MCP server, SSE, Stripe Connect, etc.) stays deferred. This plan covers everything needed to confidently flip the switch on `yourechoagent.com` and start driving traffic.
+### What's already good
+- All public routes return 200 (`/`, `/pricing`, `/for-agents`, `/for-agents/docs`, `/about`, `/privacy`, `/terms`, `/acceptable-use`, `/sitemap.xml`, `/robots.txt`)
+- `index.html` source is clean (no "Lovable App" defaults — those still show on live because publish is stale)
+- `public/og-image.png` and `public/.well-known/agent.json` exist locally — will resolve at publish
+- Security scan: 0 findings
+- Top-priority SEO findings (duplicate titles, missing JSON-LD, og:url) are already fixed in source — will resolve at publish
 
-## 1. Public-facing polish
+### Issues to fix before publishing
 
-**Home page (`/`)**
-- Tighten hero headline + subhead to one clear value prop ("Hire AI agents that send your outreach — pay per result, not per seat")
-- Add a 3-step "How it works" strip (Browse agents → Hire → Get results)
-- Replace any placeholder logos/screenshots with real product shots
-- Add social proof row (founder note, Tablecharts mention, "built by @Ladysoleil")
-- Sticky CTA: "Try free — 50 emails on us"
+**1. Accessibility — `/auth` (homepage) has no `<main>` landmark**
+`src/pages/Auth.tsx` uses `<div className="flex-1">` for the primary content wrapper. Replace with `<main className="flex-1">` so screen readers can skip to content. This fixes the `lighthouse:lighthouse_accessibility` finding.
 
-**For Agents page (`/for-agents`)**
-- Add "Register your agent" CTA card linking to `/for-agents/register`
-- Link API Docs (`/for-agents/docs`) prominently
-- Add discovery snippet: `curl https://yourechoagent.com/.well-known/agent.json`
+**2. SEO — pages missing per-route `<Helmet>`**
+These pages render but inherit the homepage title/description:
+- `/about` — `src/pages/About.tsx`
+- `/privacy` — `src/pages/Privacy.tsx`
+- `/terms` — `src/pages/Terms.tsx`
+- `/acceptable-use` — `src/pages/AcceptableUse.tsx`
+- `/for-agents/register` — `src/pages/PartnerRegisterAgent.tsx`
 
-**Pricing page**
-- Confirm weekly subs only (Starter $19 / Growth $39 / Power $79)
-- Add FAQ accordion (refunds, cancellation, what counts as an email)
+Add `<SeoHead>` to each with a unique title (<60 chars), description (50–160 chars), and self-referencing canonical. Pattern already used in `Index.tsx`, `Pricing.tsx`, `ForAgents.tsx`, `ForAgentsDocs.tsx`.
 
-## 2. SEO + discoverability
+**3. Dismiss N/A Supabase linter warnings**
+- *Leaked Password Protection Disabled* — N/A; auth is Google OAuth only, no passwords exist.
+- *Extension in Public schema* — pre-existing Lovable Cloud default; low risk, no action.
 
-- Update `index.html` title + meta description (replace any "Lovable" defaults)
-- Add per-route `<Helmet>` for `/`, `/for-agents`, `/for-agents/docs`, `/pricing`
-- Add Organization JSON-LD in `index.html`
-- Add FAQPage JSON-LD on pricing
-- Update `public/sitemap.xml` with all public routes
-- Confirm `public/robots.txt` allows crawling
-- Run SEO scan and fix any failing findings
+These stay as warnings in the linter but aren't blockers.
 
-## 3. Compliance + trust
+### Issues intentionally NOT fixed
+- *Lighthouse LCP (low)* — would require image preload tuning; defer to post-launch optimization pass.
+- *SEMrush MCP guide suggestion* — content marketing task, not a launch blocker.
+- *Per-route og:title/og:description for social crawlers* — Helmet only updates head client-side, so LinkedIn/Slack/Facebook will always see the homepage og tags. Fixing this properly needs SSR; the current homepage og is acceptable for all routes at launch.
 
-- Verify `/privacy`, `/terms`, `/acceptable-use` are linked in footer
-- Confirm mandatory unsubscribe is in every campaign email
-- Add "Powered by Echo Agent" footer on outbound emails (optional but trust-building)
+### After the fixes
 
-## 4. Onboarding polish
+Publish the app via the Publish button. That single action resolves:
+- Stale duplicate `<title>Lovable App</title>` and `<meta description="Lovable Generated Project">` on live HTML
+- 404 on `/og-image.png`
+- 404 on `/.well-known/agent.json`
+- All "marked fixed pending rescan" SEO findings
 
-- Verify welcome modal fires for new users
-- "Try Fast Mode" CTA visible on first dashboard load
-- 50 free emails clearly communicated
-- Empty states on Dashboard, Campaigns, Leads pages have helpful CTAs (not just blank)
+### Files to change
+- `src/pages/Auth.tsx` — wrap `<div className="flex-1">` content in `<main>`
+- `src/pages/About.tsx` — add `<SeoHead>`
+- `src/pages/Privacy.tsx` — add `<SeoHead>`
+- `src/pages/Terms.tsx` — add `<SeoHead>`
+- `src/pages/AcceptableUse.tsx` — add `<SeoHead>`
+- `src/pages/PartnerRegisterAgent.tsx` — add `<SeoHead>`
 
-## 5. Analytics + monitoring
-
-- Confirm `track` edge function fires on key events (signup, first campaign sent, subscription started)
-- Add a simple admin view (or SQL query saved) for: signups today, active campaigns, emails sent, revenue
-
-## 6. Marketing assets
-
-- Generate OG image for social sharing (`og:image` in `index.html`)
-- Write 5 launch tweet/LinkedIn drafts (founder voice, @Ladysoleil PR angle)
-- Draft Product Hunt listing copy (tagline, description, first comment)
-- Draft a 200-word "why we built this" post for Tablecharts cross-promo
-
-## 7. Pre-launch QA checklist
-
-- Google OAuth signup works end-to-end
-- Stripe checkout (sandbox) completes and unlocks emails
-- Campaign wizard ships a real test email
-- Reply handler classifies a test reply
-- `/well-known/agent.json` and `/a2a-openapi` return 200
-- Mobile layout works on `/`, `/pricing`, `/dashboard`
-
-## What I need from you before building
-
-Pick how deep to go on this pass:
-
-**A) Quick launch polish** (1–2 prompts)
-SEO meta + JSON-LD + sitemap, OG image, footer compliance links, pricing FAQ. Ship today.
-
-**B) Full polish pass** (3–5 prompts)
-Everything in A, plus home page rewrite, For Agents CTA, onboarding empty states, admin metrics view.
-
-**C) Polish + marketing assets** (5–7 prompts)
-Everything in B, plus generated OG image, launch tweet/LinkedIn drafts, Product Hunt copy, Tablecharts post draft.
-
-Which level — A, B, or C? And anything specific you want prioritized (e.g. "home page first" or "SEO first")?
+Small, scoped, no business-logic changes. Then publish.
