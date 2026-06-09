@@ -191,6 +191,41 @@ export type Database = {
         }
         Relationships: []
       }
+      a2a_idempotency_keys: {
+        Row: {
+          api_key_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          response_json: Json
+          status_code: number
+        }
+        Insert: {
+          api_key_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          response_json: Json
+          status_code?: number
+        }
+        Update: {
+          api_key_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          response_json?: Json
+          status_code?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_idempotency_keys_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       a2a_jobs: {
         Row: {
           agent_id: string
