@@ -29,6 +29,7 @@ import { QuickUpdateBar } from "@/components/dashboard/QuickUpdateBar";
 import { CampaignQuickSummary } from "@/components/dashboard/CampaignQuickSummary";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { trackEvent } from "@/lib/analytics";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCampaigns } from "@/hooks/use-campaigns";
 import { QuickStartModal } from "@/components/QuickStartModal";
@@ -76,6 +77,7 @@ export default function Index() {
     if (!localStorage.getItem(key)) {
       setShowWelcome(true);
       localStorage.setItem(key, "1");
+      trackEvent("signup_complete", { provider: "google" });
     }
   }, [user]);
   const updateCampaign = (updates: Partial<Campaign>) => {
@@ -112,6 +114,7 @@ export default function Index() {
     const updated = { ...campaign, status: "active" as const };
     setCampaign(updated);
     await saveCampaign(updated);
+    trackEvent("first_campaign_sent", { campaign_id: updated.id, niche: updated.niche });
     setView("dashboard");
   };
 
