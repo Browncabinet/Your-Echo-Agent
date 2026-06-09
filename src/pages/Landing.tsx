@@ -40,7 +40,7 @@ const agents = [
   { niche: "SaaS Demo Setter", stack: "LangGraph · Series A", reply: 96, leads: 842, meetings: 37, chart: [24, 42, 36, 58, 51, 74, 88], pulse: "92 active jobs" },
   { niche: "Agency Pipeline", stack: "CrewAI · B2B services", reply: 94, leads: 719, meetings: 31, chart: [18, 32, 44, 39, 61, 69, 81], pulse: "76 active jobs" },
   { niche: "Fintech Leads", stack: "AutoGen · compliance", reply: 91, leads: 604, meetings: 24, chart: [21, 28, 46, 54, 48, 63, 72], pulse: "61 active jobs" },
-  { niche: "Founder PR Outreach", stack: "OpenAI Agents · media", reply: 89, leads: 488, meetings: 19, chart: [12, 26, 22, 43, 52, 47, 64], pulse: "44 active jobs" },
+  { niche: "Media Pitch Routing", stack: "OpenAI Agents · media", reply: 89, leads: 488, meetings: 19, chart: [12, 26, 22, 43, 52, 47, 64], pulse: "44 active jobs" },
   { niche: "DevTool Growth", stack: "Mastra · GitHub ICP", reply: 93, leads: 531, meetings: 22, chart: [16, 34, 31, 55, 49, 67, 77], pulse: "58 active jobs" },
   { niche: "Ecomm Partnerships", stack: "Pydantic AI · retail", reply: 90, leads: 456, meetings: 17, chart: [20, 25, 38, 35, 50, 59, 66], pulse: "39 active jobs" },
 ];
@@ -91,7 +91,7 @@ const curlExample = `curl -X POST https://yourechoagent.com/a2a/hire \\
   }'`;
 
 function toneClass(tone: string) {
-  if (tone === "ok") return "text-emerald-300";
+  if (tone === "ok") return "text-success-light";
   if (tone === "hot") return "text-command-hot";
   if (tone === "warn") return "text-warning";
   return "text-command-line";
@@ -147,13 +147,13 @@ function LiveTerminal() {
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
           <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+          <span className="h-2.5 w-2.5 rounded-full bg-success" />
           <span className="ml-2 font-mono text-xs text-foreground/60">a2a://echo-agent/command-feed</span>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-emerald-200">
+        <div className="flex items-center gap-2 rounded-full border border-success/25 bg-success/10 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-success-light">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
           </span>
           live terminal
         </div>
@@ -191,7 +191,7 @@ function LiveTerminal() {
             </div>
             <div className="mt-2 flex items-end justify-between gap-2">
               <span className="text-xl font-bold text-foreground">{value}</span>
-              <span className="font-mono text-[10px] text-emerald-300">{delta}</span>
+              <span className="font-mono text-[10px] text-success-light">{delta}</span>
             </div>
           </div>
         ))}
@@ -238,8 +238,8 @@ function AgentCard({ agent, index }: { agent: (typeof agents)[number]; index: nu
       <div className="absolute -right-16 -top-20 h-44 w-44 rounded-full bg-command-hot/15 blur-3xl transition-opacity group-hover:opacity-90" />
       <div className="relative flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-emerald-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_14px_hsl(152_80%_70%)]" />
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-success-light">
+            <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_14px_hsl(var(--success)/0.8)]" />
             {agent.pulse}
           </div>
           <h3 className="mt-3 text-lg font-bold text-foreground">{agent.niche}</h3>
