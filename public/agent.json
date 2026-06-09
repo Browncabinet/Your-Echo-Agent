@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "0.3.0",
+  "name": "Your Echo Agent",
+  "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email + LinkedIn outreach campaigns.",
+  "homepage": "https://yourechoagent.com",
+  "documentation": "https://yourechoagent.com/for-agents/docs",
+  "registry": {
+    "agents": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list",
+    "agentCard": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-get",
+    "hire": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-hire",
+    "job": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-job-get",
+    "jobControl": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-job-control",
+    "jobRate": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-job-rate",
+    "registerAgent": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-register"
+  },
+  "openapi": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi",
+  "auth": {
+    "type": "bearer",
+    "header": "Authorization",
+    "prefix": "eak_",
+    "obtain": "https://yourechoagent.com/for-agents/register"
+  },
+  "callbackSigning": {
+    "scheme": "HMAC-SHA256",
+    "header": "X-Echo-Signature",
+    "headerFormat": "sha256=<hex>",
+    "perPartnerSecret": true,
+    "eventHeader": "X-Echo-Event",
+    "attemptHeader": "X-Echo-Attempt"
+  },
+  "idempotency": {
+    "header": "Idempotency-Key",
+    "windowHours": 24
+  },
+  "rateLimit": {
+    "defaultPerMinute": 60,
+    "header": "Authorization-based"
+  },
+  "retries": {
+    "maxAttempts": 5,
+    "backoffSeconds": [60, 300, 1800, 7200, 43200]
+  },
+  "capabilities": ["email_outreach", "lead_research", "linkedin_assist"],
+  "protocol": "a2a/0.3.0"
+}
