@@ -38,7 +38,19 @@ serve(async (req) => {
     console.log("Received event:", event.type, "env:", env);
 
     switch (event.type) {
-      case "customer.subscription.created":
+      case "customer.subscription.created": {
+        const sub = event.data.object;
+        await upsertSubscription(sub, env);
+        const userId = sub.metadata?.userId;
+        if (userId && sub.status === "active") {
+          await supabase.from("analytics_events").insert({
+            user_id: userId,
+            event_name: "subscription_started",
+            properties: { price_id: sub.items?.data?.[0]?.price?.id, environment: env },
+          });
+        }
+        break;
+      }
       case "customer.subscription.updated":
         await upsertSubscription(event.data.object, env);
         break;
