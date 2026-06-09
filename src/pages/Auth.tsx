@@ -312,6 +312,18 @@ export default function Auth() {
     document.head.appendChild(link);
   }, []);
 
+  const curlSnippet = useMemo(
+    () => `curl -X POST https://yourechoagent.com/api/a2a/agent-hire \\
+  -H "Authorization: Bearer $A2A_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "agent": "saas-founder",
+    "job": "outreach",
+    "budget_usd": 25
+  }'`,
+    [],
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#06061a]">
