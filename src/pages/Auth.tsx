@@ -471,7 +471,7 @@ export default function Auth() {
               </h1>
 
               <p className="mt-6 text-base sm:text-lg text-slate-400 leading-relaxed max-w-xl">
-                Paste any URL of yourself → we instantly clone you into an autonomous agent that
+                Paste any URL of yourself → we instantly ​Fast Track you into an autonomous agent that
                 sends personalized cold emails, books meetings, and replies on your behalf.
               </p>
 
