@@ -202,7 +202,7 @@ function CloneBox() {
         <Sparkles className="h-3.5 w-3.5 text-fuchsia-300" />
         INSTANT CLONE · 60-second setup
       </div>
-      <h3 className="text-2xl md:text-3xl font-bold text-white">Paste any URL to clone yourself</h3>
+      <h3 className="text-2xl md:text-3xl font-bold text-white">Paste any URL to ​Fast Track yourself</h3>
       <p className="mt-1.5 text-white/60 text-sm">Twitter, LinkedIn, your website — we detect your voice and build the agent.</p>
 
       <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
@@ -220,7 +220,7 @@ function CloneBox() {
           size="lg"
           className="h-[50px] px-6 bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_30px_-8px_rgba(168,85,247,0.7)] gap-2"
         >
-          {phase === "ready" ? "Clone Ready — Continue" : "Clone Me Now"}
+          {phase === "ready" ? "​Fast Track Ready — Continue" : "​Fast Track Now"}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
@@ -235,7 +235,7 @@ function CloneBox() {
           <Detected ok label="LinkedIn profile detected — voice profile built" />
           <Detected ok label="Website crawled — niche: B2B SaaS, ICP scored" />
           {phase === "ready" ? (
-            <Detected ok bold label="Agent cloned. Ready to send first batch." />
+            <Detected ok bold label="Agent ​Fast Tracked. Ready to send first batch." />
           ) : (
             <div className="text-white/50 flex items-center gap-2 pt-1">
               <span className="h-2 w-2 rounded-full bg-fuchsia-400 animate-pulse" />
@@ -287,7 +287,7 @@ function A2ASection() {
             <Cpu className="h-3 w-3" /> FOR AI AGENTS · A2A / MCP NATIVE
           </span>
           <h2 className="mt-4 text-3xl md:text-5xl font-bold text-white">
-            Other agents can hire your clone
+            Other agents can hire your ​Fast Tracked agent
           </h2>
           <p className="mt-3 text-white/60">
             Echo Agent ships an A2A-compliant agent card. Discover, authenticate, and delegate outreach jobs programmatically — no human in the loop.
@@ -341,12 +341,12 @@ function A2ASection() {
 /* ------------------------------------------------------------------ */
 const TIERS = [
   {
-    name: "Starter Clone",
+    name: "Starter ​Fast Track",
     price: "$19",
     cadence: "/ week",
     desc: "Clone yourself + run one niche agent.",
     features: ["1 cloned agent", "500 emails/week", "Reply inbox + AI drafts", "Email tracking"],
-    cta: "Start Clone",
+    cta: "Start ​Fast Track",
   },
   {
     name: "Growth",
@@ -433,7 +433,7 @@ function Pricing() {
 /* ------------------------------------------------------------------ */
 const STEPS = [
   { icon: LinkIcon, t: "Paste your URL", d: "Twitter, LinkedIn, or website — we ingest your voice in seconds." },
-  { icon: Bot,      t: "We clone you",   d: "An agent learns your tone, ICP, and writing style." },
+  { icon: Bot,      t: "We ​Fast Track you",   d: "An agent learns your tone, ICP, and writing style." },
   { icon: Mail,     t: "Agent goes live",d: "It sends, replies, and books meetings 24/7 — you approve hot ones." },
   { icon: Activity, t: "You review",     d: "Daily AI summary, hot replies, and one-tap escalations." },
 ];
@@ -475,7 +475,7 @@ export default function Landing() {
           <div className="flex items-center gap-2">
             <Link to="/auth" className="text-sm text-white/70 hover:text-white px-3 py-1.5">Sign in</Link>
             <Button onClick={() => navigate("/auth")} className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white">
-              Clone My Agent
+              ​Fast Track
             </Button>
           </div>
         </div>
@@ -505,7 +505,7 @@ export default function Landing() {
             </h1>
 
             <p className="mt-5 text-lg text-white/70 max-w-xl leading-relaxed">
-              Paste any URL — Twitter, LinkedIn, your website. We clone you into an autonomous agent that sends personalized cold emails, finds leads, and books meetings 24/7.
+              Paste any URL — Twitter, LinkedIn, your website. We ​Fast Track you into an autonomous agent that sends personalized cold emails, finds leads, and books meetings 24/7.
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
@@ -514,7 +514,7 @@ export default function Landing() {
                 onClick={() => navigate("/auth")}
                 className="h-14 px-7 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
               >
-                Clone My Agent Now <ArrowRight className="h-5 w-5" />
+                ​Fast Track <ArrowRight className="h-5 w-5" />
               </Button>
               <Button
                 size="lg"
@@ -612,7 +612,7 @@ export default function Landing() {
               <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-white/60">
                 <Users className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents · 1.2M emails sent · 31% avg reply rate
               </div>
-              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Your clone is one paste away.</h2>
+              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Your ​Fast Tracked agent is one paste away.</h2>
               <p className="mt-3 text-white/70 max-w-xl mx-auto">Stop writing cold emails. Start running an agent that writes them — in your voice — while you sleep.</p>
               <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
@@ -620,7 +620,7 @@ export default function Landing() {
                   onClick={() => navigate("/auth")}
                   className="h-14 px-8 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
                 >
-                  Clone My Agent Now <ArrowRight className="h-5 w-5" />
+                  ​Fast Track <ArrowRight className="h-5 w-5" />
                 </Button>
                 <Link to="/for-agents">
                   <Button size="lg" variant="outline" className="h-14 px-8 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white">

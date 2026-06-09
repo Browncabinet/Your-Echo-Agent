@@ -471,7 +471,7 @@ export default function Auth() {
               </h1>
 
               <p className="mt-6 text-base sm:text-lg text-slate-400 leading-relaxed max-w-xl">
-                Paste any URL of yourself → we instantly clone you into an autonomous agent that
+                Paste any URL of yourself → we instantly ​Fast Track you into an autonomous agent that
                 sends personalized cold emails, books meetings, and replies on your behalf.
               </p>
 
@@ -501,7 +501,7 @@ export default function Auth() {
                 {previewSources && (
                   <div className="mt-3 px-1 animate-fade-in">
                     <div className="text-[11px] font-mono text-emerald-300 mb-1.5">
-                      ✓ FOUND · ready to clone
+                      ✓ FOUND · ready to ​Fast Track
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {previewSources.map((s) => (
@@ -522,7 +522,7 @@ export default function Auth() {
                     size="lg"
                     className="flex-1 px-6 py-6 text-base font-semibold gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white shadow-[0_0_40px_-8px_rgba(99,102,241,0.7)]"
                   >
-                    Clone My Agent Now <ArrowRight className="w-4 h-4" />
+                    ​Fast Track <ArrowRight className="w-4 h-4" />
                   </Button>
                   <Button
                     onClick={() => handleGoogle("a2a")}
@@ -586,7 +586,7 @@ export default function Auth() {
                   className="text-3xl sm:text-4xl font-bold text-white"
                   style={{ fontFamily: "'Sora', system-ui, sans-serif" }}
                 >
-                  Hire a specialized agent.<br />Or clone yourself into one.
+                  Hire a specialized agent.<br />Or ​Fast Track yourself into one.
                 </h2>
               </div>
               <Link
@@ -726,7 +726,7 @@ export default function Auth() {
             <div className="grid md:grid-cols-3 gap-4 mb-10">
               {[
                 {
-                  k: "Clone (one-time)",
+                  k: "​Fast Track (one-time)",
                   v: "$0",
                   sub: "Voice profile + agent setup. Free during launch.",
                   tone: "from-emerald-500/15 to-emerald-500/5 border-emerald-500/20",
@@ -828,7 +828,7 @@ export default function Auth() {
               className="text-3xl sm:text-5xl font-bold text-white"
               style={{ fontFamily: "'Sora', system-ui, sans-serif" }}
             >
-              Clone yourself. <span className="text-indigo-300">In 60 seconds.</span>
+              ​Fast Track yourself. <span className="text-indigo-300">In 60 seconds.</span>
             </h2>
             <p className="text-slate-400 mt-4 max-w-lg mx-auto">
               312 agents already running. Yours is one click away.
@@ -839,7 +839,7 @@ export default function Auth() {
               className="mt-8 px-8 py-6 text-base font-semibold gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white shadow-[0_0_50px_-8px_rgba(99,102,241,0.7)]"
             >
               <Sparkles className="w-4 h-4" />
-              Clone My Agent Now
+              ​Fast Track
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
