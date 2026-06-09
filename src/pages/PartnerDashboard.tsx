@@ -6,13 +6,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
-import { ArrowLeft, Key, Copy, RefreshCw, Wallet, BookOpen, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Key, Copy, RefreshCw, Wallet, BookOpen, Loader2, CheckCircle2, XCircle, ShieldCheck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 type Partner = { id: string; balance_cents: number; total_spent_cents: number; billing_email: string; api_key_id: string };
 type ApiKey = { id: string; key_prefix: string; status: string; rate_limit_per_min: number; last_used_at: string | null };
 type Job = { id: string; agent_id: string; status: string; spend_cents: number; leads_sent: number; created_at: string };
 type Callback = { id: string; event_type: string; response_status: number | null; delivered: boolean; created_at: string; callback_url: string };
+type RetryRow = { id: string; event_type: string; callback_url: string; attempt: number; max_attempts: number; status: string; next_attempt_at: string; last_error: string | null };
 
 export default function PartnerDashboard() {
   const { user } = useAuth();
@@ -21,8 +22,11 @@ export default function PartnerDashboard() {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [callbacks, setCallbacks] = useState<Callback[]>([]);
+  const [retries, setRetries] = useState<RetryRow[]>([]);
   const [revealedKey, setRevealedKey] = useState<string | null>(null);
+  const [revealedSecret, setRevealedSecret] = useState<string | null>(null);
   const [rotating, setRotating] = useState(false);
+  const [rotatingSecret, setRotatingSecret] = useState(false);
 
   const load = async () => {
     if (!user) return;
@@ -37,6 +41,18 @@ export default function PartnerDashboard() {
     setKeys((ks || []) as ApiKey[]);
     setJobs((js || []) as Job[]);
     setCallbacks((cbs || []) as Callback[]);
+
+    if (p?.id) {
+      const { data: rq } = await supabase
+        .from("a2a_callback_queue")
+        .select("id, event_type, callback_url, attempt, max_attempts, status, next_attempt_at, last_error")
+        .eq("partner_id", p.id)
+        .order("updated_at", { ascending: false })
+        .limit(15);
+      setRetries((rq || []) as RetryRow[]);
+    } else {
+      setRetries([]);
+    }
     setLoading(false);
   };
 
@@ -51,6 +67,16 @@ export default function PartnerDashboard() {
     setRevealedKey(data.key);
     toast.success("New key generated — copy it now");
     load();
+  };
+
+  const handleRotateSecret = async () => {
+    if (!confirm("Rotate webhook secret? Future callbacks will be signed with the new secret. Update your verifier before proceeding.")) return;
+    setRotatingSecret(true);
+    const { data, error } = await supabase.functions.invoke("a2a-rotate-webhook-secret", { body: {} });
+    setRotatingSecret(false);
+    if (error || !data?.webhook_secret) { toast.error(error?.message || "Failed to rotate"); return; }
+    setRevealedSecret(data.webhook_secret);
+    toast.success("New webhook secret generated");
   };
 
   const fmt = (c: number) => `$${(c / 100).toFixed(2)}`;
@@ -122,6 +148,32 @@ export default function PartnerDashboard() {
           )}
         </Card>
 
+        {partner && (
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-bold flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-primary" /> Webhook Signing Secret</h2>
+              <Button size="sm" variant="outline" onClick={handleRotateSecret} disabled={rotatingSecret} className="gap-2">
+                {rotatingSecret ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                Rotate Secret
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              All A2A callbacks to your callback_url are signed with HMAC-SHA256 in <code className="bg-muted px-1 rounded">X-Echo-Signature: sha256=…</code> using this secret. Verify it on your side to confirm authenticity.
+            </p>
+            {revealedSecret ? (
+              <div className="p-3 rounded-lg bg-[hsl(var(--success-light))] border border-[hsl(var(--success))]/30">
+                <p className="text-xs font-semibold text-[hsl(var(--success))] mb-2">⚠ Copy this secret — it won't be shown again:</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 text-xs bg-card p-2 rounded font-mono break-all">{revealedSecret}</code>
+                  <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(revealedSecret); toast.success("Copied"); }}><Copy className="w-3 h-3" /></Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Secret is hidden. Click "Rotate Secret" to regenerate and reveal a new one.</p>
+            )}
+          </Card>
+        )}
+
         <Card className="p-6">
           <h2 className="font-bold mb-3">Recent Jobs</h2>
           {jobs.length === 0 ? <p className="text-sm text-muted-foreground">No jobs yet.</p> : (
@@ -165,6 +217,32 @@ export default function PartnerDashboard() {
             </div>
           )}
         </Card>
+
+        {retries.length > 0 && (
+          <Card className="p-6">
+            <h2 className="font-bold mb-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-500" /> Webhook Retry Queue</h2>
+            <p className="text-xs text-muted-foreground mb-3">Failed deliveries retry with exponential backoff. After 5 attempts they're marked failed_permanent.</p>
+            <div className="divide-y">
+              {retries.map(r => (
+                <div key={r.id} className="py-2 flex items-center justify-between text-xs gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Badge variant="outline" className={
+                      r.status === "delivered" ? "border-[hsl(var(--success))]/40 text-[hsl(var(--success))]"
+                        : r.status === "failed_permanent" ? "border-destructive/40 text-destructive"
+                        : "border-amber-500/40 text-amber-600"
+                    }>{r.status}</Badge>
+                    <code className="font-mono">{r.event_type}</code>
+                    <span className="text-muted-foreground truncate">{r.callback_url}</span>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-muted-foreground">attempt {r.attempt}/{r.max_attempts}</span>
+                    {r.status === "pending" && <span className="text-muted-foreground">next: {new Date(r.next_attempt_at).toLocaleTimeString()}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
       </main>
     </div>
   );

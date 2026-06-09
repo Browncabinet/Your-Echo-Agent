@@ -346,6 +346,11 @@ async function processJob(jobId: string) {
   const { data: updatedJob } = await sb.from("a2a_jobs").select("status").eq("id", jobId).maybeSingle();
   if (updatedJob?.status !== "paused" && remaining.length <= batch.length) {
     await setEvent(sb, jobId, "job.completed", { status: "completed" });
+    // Increment marketplace counter on the agent
+    try {
+      const { data: a } = await sb.from("a2a_agents").select("jobs_completed").eq("agent_id", job.agent_id).maybeSingle();
+      await sb.from("a2a_agents").update({ jobs_completed: (a?.jobs_completed || 0) + 1 }).eq("agent_id", job.agent_id);
+    } catch (e) { console.error("jobs_completed bump failed", e); }
     emitCallback(job.callback_url, "job.completed", {
       job_id: jobId,
       leads_sent: (job.leads_sent || 0) + sentCount,

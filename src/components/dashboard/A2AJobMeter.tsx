@@ -4,17 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, Loader2, X } from "lucide-react";
+import { Pause, Play, Loader2, X, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
@@ -29,9 +23,13 @@ type Job = {
   last_event_at: string | null;
 };
 
+type Event = { event_type: string; payload: any; created_at: string };
+
 export function A2AJobMeter({ campaignId }: { campaignId: string }) {
   const [job, setJob] = useState<Job | null>(null);
   const [busy, setBusy] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   const load = async () => {
     const { data } = await supabase
@@ -39,7 +37,16 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
       .select("id, status, spend_cents, spending_cap_cents, leads_total, leads_sent, last_event, last_event_at")
       .eq("campaign_id", campaignId)
       .maybeSingle();
-    if (data) setJob(data as Job);
+    if (data) {
+      setJob(data as Job);
+      const { data: ev } = await supabase
+        .from("a2a_job_events")
+        .select("event_type, payload, created_at")
+        .eq("job_id", (data as Job).id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setEvents((ev || []) as Event[]);
+    }
   };
 
   useEffect(() => {
@@ -68,9 +75,7 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
         body: JSON.stringify({}),
       });
       if (!res.ok) throw new Error(await res.text());
-      toast.success(
-        action === "pause" ? "Job paused" : action === "resume" ? "Job resumed" : "Job cancelled",
-      );
+      toast.success(action === "pause" ? "Job paused" : action === "resume" ? "Job resumed" : "Job cancelled");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Action failed");
@@ -158,6 +163,30 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
           </div>
         )}
       </div>
+
+      {events.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border">
+          <button
+            onClick={() => setShowTimeline((v) => !v)}
+            className="w-full flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition"
+          >
+            <span className="font-semibold uppercase tracking-wide">Event Timeline · {events.length}</span>
+            {showTimeline ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+          {showTimeline && (
+            <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              {events.map((e, i) => (
+                <div key={i} className="flex items-start gap-2 text-[11px] leading-relaxed">
+                  <span className="text-muted-foreground shrink-0 w-16">
+                    {new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                  </span>
+                  <code className="font-mono text-primary truncate">{e.event_type}</code>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }

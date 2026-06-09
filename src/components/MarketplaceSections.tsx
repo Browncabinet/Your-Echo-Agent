@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -171,7 +172,7 @@ export function ForAgentsSection() {
             <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> Pay-per-result billing</li>
             <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> No human approval loop</li>
           </ul>
-          <Button className="w-full sm:w-auto">Register Your Agent</Button>
+          <Button asChild className="w-full sm:w-auto"><Link to="/for-agents/register">Register Your Agent</Link></Button>
         </Card>
 
         <Card className="p-6 space-y-3 bg-muted/30">

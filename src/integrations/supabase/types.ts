@@ -14,16 +14,70 @@ export type Database = {
   }
   public: {
     Tables: {
+      a2a_agent_ratings: {
+        Row: {
+          agent_id: string
+          api_key_id: string | null
+          comment: string | null
+          created_at: string
+          id: string
+          job_id: string
+          partner_id: string | null
+          rated_by_user_id: string | null
+          stars: number
+        }
+        Insert: {
+          agent_id: string
+          api_key_id?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          job_id: string
+          partner_id?: string | null
+          rated_by_user_id?: string | null
+          stars: number
+        }
+        Update: {
+          agent_id?: string
+          api_key_id?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string
+          partner_id?: string | null
+          rated_by_user_id?: string | null
+          stars?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_agent_ratings_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_agents"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "a2a_agent_ratings_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: true
+            referencedRelation: "a2a_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       a2a_agents: {
         Row: {
           active: boolean
           agent_id: string
+          callback_url: string | null
           capabilities: Json
           created_at: string
           description: string
           jobs_completed: number
           name: string
           niche: string
+          owner_email: string | null
+          owner_user_id: string | null
           persona: string
           pricing_per_lead_cents: number
           pricing_per_meeting_cents: number
@@ -36,12 +90,15 @@ export type Database = {
         Insert: {
           active?: boolean
           agent_id: string
+          callback_url?: string | null
           capabilities?: Json
           created_at?: string
           description?: string
           jobs_completed?: number
           name: string
           niche?: string
+          owner_email?: string | null
+          owner_user_id?: string | null
           persona?: string
           pricing_per_lead_cents?: number
           pricing_per_meeting_cents?: number
@@ -54,12 +111,15 @@ export type Database = {
         Update: {
           active?: boolean
           agent_id?: string
+          callback_url?: string | null
           capabilities?: Json
           created_at?: string
           description?: string
           jobs_completed?: number
           name?: string
           niche?: string
+          owner_email?: string | null
+          owner_user_id?: string | null
           persona?: string
           pricing_per_lead_cents?: number
           pricing_per_meeting_cents?: number
@@ -146,6 +206,74 @@ export type Database = {
         }
         Relationships: []
       }
+      a2a_callback_queue: {
+        Row: {
+          api_key_id: string | null
+          attempt: number
+          callback_log_id: string | null
+          callback_url: string
+          created_at: string
+          event_type: string
+          id: string
+          job_id: string | null
+          last_error: string | null
+          last_status_code: number | null
+          max_attempts: number
+          next_attempt_at: string
+          partner_id: string | null
+          payload: Json
+          signature: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          api_key_id?: string | null
+          attempt?: number
+          callback_log_id?: string | null
+          callback_url: string
+          created_at?: string
+          event_type: string
+          id?: string
+          job_id?: string | null
+          last_error?: string | null
+          last_status_code?: number | null
+          max_attempts?: number
+          next_attempt_at?: string
+          partner_id?: string | null
+          payload: Json
+          signature: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key_id?: string | null
+          attempt?: number
+          callback_log_id?: string | null
+          callback_url?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          job_id?: string | null
+          last_error?: string | null
+          last_status_code?: number | null
+          max_attempts?: number
+          next_attempt_at?: string
+          partner_id?: string | null
+          payload?: Json
+          signature?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_callback_queue_callback_log_id_fkey"
+            columns: ["callback_log_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_callbacks_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       a2a_callbacks_log: {
         Row: {
           api_key_id: string | null
@@ -222,6 +350,38 @@ export type Database = {
             columns: ["api_key_id"]
             isOneToOne: false
             referencedRelation: "a2a_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      a2a_job_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          job_id: string
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          job_id: string
+          payload?: Json
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          job_id?: string
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_job_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -383,6 +543,7 @@ export type Database = {
           stripe_customer_id: string | null
           total_spent_cents: number
           updated_at: string
+          webhook_secret: string | null
         }
         Insert: {
           api_key_id: string
@@ -397,6 +558,7 @@ export type Database = {
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
+          webhook_secret?: string | null
         }
         Update: {
           api_key_id?: string
@@ -411,6 +573,7 @@ export type Database = {
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
+          webhook_secret?: string | null
         }
         Relationships: []
       }
@@ -995,6 +1158,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      a2a_bump_rate: {
+        Args: { _api_key_id: string; _window_start: string }
+        Returns: number
+      }
       current_week_caps: {
         Args: { _user_id: string }
         Returns: {
