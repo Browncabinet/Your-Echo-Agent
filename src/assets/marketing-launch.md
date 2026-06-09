@@ -70,7 +70,7 @@ If you're a founder, agency, or solo builder who wants outreach that actually so
 
 No templates. No generic sequences. Just your voice, your niche, and real replies.
 
-Try 50 emails free → yourechoagent.com
+Start from $19/week → yourechoagent.com
 
 ---
 
