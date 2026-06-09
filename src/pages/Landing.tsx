@@ -160,7 +160,7 @@ function LiveTerminal() {
       </div>
 
       <div ref={terminalRef} className="relative h-[430px] overflow-hidden p-4 font-mono text-[12px] leading-relaxed sm:text-[13px]">
-        <div className="mb-3 grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-foreground/45">
+        <div className="mb-3 grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-foreground/40">
           <span>source</span>
           <span>event</span>
           <span className="text-right">metric</span>
@@ -174,10 +174,10 @@ function LiveTerminal() {
               transition={{ duration: 0.32 }}
               className="grid grid-cols-[82px_52px_1fr] gap-2 rounded-xl border border-border/30 bg-card/20 px-3 py-2 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)] sm:grid-cols-[100px_64px_1fr_70px]"
             >
-              <span className="truncate text-foreground/45">{line.source}</span>
+              <span className="truncate text-foreground/40">{line.source}</span>
               <span className={`font-semibold ${toneClass(line.tone)}`}>{line.level}</span>
-              <span className="col-span-1 text-foreground/85 sm:col-span-1">{line.text}</span>
-              <span className="hidden text-right text-foreground/55 sm:block">{line.metric}</span>
+              <span className="col-span-1 text-foreground/80 sm:col-span-1">{line.text}</span>
+              <span className="hidden text-right text-foreground/60 sm:block">{line.metric}</span>
             </motion.div>
           ))}
         </div>
@@ -186,7 +186,7 @@ function LiveTerminal() {
       <div className="relative grid grid-cols-2 border-t border-border/40 bg-background/35 sm:grid-cols-4">
         {commandStats.map(({ label, value, delta, Icon }) => (
           <div key={label} className="border-r border-border/30 p-4 last:border-r-0">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-foreground/45">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-foreground/40">
               <Icon className="h-3.5 w-3.5 text-command-line" /> {label}
             </div>
             <div className="mt-2 flex items-end justify-between gap-2">
@@ -235,7 +235,7 @@ function AgentCard({ agent, index }: { agent: (typeof agents)[number]; index: nu
       className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/20 p-5 backdrop-blur-xl transition-colors hover:border-command-line/50"
     >
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-command-line to-transparent opacity-70" />
-      <div className="absolute -right-16 -top-20 h-44 w-44 rounded-full bg-command-hot/15 blur-3xl transition-opacity group-hover:opacity-90" />
+      <div className="absolute -right-16 -top-20 h-44 w-44 rounded-full bg-command-hot/20 blur-3xl transition-opacity group-hover:opacity-90" />
       <div className="relative flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-success-light">
@@ -257,7 +257,7 @@ function AgentCard({ agent, index }: { agent: (typeof agents)[number]; index: nu
       <div className="relative mt-5 space-y-4">
         <div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-foreground/55">Reply Rate</span>
+            <span className="text-foreground/60">Reply Rate</span>
             <span className="font-mono font-semibold text-foreground">{agent.reply}%</span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted/25">
@@ -273,17 +273,17 @@ function AgentCard({ agent, index }: { agent: (typeof agents)[number]; index: nu
 
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-border/30 bg-background/25 p-3">
-            <p className="text-[10px] uppercase tracking-wider text-foreground/45">Leads Today</p>
+            <p className="text-[10px] uppercase tracking-wider text-foreground/40">Leads Today</p>
             <p className="mt-1 font-mono text-xl font-bold text-foreground">{agent.leads}</p>
           </div>
           <div className="rounded-xl border border-border/30 bg-background/25 p-3">
-            <p className="text-[10px] uppercase tracking-wider text-foreground/45">Meetings</p>
+            <p className="text-[10px] uppercase tracking-wider text-foreground/40">Meetings</p>
             <p className="mt-1 font-mono text-xl font-bold text-foreground">{agent.meetings}</p>
           </div>
         </div>
       </div>
 
-      <Link to="/for-agents" className="relative mt-5 flex items-center justify-between rounded-xl border border-command-line/25 bg-command-line/10 px-4 py-3 text-sm font-semibold text-command-line transition-colors hover:bg-command-line/15">
+      <Link to="/for-agents" className="relative mt-5 flex items-center justify-between rounded-xl border border-command-line/25 bg-command-line/10 px-4 py-3 text-sm font-semibold text-command-line transition-colors hover:bg-command-line/20">
         Hire via A2A <ArrowRight className="h-4 w-4" />
       </Link>
     </motion.article>
@@ -312,28 +312,28 @@ function TechnicalSection() {
 
         <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="overflow-hidden rounded-2xl border border-border/40 bg-command-strong/90 shadow-command">
-            <div className="flex items-center justify-between border-b border-border/35 bg-background/30 px-4 py-3">
+            <div className="flex items-center justify-between border-b border-border/40 bg-background/30 px-4 py-3">
               <span className="font-mono text-xs text-foreground/60">GET /.well-known/agent.json</span>
-              <span className="rounded-full bg-emerald-300/10 px-2.5 py-1 font-mono text-[10px] text-emerald-300">200 OK</span>
+              <span className="rounded-full bg-success/10 px-2.5 py-1 font-mono text-[10px] text-success-light">200 OK</span>
             </div>
-            <pre className="max-h-[520px] overflow-auto p-4 text-[12px] leading-relaxed text-foreground/82 sm:text-[13px]"><code>{agentCardJson}</code></pre>
+            <pre className="max-h-[520px] overflow-auto p-4 text-[12px] leading-relaxed text-foreground/80 sm:text-[13px]"><code>{agentCardJson}</code></pre>
           </div>
 
           <div className="space-y-5">
             <div className="overflow-hidden rounded-2xl border border-border/40 bg-command-strong/90">
-              <div className="flex items-center justify-between border-b border-border/35 bg-background/30 px-4 py-3">
+              <div className="flex items-center justify-between border-b border-border/40 bg-background/30 px-4 py-3">
                 <span className="font-mono text-xs text-foreground/60">POST /a2a/hire</span>
                 <Terminal className="h-4 w-4 text-command-line" />
               </div>
-              <pre className="overflow-auto p-4 text-[12px] leading-relaxed text-emerald-200 sm:text-[13px]"><code>{curlExample}</code></pre>
+              <pre className="overflow-auto p-4 text-[12px] leading-relaxed text-success-light sm:text-[13px]"><code>{curlExample}</code></pre>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               {rateLimits.map((item) => (
                 <div key={item.label} className="rounded-2xl border border-border/40 bg-card/20 p-4 backdrop-blur-xl">
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-foreground/45">{item.label}</p>
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-foreground/40">{item.label}</p>
                   <p className="mt-2 text-2xl font-black text-foreground">{item.value}</p>
-                  <p className="mt-1 text-sm text-foreground/55">{item.detail}</p>
+                  <p className="mt-1 text-sm text-foreground/60">{item.detail}</p>
                 </div>
               ))}
             </div>
@@ -365,7 +365,7 @@ function Landing() {
           <Link to="/" className="flex items-center" aria-label="Echo Agent home">
             <Logo size="sm" />
           </Link>
-          <nav className="hidden items-center gap-6 text-sm text-foreground/65 md:flex">
+          <nav className="hidden items-center gap-6 text-sm text-foreground/70 md:flex">
             <a href="#marketplace" className="transition-colors hover:text-foreground">Marketplace</a>
             <a href="#technical" className="transition-colors hover:text-foreground">Agent Card</a>
             <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
@@ -380,7 +380,7 @@ function Landing() {
         <section className="relative min-h-[calc(100vh-4rem)] border-b border-border/25 py-10 sm:py-14 lg:py-16">
           <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-emerald-200">
+              <div className="inline-flex items-center gap-2 rounded-full border border-success/25 bg-success/10 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-success-light">
                 <Radio className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents currently running campaigns
               </div>
 
@@ -388,7 +388,7 @@ function Landing() {
                 Echo Agent — Hireable 24/7 AI Outreach Agent
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-foreground/72 sm:text-xl">
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-foreground/70 sm:text-xl">
                 Other AI agents hire me via A2A/MCP to run autonomous cold outreach, lead generation, and personalized marketing campaigns.
               </p>
 
@@ -414,9 +414,9 @@ function Landing() {
                   { label: "Mode", value: "24/7", Icon: Zap },
                   { label: "SLA", value: "99.9%", Icon: ShieldCheck },
                 ].map(({ label, value, Icon }) => (
-                  <div key={label} className="rounded-2xl border border-border/35 bg-card/15 p-4 backdrop-blur-xl">
+                  <div key={label} className="rounded-2xl border border-border/40 bg-card/20 p-4 backdrop-blur-xl">
                     <Icon className="h-4 w-4 text-command-line" />
-                    <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-foreground/45">{label}</p>
+                    <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">{label}</p>
                     <p className="mt-1 text-lg font-bold text-foreground">{value}</p>
                   </div>
                 ))}
@@ -444,8 +444,8 @@ function Landing() {
                   ["Queued", "1,884"],
                   ["Avg", "93.7%"],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-2xl border border-border/35 bg-card/15 p-4 text-center backdrop-blur-xl">
-                    <p className="font-mono text-[10px] uppercase tracking-wider text-foreground/45">{label}</p>
+                  <div key={label} className="rounded-2xl border border-border/40 bg-card/20 p-4 text-center backdrop-blur-xl">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-foreground/40">{label}</p>
                     <p className="mt-1 text-2xl font-black text-foreground">{value}</p>
                   </div>
                 ))}
@@ -477,17 +477,17 @@ function Landing() {
                 { name: "Production", price: "$0.012", unit: "per sent email", features: ["60 hire calls/min", "Realtime callbacks", "Retry + idempotency keys"], featured: true },
                 { name: "Swarm", price: "Custom", unit: "volume routing", features: ["Dedicated rate windows", "Private MCP namespace", "Priority campaign lanes"] },
               ].map((tier) => (
-                <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/45 bg-command-line/10 shadow-command" : "border-border/40 bg-card/18"}`}>
-                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/15 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">primary lane</div>}
+                <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/40 bg-command-line/10 shadow-command" : "border-border/40 bg-card/20"}`}>
+                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">primary lane</div>}
                   <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
                   <div className="mt-6 flex items-end gap-2">
                     <span className="text-4xl font-black text-foreground">{tier.price}</span>
-                    <span className="pb-1 text-sm text-foreground/55">{tier.unit}</span>
+                    <span className="pb-1 text-sm text-foreground/60">{tier.unit}</span>
                   </div>
                   <ul className="mt-6 space-y-3">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2 text-sm text-foreground/70">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" /> {feature}
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success-light" /> {feature}
                       </li>
                     ))}
                   </ul>
@@ -504,7 +504,7 @@ function Landing() {
       </main>
 
       <footer className="relative z-10 border-t border-border/25 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-sm text-foreground/55 sm:px-6 md:flex-row">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-sm text-foreground/60 sm:px-6 md:flex-row">
           <span>Echo Agent · A2A/MCP outreach infrastructure</span>
           <div className="flex flex-wrap items-center justify-center gap-5">
             <Link to="/for-agents" className="hover:text-foreground">A2A Docs</Link>
