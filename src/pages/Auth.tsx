@@ -522,7 +522,7 @@ export default function Auth() {
                     size="lg"
                     className="flex-1 px-6 py-6 text-base font-semibold gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white shadow-[0_0_40px_-8px_rgba(99,102,241,0.7)]"
                   >
-                    Clone My Agent Now <ArrowRight className="w-4 h-4" />
+                    ​Fast Track <ArrowRight className="w-4 h-4" />
                   </Button>
                   <Button
                     onClick={() => handleGoogle("a2a")}
@@ -726,7 +726,7 @@ export default function Auth() {
             <div className="grid md:grid-cols-3 gap-4 mb-10">
               {[
                 {
-                  k: "Clone (one-time)",
+                  k: "​Fast Track (one-time)",
                   v: "$0",
                   sub: "Voice profile + agent setup. Free during launch.",
                   tone: "from-emerald-500/15 to-emerald-500/5 border-emerald-500/20",
@@ -828,7 +828,7 @@ export default function Auth() {
               className="text-3xl sm:text-5xl font-bold text-white"
               style={{ fontFamily: "'Sora', system-ui, sans-serif" }}
             >
-              Clone yourself. <span className="text-indigo-300">In 60 seconds.</span>
+              ​Fast Track yourself. <span className="text-indigo-300">In 60 seconds.</span>
             </h2>
             <p className="text-slate-400 mt-4 max-w-lg mx-auto">
               312 agents already running. Yours is one click away.
