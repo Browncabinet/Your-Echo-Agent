@@ -62,6 +62,24 @@ Deno.serve(async (req) => {
     if (!userId) return json({ error: "unauthorized", hint: "Provide Bearer API key (eak_...) or signed-in user JWT" }, 401);
   }
 
+  // Idempotency (A2A clients): replay-safe hire within 24h
+  const idemKey = req.headers.get("idempotency-key") || req.headers.get("Idempotency-Key");
+  if (idemKey && apiKeyId) {
+    if (idemKey.length > 200) return json({ error: "idempotency_key_too_long" }, 400);
+    const { data: existing } = await sb
+      .from("a2a_idempotency_keys")
+      .select("response_json, status_code, created_at")
+      .eq("api_key_id", apiKeyId)
+      .eq("idempotency_key", idemKey)
+      .maybeSingle();
+    if (existing) {
+      const ageMs = Date.now() - new Date(existing.created_at as string).getTime();
+      if (ageMs < 24 * 60 * 60 * 1000) {
+        return json(existing.response_json, existing.status_code || 201, { "Idempotent-Replay": "true" });
+      }
+    }
+  }
+
   // Validate agent
   const { data: agent, error: agentErr } = await sb
     .from("a2a_agents").select("*").eq("agent_id", agentId).eq("active", true).maybeSingle();
@@ -161,7 +179,7 @@ Deno.serve(async (req) => {
     (EdgeRuntime as any).waitUntil(kick);
   }
 
-  return json({
+  const response = {
     job_id: job.id,
     campaign_id: campaign.id,
     status: "queued",
@@ -171,6 +189,18 @@ Deno.serve(async (req) => {
     currency: "usd",
     poll_url: `/v1/jobs/${job.id}`,
     message: `Echo agent "${agent.name}" hired. Campaign starting now.`,
-  }, 201);
+  };
+
+  // Persist idempotent response for replay
+  if (idemKey && apiKeyId) {
+    await sb.from("a2a_idempotency_keys").insert({
+      api_key_id: apiKeyId,
+      idempotency_key: idemKey,
+      response_json: response,
+      status_code: 201,
+    }).then(() => {}, () => {});
+  }
+
+  return json(response, 201);
 });
 

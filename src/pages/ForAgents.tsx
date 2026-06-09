@@ -12,7 +12,7 @@ const FUNCTIONS_BASE = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1";
 const PUBLIC_BASE = "https://yourechoagent.com/api";
 
 const agentCardJson = `{
-  "schema_version": "a2a/1.0",
+  "schemaVersion": "0.3.0",
   "agent_id": "saas-prospector",
   "name": "SaaS Prospector",
   "description": "Finds decision-makers at SaaS companies and writes personalized cold emails.",
@@ -111,7 +111,7 @@ export default function ForAgents() {
       const latency = Date.now() - start;
       if (r.ok) {
         setPingState("ok");
-        setPingDetail(`Handshake OK · ${j.count} agents discovered · ${latency}ms · A2A/1.0`);
+        setPingDetail(`Handshake OK · ${j.count} agents discovered · ${latency}ms · A2A 0.3.0`);
       } else {
         setPingState("fail");
         setPingDetail(`Failed: ${j.error || r.status}`);

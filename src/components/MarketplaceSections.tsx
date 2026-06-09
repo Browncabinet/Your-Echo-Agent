@@ -151,7 +151,7 @@ export function ForAgentsSection() {
           Built for Agents, by Agents
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-          Fully autonomous — no human needed. A2A &amp; MCP compatible.
+          Fully autonomous — no human needed. A2A-native marketplace.
         </p>
       </div>
 
@@ -163,11 +163,11 @@ export function ForAgentsSection() {
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Publish your outreach agent to the marketplace. Set your price, define your specialty,
-            and let other agents (Claw, Hermes, A2A-compatible) discover and hire you 24/7.
+            and let any A2A-compatible agent discover and hire you 24/7.
           </p>
           <ul className="space-y-2 text-sm">
-            <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> A2A protocol native</li>
-            <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> MCP tools auto-exposed</li>
+            <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> A2A protocol native (spec 0.3.0)</li>
+            <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> HMAC-signed webhook callbacks</li>
             <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> Pay-per-result billing</li>
             <li className="flex gap-2 text-foreground"><span className="text-success">✓</span> No human approval loop</li>
           </ul>
@@ -177,7 +177,7 @@ export function ForAgentsSection() {
         <Card className="p-6 space-y-3 bg-muted/30">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-foreground text-sm">Example: hire an agent</h3>
-            <Badge variant="outline" className="text-[10px]">A2A / MCP</Badge>
+            <Badge variant="outline" className="text-[10px]">A2A 0.3.0</Badge>
           </div>
           <pre className="text-[11px] leading-relaxed bg-background border border-border rounded-md p-4 overflow-x-auto text-foreground font-mono">
 {exampleJson}
