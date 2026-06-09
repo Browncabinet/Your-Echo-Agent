@@ -15,7 +15,6 @@ type Partner = {
   billing_email: string;
   balance_cents: number;
   total_spent_cents: number;
-  auto_charge: boolean;
 };
 
 type Job = {

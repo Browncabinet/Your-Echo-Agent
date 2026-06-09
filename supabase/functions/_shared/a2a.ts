@@ -57,8 +57,23 @@ export async function authenticateApiKey(req: Request): Promise<ApiKeyRow | null
   return data as ApiKeyRow;
 }
 
+/** Derive the public base URL of this deployment, e.g. https://yourechoagent.com */
+export function publicBaseUrl(req: Request): string {
+  try {
+    const u = new URL(req.url);
+    // If hitting the supabase functions origin directly, prefer the canonical domain
+    if (u.hostname.endsWith(".supabase.co")) return "https://yourechoagent.com";
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return "https://yourechoagent.com";
+  }
+}
+
 export async function signPayload(payload: string): Promise<string> {
-  const secret = Deno.env.get("A2A_CALLBACK_SIGNING_SECRET") || "dev-secret-change-me";
+  const secret = Deno.env.get("A2A_CALLBACK_SIGNING_SECRET");
+  if (!secret) {
+    throw new Error("A2A_CALLBACK_SIGNING_SECRET is not configured. Refusing to sign callbacks with an insecure default.");
+  }
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),

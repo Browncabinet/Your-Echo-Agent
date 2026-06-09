@@ -4,8 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, Loader2 } from "lucide-react";
+import { Pause, Play, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Job = {
   id: string;
@@ -44,9 +55,8 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
   const pct = job.spending_cap_cents > 0 ? Math.min(100, (job.spend_cents / job.spending_cap_cents) * 100) : 0;
   const leadPct = job.leads_total > 0 ? Math.min(100, (job.leads_sent / job.leads_total) * 100) : 0;
 
-  const toggle = async () => {
+  const callControl = async (action: "pause" | "resume" | "cancel") => {
     setBusy(true);
-    const action = job.status === "paused" ? "resume" : "pause";
     try {
       const { data: session } = await supabase.auth.getSession();
       const token = session.session?.access_token;
@@ -58,7 +68,9 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
         body: JSON.stringify({}),
       });
       if (!res.ok) throw new Error(await res.text());
-      toast.success(action === "pause" ? "Job paused" : "Job resumed");
+      toast.success(
+        action === "pause" ? "Job paused" : action === "resume" ? "Job resumed" : "Job cancelled",
+      );
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Action failed");
@@ -67,13 +79,17 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
     }
   };
 
+  const toggle = () => callControl(job.status === "paused" ? "resume" : "pause");
+
   const live = ["queued", "running"].includes(job.status);
+  const canControl = ["queued", "running", "paused"].includes(job.status);
   const statusColor: Record<string, string> = {
     queued: "bg-blue-500/15 text-blue-600 border-blue-500/30",
     running: "bg-green-500/15 text-green-600 border-green-500/30",
     paused: "bg-amber-500/15 text-amber-600 border-amber-500/30",
     completed: "bg-muted text-muted-foreground border-border",
     failed: "bg-red-500/15 text-red-600 border-red-500/30",
+    cancelled: "bg-muted text-muted-foreground border-border",
   };
 
   return (
@@ -89,10 +105,38 @@ export function A2AJobMeter({ campaignId }: { campaignId: string }) {
             <span className="text-[11px] text-muted-foreground">· {job.last_event}</span>
           )}
         </div>
-        {(job.status === "running" || job.status === "paused") && (
-          <Button size="sm" variant="outline" onClick={toggle} disabled={busy} className="gap-1 h-7 text-xs">
-            {job.status === "paused" ? <><Play className="w-3 h-3" /> Resume</> : <><Pause className="w-3 h-3" /> Pause</>}
-          </Button>
+        {canControl && (
+          <div className="flex items-center gap-1.5">
+            {(job.status === "running" || job.status === "paused") && (
+              <Button size="sm" variant="outline" onClick={toggle} disabled={busy} className="gap-1 h-7 text-xs">
+                {job.status === "paused" ? <><Play className="w-3 h-3" /> Resume</> : <><Pause className="w-3 h-3" /> Pause</>}
+              </Button>
+            )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline" disabled={busy} className="gap-1 h-7 text-xs text-destructive hover:text-destructive">
+                  <X className="w-3 h-3" /> Cancel
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel this job?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This stops the agent permanently. Already-sent emails stay sent, but no new outreach will go out. You can't resume a cancelled job — you'd have to start a new campaign.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep running</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => callControl("cancel")}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Yes, cancel job
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         )}
       </div>
 

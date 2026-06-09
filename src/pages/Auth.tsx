@@ -102,7 +102,7 @@ export default function Auth() {
                 <Sparkles className="w-3 h-3 mr-1" /> Launching June 2026 · Now Open for Early Agents
               </Badge>
               <Badge variant="secondary" className="inline-flex">
-                <Bot className="w-3 h-3 mr-1" /> A2A · MCP Compatible
+                <Bot className="w-3 h-3 mr-1" /> A2A-native
               </Badge>
             </div>
 
@@ -151,7 +151,7 @@ export default function Auth() {
                 <Shield className="w-3.5 h-3.5 text-success" /> Secure Cloud Hosting
               </span>
               <span className="flex items-center gap-1.5">
-                <Bot className="w-3.5 h-3.5 text-primary" /> A2A + MCP Compatible
+                <Bot className="w-3.5 h-3.5 text-primary" /> A2A-native
               </span>
               <span className="flex items-center gap-1.5">
                 <CreditCard className="w-3.5 h-3.5 text-warning" /> No Credit Card Needed

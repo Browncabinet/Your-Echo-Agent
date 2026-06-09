@@ -1,4 +1,4 @@
-// POST /v1/jobs/{job_id}/pause | /resume
+// POST /v1/jobs/{job_id}/pause | /resume | /cancel
 import { corsHeaders, json, admin, authenticateApiKey, emitCallback } from "../_shared/a2a.ts";
 
 Deno.serve(async (req) => {
@@ -7,10 +7,10 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const parts = url.pathname.split("/").filter(Boolean);
-  const action = parts[parts.length - 1]; // "pause" | "resume"
+  const action = parts[parts.length - 1]; // "pause" | "resume" | "cancel"
   const jobId = url.searchParams.get("job_id") || parts[parts.length - 2];
-  if (!jobId || (action !== "pause" && action !== "resume")) {
-    return json({ error: "expects /a2a-job-control/{job_id}/{pause|resume}" }, 400);
+  if (!jobId || (action !== "pause" && action !== "resume" && action !== "cancel")) {
+    return json({ error: "expects /a2a-job-control/{job_id}/{pause|resume|cancel}" }, 400);
   }
 
   const sb = admin();
@@ -31,6 +31,29 @@ Deno.serve(async (req) => {
   else if (userId) q = q.eq("user_id", userId);
   const { data: job } = await q.maybeSingle();
   if (!job) return json({ error: "job_not_found" }, 404);
+
+  // Cancel is terminal — no resume from here
+  if (action === "cancel") {
+    if (job.status === "completed" || job.status === "cancelled" || job.status === "failed") {
+      return json({ error: "job_already_terminal", status: job.status }, 409);
+    }
+    await sb.from("a2a_jobs").update({
+      status: "cancelled",
+      last_event: "job.cancelled",
+      last_event_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }).eq("id", jobId);
+
+    if (job.campaign_id) {
+      await sb.from("campaigns").update({
+        status: "paused",
+        updated_at: new Date().toISOString(),
+      }).eq("id", job.campaign_id);
+    }
+
+    emitCallback(job.callback_url, "job.cancelled", { job_id: jobId, status: "cancelled" });
+    return json({ ok: true, job_id: jobId, status: "cancelled" });
+  }
 
   const newStatus = action === "pause" ? "paused" : "running";
   await sb.from("a2a_jobs").update({
