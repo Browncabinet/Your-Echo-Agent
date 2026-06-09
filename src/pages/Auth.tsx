@@ -17,9 +17,8 @@ import {
   ChevronRight,
   Link2,
   Copy,
-  Code2,
-  Calendar,
   MessageSquare,
+
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Logo } from "@/components/Logo";
