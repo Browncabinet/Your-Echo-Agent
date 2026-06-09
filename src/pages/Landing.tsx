@@ -183,7 +183,7 @@ function LiveTerminal() {
         </div>
       </div>
 
-      <div className="relative grid grid-cols-2 border-t border-border/40 bg-background/35 sm:grid-cols-4">
+      <div className="relative grid grid-cols-2 border-t border-border/40 bg-background/30 sm:grid-cols-4">
         {commandStats.map(({ label, value, delta, Icon }) => (
           <div key={label} className="border-r border-border/30 p-4 last:border-r-0">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-foreground/40">
