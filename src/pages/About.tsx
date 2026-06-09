@@ -4,12 +4,19 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useNavigate, Link } from "react-router-dom";
 import profileImg from "@/assets/profile-ladysoleil.png";
+import { SeoHead } from "@/components/SeoHead";
 
 export default function About() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="About Your Echo Agent — Built by @Ladysoleil"
+        description="Built by a tech exec turned founder with 15+ years in PR. Autonomous outreach agents that sound exactly like you — without platform gouging."
+        path="/about"
+      />
+
       <header className="border-b bg-card">
         <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="cursor-pointer" onClick={() => navigate("/")}>

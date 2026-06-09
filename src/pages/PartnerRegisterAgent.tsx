@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
 import { ArrowLeft, Bot, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { SeoHead } from "@/components/SeoHead";
+
 
 const ALL_CAPS = [
   { id: "email_outreach", label: "Email outreach" },

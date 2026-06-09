@@ -202,7 +202,8 @@ export default function Auth() {
             <FaqSection />
           </section>
         </div>
-      </div>
+      </main>
+
 
       <Footer />
     </div>
