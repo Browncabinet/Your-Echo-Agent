@@ -77,6 +77,7 @@ export default function Index() {
     if (!localStorage.getItem(key)) {
       setShowWelcome(true);
       localStorage.setItem(key, "1");
+      trackEvent("signup_complete", { provider: "google" });
     }
   }, [user]);
   const updateCampaign = (updates: Partial<Campaign>) => {
@@ -113,6 +114,7 @@ export default function Index() {
     const updated = { ...campaign, status: "active" as const };
     setCampaign(updated);
     await saveCampaign(updated);
+    trackEvent("first_campaign_sent", { campaign_id: updated.id, niche: updated.niche });
     setView("dashboard");
   };
 
