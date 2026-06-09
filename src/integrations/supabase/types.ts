@@ -595,6 +595,30 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_name: string
+          id: string
+          properties: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_name: string
+          id?: string
+          properties?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_name?: string
+          id?: string
+          properties?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bounce_events: {
         Row: {
           bounce_type: string
