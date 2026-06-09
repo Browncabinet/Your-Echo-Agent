@@ -56,7 +56,7 @@ Niche-first outreach just hits different. When you speak the language of a commu
 
 Your Echo Agent does the research and writing. You close the deals.
 
-50 free emails to prove it works.
+Weekly plans from $19. Cancel anytime.
 → yourechoagent.com
 
 ---
