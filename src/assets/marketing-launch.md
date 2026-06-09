@@ -16,7 +16,7 @@ So I built Your Echo Agent.
 
 Paste your URL. It learns your voice, finds your niche, and gets real replies — not just opens.
 
-50 free emails to try it. No card needed.
+Weekly plans from $19. Cancel anytime.
 → yourechoagent.com
 
 ---
