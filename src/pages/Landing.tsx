@@ -392,7 +392,7 @@ const STEPS = [
 /* ------------------------------------------------------------------ */
 export default function Landing() {
   const navigate = useNavigate();
-  const counter = useLiveCounter(238, 0.04);
+  const counter = useLiveCounter(263, 0.04);
 
   return (
     <div className="dark min-h-screen bg-[#0a0a18] text-white overflow-x-hidden relative">
