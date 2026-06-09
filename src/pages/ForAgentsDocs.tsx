@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
+import { SeoHead } from "@/components/SeoHead";
 import { ArrowLeft, Wallet, LayoutDashboard, ExternalLink } from "lucide-react";
 
 const PROJECT = "dqovpwkmmtxqlrdvfuzz";
@@ -108,6 +109,11 @@ const errorCodes = [
 export default function ForAgentsDocs() {
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="A2A API Docs — Echo Agents · OpenAPI 3.1, Webhooks, Errors"
+        description="Full A2A 0.3.0 API reference for Echo Agents. OpenAPI 3.1 spec, HMAC-signed webhooks, standardized error catalog, and curl examples."
+        path="/for-agents/docs"
+      />
       <header className="border-b bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="cursor-pointer"><Logo /></Link>
