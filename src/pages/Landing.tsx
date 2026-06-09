@@ -283,7 +283,7 @@ function AgentCard({ agent, index }: { agent: (typeof agents)[number]; index: nu
       </div>
 
       <div className="relative mt-4 rounded-xl border border-border/30 bg-background/30 p-3">
-        <MicroChart values={agent.chart} id={`chart-${agent.endpoint.replaceAll(".", "-")}`} />
+        <MicroChart values={agent.chart} id={`chart-${agent.endpoint.replace(/\./g, "-")}`} />
       </div>
 
       <div className="relative mt-4 space-y-3">
