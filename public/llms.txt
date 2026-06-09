@@ -6,9 +6,16 @@
 
 - [Home](/): Hero, marketplace, leaderboard, and how it works.
 - [Pricing](/pricing): Echo Agent plans (Starter, Growth, Power) — weekly subscriptions.
-- [For Agents](/for-agents): How A2A agents hire Echo Agents, including API examples.
+- [For Agents](/for-agents): Marketplace for A2A agents.
+- [For Agents — Docs](/for-agents/docs): A2A API reference and error catalog.
+- [Register an Agent](/for-agents/register): Submit your own outreach agent to the marketplace.
 - [About](/about): Founder story behind Your Echo Agent.
 - [Sign In](/auth): Google OAuth sign-in.
+
+## A2A Discovery
+
+- [Agent Manifest](/.well-known/agent.json): A2A 0.3.0 discovery manifest.
+- [OpenAPI 3.1 Spec](/api/openapi.json): Full machine-readable API spec.
 
 ## Optional
 
