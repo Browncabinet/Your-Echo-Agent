@@ -87,7 +87,7 @@ export default function Auth() {
       </nav>
 
       {/* Main content */}
-      <div className="flex-1">
+      <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden">
           {/* soft background glow */}
