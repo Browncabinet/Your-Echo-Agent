@@ -57,7 +57,7 @@ export default function Terms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">Email Packs & Payments</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Your Echo Agent uses a pay-as-you-go system. Email packs are purchased through Stripe and never expire. Each email sent uses one from your balance. New accounts receive 50 free emails.
+              Your Echo Agent uses a pay-as-you-go system. Email packs are purchased through Stripe and never expire. Each email sent uses one from your balance.
             </p>
             <p className="text-muted-foreground leading-relaxed">
               All purchases are final. Email packs are non-refundable and non-transferable. If you believe there was a billing error, contact us and we'll look into it.

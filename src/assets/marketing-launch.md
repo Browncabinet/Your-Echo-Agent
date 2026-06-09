@@ -16,7 +16,7 @@ So I built Your Echo Agent.
 
 Paste your URL. It learns your voice, finds your niche, and gets real replies — not just opens.
 
-50 free emails to try it. No card needed.
+Weekly plans from $19. Cancel anytime.
 → yourechoagent.com
 
 ---
@@ -56,7 +56,7 @@ Niche-first outreach just hits different. When you speak the language of a commu
 
 Your Echo Agent does the research and writing. You close the deals.
 
-50 free emails to prove it works.
+Weekly plans from $19. Cancel anytime.
 → yourechoagent.com
 
 ---
@@ -70,7 +70,7 @@ If you're a founder, agency, or solo builder who wants outreach that actually so
 
 No templates. No generic sequences. Just your voice, your niche, and real replies.
 
-Try 50 emails free → yourechoagent.com
+Start from $19/week → yourechoagent.com
 
 ---
 
@@ -118,5 +118,5 @@ We've seen 3-5x higher response rates compared to generic cold email. Not becaus
 
 If you're a Tablecharts user, you already know I care about relationships over volume. Your Echo Agent is that philosophy, automated.
 
-Try 50 free emails. No card needed.
+Weekly plans from $19. Cancel anytime.
 → yourechoagent.com

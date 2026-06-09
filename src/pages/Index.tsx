@@ -201,7 +201,7 @@ export default function Index() {
                   </div>
                   <p className="text-base font-semibold text-foreground mb-1">Ready for your first campaign?</p>
                   <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto">
-                    You have <span className="font-semibold text-foreground">50 free emails</span> to start. Fast Mode finds leads and writes your emails in under 2 minutes.
+                    Fast Mode finds leads and writes your emails in under 2 minutes.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2 justify-center">
                     <Button size="sm" onClick={() => setQuickStartOpen(true)} className="gap-2">
@@ -301,12 +301,12 @@ export default function Index() {
                   <span className="text-primary">sounds like you</span> and gets real replies
                 </h1>
                 <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
-                  Paste your URL. We find the right people, write personal emails in your voice, and handle replies — on email and LinkedIn. Start free with 50 emails on us.
+                  Paste your URL. We find the right people, write personal emails in your voice, and handle replies — on email and LinkedIn.
                 </p>
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
                   <Button size="lg" onClick={() => setQuickStartOpen(true)} className="gap-2 text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-shadow">
-                    <Sparkles className="w-5 h-5" /> Try Free — 50 Emails On Us
+                    <Sparkles className="w-5 h-5" /> Try Fast Mode
                   </Button>
                   <Button size="lg" variant="outline" onClick={startNewCampaign} className="gap-2 text-base px-8 py-7 border-primary/30 text-primary hover:bg-primary/5">
                     <Plus className="w-5 h-5" /> New Campaign

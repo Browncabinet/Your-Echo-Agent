@@ -1,52 +1,41 @@
-## Pre-Publish Review
+# Remove free-trial messaging + verify Index design
 
-### What's already good
-- All public routes return 200 (`/`, `/pricing`, `/for-agents`, `/for-agents/docs`, `/about`, `/privacy`, `/terms`, `/acceptable-use`, `/sitemap.xml`, `/robots.txt`)
-- `index.html` source is clean (no "Lovable App" defaults — those still show on live because publish is stale)
-- `public/og-image.png` and `public/.well-known/agent.json` exist locally — will resolve at publish
-- Security scan: 0 findings
-- Top-priority SEO findings (duplicate titles, missing JSON-LD, og:url) are already fixed in source — will resolve at publish
+## What you're seeing now
+The new Index design is still in place (hero with "Niche outreach that sounds like you", 3-step How-it-works, Demo section, Pricing, Marketplace, FAQ, etc.). Nothing was deleted — but the hero CTA still says **"Try Free — 50 Emails On Us"**, which clashes with your no-free-offer position. Same on `/auth`. After this cleanup the design will read as a paid product end-to-end.
 
-### Issues to fix before publishing
+## Changes
 
-**1. Accessibility — `/auth` (homepage) has no `<main>` landmark**
-`src/pages/Auth.tsx` uses `<div className="flex-1">` for the primary content wrapper. Replace with `<main className="flex-1">` so screen readers can skip to content. This fixes the `lighthouse:lighthouse_accessibility` finding.
+### 1. Landing hero (`src/pages/Index.tsx`)
+- Replace subhead `"...Start free with 50 emails on us."` → `"...on email and LinkedIn."`
+- Replace primary CTA `Try Free — 50 Emails On Us` → `Try Fast Mode` (keeps the Sparkles icon and same click handler)
+- Empty-state card: drop the `"You have 50 free emails to start."` line; keep `"Fast Mode finds leads and writes your emails in under 2 minutes."`
 
-**2. SEO — pages missing per-route `<Helmet>`**
-These pages render but inherit the homepage title/description:
-- `/about` — `src/pages/About.tsx`
-- `/privacy` — `src/pages/Privacy.tsx`
-- `/terms` — `src/pages/Terms.tsx`
-- `/acceptable-use` — `src/pages/AcceptableUse.tsx`
-- `/for-agents/register` — `src/pages/PartnerRegisterAgent.tsx`
+### 2. Auth / public landing (`src/pages/Auth.tsx`)
+- Primary CTA `Get Started Free — 50 Emails On Us` → `Get Started — Sign in with Google` (remove the duplicate secondary Google button, keep one CTA)
+- Replace hint `"One click — no passwords, no credit card needed"` → `"One click — secure Google sign-in"`
 
-Add `<SeoHead>` to each with a unique title (<60 chars), description (50–160 chars), and self-referencing canonical. Pattern already used in `Index.tsx`, `Pricing.tsx`, `ForAgents.tsx`, `ForAgentsDocs.tsx`.
+### 3. Welcome modal (`src/components/WelcomeModal.tsx`)
+- Replace the "50 free emails included" card with a "Weekly plans from $19" card pointing to `/pricing` (keeps the two-row layout)
 
-**3. Dismiss N/A Supabase linter warnings**
-- *Leaked Password Protection Disabled* — N/A; auth is Google OAuth only, no passwords exist.
-- *Extension in Public schema* — pre-existing Lovable Cloud default; low risk, no action.
+### 4. Demo CTA (`src/components/HomeDemoSection.tsx`)
+- Button `Try Fast Mode — Free` → `Try Fast Mode`
 
-These stay as warnings in the linter but aren't blockers.
+### 5. Get Started checklist (`src/components/GetStartedChecklist.tsx`)
+- Help copy `"Start with 50 emails to test what works before scaling."` → `"Start with a small batch to test what works before scaling."`
 
-### Issues intentionally NOT fixed
-- *Lighthouse LCP (low)* — would require image preload tuning; defer to post-launch optimization pass.
-- *SEMrush MCP guide suggestion* — content marketing task, not a launch blocker.
-- *Per-route og:title/og:description for social crawlers* — Helmet only updates head client-side, so LinkedIn/Slack/Facebook will always see the homepage og tags. Fixing this properly needs SSR; the current homepage og is acceptable for all routes at launch.
+### 6. Terms (`src/pages/Terms.tsx`)
+- Drop the sentence `"New accounts receive 50 free emails."`
 
-### After the fixes
+### 7. Marketing source doc (`src/assets/marketing-launch.md`)
+- Strip the four "50 free emails / try free" lines so the doc matches paid-only positioning
 
-Publish the app via the Publish button. That single action resolves:
-- Stale duplicate `<title>Lovable App</title>` and `<meta description="Lovable Generated Project">` on live HTML
-- 404 on `/og-image.png`
-- 404 on `/.well-known/agent.json`
-- All "marked fixed pending rescan" SEO findings
+### 8. Stop granting 50 free emails on signup (backend)
+- New migration: change `public.credits.balance` default from `50` → `0`, and update the `handle_new_user` trigger to insert `balance = 0`. Existing users untouched.
+- This is the only business-logic change — it's required so the UI promise matches reality.
 
-### Files to change
-- `src/pages/Auth.tsx` — wrap `<div className="flex-1">` content in `<main>`
-- `src/pages/About.tsx` — add `<SeoHead>`
-- `src/pages/Privacy.tsx` — add `<SeoHead>`
-- `src/pages/Terms.tsx` — add `<SeoHead>`
-- `src/pages/AcceptableUse.tsx` — add `<SeoHead>`
-- `src/pages/PartnerRegisterAgent.tsx` — add `<SeoHead>`
+### 9. Verification
+- Reload `/` and `/auth` in the preview and confirm no "free / 50 emails" copy remains and the hero/demo/pricing sections all render.
 
-Small, scoped, no business-logic changes. Then publish.
+## What is NOT changing
+- Pricing, plans, weekly caps, A2A, deliverability — untouched.
+- No layout / design-token changes; copy + one CTA swap + one migration only.

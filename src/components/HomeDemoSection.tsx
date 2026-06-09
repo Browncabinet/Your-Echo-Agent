@@ -84,7 +84,7 @@ export function HomeDemoSection({ onTryDemo }: Props) {
 
       <div className="flex justify-center">
         <Button size="lg" onClick={onTryDemo} className="gap-2 shadow-md">
-          Try Fast Mode — Free <ArrowRight className="w-4 h-4" />
+          Try Fast Mode <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
     </section>

@@ -69,7 +69,7 @@ export function GetStartedChecklist({ campaigns, onNewCampaign, onFastMode }: Pr
     {
       key: "send",
       label: "Approve and send your first batch",
-      help: "Start with 50 emails to test what works before scaling.",
+      help: "Start with a small batch to test what works before scaling.",
       done: hasSent,
       icon: Send,
       cta: hasCampaign && !hasSent ? { label: "Open campaign", onClick: () => {} } : undefined,
