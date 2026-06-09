@@ -43,6 +43,16 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
+    --command-panel: 229 45% 12%;
+    --command-panel-strong: 230 55% 8%;
+    --command-line: 193 95% 64%;
+    --command-hot: 318 86% 68%;
+    --command-grid: 224 42% 24%;
+
+    --gradient-command: linear-gradient(135deg, hsl(230 62% 10%), hsl(242 57% 16%) 48%, hsl(218 70% 9%));
+    --gradient-action: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--command-hot)));
+    --shadow-command: 0 0 70px -20px hsl(var(--primary) / 0.85), 0 0 38px -24px hsl(var(--command-line) / 0.9);
+
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 25% 15%;
     --sidebar-primary: 239 84% 67%;
@@ -87,6 +97,12 @@
     --sidebar-accent-foreground: 239 20% 90%;
     --sidebar-border: 239 30% 20%;
     --sidebar-ring: 239 84% 72%;
+
+    --command-panel: 229 45% 12%;
+    --command-panel-strong: 230 55% 8%;
+    --command-line: 193 95% 64%;
+    --command-hot: 318 86% 68%;
+    --command-grid: 224 42% 24%;
   }
 }
 
