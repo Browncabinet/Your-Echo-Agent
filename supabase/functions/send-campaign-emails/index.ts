@@ -309,7 +309,7 @@ serve(async (req) => {
       try {
         // Append mandatory unsubscribe footer
         if (sendId) {
-          body = body + `<br><br><p style="font-size:11px;color:#94A3B8;text-align:center;margin-top:24px">You're receiving this from ${settings.email_address}. <a href="${unsubLink(sendId)}" style="color:#94A3B8">Unsubscribe</a>.</p>`;
+          body = body + `<br><br><p style="font-size:11px;color:#94A3B8;text-align:center;margin-top:24px;line-height:1.5">You're receiving this from ${settings.email_address}. <a href="${unsubLink(sendId)}" style="color:#94A3B8">Unsubscribe</a>.<br/>Powered by <a href="https://yourechoagent.com" style="color:#94A3B8">Your Echo Agent</a></p>`;
         }
 
         await sendEmailViaSMTP(

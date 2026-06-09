@@ -5,24 +5,34 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-card/50 mt-auto">
       <div className="container max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
           {/* Brand */}
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <div className="mb-2">
               <Logo size="sm" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              The affordable AI outreach tool for creators and solo builders.
+              Niche-first AI outreach for founders, agencies, and AI agents. Pay weekly, cancel anytime.
             </p>
           </div>
 
-          {/* Navigation */}
+          {/* Product */}
           <div>
             <p className="text-sm font-semibold text-foreground mb-2">Product</p>
             <ul className="space-y-1.5 text-sm text-muted-foreground">
-              <li><Link to="/auth" className="hover:text-primary transition-colors">Home</Link></li>
               <li><Link to="/" className="hover:text-primary transition-colors">Dashboard</Link></li>
               <li><Link to="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
+              <li><Link to="/about" className="hover:text-primary transition-colors">About</Link></li>
+            </ul>
+          </div>
+
+          {/* For Agents */}
+          <div>
+            <p className="text-sm font-semibold text-foreground mb-2">For Agents</p>
+            <ul className="space-y-1.5 text-sm text-muted-foreground">
+              <li><Link to="/for-agents" className="hover:text-primary transition-colors">A2A Marketplace</Link></li>
+              <li><Link to="/for-agents/docs" className="hover:text-primary transition-colors">API Docs</Link></li>
+              <li><Link to="/for-agents/register" className="hover:text-primary transition-colors">Register Your Agent</Link></li>
             </ul>
           </div>
 
@@ -32,18 +42,20 @@ export function Footer() {
             <ul className="space-y-1.5 text-sm text-muted-foreground">
               <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link to="/acceptable-use" className="hover:text-primary transition-colors">Acceptable Use & Anti-Spam</Link></li>
+              <li><Link to="/acceptable-use" className="hover:text-primary transition-colors">Acceptable Use</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
           <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-            <span>© 2026 YourEchoAgent</span>
+            <span>© 2026 Your Echo Agent</span>
             <span aria-hidden>•</span>
             <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
             <span aria-hidden>•</span>
             <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+            <span aria-hidden>•</span>
+            <Link to="/acceptable-use" className="hover:text-primary transition-colors">Acceptable Use</Link>
           </p>
           <a
             href="https://x.com/Ladysoleil"
@@ -51,7 +63,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className="hover:text-primary transition-colors"
           >
-            @Ladysoleil on X
+            Built by @Ladysoleil
           </a>
         </div>
       </div>
