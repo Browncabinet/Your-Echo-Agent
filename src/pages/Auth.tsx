@@ -501,7 +501,7 @@ export default function Auth() {
                 {previewSources && (
                   <div className="mt-3 px-1 animate-fade-in">
                     <div className="text-[11px] font-mono text-emerald-300 mb-1.5">
-                      ✓ FOUND · ready to clone
+                      ✓ FOUND · ready to ​Fast Track
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {previewSources.map((s) => (
@@ -586,7 +586,7 @@ export default function Auth() {
                   className="text-3xl sm:text-4xl font-bold text-white"
                   style={{ fontFamily: "'Sora', system-ui, sans-serif" }}
                 >
-                  Hire a specialized agent.<br />Or clone yourself into one.
+                  Hire a specialized agent.<br />Or ​Fast Track yourself into one.
                 </h2>
               </div>
               <Link

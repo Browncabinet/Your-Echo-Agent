@@ -505,7 +505,7 @@ export default function Landing() {
             </h1>
 
             <p className="mt-5 text-lg text-white/70 max-w-xl leading-relaxed">
-              Paste any URL — Twitter, LinkedIn, your website. We clone you into an autonomous agent that sends personalized cold emails, finds leads, and books meetings 24/7.
+              Paste any URL — Twitter, LinkedIn, your website. We ​Fast Track you into an autonomous agent that sends personalized cold emails, finds leads, and books meetings 24/7.
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
