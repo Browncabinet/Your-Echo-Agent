@@ -192,8 +192,22 @@ export default function Index() {
               )}
 
               {!campaignsLoading && campaigns.length === 0 && (
-                <Card className="p-8 text-center border-dashed">
-                  <p className="text-muted-foreground text-sm">No campaigns yet. Create your first one above.</p>
+                <Card className="p-10 text-center border-dashed border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-base font-semibold text-foreground mb-1">Ready for your first campaign?</p>
+                  <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto">
+                    You have <span className="font-semibold text-foreground">50 free emails</span> to start. Fast Mode finds leads and writes your emails in under 2 minutes.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Button size="sm" onClick={() => setQuickStartOpen(true)} className="gap-2">
+                      <Sparkles className="w-4 h-4" /> Try Fast Mode
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={startNewCampaign} className="gap-2">
+                      <Plus className="w-4 h-4" /> Build from scratch
+                    </Button>
+                  </div>
                 </Card>
               )}
 
