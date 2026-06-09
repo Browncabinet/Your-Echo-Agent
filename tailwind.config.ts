@@ -59,6 +59,13 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        command: {
+          panel: "hsl(var(--command-panel))",
+          strong: "hsl(var(--command-panel-strong))",
+          line: "hsl(var(--command-line))",
+          hot: "hsl(var(--command-hot))",
+          grid: "hsl(var(--command-grid))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -74,6 +81,13 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        "command-gradient": "var(--gradient-command)",
+        "action-gradient": "var(--gradient-action)",
+      },
+      boxShadow: {
+        command: "var(--shadow-command)",
       },
       keyframes: {
         "accordion-down": {

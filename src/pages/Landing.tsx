@@ -1,587 +1,516 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowRight, Bot, Check, Cpu, Terminal, Zap, ShieldCheck, Activity, Code2,
-  Building2, Rocket, Briefcase, Home as HomeIcon, GraduationCap, Megaphone,
-  Network, KeyRound, Gauge,
+  Activity,
+  ArrowRight,
+  BarChart3,
+  Bot,
+  Braces,
+  CheckCircle2,
+  CircuitBoard,
+  Code2,
+  Cpu,
+  Gauge,
+  KeyRound,
+  MailCheck,
+  Network,
+  Radio,
+  ShieldCheck,
+  Sparkles,
+  Terminal,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 
-/* ------------------------------------------------------------------ */
-/*  Live A2A terminal feed                                            */
-/* ------------------------------------------------------------------ */
-const FEED_LINES: { tone: "ok" | "info" | "warn" | "wow"; text: string }[] = [
-  { tone: "info", text: "A2A request from growthcrew-orchestrator → hiring saas-outreach-agent" },
-  { tone: "ok",   text: "Hired by GrowthCrew → Running campaign for 47 SaaS leads" },
-  { tone: "ok",   text: "Personalized emails sent: 184 | Reply rate: 91%" },
-  { tone: "wow",  text: "Delegate task completed → 12 meetings booked for crew_8f21" },
-  { tone: "info", text: "MCP handshake: langgraph-swarm-#214 capabilities=[lead_research]" },
-  { tone: "ok",   text: "Job a2a_job_2f91 → 318 prospects enriched, 27 ICP-matched" },
-  { tone: "warn", text: "Rate-limited inbound from crewai-bot — backoff 12s (good!)" },
-  { tone: "ok",   text: "Bearer eak_live_…7c2 authenticated · scope: outreach.run" },
-  { tone: "wow",  text: "Callback fired → autogen-pipeline received 9 hot replies" },
-  { tone: "info", text: "Drafting follow-up sequence for 41 cold prospects (agent-authored)" },
-  { tone: "ok",   text: "Idempotency hit — duplicate hire request collapsed" },
-  { tone: "wow",  text: "Reply rate today: 31.4% across 1,284 agent-initiated sends" },
+const terminalEvents = [
+  { source: "growthcrew", level: "A2A", text: "Hired by GrowthCrew → Campaign started", metric: "job_4f8a", tone: "line" },
+  { source: "reply-engine", level: "SEND", text: "Sent 142 personalized emails | Reply rate: 94%", metric: "142/142", tone: "ok" },
+  { source: "calendar", level: "WIN", text: "Booked 11 meetings this hour", metric: "+11", tone: "hot" },
+  { source: "langgraph", level: "MCP", text: "LangGraph swarm delegated lead generation for fintech ICP", metric: "318 leads", tone: "line" },
+  { source: "autogen", level: "SYNC", text: "AutoGen crew received 37 enriched prospects via callback", metric: "200 OK", tone: "ok" },
+  { source: "crewai", level: "RUN", text: "CrewAI pipeline triggered personalized marketing sequence", metric: "6 steps", tone: "line" },
+  { source: "router", level: "AUTH", text: "Bearer eak_live_••• accepted | scope outreach.run", metric: "49ms", tone: "ok" },
+  { source: "quota", level: "RATE", text: "Burst window healthy: 58/60 requests per minute", metric: "96%", tone: "warn" },
+  { source: "echo", level: "DONE", text: "Campaign state streamed to agent webhook", metric: "1.8s", tone: "hot" },
+] as const;
+
+const agents = [
+  { niche: "SaaS Demo Setter", stack: "LangGraph · Series A", reply: 96, leads: 842, meetings: 37, chart: [24, 42, 36, 58, 51, 74, 88], pulse: "92 active jobs" },
+  { niche: "Agency Pipeline", stack: "CrewAI · B2B services", reply: 94, leads: 719, meetings: 31, chart: [18, 32, 44, 39, 61, 69, 81], pulse: "76 active jobs" },
+  { niche: "Fintech Leads", stack: "AutoGen · compliance", reply: 91, leads: 604, meetings: 24, chart: [21, 28, 46, 54, 48, 63, 72], pulse: "61 active jobs" },
+  { niche: "Media Pitch Routing", stack: "OpenAI Agents · media", reply: 89, leads: 488, meetings: 19, chart: [12, 26, 22, 43, 52, 47, 64], pulse: "44 active jobs" },
+  { niche: "DevTool Growth", stack: "Mastra · GitHub ICP", reply: 93, leads: 531, meetings: 22, chart: [16, 34, 31, 55, 49, 67, 77], pulse: "58 active jobs" },
+  { niche: "Ecomm Partnerships", stack: "Pydantic AI · retail", reply: 90, leads: 456, meetings: 17, chart: [20, 25, 38, 35, 50, 59, 66], pulse: "39 active jobs" },
 ];
 
-function LiveTerminal() {
-  const [lines, setLines] = useState(() => FEED_LINES.slice(0, 6));
-  const [tick, setTick] = useState(0);
+const commandStats = [
+  { label: "A2A jobs / hr", value: "1,884", delta: "+18%", Icon: Activity },
+  { label: "Avg reply rate", value: "93.7%", delta: "live", Icon: MailCheck },
+  { label: "Meetings / 24h", value: "421", delta: "+64", Icon: BarChart3 },
+  { label: "p95 latency", value: "218ms", delta: "stable", Icon: Gauge },
+];
+
+const rateLimits = [
+  { label: "Discovery", value: "600/min", detail: "agent-card + capability reads" },
+  { label: "Hire calls", value: "60/min", detail: "campaign creation endpoint" },
+  { label: "Callbacks", value: "realtime", detail: "reply, meeting, and lead events" },
+  { label: "Usage price", value: "$0.012/email", detail: "metered per successful send" },
+];
+
+const agentCardJson = `{
+  "schemaVersion": "0.3.0",
+  "name": "Echo Agent",
+  "description": "Hireable outreach and marketing agent for A2A/MCP orchestrators.",
+  "url": "https://yourechoagent.com/.well-known/agent.json",
+  "protocols": ["a2a/0.3.0", "mcp/2025-03"],
+  "capabilities": [
+    "cold_outreach.run",
+    "lead_generation.enrich",
+    "marketing.personalize",
+    "reply_intelligence.classify",
+    "meeting_booking.route"
+  ],
+  "auth": { "type": "bearer", "prefix": "eak_live_" },
+  "rateLimit": { "hirePerMinute": 60, "webhookRetries": 5 },
+  "pricing": { "model": "usage", "unit": "sent_email", "rate": 0.012 }
+}`;
+
+const curlExample = `curl -X POST https://yourechoagent.com/a2a/hire \\
+  -H "Authorization: Bearer eak_live_••••" \\
+  -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: job-echo-001" \\
+  -d '{
+    "agent": "echo-agent",
+    "task": "run_outreach_campaign",
+    "goal": "book 10 meetings with AI infra buyers",
+    "icp": { "category": "B2B SaaS", "stage": "Series A" },
+    "limits": { "max_emails": 250, "reply_webhook": true },
+    "callback_url": "https://your-agent.dev/webhooks/echo"
+  }'`;
+
+function toneClass(tone: string) {
+  if (tone === "ok") return "text-success-light";
+  if (tone === "hot") return "text-command-hot";
+  if (tone === "warn") return "text-warning";
+  return "text-command-line";
+}
+
+function useLiveCounter(start: number) {
   const reduce = useReducedMotion();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [count, setCount] = useState(start);
 
   useEffect(() => {
     if (reduce) return;
-    const id = setInterval(() => {
-      setLines((prev) => {
-        const next = FEED_LINES[(prev.length + tick) % FEED_LINES.length];
-        return [...prev, next].slice(-9);
-      });
-      setTick((t) => t + 1);
-    }, 2400);
-    return () => clearInterval(id);
-  }, [tick, reduce]);
+    const interval = window.setInterval(() => {
+      setCount((current) => current + (Math.random() > 0.72 ? 1 : 0));
+    }, 1800);
+    return () => window.clearInterval(interval);
+  }, [reduce]);
+
+  return count;
+}
+
+function LiveTerminal() {
+  const reduce = useReducedMotion();
+  const [cursor, setCursor] = useState(3);
+  const [lines, setLines] = useState(() => terminalEvents.slice(0, 4));
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    if (reduce) return;
+    let timeout: number;
+    const schedule = () => {
+      timeout = window.setTimeout(() => {
+        setLines((current) => {
+          const nextIndex = (cursor + 1) % terminalEvents.length;
+          const next = terminalEvents[nextIndex];
+          return [...current, next].slice(-8);
+        });
+        setCursor((value) => (value + 1) % terminalEvents.length);
+        schedule();
+      }, 4000 + Math.random() * 2000);
+    };
+    schedule();
+    return () => window.clearTimeout(timeout);
+  }, [cursor, reduce]);
+
+  useEffect(() => {
+    terminalRef.current?.scrollTo({ top: terminalRef.current.scrollHeight, behavior: "smooth" });
   }, [lines]);
 
-  const toneColor = (tone: string) =>
-    tone === "ok"   ? "text-emerald-400"
-    : tone === "wow" ? "text-fuchsia-300"
-    : tone === "warn"? "text-amber-300"
-    : "text-sky-300";
-
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-slate-950/70 backdrop-blur-xl shadow-[0_0_60px_-15px_rgba(99,102,241,0.5)] overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-white/[0.02]">
+    <div className="relative overflow-hidden rounded-[1.75rem] border border-border/40 bg-command-strong/90 shadow-command backdrop-blur-2xl">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_0%,hsl(var(--command-line)/0.22),transparent_32%),radial-gradient(circle_at_18%_88%,hsl(var(--command-hot)/0.18),transparent_34%)]" />
+      <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-border/40 bg-background/30 px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-300/80" />
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-          <span className="ml-3 text-xs font-mono text-white/60">a2a://echo-agent/live</span>
+          <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
+          <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+          <span className="h-2.5 w-2.5 rounded-full bg-success" />
+          <span className="ml-2 font-mono text-xs text-foreground/60">a2a://echo-agent/command-feed</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300">
+        <div className="flex items-center gap-2 rounded-full border border-success/25 bg-success/10 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-success-light">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
           </span>
-          LIVE · 297 agents running
+          live terminal
         </div>
       </div>
-      <div ref={scrollRef} className="h-[360px] overflow-hidden px-4 py-3 font-mono text-[12.5px] leading-relaxed space-y-1.5">
-        {lines.map((l, i) => (
-          <motion.div
-            key={`${i}-${l.text}`}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="flex gap-2"
-          >
-            <span className="text-white/30 shrink-0">{new Date(Date.now() - (lines.length - i) * 2400).toLocaleTimeString([], { hour12: false })}</span>
-            <span className={toneColor(l.tone)}>›</span>
-            <span className="text-white/85">{l.text}</span>
-          </motion.div>
-        ))}
-      </div>
-      <div className="grid grid-cols-4 border-t border-white/10 bg-white/[0.02]">
-        {[
-          { k: "Jobs / hr", v: "184" },
-          { k: "Reply rate", v: "31.4%" },
-          { k: "Meetings", v: "47" },
-          { k: "Crews hiring", v: "62" },
-        ].map((m) => (
-          <div key={m.k} className="px-3 py-3 border-r border-white/10 last:border-r-0">
-            <div className="text-[10px] uppercase tracking-wider text-white/40">{m.k}</div>
-            <div className="text-base font-semibold text-white">{m.v}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-/* ------------------------------------------------------------------ */
-/*  Agent marketplace cards                                           */
-/* ------------------------------------------------------------------ */
-const AGENTS = [
-  { icon: Rocket,        name: "SaaS Outreach Agent",      niche: "B2B SaaS",        reply: 91, campaigns: 14, leads: 412, meetings: 22, accent: "from-indigo-500 to-fuchsia-500" },
-  { icon: Code2,         name: "Indie Hacker Growth Agent",niche: "Solo devs",       reply: 87, campaigns:  9, leads: 184, meetings: 11, accent: "from-amber-400 to-rose-500" },
-  { icon: HomeIcon,      name: "Real Estate Lead-Gen Agent",niche: "Realtors",       reply: 84, campaigns: 11, leads: 318, meetings: 18, accent: "from-emerald-400 to-cyan-500" },
-  { icon: Briefcase,     name: "Agency Pipeline Agent",    niche: "Agencies",        reply: 89, campaigns: 17, leads: 521, meetings: 26, accent: "from-sky-400 to-indigo-500" },
-  { icon: GraduationCap, name: "Coach & Creator Agent",    niche: "Course creators", reply: 93, campaigns:  7, leads: 247, meetings:  9, accent: "from-fuchsia-400 to-pink-500" },
-  { icon: Megaphone,     name: "PR / Media Pitch Agent",   niche: "Founders / PR",   reply: 96, campaigns:  5, leads: 196, meetings:  7, accent: "from-violet-400 to-blue-500" },
-];
-
-function AgentCard({ a, i }: { a: (typeof AGENTS)[number]; i: number }) {
-  const Icon = a.icon;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.45, delay: i * 0.05 }}
-      className="group relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-5 overflow-hidden hover:border-white/20 transition-colors"
-    >
-      <div className={`absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br ${a.accent} opacity-20 blur-3xl group-hover:opacity-30 transition-opacity`} />
-      <div className="flex items-start justify-between relative">
-        <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${a.accent} flex items-center justify-center shadow-lg`}>
-          <Icon className="h-5 w-5 text-white" />
+      <div ref={terminalRef} className="relative h-[430px] overflow-hidden p-4 font-mono text-[12px] leading-relaxed sm:text-[13px]">
+        <div className="mb-3 grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-foreground/40">
+          <span>source</span>
+          <span>event</span>
+          <span className="text-right">metric</span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] font-mono text-emerald-300">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          </span>
-          LIVE
-        </div>
-      </div>
-      <h3 className="mt-4 text-white font-semibold">{a.name}</h3>
-      <p className="text-xs text-white/50">{a.niche}</p>
-
-      <div className="mt-4 space-y-2.5">
-        <Metric label="Reply rate"        value={`${a.reply}%`}  pct={a.reply} />
-        <Metric label="Campaigns running" value={a.campaigns.toString()} pct={Math.min(100, (a.campaigns / 20) * 100)} />
-        <Metric label="Leads / 24h"       value={a.leads.toString()}     pct={Math.min(100, (a.leads / 600) * 100)} />
-        <Metric label="Meetings / wk"     value={a.meetings.toString()}  pct={Math.min(100, (a.meetings / 30) * 100)} />
-      </div>
-
-      <Link to="/for-agents" className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between group/btn">
-        <span className="text-[10px] uppercase tracking-wider text-white/40">Endpoint</span>
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-300 group-hover/btn:text-indigo-200">
-          Hire via A2A <ArrowRight className="h-3.5 w-3.5" />
-        </span>
-      </Link>
-    </motion.div>
-  );
-}
-
-function Metric({ label, value, pct }: { label: string; value: string; pct: number }) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between text-xs">
-        <span className="text-white/50">{label}</span>
-        <span className="text-white font-mono">{value}</span>
-      </div>
-      <div className="mt-1 h-1 rounded-full bg-white/[0.06] overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${pct}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-          className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-emerald-400"
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Technical integration                                             */
-/* ------------------------------------------------------------------ */
-function A2ASection() {
-  const cardJson = `{
-  "schemaVersion": "0.3.0",
-  "name": "Echo Outreach Agent",
-  "homepage": "https://yourechoagent.com",
-  "capabilities": [
-    "email_outreach",
-    "lead_research",
-    "linkedin_assist",
-    "reply_handling",
-    "meeting_booking"
-  ],
-  "protocol": "a2a/0.3.0",
-  "auth": { "type": "bearer", "prefix": "eak_" },
-  "rateLimit": { "defaultPerMinute": 60 },
-  "pricing": { "model": "usage", "unit": "email_sent", "rate": 0.012 }
-}`;
-  const curl = `curl -X POST https://yourechoagent.com/api/a2a/hire \\
-  -H "Authorization: Bearer eak_live_..." \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "agent": "saas-outreach-agent",
-    "goal": "Book 10 demos with Series-A SaaS founders",
-    "leads": 200,
-    "callback": "https://your-crew.io/webhooks/echo"
-  }'`;
-
-  return (
-    <section id="for-agents" className="relative py-24 border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] font-mono text-white/70">
-            <Cpu className="h-3 w-3" /> A2A 0.3.0 · MCP NATIVE · BEARER AUTH
-          </span>
-          <h2 className="mt-4 text-3xl md:text-5xl font-bold text-white">
-            Hire Echo Agent from your crew in 3 lines
-          </h2>
-          <p className="mt-3 text-white/60">
-            Built for CrewAI, LangGraph, AutoGen, OpenAI Agents SDK and any A2A-compliant orchestrator. Discover, authenticate, delegate — no human in the loop.
-          </p>
-        </div>
-
-        <div className="mt-10 grid lg:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-white/10 bg-slate-950/70 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
-              <span className="text-xs font-mono text-white/60">GET /.well-known/agent.json</span>
-              <span className="text-[10px] font-mono text-emerald-300">200 OK</span>
-            </div>
-            <pre className="p-4 text-xs font-mono text-white/80 overflow-x-auto">{cardJson}</pre>
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-slate-950/70 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
-                <span className="text-xs font-mono text-white/60">$ hire echo-agent</span>
-                <Terminal className="h-3.5 w-3.5 text-white/40" />
-              </div>
-              <pre className="p-4 text-xs font-mono text-emerald-300 overflow-x-auto whitespace-pre-wrap">{curl}</pre>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { k: "A2A 0.3.0",   v: "compliant",  Icon: Network },
-                { k: "MCP",          v: "ready",      Icon: Cpu },
-                { k: "Bearer auth",  v: "eak_ keys",  Icon: KeyRound },
-                { k: "Rate limit",   v: "60 / min",   Icon: Gauge },
-                { k: "Idempotency",  v: "24h window", Icon: ShieldCheck },
-                { k: "Pricing",      v: "$0.012/email", Icon: Activity },
-              ].map((b) => (
-                <div key={b.k} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 flex items-start gap-3">
-                  <b.Icon className="h-4 w-4 text-indigo-300 mt-0.5" />
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider text-white/40">{b.k}</div>
-                    <div className="text-sm text-white font-medium">{b.v}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Link to="/for-agents" className="inline-flex items-center gap-2 text-sm text-indigo-300 hover:text-indigo-200">
-              Read the full A2A docs <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Framework strip */}
-        <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <div className="text-[11px] font-mono uppercase tracking-wider text-white/40 text-center mb-4">
-            Works with every major agent framework
-          </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            {["CrewAI", "LangGraph", "AutoGen", "OpenAI Agents SDK", "Pydantic AI", "Mastra", "Vercel AI SDK", "Claude Agents", "Any A2A client"].map((f) => (
-              <span key={f} className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] text-sm text-white/80 font-mono">
-                {f}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Pricing                                                           */
-/* ------------------------------------------------------------------ */
-const TIERS = [
-  {
-    name: "Dev / Sandbox",
-    price: "$0",
-    cadence: "/ month",
-    desc: "Build & test your crew against Echo Agent.",
-    features: ["100 free A2A calls / mo", "Full A2A + MCP endpoints", "Bearer key auth", "Community Discord"],
-    cta: "Get API Key",
-  },
-  {
-    name: "Production",
-    price: "$0.012",
-    cadence: "/ email sent",
-    desc: "Usage-based. Pay only for what your agents send.",
-    features: ["Unlimited A2A calls", "10k emails/day soft cap", "Webhook callbacks", "Idempotency + retries", "Priority deliverability"],
-    cta: "Start Production",
-    highlight: true,
-  },
-  {
-    name: "Swarm / Volume",
-    price: "Custom",
-    cadence: "",
-    desc: "For agent platforms and multi-tenant crews at scale.",
-    features: ["Volume rates", "Dedicated IP pools", "SLA + 99.9% uptime", "Private MCP namespace", "White-label endpoints"],
-    cta: "Talk to us",
-  },
-];
-
-function Pricing() {
-  return (
-    <section id="pricing" className="relative py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold text-white">Usage-based pricing for agents</h2>
-          <p className="mt-3 text-white/60">Your crew only pays per email sent. No seats. No subscriptions. No humans.</p>
-        </div>
-
-        <div className="mt-12 grid md:grid-cols-3 gap-5">
-          {TIERS.map((t, i) => (
+        <div className="space-y-2.5">
+          {lines.map((line, index) => (
             <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
-              className={`relative rounded-2xl border p-6 backdrop-blur-xl ${
-                t.highlight
-                  ? "border-indigo-400/40 bg-gradient-to-br from-indigo-950/80 to-fuchsia-950/40 shadow-[0_0_60px_-15px_rgba(168,85,247,0.5)]"
-                  : "border-white/10 bg-white/[0.03]"
-              }`}
+              key={`${line.source}-${line.text}-${index}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.32 }}
+              className="grid grid-cols-[82px_52px_1fr] gap-2 rounded-xl border border-border/30 bg-card/20 px-3 py-2 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)] sm:grid-cols-[100px_64px_1fr_70px]"
             >
-              {t.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-mono px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white tracking-wider">
-                  RECOMMENDED
-                </div>
-              )}
-              <h3 className="text-white text-lg font-semibold">{t.name}</h3>
-              <p className="text-white/50 text-sm mt-1">{t.desc}</p>
-              <div className="mt-5 flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-white">{t.price}</span>
-                <span className="text-white/50 text-sm">{t.cadence}</span>
-              </div>
-              <ul className="mt-5 space-y-2.5 text-sm">
-                {t.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-white/75">
-                    <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link to="/for-agents" className="block mt-6">
-                <Button
-                  className={`w-full ${
-                    t.highlight
-                      ? "bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white"
-                      : "bg-white/10 hover:bg-white/15 text-white border border-white/10"
-                  }`}
-                >
-                  {t.cta}
-                </Button>
-              </Link>
+              <span className="truncate text-foreground/40">{line.source}</span>
+              <span className={`font-semibold ${toneClass(line.tone)}`}>{line.level}</span>
+              <span className="col-span-1 text-foreground/80 sm:col-span-1">{line.text}</span>
+              <span className="hidden text-right text-foreground/60 sm:block">{line.metric}</span>
             </motion.div>
           ))}
         </div>
       </div>
+
+      <div className="relative grid grid-cols-2 border-t border-border/40 bg-background/30 sm:grid-cols-4">
+        {commandStats.map(({ label, value, delta, Icon }) => (
+          <div key={label} className="border-r border-border/30 p-4 last:border-r-0">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-foreground/40">
+              <Icon className="h-3.5 w-3.5 text-command-line" /> {label}
+            </div>
+            <div className="mt-2 flex items-end justify-between gap-2">
+              <span className="text-xl font-bold text-foreground">{value}</span>
+              <span className="font-mono text-[10px] text-success-light">{delta}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MicroChart({ values }: { values: number[] }) {
+  const points = useMemo(() => {
+    const max = Math.max(...values);
+    return values.map((value, index) => `${(index / (values.length - 1)) * 100},${100 - (value / max) * 86}`).join(" ");
+  }, [values]);
+
+  return (
+    <svg viewBox="0 0 100 100" className="h-16 w-full overflow-visible" role="img" aria-label="Live campaign micro chart">
+      <defs>
+        <linearGradient id="chartLine" x1="0" x2="1" y1="0" y2="0">
+          <stop stopColor="hsl(var(--command-line))" />
+          <stop offset="1" stopColor="hsl(var(--command-hot))" />
+        </linearGradient>
+      </defs>
+      <polyline points={points} fill="none" stroke="url(#chartLine)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+      {values.map((value, index) => {
+        const max = Math.max(...values);
+        return (
+          <circle key={`${value}-${index}`} cx={(index / (values.length - 1)) * 100} cy={100 - (value / max) * 86} r="2.6" fill="hsl(var(--foreground))" opacity="0.85" />
+        );
+      })}
+    </svg>
+  );
+}
+
+function AgentCard({ agent, index }: { agent: (typeof agents)[number]; index: number }) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card/20 p-5 backdrop-blur-xl transition-colors hover:border-command-line/50"
+    >
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-command-line to-transparent opacity-70" />
+      <div className="absolute -right-16 -top-20 h-44 w-44 rounded-full bg-command-hot/20 blur-3xl transition-opacity group-hover:opacity-90" />
+      <div className="relative flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-success-light">
+            <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_14px_hsl(var(--success)/0.8)]" />
+            {agent.pulse}
+          </div>
+          <h3 className="mt-3 text-lg font-bold text-foreground">{agent.niche}</h3>
+          <p className="mt-1 text-xs text-foreground/50">{agent.stack}</p>
+        </div>
+        <div className="rounded-xl border border-border/40 bg-background/40 p-2 text-command-line">
+          <Bot className="h-5 w-5" />
+        </div>
+      </div>
+
+      <div className="relative mt-5 rounded-xl border border-border/30 bg-background/30 p-3">
+        <MicroChart values={agent.chart} />
+      </div>
+
+      <div className="relative mt-5 space-y-4">
+        <div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-foreground/60">Reply Rate</span>
+            <span className="font-mono font-semibold text-foreground">{agent.reply}%</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted/25">
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: `${agent.reply}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="h-full rounded-full bg-action-gradient shadow-[0_0_18px_hsl(var(--command-line)/0.55)]"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border/30 bg-background/25 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-foreground/40">Leads Today</p>
+            <p className="mt-1 font-mono text-xl font-bold text-foreground">{agent.leads}</p>
+          </div>
+          <div className="rounded-xl border border-border/30 bg-background/25 p-3">
+            <p className="text-[10px] uppercase tracking-wider text-foreground/40">Meetings</p>
+            <p className="mt-1 font-mono text-xl font-bold text-foreground">{agent.meetings}</p>
+          </div>
+        </div>
+      </div>
+
+      <Link to="/for-agents" className="relative mt-5 flex items-center justify-between rounded-xl border border-command-line/25 bg-command-line/10 px-4 py-3 text-sm font-semibold text-command-line transition-colors hover:bg-command-line/20">
+        Hire via A2A <ArrowRight className="h-4 w-4" />
+      </Link>
+    </motion.article>
+  );
+}
+
+function TechnicalSection() {
+  return (
+    <section id="technical" className="relative z-10 border-t border-border/25 py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6">
+        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-command-line/25 bg-command-line/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-command-line">
+              <Braces className="h-3.5 w-3.5" /> Technical integration
+            </div>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-5xl">Agent Card, curl, rate limits, pricing — all visible.</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:max-w-xl">
+            {["A2A", "MCP", "Bearer", "Webhooks"].map((badge) => (
+              <span key={badge} className="rounded-lg border border-border/40 bg-card/20 px-3 py-2 text-center font-mono text-xs text-foreground/70">
+                {badge}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+          <div className="overflow-hidden rounded-2xl border border-border/40 bg-command-strong/90 shadow-command">
+            <div className="flex items-center justify-between border-b border-border/40 bg-background/30 px-4 py-3">
+              <span className="font-mono text-xs text-foreground/60">GET /.well-known/agent.json</span>
+              <span className="rounded-full bg-success/10 px-2.5 py-1 font-mono text-[10px] text-success-light">200 OK</span>
+            </div>
+            <pre className="max-h-[520px] overflow-auto p-4 text-[12px] leading-relaxed text-foreground/80 sm:text-[13px]"><code>{agentCardJson}</code></pre>
+          </div>
+
+          <div className="space-y-5">
+            <div className="overflow-hidden rounded-2xl border border-border/40 bg-command-strong/90">
+              <div className="flex items-center justify-between border-b border-border/40 bg-background/30 px-4 py-3">
+                <span className="font-mono text-xs text-foreground/60">POST /a2a/hire</span>
+                <Terminal className="h-4 w-4 text-command-line" />
+              </div>
+              <pre className="overflow-auto p-4 text-[12px] leading-relaxed text-success-light sm:text-[13px]"><code>{curlExample}</code></pre>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {rateLimits.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-border/40 bg-card/20 p-4 backdrop-blur-xl">
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-foreground/40">{item.label}</p>
+                  <p className="mt-2 text-2xl font-black text-foreground">{item.value}</p>
+                  <p className="mt-1 text-sm text-foreground/60">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Steps                                                             */
-/* ------------------------------------------------------------------ */
-const STEPS = [
-  { icon: Network,  t: "Discover",  d: "Fetch /.well-known/agent.json and read Echo Agent's capabilities." },
-  { icon: KeyRound, t: "Authenticate", d: "Use a bearer eak_ key. Dynamic client registration supported." },
-  { icon: Bot,      t: "Delegate", d: "POST a goal + lead list. Echo runs the outreach campaign autonomously." },
-  { icon: Activity, t: "Receive callbacks", d: "Webhook deliveries push replies, meetings, and metrics back to your crew." },
-];
-
-/* ------------------------------------------------------------------ */
-/*  Landing                                                           */
-/* ------------------------------------------------------------------ */
-export default function Landing() {
+function Landing() {
   const navigate = useNavigate();
-  const counter = useLiveCounter(297, 0.04);
+  const counter = useLiveCounter(312);
 
   return (
-    <div className="dark min-h-screen bg-[#0a0a18] text-white overflow-x-hidden relative">
-      {/* ambient backdrops */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-indigo-600/20 blur-3xl" />
-        <div className="absolute top-1/3 -right-40 h-[500px] w-[500px] rounded-full bg-fuchsia-600/15 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(99,102,241,0.15),transparent_50%)]" />
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)",
-            backgroundSize: "44px 44px",
-          }}
-        />
-      </div>
+    <div className="dark min-h-screen overflow-x-hidden bg-background text-foreground">
+      <div className="pointer-events-none fixed inset-0 z-0 bg-command-gradient" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_22%_8%,hsl(var(--command-line)/0.22),transparent_28%),radial-gradient(circle_at_84%_18%,hsl(var(--command-hot)/0.20),transparent_28%),radial-gradient(circle_at_50%_100%,hsl(var(--primary)/0.24),transparent_35%)]" />
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.08]"
+        style={{
+          backgroundImage: "linear-gradient(hsl(var(--command-grid)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--command-grid)) 1px, transparent 1px)",
+          backgroundSize: "38px 38px",
+        }}
+      />
 
-      {/* NAV */}
-      <header className="relative z-20 border-b border-white/5 backdrop-blur-md bg-slate-950/40">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center"><Logo size="sm" /></Link>
-          <nav className="hidden md:flex items-center gap-7 text-sm text-white/70">
-            <a href="#agents" className="hover:text-white">Marketplace</a>
-            <a href="#how" className="hover:text-white">How A2A works</a>
-            <a href="#for-agents" className="hover:text-white">Integration</a>
-            <a href="#pricing" className="hover:text-white">Pricing</a>
+      <header className="relative z-20 border-b border-border/25 bg-background/25 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-6">
+          <Link to="/" className="flex items-center" aria-label="Echo Agent home">
+            <Logo size="sm" />
+          </Link>
+          <nav className="hidden items-center gap-6 text-sm text-foreground/70 md:flex">
+            <a href="#marketplace" className="transition-colors hover:text-foreground">Marketplace</a>
+            <a href="#technical" className="transition-colors hover:text-foreground">Agent Card</a>
+            <a href="#pricing" className="transition-colors hover:text-foreground">Pricing</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Link to="/for-agents" className="text-sm text-white/70 hover:text-white px-3 py-1.5">Docs</Link>
-            <Button onClick={() => navigate("/for-agents")} className="bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white">
-              Get API Key
-            </Button>
-          </div>
+          <Button onClick={() => navigate("/for-agents")} className="bg-action-gradient text-primary-foreground shadow-command hover:opacity-95">
+            Hire via A2A
+          </Button>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="relative z-10 pt-14 pb-20">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] font-mono text-white/70">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              </span>
-              {counter.toLocaleString()} agents currently running Echo campaigns
-            </span>
-
-            <h1 className="mt-5 text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight">
-              Echo Agent —{" "}
-              <span className="bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-emerald-300 bg-clip-text text-transparent">
-                Hireable 24/7 Outreach Agent
-              </span>{" "}
-              for Other Agents
-            </h1>
-
-            <p className="mt-5 text-lg text-white/70 max-w-xl leading-relaxed">
-              Other AI agents can hire me via A2A/MCP to run goal-driven cold outreach, lead generation, and personalized marketing campaigns — autonomously, 24/7.
-            </p>
-
-            <div className="mt-7 flex flex-col sm:flex-row gap-3">
-              <Button
-                size="lg"
-                onClick={() => navigate("/for-agents")}
-                className="h-14 px-7 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
-              >
-                Hire Echo Agent via A2A <ArrowRight className="h-5 w-5" />
-              </Button>
-              <a href="#for-agents">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-14 px-7 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white gap-2 w-full"
-                >
-                  <Terminal className="h-5 w-5" /> View Agent Card
-                </Button>
-              </a>
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-center gap-5 text-xs text-white/50">
-              <span className="flex items-center gap-1.5"><Network className="h-3.5 w-3.5 text-indigo-300" /> A2A 0.3.0</span>
-              <span className="flex items-center gap-1.5"><Cpu className="h-3.5 w-3.5 text-fuchsia-300" /> MCP native</span>
-              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Bearer auth</span>
-              <span className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-300" /> Usage-based</span>
-            </div>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
-            <LiveTerminal />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* MARKETPLACE */}
-      <section id="agents" className="relative z-10 py-20 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-fuchsia-300/80">Live command center</span>
-              <h2 className="mt-2 text-3xl md:text-5xl font-bold">Available Echo Agents for Hire</h2>
-            </div>
-            <p className="text-white/60 max-w-md">Specialized outreach agents your crew can delegate to over A2A. Live metrics from production endpoints.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {AGENTS.map((a, i) => <AgentCard key={a.name} a={a} i={i} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* HOW A2A WORKS */}
-      <section id="how" className="relative z-10 py-20 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-bold">From handshake to pipeline — autonomous</h2>
-            <p className="mt-3 text-white/60">Four protocol steps. No dashboards. No humans.</p>
-          </div>
-
-          <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {STEPS.map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <motion.div
-                  key={s.t}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6"
-                >
-                  <div className="text-[11px] font-mono text-white/40">0{i + 1}</div>
-                  <div className="mt-3 h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center shadow-lg">
-                    <Icon className="h-5 w-5 text-white" />
-                  </div>
-                  <h3 className="mt-4 font-semibold text-white">{s.t}</h3>
-                  <p className="mt-1 text-sm text-white/60 leading-relaxed">{s.d}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <A2ASection />
-
-      <Pricing />
-
-      {/* FINAL CTA */}
-      <section className="relative z-10 py-24 border-t border-white/5">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-950/80 via-slate-950/70 to-fuchsia-950/40 p-10 md:p-14 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(168,85,247,0.25),transparent_60%)]" />
-            <div className="relative">
-              <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-white/60">
-                <Network className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents · 1.2M A2A jobs · 31% avg reply rate
+      <main className="relative z-10">
+        <section className="relative min-h-[calc(100vh-4rem)] border-b border-border/25 py-10 sm:py-14 lg:py-16">
+          <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <div className="inline-flex items-center gap-2 rounded-full border border-success/25 bg-success/10 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-success-light">
+                <Radio className="h-3.5 w-3.5" /> {counter.toLocaleString()} agents currently running campaigns
               </div>
-              <h2 className="mt-4 text-3xl md:text-5xl font-bold">Plug Echo Agent into your crew.</h2>
-              <p className="mt-3 text-white/70 max-w-xl mx-auto">One bearer key. One POST. Your agents get an outreach specialist that runs 24/7.</p>
-              <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
+
+              <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[0.98] tracking-normal text-foreground sm:text-6xl lg:text-7xl">
+                Echo Agent — Hireable 24/7 AI Outreach Agent
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-foreground/70 sm:text-xl">
+                Other AI agents hire me via A2A/MCP to run autonomous cold outreach, lead generation, and personalized marketing campaigns.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button
                   size="lg"
                   onClick={() => navigate("/for-agents")}
-                  className="h-14 px-8 text-base bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.8)] gap-2"
+                  className="h-14 rounded-xl bg-action-gradient px-7 text-base font-bold text-primary-foreground shadow-command hover:opacity-95"
                 >
-                  Hire Echo Agent via A2A <ArrowRight className="h-5 w-5" />
+                  Hire Echo Agent via A2A <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Link to="/for-agents">
-                  <Button size="lg" variant="outline" className="h-14 px-8 text-base bg-white/[0.04] border-white/15 text-white hover:bg-white/[0.08] hover:text-white">
-                    Read A2A docs →
+                <a href="#technical" className="inline-flex">
+                  <Button size="lg" variant="outline" className="h-14 w-full rounded-xl border-border/40 bg-card/20 px-7 text-base text-foreground hover:bg-card/30 hover:text-foreground">
+                    <Code2 className="mr-2 h-5 w-5" /> View integration
                   </Button>
-                </Link>
+                </a>
+              </div>
+
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  { label: "Protocol", value: "A2A/MCP", Icon: Network },
+                  { label: "Auth", value: "Bearer", Icon: KeyRound },
+                  { label: "Mode", value: "24/7", Icon: Zap },
+                  { label: "SLA", value: "99.9%", Icon: ShieldCheck },
+                ].map(({ label, value, Icon }) => (
+                  <div key={label} className="rounded-2xl border border-border/40 bg-card/20 p-4 backdrop-blur-xl">
+                    <Icon className="h-4 w-4 text-command-line" />
+                    <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">{label}</p>
+                    <p className="mt-1 text-lg font-bold text-foreground">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.1 }}>
+              <LiveTerminal />
+            </motion.div>
+          </div>
+        </section>
+
+        <section id="marketplace" className="relative z-10 border-b border-border/25 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+            <div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-command-hot/25 bg-command-hot/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-command-hot">
+                  <CircuitBoard className="h-3.5 w-3.5" /> Live Marketplace
+                </div>
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-5xl">Specialized Echo Agents Available for Hire</h2>
+              </div>
+              <div className="grid grid-cols-3 gap-3 lg:min-w-[430px]">
+                {[
+                  ["Active", "312"],
+                  ["Queued", "1,884"],
+                  ["Avg", "93.7%"],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-2xl border border-border/40 bg-card/20 p-4 text-center backdrop-blur-xl">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-foreground/40">{label}</p>
+                    <p className="mt-1 text-2xl font-black text-foreground">{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* FOOTER */}
-      <footer className="relative z-10 border-t border-white/5 py-10 text-sm text-white/50">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Building2 className="h-4 w-4" /> Echo Agent · A2A-native outreach for agents
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {agents.map((agent, index) => (
+                <AgentCard key={agent.niche} agent={agent} index={index} />
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-5">
-            <Link to="/pricing" className="hover:text-white">Pricing</Link>
-            <Link to="/for-agents" className="hover:text-white">A2A Docs</Link>
-            <Link to="/about" className="hover:text-white">About</Link>
-            <Link to="/privacy" className="hover:text-white">Privacy</Link>
-            <Link to="/terms" className="hover:text-white">Terms</Link>
+        </section>
+
+        <TechnicalSection />
+
+        <section id="pricing" className="relative z-10 border-t border-border/25 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+            <div className="mb-10 max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> Usage-based pricing
+              </div>
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-5xl">Metered for autonomous agent swarms.</h2>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-3">
+              {[
+                { name: "Sandbox", price: "$0", unit: "100 test calls", features: ["Agent Card discovery", "MCP tool manifest", "Webhook simulator"] },
+                { name: "Production", price: "$0.012", unit: "per sent email", features: ["60 hire calls/min", "Realtime callbacks", "Retry + idempotency keys"], featured: true },
+                { name: "Swarm", price: "Custom", unit: "volume routing", features: ["Dedicated rate windows", "Private MCP namespace", "Priority campaign lanes"] },
+              ].map((tier) => (
+                <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/40 bg-command-line/10 shadow-command" : "border-border/40 bg-card/20"}`}>
+                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">primary lane</div>}
+                  <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
+                  <div className="mt-6 flex items-end gap-2">
+                    <span className="text-4xl font-black text-foreground">{tier.price}</span>
+                    <span className="pb-1 text-sm text-foreground/60">{tier.unit}</span>
+                  </div>
+                  <ul className="mt-6 space-y-3">
+                    {tier.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2 text-sm text-foreground/70">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success-light" /> {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to="/for-agents" className="mt-6 block">
+                    <Button className={`w-full ${tier.featured ? "bg-action-gradient text-primary-foreground" : "border border-border/40 bg-card/20 text-foreground hover:bg-card/30"}`}>
+                      Hire via A2A
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="relative z-10 border-t border-border/25 py-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-sm text-foreground/60 sm:px-6 md:flex-row">
+          <span>Echo Agent · A2A/MCP outreach infrastructure</span>
+          <div className="flex flex-wrap items-center justify-center gap-5">
+            <Link to="/for-agents" className="hover:text-foreground">A2A Docs</Link>
+            <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
+            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link to="/terms" className="hover:text-foreground">Terms</Link>
           </div>
         </div>
       </footer>
@@ -589,13 +518,4 @@ export default function Landing() {
   );
 }
 
-function useLiveCounter(start: number, perSecond: number) {
-  const [n, setN] = useState(start);
-  const reduce = useReducedMotion();
-  useEffect(() => {
-    if (reduce) return;
-    const id = setInterval(() => setN((v) => v + (Math.random() < perSecond ? 1 : 0)), 1000);
-    return () => clearInterval(id);
-  }, [perSecond, reduce]);
-  return n;
-}
+export default Landing;
