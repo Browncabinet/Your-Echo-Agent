@@ -175,7 +175,7 @@ export default function Auth() {
                 to="/pricing"
                 className="inline-block text-sm font-semibold text-primary hover:underline underline-offset-4"
               >
-                Starting at $0/mo — View plans →
+                View plans →
               </Link>
             </div>
 
