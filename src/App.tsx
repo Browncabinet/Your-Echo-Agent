@@ -8,6 +8,20 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CreditsProvider } from "@/hooks/use-credits";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import Index from "./pages/Index.tsx";
+import Landing from "./pages/Landing.tsx";
+import { useAuth } from "@/contexts/AuthContext";
+
+function HomeRoute() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+  return user ? <Index /> : <Landing />;
+}
 import Auth from "./pages/Auth.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import About from "./pages/About.tsx";
@@ -46,7 +60,7 @@ const App = () => (
                 <Route path="/for-agents/docs" element={<ForAgentsDocs />} />
                 <Route path="/for-agents/register" element={<ProtectedRoute><PartnerRegisterAgent /></ProtectedRoute>} />
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/" element={<HomeRoute />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
