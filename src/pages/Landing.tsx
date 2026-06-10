@@ -643,18 +643,10 @@ function Landing() {
             <a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Status</a>
             <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Twitter</a>
             <a href="mailto:support@yourechoagent.com" className="hover:text-foreground transition-colors">Support</a>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
           </div>
-          <p className="mt-4 text-xs text-foreground/40">
-            © 2026 Echo Agent · Built with love from{" "}
-            <a
-              href="https://x.com/ladysoleil33"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-foreground/60 hover:text-foreground"
-            >
-              @ladysoleil33
-            </a>{" "}
-            on X
+          <p className="mt-3 text-xs text-foreground/40">
+            © 2026 Echo Agent
           </p>
         </div>
       </footer>
