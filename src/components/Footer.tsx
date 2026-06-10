@@ -26,13 +26,14 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* For Agents */}
+          {/* Resources */}
           <div>
-            <p className="text-sm font-semibold text-foreground mb-2">For Agents</p>
+            <p className="text-sm font-semibold text-foreground mb-2">Resources</p>
             <ul className="space-y-1.5 text-sm text-muted-foreground">
-              <li><Link to="/for-agents" className="hover:text-primary transition-colors">A2A Marketplace</Link></li>
-              <li><Link to="/for-agents/docs" className="hover:text-primary transition-colors">API Docs</Link></li>
-              <li><Link to="/for-agents/register" className="hover:text-primary transition-colors">Register Your Agent</Link></li>
+              <li><Link to="/for-agents/docs" className="hover:text-primary transition-colors">Docs</Link></li>
+              <li><a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a></li>
+              <li><a href="mailto:support@yourechoagent.com" className="hover:text-primary transition-colors">Support</a></li>
+              <li><a href="https://x.com/Ladysoleil" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Twitter / X</a></li>
             </ul>
           </div>
 
