@@ -12,6 +12,7 @@ import { Logo } from "@/components/Logo";
 import { ArrowLeft, Bot, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SeoHead } from "@/components/SeoHead";
+import { Footer } from "@/components/Footer";
 
 
 const ALL_CAPS = [
@@ -202,6 +203,7 @@ export default function PartnerRegisterAgent() {
           </form>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 }
