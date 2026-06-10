@@ -1,5 +1,14 @@
-Add the text "built with love from on X @ladysoleil33" to the footer section of `src/pages/Landing.tsx`.
+## Issue
+On `/` while signed in, `HomeRoute` renders `Index.tsx` which has no `<Footer />`. The footer (Docs • Status • Twitter • Support • Privacy • © 2026 Echo Agent) only appears on `Landing` and the standalone pages.
 
-Placement: inside the existing `<footer>` element, below the existing link columns and above the closing `</footer>` tag.
+## Fix
+Edit `src/pages/Index.tsx`:
+1. Import `Footer` from `@/components/Footer`.
+2. Render `<Footer />` just before the closing wrapper `</div>` of each of the 5 view branches:
+   - home view (line ~359)
+   - dashboard view (line ~408)
+   - replies view (line ~443)
+   - social view (line ~495)
+   - default wizard view (line ~531)
 
-No other changes.
+No other changes — Footer component, Landing, and other pages stay as-is.
