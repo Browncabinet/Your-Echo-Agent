@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <Link to="/for-agents/docs" className="hover:text-primary transition-colors">Docs</Link>
           <a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a>
-          <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Twitter</a>
+          <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@ladysoleil33</a>
           <a href="mailto:support@yourechoagent.com" className="hover:text-primary transition-colors">Support</a>
           <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
         </div>
