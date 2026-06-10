@@ -92,6 +92,7 @@ export default function PartnerRegisterAgent() {
             </div>
           </Card>
         </main>
+        <Footer />
       </div>
     );
   }
