@@ -19,7 +19,7 @@ const faqs = [
   {
     question: "How does billing work?",
     answer:
-      "You choose a monthly plan (Starter, Pro, or Scale) based on how many agents you need. On top of that, you only pay for qualified leads delivered — typically $1–$3 per lead. You can top up lead credits anytime, and annual plans save you 2 months.",
+      "You choose a weekly plan — Starter ($19/wk, 500 emails), Growth ($39/wk, 1,500 emails), or Power ($79/wk, 4,000 emails). Need more volume? Top up with 500 extra ($12), 1,000 extra ($22), or 2,500 extra ($45) email packs. Cancel or pause anytime.",
   },
   {
     question: "Is my data and outreach safe?",
