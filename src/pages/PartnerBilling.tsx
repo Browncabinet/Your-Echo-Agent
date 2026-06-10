@@ -68,7 +68,7 @@ export default function PartnerBilling() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/for-agents/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
@@ -78,7 +78,7 @@ export default function PartnerBilling() {
         </div>
       </header>
 
-      <main className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 space-y-6">
         {!partner && (
           <Card className="p-8 text-center space-y-3">
             <Key className="w-10 h-10 text-muted-foreground mx-auto" />
