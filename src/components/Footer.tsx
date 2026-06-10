@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card/50 mt-auto">
+    <footer className="relative z-30 mt-auto border-t border-border bg-card/95 shadow-sm backdrop-blur-sm">
       <div className="container max-w-5xl mx-auto px-4 py-6 text-center">
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <Link to="/for-agents/docs" className="hover:text-primary transition-colors">Docs</Link>
