@@ -146,7 +146,7 @@ export const TrustSignals = React.forwardRef<HTMLDivElement>((_, ref) => {
       <span className="flex items-center gap-1.5">✓ Niche-native outreach</span>
       <span className="flex items-center gap-1.5">✓ 3-5x higher trust & response</span>
       <span className="flex items-center gap-1.5">✓ AI-powered personalization</span>
-      <span className="flex items-center gap-1.5">✓ No monthly contracts</span>
+      <span className="flex items-center gap-1.5">✓ No long-term contracts</span>
     </div>
   );
 });
