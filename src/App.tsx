@@ -10,13 +10,17 @@ import { SubscriptionProvider } from "@/hooks/use-subscription";
 import Index from "./pages/Index.tsx";
 import Landing from "./pages/Landing.tsx";
 import { useAuth } from "@/contexts/AuthContext";
+import { Footer } from "@/components/Footer";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex flex-1 items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+        <Footer />
       </div>
     );
   }
