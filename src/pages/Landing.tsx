@@ -675,6 +675,18 @@ function Landing() {
             <span>© 2026 Echo Agent · A2A/MCP outreach infrastructure</span>
             <span className="font-mono uppercase tracking-wider">324 agents running campaigns right now</span>
           </div>
+          <div className="mt-4 text-center text-xs text-foreground/60">
+            Built with love from{" "}
+            <a
+              href="https://x.com/ladysoleil33"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground/80 hover:text-foreground"
+            >
+              @ladysoleil33
+            </a>{" "}
+            on X
+          </div>
         </div>
       </footer>
     </div>
