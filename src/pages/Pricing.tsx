@@ -110,7 +110,7 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Pricing — Weekly Plans from $19 · Your Echo Agent"
         description="Simple weekly plans: Starter $19, Growth $39, Power $79. Cold email + LinkedIn outreach in one place. Cancel or pause anytime."
@@ -138,7 +138,7 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="container max-w-6xl mx-auto px-4 py-12">
+      <main className="flex-1 container max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <Badge variant="secondary" className="mb-4">
             <Sparkles className="w-3 h-3 mr-1" /> Start Small, Grow As You Go
