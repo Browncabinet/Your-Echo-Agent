@@ -39,6 +39,7 @@ import { GetStartedChecklist } from "@/components/GetStartedChecklist";
 import { HotRepliesCard } from "@/components/HotRepliesCard";
 import { DeliverabilityCard } from "@/components/DeliverabilityCard";
 import { SeoHead } from "@/components/SeoHead";
+import { Footer } from "@/components/Footer";
 import { Search, Send, MessageCircle } from "lucide-react";
 
 
@@ -356,6 +357,7 @@ export default function Index() {
           onOpenChange={setShowWelcome}
           onTryFastMode={() => { setShowWelcome(false); setQuickStartOpen(true); }}
         />
+        <Footer />
       </div>
     );
   }
@@ -405,6 +407,7 @@ export default function Index() {
         <main className="container max-w-5xl mx-auto px-4 py-8">
           <ResultsDashboard campaign={campaign} onBack={() => setView("home")} />
         </main>
+        <Footer />
       </div>
     );
   }
@@ -440,6 +443,7 @@ export default function Index() {
             onBack={() => setView("dashboard")}
           />
         </main>
+        <Footer />
       </div>
     );
   }
@@ -492,6 +496,7 @@ export default function Index() {
             </TabsContent>
           </Tabs>
         </main>
+        <Footer />
       </div>
     );
   }
@@ -528,6 +533,7 @@ export default function Index() {
           <ReviewApproval campaign={campaign} onUpdate={updateCampaign} onSend={handleSend} onBack={() => setStep(2)} />
         )}
       </main>
+      <Footer />
     </div>
   );
 }
