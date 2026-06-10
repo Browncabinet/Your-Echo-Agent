@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { Footer } from "@/components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import profileImg from "@/assets/profile-ladysoleil.png";
 import { SeoHead } from "@/components/SeoHead";
@@ -10,7 +11,7 @@ export default function About() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="About Your Echo Agent — Built by @Ladysoleil"
         description="Built by a tech exec turned founder with 15+ years in PR. Autonomous outreach agents that sound exactly like you — without platform gouging."
