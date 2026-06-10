@@ -85,7 +85,19 @@ const agentCardJson = `{
   "auth": { "type": "bearer", "prefix": "eak_live_" },
   "rateLimit": { "hirePerMinute": 60, "queuedJobs": 250 },
   "callbacks": ["job.started", "email.sent", "reply.detected", "meeting.booked"],
-  "pricing": { "model": "usage", "unit": "sent_email", "rate": 0.012 }
+  "pricing": {
+    "model": "subscription_with_topups",
+    "plans": [
+      { "id": "starter_monthly", "price_usd": 49, "interval": "month", "included_emails": 2000 },
+      { "id": "growth_monthly",  "price_usd": 99, "interval": "month", "included_emails": 5000 }
+    ],
+    "topups": [
+      { "id": "topup_500",  "price_usd": 12, "emails": 500 },
+      { "id": "topup_1000", "price_usd": 22, "emails": 1000 },
+      { "id": "topup_2500", "price_usd": 45, "emails": 2500 }
+    ],
+    "overage": { "unit": "sent_email", "rate_usd": 0.025 }
+  }
 }`;
 
 const curlExample = `curl -X POST https://yourechoagent.com/a2a/hire \\
@@ -516,52 +528,54 @@ function Landing() {
           <div className="mx-auto max-w-7xl px-5 sm:px-6">
             <div className="mb-10 max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Weekly agent plans
+                <Sparkles className="h-3.5 w-3.5" /> Monthly plans + top-ups
               </div>
-              <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-5xl">Three weekly lanes for autonomous agent swarms.</h2>
+              <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-5xl">Predictable monthly hire, elastic top-ups.</h2>
+              <p className="mt-3 font-mono text-xs uppercase tracking-wider text-foreground/50">
+                No free tier · No custom quotes · Pay-as-you-go overage at $0.025 / email
+              </p>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-2">
               {[
                 {
-                  name: "Starter Weekly",
-                  price: "$19",
-                  unit: "/ week",
+                  name: "Starter",
+                  price: "$49",
+                  unit: "/ month",
+                  emails: "2,000 emails included",
+                  effective: "≈ $0.0245 per email",
                   features: [
-                    "500 hireable sends / week",
+                    "2,000 hireable sends / month",
                     "A2A discovery + MCP manifest",
                     "Signed realtime callbacks",
+                    "Overage at $0.025 / email",
                   ],
                 },
                 {
-                  name: "Growth Weekly",
-                  price: "$39",
-                  unit: "/ week",
+                  name: "Growth",
+                  price: "$99",
+                  unit: "/ month",
+                  emails: "5,000 emails included",
+                  effective: "≈ $0.0198 per email",
                   features: [
-                    "1,500 hireable sends / week",
+                    "5,000 hireable sends / month",
                     "60 hire calls / min / key",
                     "Priority queue · retry + idempotency",
+                    "Overage at $0.025 / email",
                   ],
                   featured: true,
                 },
-                {
-                  name: "Power Weekly",
-                  price: "$79",
-                  unit: "/ week",
-                  features: [
-                    "4,000 hireable sends / week",
-                    "Dedicated rate windows",
-                    "Private MCP namespace · custom swarm lanes",
-                  ],
-                },
               ].map((tier) => (
                 <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/40 bg-command-line/10 shadow-command" : "border-border/40 bg-card/20"}`}>
-                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">most popular</div>}
+                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">best value</div>}
                   <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
                   <div className="mt-6 flex items-end gap-2">
                     <span className="text-4xl font-black text-foreground">{tier.price}</span>
                     <span className="pb-1 text-sm text-foreground/60">{tier.unit}</span>
                   </div>
+                  <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-primary/80">
+                    {tier.emails} · {tier.effective}
+                  </p>
                   <ul className="mt-6 space-y-3">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2 text-sm text-foreground/70">
@@ -578,8 +592,30 @@ function Landing() {
               ))}
             </div>
 
-            <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-wider text-foreground/50">
-              Cancel or pause anytime · Weekly reset every Monday (UTC)
+            <div className="mt-10">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/40 bg-card/20 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-foreground/70">
+                Top-up packages
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {[
+                  { emails: "500", price: "$12", per: "≈ $0.024 / email" },
+                  { emails: "1,000", price: "$22", per: "≈ $0.022 / email", featured: true },
+                  { emails: "2,500", price: "$45", per: "≈ $0.018 / email" },
+                ].map((pack) => (
+                  <div key={pack.emails} className={`rounded-xl border p-5 backdrop-blur-xl ${pack.featured ? "border-primary/40 bg-primary/5" : "border-border/40 bg-card/20"}`}>
+                    <div className="font-mono text-[11px] uppercase tracking-wider text-foreground/50">+{pack.emails} emails</div>
+                    <div className="mt-2 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-foreground">{pack.price}</span>
+                      <span className="text-xs text-foreground/60">one-time</span>
+                    </div>
+                    <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-primary/80">{pack.per}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-8 text-center font-mono text-[11px] uppercase tracking-wider text-foreground/50">
+              Cancel anytime · Top-ups never expire · Overage billed at $0.025 / email
             </p>
           </div>
         </section>
