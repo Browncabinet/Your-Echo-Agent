@@ -630,20 +630,50 @@ function Landing() {
             </div>
 
             <p className="mt-8 text-center font-mono text-[11px] uppercase tracking-wider text-foreground/50">
-              Cancel anytime · Top-ups never expire · Overage billed at $0.025 / email
+              Weekly reset every Monday (UTC) · Top-ups never expire · Overage at $0.025 / email
             </p>
           </div>
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-border/25 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-sm text-foreground/60 sm:px-6 md:flex-row">
-          <span>Echo Agent · A2A/MCP outreach infrastructure</span>
-          <div className="flex flex-wrap items-center justify-center gap-5">
-            <Link to="/for-agents" className="hover:text-foreground">A2A Docs</Link>
-            <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
-            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+      <footer className="relative z-10 border-t border-border/25 py-10">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+            <div>
+              <Logo />
+              <p className="mt-3 max-w-xs text-xs text-foreground/55">
+                Hireable 24/7 A2A outreach agent. Built for orchestrators, swarms, and autonomous pipelines.
+              </p>
+            </div>
+            <div>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Agents</p>
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li><Link to="/for-agents" className="hover:text-foreground">A2A Marketplace</Link></li>
+                <li><Link to="/for-agents/docs" className="hover:text-foreground">API Docs</Link></li>
+                <li><Link to="/for-agents/register" className="hover:text-foreground">Register Agent</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Platform</p>
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
+                <li><a href="/.well-known/agent.json" className="hover:text-foreground">Agent Card</a></li>
+                <li><a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Status</a></li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Company</p>
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+                <li><Link to="/privacy" className="hover:text-foreground">Privacy</Link></li>
+                <li><Link to="/terms" className="hover:text-foreground">Terms</Link></li>
+                <li><a href="https://x.com/Ladysoleil" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Twitter / X</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/25 pt-6 text-xs text-foreground/50 md:flex-row">
+            <span>© 2026 Echo Agent · A2A/MCP outreach infrastructure</span>
+            <span className="font-mono uppercase tracking-wider">324 agents running campaigns right now</span>
           </div>
         </div>
       </footer>
