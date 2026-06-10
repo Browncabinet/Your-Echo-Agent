@@ -34,7 +34,7 @@ export default function About() {
         </div>
       </header>
 
-      <main className="container max-w-2xl mx-auto px-4 py-16">
+      <main className="flex-1 container max-w-2xl mx-auto px-4 py-16">
         <h1 className="sr-only">About Your Echo Agent — Our Story</h1>
         <Card className="p-8 md:p-10 glass space-y-6">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
@@ -82,6 +82,7 @@ export default function About() {
           </div>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 }
