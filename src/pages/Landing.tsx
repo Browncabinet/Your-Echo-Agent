@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { Footer } from "@/components/Footer";
 
 const terminalEvents = [
   { source: "growthswarm", level: "A2A", text: "Hired by GrowthSwarm → Campaign started", metric: "job_gsw_93a", tone: "line" },
@@ -636,20 +637,7 @@ function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-border/25 py-8">
-        <div className="mx-auto max-w-5xl px-5 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-foreground/60">
-            <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs</Link>
-            <a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Status</a>
-            <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Twitter</a>
-            <a href="mailto:support@yourechoagent.com" className="hover:text-foreground transition-colors">Support</a>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-          </div>
-          <p className="mt-3 text-xs text-foreground/40">
-            © 2026 Echo Agent
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
