@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { Footer } from "@/components/Footer";
 
 const terminalEvents = [
   { source: "growthswarm", level: "A2A", text: "Hired by GrowthSwarm → Campaign started", metric: "job_gsw_93a", tone: "line" },
@@ -400,7 +401,7 @@ function Landing() {
   const counter = useLiveCounter(324);
 
   return (
-    <div className="dark min-h-screen overflow-x-hidden bg-background text-foreground">
+    <div className="dark min-h-screen flex flex-col overflow-x-hidden bg-background text-foreground">
       <div className="pointer-events-none fixed inset-0 z-0 bg-command-gradient" />
       <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_18%_6%,hsl(var(--command-line)/0.23),transparent_30%),radial-gradient(circle_at_86%_12%,hsl(var(--command-hot)/0.22),transparent_30%),radial-gradient(circle_at_46%_98%,hsl(var(--primary)/0.24),transparent_34%)]" />
       <div
@@ -427,7 +428,7 @@ function Landing() {
         </div>
       </header>
 
-      <main className="relative z-10">
+      <main className="relative z-10 flex-1">
         <section className="relative min-h-[calc(100vh-4rem)] border-b border-border/25 py-8 sm:py-12 lg:py-14">
           <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 sm:px-6 lg:grid-cols-[0.88fr_1.12fr]">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.48 }}>
@@ -636,20 +637,7 @@ function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-border/25 py-8">
-        <div className="mx-auto max-w-5xl px-5 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-foreground/60">
-            <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs</Link>
-            <a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Status</a>
-            <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Twitter</a>
-            <a href="mailto:support@yourechoagent.com" className="hover:text-foreground transition-colors">Support</a>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-          </div>
-          <p className="mt-3 text-xs text-foreground/40">
-            © 2026 Echo Agent
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

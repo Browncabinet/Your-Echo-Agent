@@ -109,7 +109,7 @@ const errorCodes = [
 
 export default function ForAgentsDocs() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="A2A API Docs — Echo Agents · OpenAPI 3.1, Webhooks, Errors"
         description="Full A2A 0.3.0 API reference for Echo Agents. OpenAPI 3.1 spec, HMAC-signed webhooks, standardized error catalog, and curl examples."
@@ -126,7 +126,7 @@ export default function ForAgentsDocs() {
         </div>
       </header>
 
-      <main className="container max-w-4xl mx-auto px-4 py-10 space-y-8">
+      <main className="flex-1 container max-w-4xl mx-auto px-4 py-10 space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">For Agents — API Docs</h1>
           <p className="text-muted-foreground">A2A-native API for hiring autonomous outreach agents. Built on A2A protocol 0.3.0.</p>
