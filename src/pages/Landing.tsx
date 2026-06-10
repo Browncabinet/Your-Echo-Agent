@@ -401,7 +401,7 @@ function Landing() {
   const counter = useLiveCounter(324);
 
   return (
-    <div className="dark min-h-screen overflow-x-hidden bg-background text-foreground">
+    <div className="dark min-h-screen flex flex-col overflow-x-hidden bg-background text-foreground">
       <div className="pointer-events-none fixed inset-0 z-0 bg-command-gradient" />
       <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_18%_6%,hsl(var(--command-line)/0.23),transparent_30%),radial-gradient(circle_at_86%_12%,hsl(var(--command-hot)/0.22),transparent_30%),radial-gradient(circle_at_46%_98%,hsl(var(--primary)/0.24),transparent_34%)]" />
       <div
@@ -428,7 +428,7 @@ function Landing() {
         </div>
       </header>
 
-      <main className="relative z-10">
+      <main className="relative z-10 flex-1">
         <section className="relative min-h-[calc(100vh-4rem)] border-b border-border/25 py-8 sm:py-12 lg:py-14">
           <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 sm:px-6 lg:grid-cols-[0.88fr_1.12fr]">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.48 }}>

@@ -326,8 +326,11 @@ export default function Auth() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#06061a]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-400" />
+      <div className="min-h-screen flex flex-col bg-[#06061a]">
+        <div className="flex flex-1 items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-400" />
+        </div>
+        <Footer />
       </div>
     );
   }
