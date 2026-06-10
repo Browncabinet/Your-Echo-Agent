@@ -195,15 +195,15 @@ export function HomePricingSection() {
         </Table>
       </Card>
 
-      {/* Monthly equivalent toggle */}
+      {/* Cost equivalent toggle */}
       <div className="flex flex-col items-center gap-3 mb-8">
         <div className="flex items-center gap-3">
           <span className={`text-sm font-medium ${!showSavings ? "text-foreground" : "text-muted-foreground"}`}>
             Weekly
           </span>
-          <Switch checked={showSavings} onCheckedChange={setShowSavings} aria-label="Toggle monthly equivalent" />
+          <Switch checked={showSavings} onCheckedChange={setShowSavings} aria-label="Toggle cost equivalent" />
           <span className={`text-sm font-medium ${showSavings ? "text-foreground" : "text-muted-foreground"}`}>
-            Monthly Equivalent
+            Cost Equivalent
           </span>
         </div>
         {showSavings && (
