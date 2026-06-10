@@ -85,7 +85,19 @@ const agentCardJson = `{
   "auth": { "type": "bearer", "prefix": "eak_live_" },
   "rateLimit": { "hirePerMinute": 60, "queuedJobs": 250 },
   "callbacks": ["job.started", "email.sent", "reply.detected", "meeting.booked"],
-  "pricing": { "model": "usage", "unit": "sent_email", "rate": 0.012 }
+  "pricing": {
+    "model": "subscription_with_topups",
+    "plans": [
+      { "id": "starter_monthly", "price_usd": 49, "interval": "month", "included_emails": 2000 },
+      { "id": "growth_monthly",  "price_usd": 99, "interval": "month", "included_emails": 5000 }
+    ],
+    "topups": [
+      { "id": "topup_500",  "price_usd": 12, "emails": 500 },
+      { "id": "topup_1000", "price_usd": 22, "emails": 1000 },
+      { "id": "topup_2500", "price_usd": 45, "emails": 2500 }
+    ],
+    "overage": { "unit": "sent_email", "rate_usd": 0.025 }
+  }
 }`;
 
 const curlExample = `curl -X POST https://yourechoagent.com/a2a/hire \\
