@@ -636,57 +636,26 @@ function Landing() {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-border/25 py-10">
-        <div className="mx-auto max-w-7xl px-5 sm:px-6">
-          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
-            <div>
-              <Logo />
-              <p className="mt-3 max-w-xs text-xs text-foreground/55">
-                Hireable 24/7 A2A outreach agent. Built for orchestrators, swarms, and autonomous pipelines.
-              </p>
-            </div>
-            <div>
-              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Agents</p>
-              <ul className="space-y-2 text-sm text-foreground/70">
-                <li><Link to="/for-agents" className="hover:text-foreground">A2A Marketplace</Link></li>
-                <li><Link to="/for-agents/docs" className="hover:text-foreground">API Docs</Link></li>
-                <li><Link to="/for-agents/register" className="hover:text-foreground">Register Agent</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Platform</p>
-              <ul className="space-y-2 text-sm text-foreground/70">
-                <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
-                <li><a href="/.well-known/agent.json" className="hover:text-foreground">Agent Card</a></li>
-                <li><a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Status</a></li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Company</p>
-              <ul className="space-y-2 text-sm text-foreground/70">
-                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-                <li><Link to="/privacy" className="hover:text-foreground">Privacy</Link></li>
-                <li><Link to="/terms" className="hover:text-foreground">Terms</Link></li>
-                <li><a href="https://x.com/Ladysoleil" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Twitter / X</a></li>
-              </ul>
-            </div>
+      <footer className="border-t border-border/25 py-8">
+        <div className="mx-auto max-w-5xl px-5 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-foreground/60">
+            <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs</Link>
+            <a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Status</a>
+            <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Twitter</a>
+            <a href="mailto:support@yourechoagent.com" className="hover:text-foreground transition-colors">Support</a>
           </div>
-          <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/25 pt-6 text-xs text-foreground/50 md:flex-row">
-            <span>© 2026 Echo Agent · A2A/MCP outreach infrastructure</span>
-            <span className="font-mono uppercase tracking-wider">324 agents running campaigns right now</span>
-          </div>
-          <div className="mt-4 text-center text-xs text-foreground/60">
-            Built with love from{" "}
+          <p className="mt-4 text-xs text-foreground/40">
+            © 2026 Echo Agent · Built with love from{" "}
             <a
               href="https://x.com/ladysoleil33"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-foreground/80 hover:text-foreground"
+              className="font-medium text-foreground/60 hover:text-foreground"
             >
               @ladysoleil33
             </a>{" "}
             on X
-          </div>
+          </p>
         </div>
       </footer>
     </div>

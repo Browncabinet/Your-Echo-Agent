@@ -59,12 +59,12 @@ export function Footer() {
             <Link to="/acceptable-use" className="hover:text-primary transition-colors">Acceptable Use</Link>
           </p>
           <a
-            href="https://x.com/Ladysoleil"
+            href="https://x.com/ladysoleil33"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-primary transition-colors"
           >
-            Built by @Ladysoleil
+            Built with love from @ladysoleil33 on X
           </a>
         </div>
       </div>
