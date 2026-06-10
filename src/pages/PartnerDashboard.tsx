@@ -85,7 +85,7 @@ export default function PartnerDashboard() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="cursor-pointer"><Logo /></Link>
@@ -97,7 +97,7 @@ export default function PartnerDashboard() {
         </div>
       </header>
 
-      <main className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 space-y-6">
         <h1 className="text-2xl font-bold">Partner Dashboard</h1>
 
         <div className="grid sm:grid-cols-3 gap-4">

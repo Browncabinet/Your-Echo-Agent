@@ -135,7 +135,7 @@ export default function Index() {
 
   if (view === "home") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <PaymentTestModeBanner />
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -157,7 +157,7 @@ export default function Index() {
           </div>
         </header>
 
-        <main className="container max-w-5xl mx-auto px-4 py-10">
+        <main className="flex-1 container max-w-5xl mx-auto px-4 py-10">
           {user ? (
             <>
               <WeeklyUsageStrip />
@@ -364,7 +364,7 @@ export default function Index() {
 
   if (view === "dashboard") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="cursor-pointer" onClick={() => setView("home")}>
@@ -404,7 +404,7 @@ export default function Index() {
             </div>
           </div>
         </header>
-        <main className="container max-w-5xl mx-auto px-4 py-8">
+        <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
           <ResultsDashboard campaign={campaign} onBack={() => setView("home")} />
         </main>
         <Footer />
@@ -414,7 +414,7 @@ export default function Index() {
 
   if (view === "replies") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <header className="border-b bg-card">
             <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="cursor-pointer" onClick={() => setView("home")}>
@@ -437,7 +437,7 @@ export default function Index() {
             </div>
           </div>
         </header>
-        <main className="container max-w-5xl mx-auto px-4 py-8">
+        <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
           <RepliesInbox
             campaignId={campaign.id}
             onBack={() => setView("dashboard")}
@@ -450,7 +450,7 @@ export default function Index() {
 
   if (view === "social") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <header className="border-b bg-card">
           <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="cursor-pointer" onClick={() => setView("home")}>
@@ -473,7 +473,7 @@ export default function Index() {
             </div>
           </div>
         </header>
-        <main className="container max-w-5xl mx-auto px-4 py-8">
+        <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
           <Tabs defaultValue="linkedin" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="linkedin">LinkedIn Activity</TabsTrigger>
@@ -502,7 +502,7 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-card">
         <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="cursor-pointer" onClick={() => setView("home")}>
@@ -515,7 +515,7 @@ export default function Index() {
         </div>
       </header>
 
-      <main className="container max-w-5xl mx-auto px-4 py-8">
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8">
           <StepIndicator steps={steps} />
         </div>
