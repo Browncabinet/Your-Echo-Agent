@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
 import { SeoHead } from "@/components/SeoHead";
 import { ArrowLeft, Wallet, LayoutDashboard, ExternalLink } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 const PROJECT = "dqovpwkmmtxqlrdvfuzz";
 const BASE = `https://${PROJECT}.supabase.co/functions/v1`;
@@ -210,6 +211,7 @@ export default function ForAgentsDocs() {
           </div>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 }

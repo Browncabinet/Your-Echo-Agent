@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Wallet, ArrowLeft, Zap, Key, Plus } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 type Partner = {
   id: string;
@@ -187,6 +188,7 @@ export default function PartnerBilling() {
           )}
         </DialogContent>
       </Dialog>
+      <Footer />
     </div>
   );
 }

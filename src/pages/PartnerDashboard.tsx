@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
 import { ArrowLeft, Key, Copy, RefreshCw, Wallet, BookOpen, Loader2, CheckCircle2, XCircle, ShieldCheck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { Footer } from "@/components/Footer";
 
 type Partner = { id: string; balance_cents: number; total_spent_cents: number; billing_email: string; api_key_id: string };
 type ApiKey = { id: string; key_prefix: string; status: string; rate_limit_per_min: number; last_used_at: string | null };
@@ -244,6 +245,7 @@ export default function PartnerDashboard() {
           </Card>
         )}
       </main>
+      <Footer />
     </div>
   );
 }
