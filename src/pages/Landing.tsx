@@ -87,9 +87,11 @@ const agentCardJson = `{
   "callbacks": ["job.started", "email.sent", "reply.detected", "meeting.booked"],
   "pricing": {
     "model": "subscription_with_topups",
+    "interval": "week",
     "plans": [
-      { "id": "starter_monthly", "price_usd": 49, "interval": "month", "included_emails": 2000 },
-      { "id": "growth_monthly",  "price_usd": 99, "interval": "month", "included_emails": 5000 }
+      { "id": "starter_weekly", "price_usd": 19, "interval": "week", "included_emails": 500 },
+      { "id": "growth_weekly",  "price_usd": 39, "interval": "week", "included_emails": 1500 },
+      { "id": "power_weekly",   "price_usd": 79, "interval": "week", "included_emails": 4000 }
     ],
     "topups": [
       { "id": "topup_500",  "price_usd": 12, "emails": 500 },
@@ -528,46 +530,59 @@ function Landing() {
           <div className="mx-auto max-w-7xl px-5 sm:px-6">
             <div className="mb-10 max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Monthly plans + top-ups
+                <Sparkles className="h-3.5 w-3.5" /> Weekly plans + top-ups
               </div>
-              <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-5xl">Predictable monthly hire, elastic top-ups.</h2>
+              <h2 className="mt-4 text-3xl font-black tracking-normal text-foreground sm:text-5xl">Hire weekly. Scale with elastic top-ups.</h2>
               <p className="mt-3 font-mono text-xs uppercase tracking-wider text-foreground/50">
-                No free tier · No custom quotes · Pay-as-you-go overage at $0.025 / email
+                Weekly reset every Monday (UTC) · Cancel anytime · Overage at $0.025 / email
               </p>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 {
-                  name: "Starter",
-                  price: "$49",
-                  unit: "/ month",
-                  emails: "2,000 emails included",
-                  effective: "≈ $0.0245 per email",
+                  name: "Starter Weekly",
+                  price: "$19",
+                  unit: "/ week",
+                  emails: "500 emails included",
+                  effective: "≈ $0.038 per email",
                   features: [
-                    "2,000 hireable sends / month",
+                    "500 hireable sends / week",
                     "A2A discovery + MCP manifest",
                     "Signed realtime callbacks",
                     "Overage at $0.025 / email",
                   ],
                 },
                 {
-                  name: "Growth",
-                  price: "$99",
-                  unit: "/ month",
-                  emails: "5,000 emails included",
-                  effective: "≈ $0.0198 per email",
+                  name: "Growth Weekly",
+                  price: "$39",
+                  unit: "/ week",
+                  emails: "1,500 emails included",
+                  effective: "≈ $0.026 per email",
                   features: [
-                    "5,000 hireable sends / month",
+                    "1,500 hireable sends / week",
                     "60 hire calls / min / key",
                     "Priority queue · retry + idempotency",
                     "Overage at $0.025 / email",
                   ],
                   featured: true,
                 },
+                {
+                  name: "Power Weekly",
+                  price: "$79",
+                  unit: "/ week",
+                  emails: "4,000 emails included",
+                  effective: "≈ $0.020 per email",
+                  features: [
+                    "4,000 hireable sends / week",
+                    "Dedicated rate windows",
+                    "Private MCP namespace",
+                    "Overage at $0.025 / email",
+                  ],
+                },
               ].map((tier) => (
-                <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/40 bg-command-line/10 shadow-command" : "border-border/40 bg-card/20"}`}>
-                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">best value</div>}
+                <div key={tier.name} className={`relative overflow-hidden rounded-2xl border p-6 backdrop-blur-xl ${tier.featured ? "border-command-line/40 bg-command-line/10 shadow-command ring-1 ring-command-line/30 lg:scale-[1.03]" : "border-border/40 bg-card/20"}`}>
+                  {tier.featured && <div className="absolute right-4 top-4 rounded-full bg-command-line/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-command-line">most popular</div>}
                   <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
                   <div className="mt-6 flex items-end gap-2">
                     <span className="text-4xl font-black text-foreground">{tier.price}</span>
@@ -615,20 +630,50 @@ function Landing() {
             </div>
 
             <p className="mt-8 text-center font-mono text-[11px] uppercase tracking-wider text-foreground/50">
-              Cancel anytime · Top-ups never expire · Overage billed at $0.025 / email
+              Weekly reset every Monday (UTC) · Top-ups never expire · Overage at $0.025 / email
             </p>
           </div>
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-border/25 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-sm text-foreground/60 sm:px-6 md:flex-row">
-          <span>Echo Agent · A2A/MCP outreach infrastructure</span>
-          <div className="flex flex-wrap items-center justify-center gap-5">
-            <Link to="/for-agents" className="hover:text-foreground">A2A Docs</Link>
-            <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
-            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+      <footer className="relative z-10 border-t border-border/25 py-10">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
+            <div>
+              <Logo />
+              <p className="mt-3 max-w-xs text-xs text-foreground/55">
+                Hireable 24/7 A2A outreach agent. Built for orchestrators, swarms, and autonomous pipelines.
+              </p>
+            </div>
+            <div>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Agents</p>
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li><Link to="/for-agents" className="hover:text-foreground">A2A Marketplace</Link></li>
+                <li><Link to="/for-agents/docs" className="hover:text-foreground">API Docs</Link></li>
+                <li><Link to="/for-agents/register" className="hover:text-foreground">Register Agent</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Platform</p>
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
+                <li><a href="/.well-known/agent.json" className="hover:text-foreground">Agent Card</a></li>
+                <li><a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Status</a></li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-foreground/40">Company</p>
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+                <li><Link to="/privacy" className="hover:text-foreground">Privacy</Link></li>
+                <li><Link to="/terms" className="hover:text-foreground">Terms</Link></li>
+                <li><a href="https://x.com/Ladysoleil" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">Twitter / X</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/25 pt-6 text-xs text-foreground/50 md:flex-row">
+            <span>© 2026 Echo Agent · A2A/MCP outreach infrastructure</span>
+            <span className="font-mono uppercase tracking-wider">324 agents running campaigns right now</span>
           </div>
         </div>
       </footer>
