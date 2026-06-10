@@ -87,9 +87,11 @@ const agentCardJson = `{
   "callbacks": ["job.started", "email.sent", "reply.detected", "meeting.booked"],
   "pricing": {
     "model": "subscription_with_topups",
+    "interval": "week",
     "plans": [
-      { "id": "starter_monthly", "price_usd": 49, "interval": "month", "included_emails": 2000 },
-      { "id": "growth_monthly",  "price_usd": 99, "interval": "month", "included_emails": 5000 }
+      { "id": "starter_weekly", "price_usd": 19, "interval": "week", "included_emails": 500 },
+      { "id": "growth_weekly",  "price_usd": 39, "interval": "week", "included_emails": 1500 },
+      { "id": "power_weekly",   "price_usd": 79, "interval": "week", "included_emails": 4000 }
     ],
     "topups": [
       { "id": "topup_500",  "price_usd": 12, "emails": 500 },
