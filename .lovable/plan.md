@@ -1,40 +1,36 @@
-## Goal
-Let you run a successful sandbox Stripe payment end-to-end from your app.
+## Findings
 
-## Current state
-Stripe sandbox is already wired up:
-- `STRIPE_SANDBOX_API_KEY` + `PAYMENTS_SANDBOX_WEBHOOK_SECRET` configured
-- `VITE_PAYMENTS_CLIENT_TOKEN` (pk_test_...) in `.env.development`
-- Edge functions `create-checkout`, `payments-webhook`, `get-stripe-price` deployed
-- `StripeEmbeddedCheckout` component + `getStripe` helper exist
-- `/checkout/return` page exists
-- `PartnerBilling` already uses embedded checkout against `a2a_credit_*` products
+- Payments setup is stuck at **Connect your sandbox to a new or existing Stripe account**.
+- The project has a linked **Stripe sandbox** connection and an available **Stripe live** connection, but live checkout is not enabled yet.
+- The refresh behavior is consistent with the sandbox-claim link failing before redirecting to Stripe, likely because the Stripe account email and Lovable account email do not match.
+- I cannot directly change the Stripe account email that Lovable uses for the claim URL from inside app code.
 
-What's missing: a one-click test entry point with a known-good $1 sandbox price.
+## Fix path
 
-## Plan
+1. **Use the existing Stripe account intentionally**
+   - Stay logged into Stripe as `natashasoleil75@gmail.com` in the same browser.
+   - Stay logged into Lovable as `aquavase75@gmail.com`.
+   - Open the Payments tab and retry **Claim sandbox**.
 
-1. **Create a $1 sandbox test product** via the payments tool:
-   - `product_id: test_payment`, `price_id: test_payment_1`, $1.00 USD, one-time, qty 1.
+2. **If it still refreshes**
+   - Reconnect the linked Stripe sandbox connection so the OAuth/account association is refreshed against the `natashasoleil75@gmail.com` Stripe login.
+   - Then retry **Claim sandbox**.
 
-2. **Add `/checkout-test` page** (`src/pages/CheckoutTest.tsx`):
-   - Heading "Sandbox Checkout Test", short note that this charges $1 in test mode (no real money).
-   - Test card hint: `4242 4242 4242 4242`, any future expiry, any CVC, any ZIP.
-   - "Start test checkout" button opens a dialog with `<StripeEmbeddedCheckout priceId="test_payment_1" returnUrl=".../checkout/return?...">`.
-   - Includes `<PaymentTestModeBanner />` at top.
+3. **If reconnect still fails**
+   - Disconnect the current linked Stripe sandbox connection and connect a fresh Stripe sandbox while signed into Stripe as `natashasoleil75@gmail.com`.
+   - Keep the live Stripe connection available for go-live after sandbox claim completes.
 
-3. **Register route** in `src/App.tsx`: `/checkout-test` → `CheckoutTest`.
+4. **After claim succeeds**
+   - Continue the go-live checklist in Payments.
+   - Verify the live account connection is associated with `natashasoleil75@gmail.com` before provisioning live payments.
 
-4. **Verify `/checkout/return`** renders a success state from `session_id` (already does — just confirm).
+## What I can do next
 
-## How you'll test
-1. Open `/checkout-test` in the preview
-2. Click "Start test checkout"
-3. Pay with `4242 4242 4242 4242`
-4. Stripe redirects to `/checkout/return?session_id=...` showing success
-5. Edge function logs (`payments-webhook`) show `checkout.session.completed` event
+- I can trigger a Stripe sandbox reconnect prompt for the currently linked sandbox connection.
+- If needed after that, I can guide the disconnect/reconnect sequence.
 
-## Out of scope
-- No changes to existing pricing, subscriptions, or partner billing flow
-- No new DB tables — webhook already handles subscription events; one-time test payment doesn't need persistence
-- No production / live-mode changes
+## What I cannot do from code
+
+- Force Lovable’s claim button to send to a specific email.
+- Edit Stripe account ownership or claim-account routing from your React app.
+- Bypass the Payments claim step with app code.
