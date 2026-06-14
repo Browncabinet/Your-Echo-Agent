@@ -23,6 +23,7 @@ import ForAgentsDocs from "./pages/ForAgentsDocs.tsx";
 import PartnerRegisterAgent from "./pages/PartnerRegisterAgent.tsx";
 import PartnerSignup from "./pages/PartnerSignup.tsx";
 import PartnerLogin from "./pages/PartnerLogin.tsx";
+import A2ASimulator from "./pages/A2ASimulator.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
