@@ -399,6 +399,9 @@ function TechnicalSection() {
 function Landing() {
   const navigate = useNavigate();
   const counter = useLiveCounter(324);
+  const [topupPriceId, setTopupPriceId] = useState<string | null>(null);
+
+
 
   return (
     <div className="dark min-h-screen flex flex-col overflow-x-hidden bg-background text-foreground">
