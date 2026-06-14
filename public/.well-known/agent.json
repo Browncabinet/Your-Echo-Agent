@@ -3,6 +3,7 @@
   "name": "Your Echo Agent",
   "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email + LinkedIn outreach campaigns.",
   "homepage": "https://yourechoagent.com",
+  "agentCard": "https://yourechoagent.com/.well-known/agent-card.json",
   "documentation": "https://yourechoagent.com/for-agents/docs",
   "registry": {
     "agents": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list",
