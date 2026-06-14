@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -28,40 +28,71 @@ type Result = {
   error?: string;
 };
 
+type LogLine = { ts: string; tone: "in" | "out" | "ok" | "err" | "info"; msg: string };
+
+function bytes(s: string) { return new Blob([s]).size; }
+function pad(n: number, w = 2) { return String(n).padStart(w, "0"); }
+function ts() {
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+}
+
 export default function A2ASimulator() {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Result[]>([]);
+  const [log, setLog] = useState<LogLine[]>([]);
   const [chartHtml, setChartHtml] = useState<string>("");
+  const logRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [log]);
+
+  function push(tone: LogLine["tone"], msg: string) {
+    setLog((prev) => [...prev, { ts: ts(), tone, msg }]);
+  }
 
   async function runSimulation() {
     setRunning(true);
     setResults([]);
+    setLog([]);
     setChartHtml("");
+    push("info", `── Network simulation starting · ${MOCK_AGENTS.length} agents · dry-run mode ──`);
+
     const out: Result[] = [];
 
-    for (const agent of MOCK_AGENTS) {
+    for (let i = 0; i < MOCK_AGENTS.length; i++) {
+      const agent = MOCK_AGENTS[i];
+      const tag = `agent#${pad(i + 1)} ${agent.name}`;
       const t0 = performance.now();
       try {
+        const body1 = JSON.stringify({ text: agent.text });
+        push("in", `${tag} → echo-pipeline      payload=${bytes(body1)}B`);
         const r1 = await fetch(`${PROJECT_URL}/functions/v1/echo-pipeline?dry=1`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: agent.text }),
+          method: "POST", headers: { "Content-Type": "application/json" }, body: body1,
         });
-        const j1 = await r1.json();
+        const txt1 = await r1.text();
+        const j1 = JSON.parse(txt1);
         const t1 = performance.now();
+        push(r1.ok ? "ok" : "err",
+          `${tag} ← ${r1.status} ${r1.ok ? "ok" : "fail"}   ${Math.round(t1 - t0)}ms   out=${bytes(txt1)}B   kw=${(j1.keywords || []).length}`);
 
-        const rows = [
-          { metric: "chars", value: j1.char_count || 0 },
-          { metric: "tokens", value: j1.token_estimate || 0 },
-          { metric: "keywords", value: (j1.keywords || []).length },
-        ];
-        const r2 = await fetch(`${PROJECT_URL}/functions/v1/charts-render?dry=1`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rows }),
+        const body2 = JSON.stringify({
+          rows: [
+            { metric: "chars", value: j1.char_count || 0 },
+            { metric: "tokens", value: j1.token_estimate || 0 },
+            { metric: "keywords", value: (j1.keywords || []).length },
+          ],
         });
-        const j2 = await r2.json();
+        push("in", `${tag} → charts-render      payload=${bytes(body2)}B`);
+        const r2 = await fetch(`${PROJECT_URL}/functions/v1/charts-render?dry=1`, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: body2,
+        });
+        const txt2 = await r2.text();
+        const j2 = JSON.parse(txt2);
         const t2 = performance.now();
+        push(r2.ok ? "ok" : "err",
+          `${tag} ← ${r2.status} ${r2.ok ? "ok" : "fail"}   ${Math.round(t2 - t1)}ms   out=${bytes(txt2)}B   rows=${j2.rows_count || 0}`);
 
         out.push({
           agent: agent.name,
@@ -75,22 +106,32 @@ export default function A2ASimulator() {
         setResults([...out]);
         if (!chartHtml && j2.html) setChartHtml(j2.html);
       } catch (e) {
-        out.push({
-          agent: agent.name, pipeline_ms: 0, chart_ms: 0, total_ms: 0,
-          summary: "", rows: 0, ok: false, error: e instanceof Error ? e.message : String(e),
-        });
+        const err = e instanceof Error ? e.message : String(e);
+        push("err", `${tag} ✗ ${err}`);
+        out.push({ agent: agent.name, pipeline_ms: 0, chart_ms: 0, total_ms: 0, summary: "", rows: 0, ok: false, error: err });
         setResults([...out]);
       }
     }
+
+    const okN = out.filter((r) => r.ok).length;
+    const avg = out.length ? Math.round(out.reduce((s, r) => s + r.total_ms, 0) / out.length) : 0;
+    push("info", `── Done · ${okN}/${out.length} ok · avg ${avg}ms ──`);
     setRunning(false);
   }
 
   const avg = results.length ? Math.round(results.reduce((s, r) => s + r.total_ms, 0) / results.length) : 0;
   const okCount = results.filter((r) => r.ok).length;
 
+  const toneClass = (t: LogLine["tone"]) =>
+    t === "in" ? "text-sky-300"
+    : t === "ok" ? "text-emerald-300"
+    : t === "err" ? "text-rose-300"
+    : t === "info" ? "text-amber-300"
+    : "text-zinc-300";
+
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold">A2A Network Simulator</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -107,6 +148,29 @@ export default function A2ASimulator() {
               {okCount}/{results.length} ok · avg total {avg}ms
             </div>
           )}
+        </Card>
+
+        <Card className="p-0 overflow-hidden">
+          <div className="px-3 py-2 bg-zinc-900 text-zinc-400 text-xs font-mono border-b border-zinc-800 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="ml-2">a2a-simulator — live log</span>
+          </div>
+          <div
+            ref={logRef}
+            className="bg-zinc-950 text-zinc-200 font-mono text-xs leading-relaxed p-3 h-80 overflow-auto"
+          >
+            {log.length === 0 ? (
+              <div className="text-zinc-600">Waiting for run…</div>
+            ) : (
+              log.map((l, i) => (
+                <div key={i} className={toneClass(l.tone)}>
+                  <span className="text-zinc-500">[{l.ts}]</span> {l.msg}
+                </div>
+              ))
+            )}
+          </div>
         </Card>
 
         {results.length > 0 && (
