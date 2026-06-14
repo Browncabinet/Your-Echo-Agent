@@ -15,6 +15,7 @@
     "registerAgent": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-register"
   },
   "openapi": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi",
+  "api_schema": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi",
   "auth": {
     "type": "bearer",
     "header": "Authorization",
