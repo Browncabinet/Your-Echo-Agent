@@ -61,9 +61,8 @@ serve(async (req) => {
       return_url: returnUrl || `${req.headers.get("origin")}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       ...(customerId && { customer: customerId }),
       ...(!isRecurring && productDescription && { payment_intent_data: { description: productDescription } }),
-      metadata: { ...(userId && { userId, priceId }), managed_payments: "true", ...safeExtra },
+      metadata: { ...(userId && { userId, priceId }), ...safeExtra },
       ...(isRecurring && userId && { subscription_data: { metadata: { userId, priceId } } }),
-      managed_payments: { enabled: true },
     } as any);
 
     return new Response(JSON.stringify({ clientSecret: session.client_secret }), responseHeaders);
