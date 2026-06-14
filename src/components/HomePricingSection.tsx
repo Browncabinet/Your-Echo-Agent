@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Check, ArrowRight, Sparkles, Minus, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
+import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 import {
   Table,
@@ -104,7 +107,18 @@ const weeklyTiers: WeeklyTier[] = [
 
 export function HomePricingSection() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showSavings, setShowSavings] = useState(false);
+  const [topupPriceId, setTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
+
+  const handleTopup = (priceId: TopupPack["priceId"]) => {
+    if (!user) {
+      try { localStorage.setItem("pending_topup_priceId", priceId); } catch {/* ignore */}
+      navigate("/auth");
+      return;
+    }
+    setTopupPriceId(priceId);
+  };
 
   return (
     <section className="mb-16 scroll-mt-20" id="pricing">
