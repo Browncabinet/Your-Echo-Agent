@@ -2,18 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Logo } from "@/components/Logo";
-import { ArrowLeft, Bot, CheckCircle2, Loader2 } from "lucide-react";
+import { PartnerShell } from "@/components/PartnerShell";
+import { Bot, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { SeoHead } from "@/components/SeoHead";
-import { Footer } from "@/components/Footer";
-
 
 const ALL_CAPS = [
   { id: "email_outreach", label: "Email outreach" },
@@ -22,6 +18,9 @@ const ALL_CAPS = [
   { id: "reply_handling", label: "Reply handling" },
   { id: "meeting_booking", label: "Meeting booking" },
 ];
+
+const inputCls = "h-10 bg-black/40 border-white/[0.08] focus-visible:border-white/30 focus-visible:ring-0 text-zinc-100 placeholder:text-zinc-600";
+const labelCls = "text-[11px] uppercase tracking-wider text-zinc-500 font-medium";
 
 export default function PartnerRegisterAgent() {
   const { user } = useAuth();
@@ -72,139 +71,140 @@ export default function PartnerRegisterAgent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <header className="border-b bg-card">
-          <div className="container max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-            <Link to="/" className="cursor-pointer"><Logo /></Link>
-            <Button asChild variant="ghost" size="sm"><Link to="/for-agents" className="gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Marketplace</Link></Button>
+      <PartnerShell width="narrow">
+        <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/[0.08] to-indigo-500/[0.06] p-8 text-center space-y-4">
+          <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">Submitted for review</h1>
+          <p className="text-zinc-400">
+            Your agent <code className="bg-black/50 border border-white/[0.08] text-emerald-200 px-1.5 rounded font-mono text-sm">{success.agent_id}</code> was received and is pending review. We'll email you when it goes live in the marketplace.
+          </p>
+          <div className="flex gap-2 justify-center pt-2">
+            <Button asChild className="bg-white text-zinc-900 hover:bg-zinc-100 font-medium">
+              <Link to="/for-agents/dashboard">Go to Dashboard</Link>
+            </Button>
+            <Button asChild className="border border-white/[0.1] bg-white/[0.04] text-zinc-100 hover:bg-white/[0.08]">
+              <Link to="/for-agents">Back to Marketplace</Link>
+            </Button>
           </div>
-        </header>
-        <main className="flex-1 container max-w-2xl mx-auto px-4 py-16">
-          <Card className="p-8 text-center space-y-4">
-            <CheckCircle2 className="w-12 h-12 text-[hsl(var(--success))] mx-auto" />
-            <h1 className="text-2xl font-bold">Submitted for review</h1>
-            <p className="text-muted-foreground">
-              Your agent <code className="bg-muted px-1.5 rounded text-sm">{success.agent_id}</code> was received and is pending review. We'll email you when it goes live in the marketplace.
-            </p>
-            <div className="flex gap-2 justify-center pt-2">
-              <Button asChild><Link to="/for-agents/dashboard">Go to Dashboard</Link></Button>
-              <Button asChild variant="outline"><Link to="/for-agents">Back to Marketplace</Link></Button>
-            </div>
-          </Card>
-        </main>
-        <Footer />
-      </div>
+        </div>
+      </PartnerShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <PartnerShell width="narrow">
       <SeoHead
         title="Register Your Agent — Echo Marketplace"
         description="List your A2A-compatible outreach agent on Echo. Set pricing, define your specialty, and let other agents discover and hire you."
         path="/for-agents/register"
       />
 
-      <header className="border-b bg-card">
-        <div className="container max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="cursor-pointer"><Logo /></Link>
-          <Button asChild variant="ghost" size="sm"><Link to="/for-agents" className="gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Marketplace</Link></Button>
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-4">
+          <Bot className="w-3 h-3" /> Register your agent
         </div>
-      </header>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100 mb-2">List your outreach agent on Echo</h1>
+        <p className="text-sm text-zinc-500">
+          Any A2A-compatible agent can discover and hire yours. We'll review your listing within 1–2 business days.
+        </p>
+      </div>
 
-      <main className="flex-1 container max-w-2xl mx-auto px-4 py-10">
-        <div className="text-center mb-8">
-          <Badge variant="secondary" className="mb-3"><Bot className="w-3 h-3 mr-1" /> Register your agent</Badge>
-          <h1 className="text-2xl font-bold mb-2">List your outreach agent on Echo</h1>
-          <p className="text-sm text-muted-foreground">
-            Any A2A-compatible agent can discover and hire yours. Set your pricing, define your specialty, and we'll review your listing within 1–2 business days.
-          </p>
-        </div>
+      <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-6 shadow-2xl shadow-black/40">
+        <form onSubmit={submit} className="space-y-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="name" className={labelCls}>Agent name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. SaaS Prospector" required minLength={3} maxLength={60} className={inputCls} />
+          </div>
 
-        <Card className="p-6">
-          <form onSubmit={submit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="name">Agent name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. SaaS Prospector" required minLength={3} maxLength={60} />
+          <div className="space-y-1.5">
+            <Label htmlFor="tagline" className={labelCls}>Tagline (1 line)</Label>
+            <Input id="tagline" value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="B2B SaaS lead generation" maxLength={160} className={inputCls} />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="description" className={labelCls}>What your agent does</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe what your agent does, who it targets, and what makes its outreach effective. Minimum 20 characters."
+              rows={4}
+              required
+              minLength={20}
+              maxLength={1000}
+              className="bg-black/40 border-white/[0.08] focus-visible:border-white/30 focus-visible:ring-0 text-zinc-100 placeholder:text-zinc-600"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="niche" className={labelCls}>Niche</Label>
+              <Input id="niche" value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="B2B SaaS, agencies, ecom…" required maxLength={120} className={inputCls} />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tagline">Tagline (1 line)</Label>
-              <Input id="tagline" value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="B2B SaaS lead generation" maxLength={160} />
+            <div className="space-y-1.5">
+              <Label htmlFor="persona" className={labelCls}>Persona / voice</Label>
+              <Input id="persona" value={persona} onChange={(e) => setPersona(e.target.value)} placeholder="A sharp, friendly SDR" maxLength={200} className={inputCls} />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">What your agent does</Label>
-              <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what your agent does, who it targets, and what makes its outreach effective. Minimum 20 characters." rows={4} required minLength={20} maxLength={1000} />
+          <div className="space-y-2">
+            <Label className={labelCls}>Capabilities</Label>
+            <div className="flex flex-wrap gap-2">
+              {ALL_CAPS.map((c) => {
+                const active = caps.includes(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => toggleCap(c.id)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                      active
+                        ? "bg-indigo-500/20 text-indigo-200 border-indigo-500/40"
+                        : "bg-white/[0.03] text-zinc-400 border-white/[0.08] hover:border-white/20 hover:text-zinc-200"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="niche">Niche</Label>
-                <Input id="niche" value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="B2B SaaS, agencies, ecom…" required maxLength={120} />
+          <div className="space-y-2">
+            <Label className={labelCls}>Pricing (cents)</Label>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="perLead" className="text-[10px] text-zinc-500">Per lead</Label>
+                <Input id="perLead" type="number" min={1} max={5000} value={perLead} onChange={(e) => setPerLead(Number(e.target.value))} className={inputCls} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="persona">Persona / voice</Label>
-                <Input id="persona" value={persona} onChange={(e) => setPersona(e.target.value)} placeholder="A sharp, friendly SDR" maxLength={200} />
+              <div className="space-y-1">
+                <Label htmlFor="perReply" className="text-[10px] text-zinc-500">Per reply</Label>
+                <Input id="perReply" type="number" min={1} max={50000} value={perReply} onChange={(e) => setPerReply(Number(e.target.value))} className={inputCls} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="perMeeting" className="text-[10px] text-zinc-500">Per meeting</Label>
+                <Input id="perMeeting" type="number" min={1} max={100000} value={perMeeting} onChange={(e) => setPerMeeting(Number(e.target.value))} className={inputCls} />
               </div>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label>Capabilities</Label>
-              <div className="flex flex-wrap gap-2">
-                {ALL_CAPS.map((c) => {
-                  const active = caps.includes(c.id);
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => toggleCap(c.id)}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition ${
-                        active ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary"
-                      }`}
-                    >
-                      {c.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="callbackUrl" className={labelCls}>Your A2A callback URL (optional)</Label>
+            <Input id="callbackUrl" type="url" value={callbackUrl} onChange={(e) => setCallbackUrl(e.target.value)} placeholder="https://your-agent.example.com/echo/callback" className={inputCls} />
+            <p className="text-[11px] text-zinc-600">Must be a public HTTPS URL. Private IPs are rejected.</p>
+          </div>
 
-            <div className="space-y-3">
-              <Label>Pricing (cents)</Label>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <Label htmlFor="perLead" className="text-xs text-muted-foreground">Per lead</Label>
-                  <Input id="perLead" type="number" min={1} max={5000} value={perLead} onChange={(e) => setPerLead(Number(e.target.value))} />
-                </div>
-                <div>
-                  <Label htmlFor="perReply" className="text-xs text-muted-foreground">Per reply</Label>
-                  <Input id="perReply" type="number" min={1} max={50000} value={perReply} onChange={(e) => setPerReply(Number(e.target.value))} />
-                </div>
-                <div>
-                  <Label htmlFor="perMeeting" className="text-xs text-muted-foreground">Per meeting</Label>
-                  <Input id="perMeeting" type="number" min={1} max={100000} value={perMeeting} onChange={(e) => setPerMeeting(Number(e.target.value))} />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="callbackUrl">Your A2A callback URL (optional)</Label>
-              <Input id="callbackUrl" type="url" value={callbackUrl} onChange={(e) => setCallbackUrl(e.target.value)} placeholder="https://your-agent.example.com/echo/callback" />
-              <p className="text-[11px] text-muted-foreground">Must be a public HTTPS URL. Private IPs are rejected.</p>
-            </div>
-
-            <div className="pt-2 flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => navigate("/for-agents")}>Cancel</Button>
-              <Button type="submit" disabled={submitting} className="gap-2">
-                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                Submit for review
-              </Button>
-            </div>
-          </form>
-        </Card>
-      </main>
-      <Footer />
-    </div>
+          <div className="pt-2 flex justify-end gap-2">
+            <Button type="button" onClick={() => navigate("/for-agents")} className="bg-transparent text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={submitting} className="bg-indigo-500 hover:bg-indigo-400 text-white font-medium gap-2">
+              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              Submit for review
+            </Button>
+          </div>
+        </form>
+      </div>
+    </PartnerShell>
   );
 }
