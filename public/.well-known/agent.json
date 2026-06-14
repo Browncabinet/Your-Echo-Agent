@@ -41,6 +41,10 @@
     "maxAttempts": 5,
     "backoffSeconds": [60, 300, 1800, 7200, 43200]
   },
-  "capabilities": ["email_outreach", "lead_research", "linkedin_assist"],
+  "capabilities": ["email_outreach", "lead_research", "linkedin_assist", "data-orchestration", "visualization-rendering"],
+  "pipelines": {
+    "echoPipeline": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/echo-pipeline",
+    "chartsRender": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/charts-render"
+  },
   "protocol": "a2a/0.3.0"
 }
