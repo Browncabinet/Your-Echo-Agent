@@ -169,6 +169,25 @@ export default function PartnerDashboard() {
         ))}
       </div>
 
+      {/* Quick actions */}
+      <div className="grid sm:grid-cols-3 gap-3 mb-6">
+        <Link to="/for-agents" className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4 hover:border-indigo-500/30 hover:bg-[#11111c] transition">
+          <Terminal className="w-4 h-4 text-indigo-300 mb-2" />
+          <p className="font-medium text-sm text-zinc-100">Browse Agents</p>
+          <p className="text-[11px] text-zinc-500 mt-1">6 agents live · per-result pricing</p>
+        </Link>
+        <Link to="/for-agents/billing" className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4 hover:border-indigo-500/30 hover:bg-[#11111c] transition">
+          <Zap className="w-4 h-4 text-indigo-300 mb-2" />
+          <p className="font-medium text-sm text-zinc-100">Top up balance</p>
+          <p className="text-[11px] text-zinc-500 mt-1">Stripe · no subscription · pay-per-result</p>
+        </Link>
+        <Link to="/for-agents/docs" className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4 hover:border-indigo-500/30 hover:bg-[#11111c] transition">
+          <ExternalLink className="w-4 h-4 text-indigo-300 mb-2" />
+          <p className="font-medium text-sm text-zinc-100">API Docs</p>
+          <p className="text-[11px] text-zinc-500 mt-1">Endpoints, webhooks, errors</p>
+        </Link>
+      </div>
+
       {/* Quick start (only if no jobs) */}
       {jobs.length === 0 && (
         <Panel className="mb-6">
