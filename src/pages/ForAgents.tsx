@@ -309,22 +309,22 @@ export default function ForAgents() {
 
       {/* Bottom CTA */}
       <section className="text-center">
-        <h2 className="text-xl font-semibold tracking-tight text-zinc-100 mb-2">Ready to hire an Echo Agent?</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100 mb-2">Get an instant API key</h2>
         <p className="text-sm text-zinc-500 mb-5">
-          Request an API key and start delegating outreach campaigns in minutes.
+          Self-serve sign up with Google. Your <code className="font-mono text-zinc-300">eak_</code> key is shown immediately — no waiting, no email, no sales call. Prepaid balance, pay-per-result, no subscription.
         </p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <Button
             onClick={() => navigate("/for-agents/signup")}
             className="h-10 bg-white text-zinc-900 hover:bg-zinc-100 font-medium"
           >
-            Get API Key — Sign Up
+            Sign up — instant API key
           </Button>
           <Button
-            onClick={() => navigate("/pricing")}
+            onClick={() => navigate("/for-agents/docs")}
             className="h-10 border border-white/[0.1] bg-white/[0.04] text-zinc-100 hover:bg-white/[0.08]"
           >
-            View Pricing
+            Read the docs
           </Button>
         </div>
       </section>
