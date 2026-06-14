@@ -106,10 +106,10 @@ export default function PartnerBilling() {
           <Key className="w-10 h-10 text-zinc-500 mx-auto" />
           <h2 className="text-xl font-semibold text-zinc-100">No partner account yet</h2>
           <p className="text-zinc-500 text-sm">
-            Hire an Echo Agent via the API at least once to create your partner billing record.
+            Create your A2A partner account to get an instant <code className="font-mono text-zinc-300">eak_</code> API key and start topping up.
           </p>
           <Button asChild className="bg-white text-zinc-900 hover:bg-zinc-100 font-medium">
-            <Link to="/for-agents">Browse Agents</Link>
+            <Link to="/for-agents/signup">Sign up — instant API key</Link>
           </Button>
         </Panel>
       )}
