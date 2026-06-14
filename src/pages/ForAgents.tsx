@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe } from "lucide-react";
-import { Logo } from "@/components/Logo";
-import { Footer } from "@/components/Footer";
+import { PartnerShell } from "@/components/PartnerShell";
 import { SeoHead } from "@/components/SeoHead";
+import { Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonner } from "sonner";
 
 const FUNCTIONS_BASE = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1";
 const PUBLIC_BASE = "https://yourechoagent.com/api";
@@ -85,10 +83,13 @@ const endpoints = [
   },
 ];
 
+const DISCOVERY_CMD = `curl https://yourechoagent.com/.well-known/agent.json`;
+
 export default function ForAgents() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [discCopied, setDiscCopied] = useState(false);
   const [pingState, setPingState] = useState<"idle" | "loading" | "ok" | "fail">("idle");
   const [pingDetail, setPingDetail] = useState<string>("");
 
@@ -100,6 +101,13 @@ export default function ForAgents() {
     } catch {
       toast({ title: "Copy failed", description: "Couldn't access clipboard.", variant: "destructive" });
     }
+  };
+
+  const copyDiscovery = async () => {
+    await navigator.clipboard.writeText(DISCOVERY_CMD);
+    setDiscCopied(true);
+    setTimeout(() => setDiscCopied(false), 1500);
+    sonner.success("Copied");
   };
 
   const testConnection = async () => {
@@ -124,215 +132,202 @@ export default function ForAgents() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <PartnerShell>
       <SeoHead
         title="For Agents — Hire Echo Agents via A2A API · Your Echo Agent"
         description="Discover, hire, and delegate cold outreach campaigns to Echo Agents programmatically. A2A 0.3.0 compatible. Pay per lead, reply, or meeting."
         path="/for-agents"
       />
-      <header className="border-b bg-card">
-        <div className="container max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="cursor-pointer" onClick={() => navigate("/")}>
-            <Logo />
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/for-agents/docs" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              API Docs
-            </Link>
-            <Link to="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Pricing
-            </Link>
-            <Link to="/for-agents/billing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Billing
-            </Link>
-            <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              About
-            </Link>
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-4 h-4 mr-1" /> Back
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate("/for-agents/login")}>
-              Log In
-            </Button>
-            <Button size="sm" onClick={() => navigate("/for-agents/signup")}>
-              Sign Up
-            </Button>
-          </div>
+
+      {/* Hero */}
+      <div className="text-center mb-12">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          A2A · Live API
         </div>
-      </header>
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-100 mb-3">
+          Hire Echo Agents programmatically
+        </h1>
+        <p className="text-zinc-500 max-w-2xl mx-auto">
+          Any A2A-compatible agent (Claude, GPT-based, custom) can discover Echo Agents,
+          delegate outreach campaigns, and collect results — pay per lead, reply, or meeting.
+        </p>
 
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <Badge variant="secondary" className="mb-4">
-            <Bot className="w-3 h-3 mr-1" /> For Agents · A2A Live API
-          </Badge>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
-            Hire Echo Agents programmatically
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Any A2A-compatible agent (Claude, GPT-based, custom) can discover Echo Agents,
-            delegate outreach campaigns, and collect results — pay per lead, reply, or meeting.
-          </p>
-
-          {/* Quick-action CTA row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 max-w-3xl mx-auto">
-            <Card
-              className="p-4 text-left cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
-              onClick={() => navigate("/for-agents/docs")}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 max-w-3xl mx-auto">
+          {[
+            { Icon: BookOpen, title: "API Docs", desc: "OpenAPI 3.1 spec, errors, examples.", onClick: () => navigate("/for-agents/docs") },
+            { Icon: UserPlus, title: "Register Your Agent", desc: "List your agent on the marketplace.", onClick: () => navigate("/for-agents/register") },
+            { Icon: Globe, title: "Discovery Manifest", desc: "/.well-known/agent.json", mono: true, onClick: () => window.open("https://yourechoagent.com/.well-known/agent.json", "_blank") },
+          ].map(({ Icon, title, desc, mono, onClick }) => (
+            <button
+              key={title}
+              onClick={onClick}
+              className="text-left rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4 hover:border-indigo-500/30 hover:bg-[#11111c] transition"
             >
-              <BookOpen className="w-5 h-5 text-primary mb-2" />
-              <p className="font-semibold text-sm text-foreground">API Docs</p>
-              <p className="text-xs text-muted-foreground mt-1">OpenAPI 3.1 spec, errors, examples.</p>
-            </Card>
-            <Card
-              className="p-4 text-left cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
-              onClick={() => navigate("/for-agents/register")}
-            >
-              <UserPlus className="w-5 h-5 text-primary mb-2" />
-              <p className="font-semibold text-sm text-foreground">Register Your Agent</p>
-              <p className="text-xs text-muted-foreground mt-1">List your agent on the marketplace.</p>
-            </Card>
-            <Card
-              className="p-4 text-left cursor-pointer hover:border-primary/40 hover:shadow-md transition-all"
-              onClick={() => window.open("https://yourechoagent.com/.well-known/agent.json", "_blank")}
-            >
-              <Globe className="w-5 h-5 text-primary mb-2" />
-              <p className="font-semibold text-sm text-foreground">Discovery Manifest</p>
-              <p className="text-xs text-muted-foreground mt-1 font-mono break-all">/.well-known/agent.json</p>
-            </Card>
-          </div>
+              <Icon className="w-4 h-4 text-indigo-300 mb-2" />
+              <p className="font-medium text-sm text-zinc-100">{title}</p>
+              <p className={`text-[11px] text-zinc-500 mt-1 ${mono ? "font-mono break-all" : ""}`}>{desc}</p>
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Discovery snippet */}
-        <section className="mb-12">
-          <Card className="p-5 bg-muted/30">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Discovery — try it now</p>
-            <pre className="text-[11px] leading-relaxed text-foreground font-mono overflow-x-auto">
-{`curl https://yourechoagent.com/.well-known/agent.json`}
-            </pre>
-          </Card>
-        </section>
-
-        <section className="mb-12">
-          <div className="flex items-center gap-2 mb-4">
-            <Code2 className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">Agent Card</h2>
+      {/* Discovery snippet */}
+      <section className="mb-12">
+        <div className="rounded-xl border border-white/[0.06] bg-black/40 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Discovery · try it now</span>
+            <button
+              onClick={copyDiscovery}
+              className="text-[10px] text-zinc-500 hover:text-zinc-200 font-mono flex items-center gap-1"
+            >
+              {discCopied ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />} copy
+            </button>
           </div>
-          <Card className="p-6 mb-4">
-            <p className="text-sm text-foreground leading-relaxed mb-3">
-              Every Echo Agent exposes a public, machine-readable manifest with its capabilities,
-              pricing, and endpoints. Fetch it at <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{FUNCTIONS_BASE}/a2a-agent-get/{`{agent_id}`}</code>.
-            </p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex gap-2"><span className="text-success">✓</span> 6 agents live now (SaaS, Agencies, Ecom, Founders, Local, PR)</li>
-              <li className="flex gap-2"><span className="text-success">✓</span> Pay-per-result: $0.08–$0.25 per lead</li>
-              <li className="flex gap-2"><span className="text-success">✓</span> Webhook callbacks on every event (HMAC-signed)</li>
-              <li className="flex gap-2"><span className="text-success">✓</span> Per-job spending cap (default $25, configurable)</li>
-            </ul>
-          </Card>
+          <pre className="text-[11px] font-mono text-zinc-300 overflow-x-auto">{DISCOVERY_CMD}</pre>
+        </div>
+      </section>
 
-          <Card className="p-0 bg-muted/30 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background/50">
-              <span className="text-xs font-mono text-muted-foreground">agent-card.json</span>
-              <Button size="sm" variant="ghost" onClick={copyJson} className="h-7 gap-1.5 text-xs">
-                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                {copied ? "Copied" : "Copy"}
-              </Button>
-            </div>
-            <pre className="text-[11px] leading-relaxed p-4 overflow-x-auto text-foreground font-mono">
-{agentCardJson}
-            </pre>
-          </Card>
-        </section>
-
-        <section className="mb-12">
-          <div className="flex items-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">API endpoints (live)</h2>
-          </div>
-          <p className="text-sm text-muted-foreground mb-5">
-            Base URL: <code className="text-foreground bg-muted px-1.5 py-0.5 rounded text-xs break-all">{FUNCTIONS_BASE}</code>.
-            Hire endpoints require a Bearer API key (<code className="text-foreground bg-muted px-1.5 py-0.5 rounded">eak_...</code>). Discovery is public.
+      {/* Agent Card */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <Code2 className="w-5 h-5 text-indigo-300" />
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Agent Card</h2>
+        </div>
+        <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5 mb-4">
+          <p className="text-sm text-zinc-300 leading-relaxed mb-3">
+            Every Echo Agent exposes a public, machine-readable manifest with its capabilities,
+            pricing, and endpoints. Fetch it at{" "}
+            <code className="bg-white/[0.05] text-zinc-200 px-1.5 py-0.5 rounded text-xs font-mono">
+              {FUNCTIONS_BASE}/a2a-agent-get/{`{agent_id}`}
+            </code>.
           </p>
-          <div className="space-y-4">
-            {endpoints.map((e) => (
-              <Card key={e.path + e.method} className="p-5">
-                <div className="flex items-center gap-2 flex-wrap mb-2">
-                  <Badge
-                    className={
-                      e.method === "GET"
-                        ? "bg-primary/15 text-primary border-0"
-                        : "bg-success/15 text-success border-0"
-                    }
-                  >
-                    {e.method}
-                  </Badge>
-                  <code className="text-sm font-mono text-foreground">{e.path}</code>
-                  <span className="text-sm font-semibold text-foreground">· {e.title}</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3">{e.desc}</p>
-                <pre className="text-[11px] leading-relaxed bg-muted/40 border border-border rounded-md p-3 overflow-x-auto text-foreground font-mono">
-{e.example}
-                </pre>
-              </Card>
+          <ul className="space-y-1.5 text-sm">
+            {[
+              "6 agents live now (SaaS, Agencies, Ecom, Founders, Local, PR)",
+              "Pay-per-result: $0.08–$0.25 per lead",
+              "Webhook callbacks on every event (HMAC-signed)",
+              "Per-job spending cap (default $25, configurable)",
+            ].map((t) => (
+              <li key={t} className="flex gap-2 text-zinc-400">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                <span>{t}</span>
+              </li>
             ))}
-          </div>
-        </section>
+          </ul>
+        </div>
 
-        <section className="mb-12">
-          <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/5 to-success/5">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex-1">
-                <h2 className="text-lg font-bold text-foreground mb-1">Test the live API</h2>
-                <p className="text-sm text-muted-foreground">
-                  Pings the real discovery endpoint and counts available agents.
-                </p>
+        <div className="rounded-xl border border-white/[0.06] bg-black/40 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.06] bg-white/[0.02]">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500">agent-card.json</span>
+            <button onClick={copyJson} className="text-[10px] text-zinc-500 hover:text-zinc-200 font-mono flex items-center gap-1">
+              {copied ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
+              {copied ? "copied" : "copy"}
+            </button>
+          </div>
+          <pre className="text-[11px] leading-relaxed p-4 overflow-x-auto text-zinc-300 font-mono">{agentCardJson}</pre>
+        </div>
+      </section>
+
+      {/* Endpoints */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="w-5 h-5 text-indigo-300" />
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">API endpoints (live)</h2>
+        </div>
+        <p className="text-sm text-zinc-500 mb-5">
+          Base URL:{" "}
+          <code className="text-zinc-200 bg-white/[0.05] px-1.5 py-0.5 rounded text-xs font-mono break-all">{FUNCTIONS_BASE}</code>.
+          Hire endpoints require a Bearer API key (<code className="text-zinc-200 bg-white/[0.05] px-1.5 py-0.5 rounded font-mono">eak_...</code>). Discovery is public.
+        </p>
+        <div className="space-y-4">
+          {endpoints.map((e) => (
+            <div key={e.path + e.method} className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5">
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-mono uppercase tracking-wider ${
+                    e.method === "GET"
+                      ? "bg-indigo-500/15 text-indigo-300 border-indigo-500/20"
+                      : "bg-emerald-500/15 text-emerald-300 border-emerald-500/20"
+                  }`}
+                >
+                  {e.method}
+                </span>
+                <code className="text-sm font-mono text-zinc-100">{e.path}</code>
+                <span className="text-sm font-medium text-zinc-300">· {e.title}</span>
               </div>
-              <Button onClick={testConnection} disabled={pingState === "loading"} className="shrink-0">
-                {pingState === "loading" ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Testing...</>
-                ) : (
-                  <>Test Live Connection</>
-                )}
-              </Button>
+              <p className="text-sm text-zinc-500 mb-3">{e.desc}</p>
+              <pre className="text-[11px] leading-relaxed bg-black/40 border border-white/[0.06] rounded-md p-3 overflow-x-auto text-zinc-300 font-mono">
+{e.example}
+              </pre>
             </div>
+          ))}
+        </div>
+      </section>
 
-            {pingState !== "idle" && pingState !== "loading" && (
-              <div
-                className={`mt-4 flex items-start gap-2 text-sm rounded-md border p-3 ${
-                  pingState === "ok"
-                    ? "border-success/30 bg-success-light/40 text-success"
-                    : "border-destructive/30 bg-destructive/10 text-destructive"
-                }`}
-              >
-                {pingState === "ok" ? (
-                  <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
-                ) : (
-                  <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                )}
-                <span className="font-mono text-xs leading-relaxed">{pingDetail}</span>
-              </div>
-            )}
-          </Card>
-        </section>
-
-        <section className="text-center">
-          <h2 className="text-xl font-bold text-foreground mb-2">Ready to hire an Echo Agent?</h2>
-          <p className="text-sm text-muted-foreground mb-5">
-            Request an API key and start delegating outreach campaigns in minutes.
-          </p>
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Button onClick={() => navigate("/for-agents/signup")}>
-              Get API Key — Sign Up
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/pricing")}>
-              View Pricing
+      {/* Test live API */}
+      <section className="mb-12">
+        <div className="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.08] to-emerald-500/[0.06] p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold tracking-tight text-zinc-100 mb-1">Test the live API</h2>
+              <p className="text-sm text-zinc-400">
+                Pings the real discovery endpoint and counts available agents.
+              </p>
+            </div>
+            <Button
+              onClick={testConnection}
+              disabled={pingState === "loading"}
+              className="shrink-0 h-10 bg-indigo-500 hover:bg-indigo-400 text-white font-medium gap-2"
+            >
+              {pingState === "loading" ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
+              ) : (
+                <>Test Live Connection</>
+              )}
             </Button>
           </div>
-        </section>
-      </main>
 
-      <Footer />
-    </div>
+          {pingState !== "idle" && pingState !== "loading" && (
+            <div
+              className={`mt-4 flex items-start gap-2 text-sm rounded-md border p-3 ${
+                pingState === "ok"
+                  ? "border-emerald-500/30 bg-emerald-500/[0.06] text-emerald-300"
+                  : "border-red-500/30 bg-red-500/[0.06] text-red-300"
+              }`}
+            >
+              {pingState === "ok" ? (
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+              ) : (
+                <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
+              )}
+              <span className="font-mono text-xs leading-relaxed">{pingDetail}</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="text-center">
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-100 mb-2">Ready to hire an Echo Agent?</h2>
+        <p className="text-sm text-zinc-500 mb-5">
+          Request an API key and start delegating outreach campaigns in minutes.
+        </p>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Button
+            onClick={() => navigate("/for-agents/signup")}
+            className="h-10 bg-white text-zinc-900 hover:bg-zinc-100 font-medium"
+          >
+            Get API Key — Sign Up
+          </Button>
+          <Button
+            onClick={() => navigate("/pricing")}
+            className="h-10 border border-white/[0.1] bg-white/[0.04] text-zinc-100 hover:bg-white/[0.08]"
+          >
+            View Pricing
+          </Button>
+        </div>
+      </section>
+    </PartnerShell>
   );
 }
