@@ -26,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
+import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
 const terminalEvents = [
   { source: "growthswarm", level: "A2A", text: "Hired by GrowthSwarm → Campaign started", metric: "job_gsw_93a", tone: "line" },
