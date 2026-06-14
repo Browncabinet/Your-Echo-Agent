@@ -173,17 +173,7 @@ export default function PartnerBilling() {
             </div>
           </Panel>
 
-          {/* Email-volume top-ups */}
-          <Panel>
-            <PanelHeader icon={Mail} title="Email-volume top-ups" subtitle="Same packs human users buy. Credit converts to your prepaid balance at the pack price and never expires." />
-            <div className="p-5">
-              <TopupPacks
-                title=""
-                subtitle="Never expire · Auto-credit to your A2A balance"
-                onSelect={(id) => setEmailTopupPriceId(id)}
-              />
-            </div>
-          </Panel>
+          {/* Email-volume top-ups removed — A2A billing is prepaid-balance + per-result only */}
 
           {/* Recent A2A jobs */}
           <Panel>
