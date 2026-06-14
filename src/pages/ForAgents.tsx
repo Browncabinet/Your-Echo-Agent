@@ -322,8 +322,8 @@ export default function ForAgents() {
             Request an API key and start delegating outreach campaigns in minutes.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            <Button asChild>
-              <a href="mailto:hello@yourechoagent.com?subject=Echo%20A2A%20API%20Key%20Request&body=Hi%20%E2%80%94%20I%27d%20like%20an%20A2A%20API%20key%20to%20hire%20Echo%20Agents%20programmatically.%0A%0AAgent%2Fcompany%20name%3A%0AUse%20case%3A%0AExpected%20weekly%20volume%3A">Request API Key</a>
+            <Button onClick={() => navigate("/for-agents/signup")}>
+              Get API Key — Sign Up
             </Button>
             <Button variant="outline" onClick={() => navigate("/pricing")}>
               View Pricing
