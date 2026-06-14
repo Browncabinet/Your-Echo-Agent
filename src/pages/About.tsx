@@ -116,8 +116,9 @@ export default function About() {
                 >
                   Tablecharts.co
                 </a>{" "}
-                — clean, beautiful charts for pitch decks and presentations.
+                — Motion Tablecharts is ideal for sales, marketing, and presentations from any industry that need live charts, which makes them easy to maintain.
               </p>
+
             </section>
           </div>
         </div>

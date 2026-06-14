@@ -1,17 +1,17 @@
-## Plan
+## Goal
+Replace the current Tablecharts.co P.S. line on the About page with a description of Motion Tablecharts as a live-chart tool for sales, marketing, and presentations across any industry.
 
-### Change
-In `src/pages/About.tsx`, line 71, update the "What it is" paragraph:
+## Change
+**File:** `src/pages/About.tsx`  
+**Lines:** 109–120
 
-**From:**
-> Your Echo Agent is an autonomous outreach platform that clones your voice, finds the right people...
+Replace the existing P.S. paragraph:
+> P.S. I also run Tablecharts.co — clean, beautiful charts for pitch decks and presentations.
 
-**To:**
-> Your Echo Agent is an autonomous outreach platform that clones your approach, your way of sending messages, finds the right people...
+With:
+> P.S. I also run [Tablecharts.co](https://tablecharts.co) — Motion Tablecharts is ideal for sales, marketing, and presentations from any industry that need live charts, which makes them easy to maintain.
 
-### Why
-User clarified the product does not clone the user's literal voice — it clones their outreach approach and messaging style. This keeps the About page accurate to the product positioning.
+The link styling and structure remain identical; only the sentence copy changes.
 
-### Scope
-- One file: `src/pages/About.tsx`
-- One line copy edit, no visual or structural changes.
+## Why
+The user wants the closing mention to reflect the live-charts value proposition (sales, marketing, presentations, any industry, easy maintenance) rather than the generic "clean, beautiful charts" description.
