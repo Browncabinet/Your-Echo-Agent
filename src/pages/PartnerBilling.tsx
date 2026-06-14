@@ -18,6 +18,10 @@ type Partner = {
   billing_email: string;
   balance_cents: number;
   total_spent_cents: number;
+  default_spending_cap_cents?: number;
+  auto_recharge_enabled?: boolean;
+  auto_recharge_threshold_cents?: number;
+  auto_recharge_amount_cents?: number;
 };
 
 type Job = {
