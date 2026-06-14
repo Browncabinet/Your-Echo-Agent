@@ -16,25 +16,38 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setBalance(0);
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("user_credits")
       .select("balance")
       .eq("user_id", user.id)
       .maybeSingle();
-
-    if (data) {
-      setBalance(data.balance);
-    } else {
-      // Credits are auto-created by DB trigger on signup; default to 50 for display
-      setBalance(50);
-    }
+    setBalance(data?.balance ?? 0);
     setLoading(false);
   }, [user]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel("user-credits-watch")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_credits", filter: `user_id=eq.${user.id}` },
+        () => refresh()
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [user, refresh]);
 
   return (
     <CreditsContext.Provider value={{ balance, loading, refresh }}>

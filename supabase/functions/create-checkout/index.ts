@@ -20,7 +20,10 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid priceId" }), { status: 400, ...responseHeaders });
     }
 
-    const env = (environment || "sandbox") as StripeEnv;
+    if (environment !== "sandbox" && environment !== "live") {
+      return new Response(JSON.stringify({ error: "Invalid environment" }), { status: 400, ...responseHeaders });
+    }
+    const env: StripeEnv = environment;
     const stripe = createStripeClient(env);
 
     const prices = await stripe.prices.list({ lookup_keys: [priceId] });
