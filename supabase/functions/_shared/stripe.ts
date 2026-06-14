@@ -5,7 +5,7 @@ export type StripeEnv = 'sandbox' | 'live';
 export function getConnectionApiKey(env: StripeEnv): string {
   const key = env === 'sandbox'
     ? Deno.env.get('STRIPE_SANDBOX_API_KEY')
-    : Deno.env.get('STRIPE_LIVE_API_KEY');
+    : (Deno.env.get('STRIPE_LIVE_SECRET_KEY') ?? Deno.env.get('STRIPE_LIVE_API_KEY'));
   if (!key) throw new Error(`STRIPE_${env.toUpperCase()}_API_KEY is not configured`);
   return key;
 }
@@ -15,6 +15,15 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 const GATEWAY_STRIPE_BASE = 'https://connector-gateway.lovable.dev/stripe';
 
 export function createStripeClient(env: StripeEnv): Stripe {
+  // BYOK live: use the user's own Stripe secret key directly when present.
+  if (env === 'live') {
+    const liveKey = Deno.env.get('STRIPE_LIVE_SECRET_KEY');
+    if (liveKey && liveKey.startsWith('sk_')) {
+      return new Stripe(liveKey, { apiVersion: '2024-06-20' as any });
+    }
+  }
+
+  // Sandbox (and live fallback): route via Lovable connector gateway.
   const connectionApiKey = getConnectionApiKey(env);
   const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   if (!lovableApiKey) throw new Error('LOVABLE_API_KEY is not configured');

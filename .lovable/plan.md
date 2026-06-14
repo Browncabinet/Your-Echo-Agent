@@ -1,58 +1,37 @@
 ## Goal
 
-Bypass the stuck sandbox-claim flow by switching payments to a **manual Stripe (BYOK)** setup using your own Stripe keys from `natashasoleil75@gmail.com`'s live Stripe account.
+Switch live Stripe payments from the Lovable-managed gateway to your own Stripe account using the secrets you just added: `STRIPE_LIVE_SECRET_KEY`, `STRIPE_LIVE_PUBLISHABLE_KEY`, and `PAYMENTS_LIVE_WEBHOOK_SECRET`. Test/sandbox flow keeps using the existing Lovable-managed gateway untouched.
 
-## What this changes
+## What changes
 
-Today the app routes Stripe calls through Lovable's connector gateway (`connector-gateway.lovable.dev/stripe`) using opaque connection keys. With manual/BYOK, the app talks to `api.stripe.com` directly using **your real Stripe secret key**. Managed payments (Lovable's +3.5% tax/dispute handling) will no longer apply — you handle tax/disputes via your Stripe dashboard.
+### 1. `supabase/functions/_shared/stripe.ts`
+- For `env === 'live'`: build the Stripe SDK client with `STRIPE_LIVE_SECRET_KEY` directly (no gateway proxy, no `LOVABLE_API_KEY` header). This means real calls go straight to `api.stripe.com` using your secret key.
+- For `env === 'sandbox'`: leave the existing gateway-proxied client exactly as-is.
+- `verifyWebhook` already reads `PAYMENTS_LIVE_WEBHOOK_SECRET` correctly — no change needed.
 
-## Plan
+### 2. `src/lib/stripe.ts` (frontend)
+- Add live-publishable-key support: when the environment resolves to `live`, load Stripe.js with `STRIPE_LIVE_PUBLISHABLE_KEY` (exposed via a new `VITE_STRIPE_LIVE_PUBLISHABLE_KEY` env var that mirrors the secret value — publishable keys are safe in the bundle).
+- Keep existing `VITE_PAYMENTS_CLIENT_TOKEN` path for sandbox/test.
+- Environment detection: if `VITE_STRIPE_LIVE_PUBLISHABLE_KEY` is present and starts with `pk_live_`, use it on the published build; otherwise fall back to the existing client token logic.
 
-1. **Collect 3 secrets from your Stripe dashboard** (I'll request them via the secure secrets form):
-   - `STRIPE_SECRET_KEY` — live `sk_live_...` (or test `sk_test_...` if you want to test first)
-   - `STRIPE_PUBLISHABLE_KEY` — matching `pk_live_...` / `pk_test_...`
-   - `STRIPE_WEBHOOK_SECRET` — `whsec_...` from a webhook endpoint you'll create
+### 3. Verify Stripe webhook URL is set
+Confirm your Stripe webhook endpoint URL is:
+`https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/payments-webhook?env=live`
 
-2. **Rewrite `supabase/functions/_shared/stripe.ts`** to instantiate Stripe directly with `STRIPE_SECRET_KEY` (no gateway proxy, no `Lovable-API-Key`, no `X-Connection-Api-Key`).
+If you used a URL without `?env=live`, edit it in Stripe → webhook signing will pass but the handler won't know which env to write to.
 
-3. **Update `create-checkout`**:
-   - Remove `managed_payments: { enabled: true }` (BYOK doesn't support it).
-   - Add `automatic_tax: { enabled: true }` so Stripe still calculates tax (you handle filing).
-   - Keep embedded checkout, customer resolution, and metadata as-is.
+### 4. No changes to
+- Pricing page UI / product IDs
+- Checkout session creation logic (`create-checkout`)
+- Webhook handler logic (`payments-webhook`)
+- Subscription table schema
 
-4. **Update `payments-webhook`** to verify signatures with `STRIPE_WEBHOOK_SECRET` instead of `PAYMENTS_SANDBOX_WEBHOOK_SECRET` / `PAYMENTS_LIVE_WEBHOOK_SECRET`.
+## What you'll need to do after I ship the code
 
-5. **Update the frontend**:
-   - `src/lib/stripe.ts` reads `STRIPE_PUBLISHABLE_KEY` from a public env var (or fetches it from a small edge function) instead of `VITE_PAYMENTS_CLIENT_TOKEN`.
-   - `PaymentTestModeBanner` keys off the publishable-key prefix the same way.
+1. Add a build env var `VITE_STRIPE_LIVE_PUBLISHABLE_KEY` with your `pk_live_...` value (this is a separate field from the runtime secret because Vite bundles it into the frontend at build time).
+2. Republish the app so the live publishable key gets into the bundle.
+3. Test a live $0.50 purchase to confirm the full flow works end-to-end.
 
-6. **You create the webhook endpoint in Stripe**:
-   - URL: `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/payments-webhook`
-   - Events: `checkout.session.completed`, `customer.subscription.created/updated/deleted`, `invoice.paid`, `invoice.payment_failed`
-   - Copy the signing secret → paste into the `STRIPE_WEBHOOK_SECRET` prompt.
+## Risk
 
-7. **You create products/prices in your Stripe dashboard** matching the lookup keys the app already uses:
-   - `starter_weekly`, `growth_weekly`, `power_weekly` (subscriptions, $19/$39/$79/week)
-   - `test_payment_1` (one-time $1, for the `/checkout/test` page)
-   - Each price must have its `lookup_key` set to the exact slug above — the checkout function resolves prices by `lookup_keys`.
-
-8. **Test in preview** at `/checkout/test` with card `4242 4242 4242 4242`, any future expiry, any CVC. If you used `sk_test_`, this charges nothing real. Verify the webhook fires in Stripe → Developers → Webhooks → recent deliveries.
-
-## Where you do work vs. where I do work
-
-| Step | Who |
-|---|---|
-| 1, 6, 7 | You, in your Stripe dashboard |
-| 2–5 | Me, in code |
-| 8 | You, in the preview |
-
-## Important trade-offs
-
-- **No Lovable-managed tax/disputes** — you become responsible for sales tax registration, filing, and chargebacks. Stripe Tax can still calculate; you file.
-- **Go-live UI in Lovable will stay "incomplete"** because we're not using its built-in payments. That's expected and harmless.
-- **Live vs test** — pick one set of keys at a time. I recommend starting with `sk_test_` + `pk_test_` keys to confirm the wiring, then swapping to live.
-
-## Confirm before I switch to build mode
-
-- Start with **test keys first** (recommended), or go straight to **live keys**?
-- Confirm you'll create the products/prices in Stripe with the exact lookup keys listed in step 7.
+This is a one-way switch for live payments only. Sandbox/test mode is untouched and will keep working through the Lovable gateway. If anything is misconfigured, live checkout fails with a clear Stripe error — sandbox testing is unaffected.
