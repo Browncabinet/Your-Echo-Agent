@@ -1,31 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CreditsProvider } from "@/hooks/use-credits";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
-import Index from "./pages/Index.tsx";
-import Landing from "./pages/Landing.tsx";
-import { useAuth } from "@/contexts/AuthContext";
 import { Footer } from "@/components/Footer";
-
-function HomeRoute() {
-  const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <div className="flex flex-1 items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-  return user ? <Index /> : <Landing />;
-}
 import Auth from "./pages/Auth.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import About from "./pages/About.tsx";
@@ -39,7 +21,21 @@ import PartnerBilling from "./pages/PartnerBilling.tsx";
 import PartnerDashboard from "./pages/PartnerDashboard.tsx";
 import ForAgentsDocs from "./pages/ForAgentsDocs.tsx";
 import PartnerRegisterAgent from "./pages/PartnerRegisterAgent.tsx";
-import CheckoutTest from "./pages/CheckoutTest.tsx";
+
+function HomeRoute() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex flex-1 items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+  return <Navigate to={user ? "/for-agents/dashboard" : "/for-agents"} replace />;
+}
 
 const queryClient = new QueryClient();
 
@@ -65,7 +61,6 @@ const App = () => (
                 <Route path="/for-agents/docs" element={<ForAgentsDocs />} />
                 <Route path="/for-agents/register" element={<ProtectedRoute><PartnerRegisterAgent /></ProtectedRoute>} />
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
-                <Route path="/checkout-test" element={<ProtectedRoute><CheckoutTest /></ProtectedRoute>} />
                 <Route path="/" element={<HomeRoute />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
