@@ -202,7 +202,7 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   } else {
     await supabase.from("user_credits").insert({
       user_id: userId,
-      balance: 50 + creditsToAdd,
+      balance: creditsToAdd,
       total_purchased: creditsToAdd,
     });
   }
