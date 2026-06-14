@@ -234,6 +234,11 @@ export function HomePricingSection() {
         )}
       </div>
 
+      {/* One-time top-up packs */}
+      <div className="mb-8">
+        <TopupPacks onSelect={handleTopup} />
+      </div>
+
       {/* Strong note */}
       <Card className="p-5 border-primary/30 bg-primary/5 text-center">
         <Sparkles className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -241,6 +246,9 @@ export function HomePricingSection() {
           Most users start with the <span className="font-bold">$19 Starter Weekly</span> to test safely. Once they begin seeing replies, booked calls, and revenue, they upgrade to <span className="font-bold">Growth or Power</span>.
         </p>
       </Card>
+
+      <TopupCheckoutDialog priceId={topupPriceId} onClose={() => setTopupPriceId(null)} />
     </section>
   );
 }
+
