@@ -96,7 +96,18 @@ Deno.serve(async (req) => {
   const websiteUrl = (camp.website_url || "").toString().slice(0, 500);
 
   const estimatedCost = volume * (agent.pricing_per_lead_cents as number);
-  const cap = Math.max(estimatedCost, Math.min(Number(body.spending_cap_cents) || 2500, 100_000));
+  // Resolve per-partner default spending cap when caller omits it
+  let defaultCap = 2500;
+  if (apiKeyId) {
+    const { data: partner } = await sb
+      .from("a2a_partners")
+      .select("default_spending_cap_cents")
+      .eq("api_key_id", apiKeyId)
+      .maybeSingle();
+    if (partner?.default_spending_cap_cents) defaultCap = partner.default_spending_cap_cents as number;
+  }
+  const requestedCap = Number(body.spending_cap_cents) || defaultCap;
+  const cap = Math.max(estimatedCost, Math.min(requestedCap, 100_000));
 
   // For A2A flow without a user_id, we still need a user_id on the campaigns row.
   // Strategy: create or reuse a system user keyed by the API key owner email.
