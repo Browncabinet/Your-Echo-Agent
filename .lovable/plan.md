@@ -1,36 +1,70 @@
 ## Goal
-Restore payment checkout and prevent the same breakage from recurring after manual Stripe secret changes.
 
-## What I found
-- The frontend is hardcoded to prefer a live publishable key, so preview checkout is being routed to `live` instead of the working sandbox token.
-- The backend has a custom/manual live secret bypass in `_shared/stripe.ts`; this conflicts with Lovable’s normal gateway flow and uses an older Stripe SDK/API version.
-- Live payment go-live is still incomplete, so live checkout may fail even if manual secrets exist.
-- `create-portal-session` has a broken auth call, which affects “Manage subscription”.
-- `/checkout-test` is public and should be protected while debugging payments.
+Echo becomes an **agent-to-agent (A2A) platform only**. Other agents call Echo's API to launch outreach. No human-facing campaign flows remain. Delete Fast Track ("Paste your URL"), the campaign wizard, and the end-client dashboard.
 
-## Fix plan
-1. **Restore safe environment selection**
-   - Update `src/lib/stripe.ts` so it derives sandbox/live only from `VITE_PAYMENTS_CLIENT_TOKEN`.
-   - Remove the hardcoded live publishable key fallback that forces preview into live.
-   - Show a clear configuration error instead of silently routing to live when the token is missing.
+## What stays (A2A surface)
 
-2. **Keep manual live secrets supported without breaking preview**
-   - Update `supabase/functions/_shared/stripe.ts` to use the current gateway-compatible Stripe utility for sandbox.
-   - Preserve live BYOK support only when `STRIPE_LIVE_SECRET_KEY` is present and starts with `sk_`.
-   - Validate the environment strictly as `sandbox` or `live` in payment functions.
+These are already built and keep working as-is:
 
-3. **Fix checkout session creation**
-   - Keep Embedded Checkout.
-   - Use the Stripe session mode expected by the current SDK/API.
-   - Improve error responses so the UI surfaces the real reason checkout failed.
+- `/for-agents` — public marketing page for partner agents
+- `/for-agents/docs` — API/OpenAPI documentation
+- `/for-agents/register` — partner agent registration (API key + webhook)
+- `/for-agents/dashboard` — partner agent dashboard (jobs, status, usage)
+- `/for-agents/billing` — partner billing (Stripe checkout, top-ups, subscriptions)
+- All `a2a-*` edge functions (register, hire, run-job, job-control, billing-charge, callback-retry, openapi, rotate-key, etc.)
+- `/.well-known/agent` discovery endpoint
+- Auth (Google OAuth) — still needed so partners can sign in to register/manage their agent
+- Pricing, About, Privacy, Terms, Acceptable Use pages
+- Stripe checkout + payments-webhook (now serves partner top-ups/subscriptions only)
 
-4. **Fix related payment bugs**
-   - Change `create-portal-session` from the broken claims call to a working authenticated user lookup.
-   - Protect `/checkout-test` behind sign-in.
-   - Align `use-credits` with the current 0-email default and add a realtime refresh listener after top-ups.
-   - Remove the old webhook path that can add an unintended extra 50 emails to first-time purchasers.
+## What gets deleted (human client UI)
 
-5. **Validate after implementation**
-   - Deploy/test the payment edge functions.
-   - Call `create-checkout` in sandbox for a known price such as `topup_500`.
-   - Check function logs and browser/network errors to confirm the checkout client secret is returned.
+**Pages**
+- `src/pages/Index.tsx` — the human dashboard (Fast Track CTA, wizard launcher, campaign list, analytics donuts)
+- `src/pages/Landing.tsx` — human-targeted marketing landing
+- `src/pages/CheckoutTest.tsx` — dev-only
+
+**Components (human-facing only)**
+- `QuickStartModal.tsx` (Fast Track / "Paste your URL")
+- `WelcomeModal.tsx` (50 free emails onboarding)
+- `GetStartedChecklist.tsx`
+- `HomeDemoSection.tsx`
+- `MarketingSections.tsx` (human-targeted hero/comparison)
+- The 4-step Campaign Wizard (Setup → Lead Acq → AI Email Builder → Review) and any wizard-only sub-components
+- Dashboard analytics widgets used only on `Index` (Quick Update AI summary, donut charts) if not reused elsewhere
+
+**Edge functions (now unused)**
+Only delete after confirming no `a2a-run-job` path depends on them. Initial candidates:
+- `quick-start-detect` (Fast Track auto-detect) — DELETE
+- Any wizard-only helpers not invoked by `a2a-run-job`
+
+`firecrawl-scrape`, `firecrawl-search`, `extract-leads`, `extract-selling-points`, `generate-emails`, `send-campaign-emails`, `check-replies`, `send-reply`, `track`, `track-event`, `unsubscribe` — **KEEP**. These are the actual outreach engine that `a2a-run-job` orchestrates.
+
+**Routing changes (`src/App.tsx`)**
+- `/` → redirect/route to `/for-agents` (marketing) when logged out, `/for-agents/dashboard` when logged in
+- Remove `Index`, `Landing`, `HomeRoute`, `CheckoutTest` imports + routes
+- Header logo & avatar → navigate to `/for-agents/dashboard` (update core memory)
+
+**Copy / memory cleanup**
+- Remove "Try Fast Mode" CTAs, "50 free emails" onboarding copy from any remaining page
+- Update `mem://features/quick-start`, `mem://features/onboarding`, `mem://features/campaign-wizard`, `mem://ux/home-page-design` to mark as removed (or delete entries)
+
+## Things to confirm before deleting
+
+1. **Pricing page** — currently lists weekly subs + top-ups aimed at end users. Keep the same plans for partner agents, or do you want partner-only pricing (e.g. metered per job)? Default: **keep current pricing**, just reframe copy as "for your agent."
+2. **Auth page** — keep Google OAuth sign-in (partners need an account). No change.
+3. **About / Origin Story** — keep, just light copy edit to say Echo is an A2A service.
+
+## Technical notes
+
+- `Index.tsx` is the only consumer of the wizard and Fast Track — safe to remove together.
+- `useCredits` / `useSubscription` hooks stay; partner dashboard + billing use them.
+- `payments-webhook` stays unchanged — top-ups credit the same `user_credits.balance`, which `a2a-billing-charge` debits per job.
+- Run a grep pass after deletion for dead imports (`QuickStartModal`, `WelcomeModal`, `CampaignWizard`, etc.) and fix any orphan references.
+- No DB migrations required — schema is shared between human and A2A paths.
+
+## Out of scope
+
+- Changes to the A2A protocol, OpenAPI spec, or partner dashboard features
+- Pricing model changes (separate decision)
+- Custom domain / DNS changes
