@@ -1,11 +1,13 @@
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { supabase } from "@/integrations/supabase/client";
 
-const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN;
-const liveKey = import.meta.env.VITE_STRIPE_LIVE_PUBLISHABLE_KEY;
+// Hardcoded live publishable key (safe to commit — publishable keys are public).
+const HARDCODED_LIVE_KEY = "pk_live_51ThA7rDC0NTHQ87sRfjpfakI3ILuGmSsAekff0g5tqmGA5EGX648PrbLCCrhPh3Qa3d3SpbQngfOJAXw0Tk7F3oQ0014BSVu7Y";
 
-// Prefer the user's own pk_live_ key when configured; otherwise fall back to
-// Lovable's gateway client token. Environment is derived from whichever key wins.
+const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN;
+const liveKey = import.meta.env.VITE_STRIPE_LIVE_PUBLISHABLE_KEY || HARDCODED_LIVE_KEY;
+
+// Prefer the pk_live_ key; fall back to Lovable's gateway client token.
 const activeKey = liveKey?.startsWith('pk_live_') ? liveKey : clientToken;
 const environment = activeKey?.startsWith('pk_live_') ? 'live' : 'sandbox';
 
