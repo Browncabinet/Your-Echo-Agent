@@ -29,12 +29,16 @@ export function TopupPacks({
 }: TopupPacksProps) {
   return (
     <div className="space-y-4">
-      <div className="text-center">
-        <h3 className="text-lg sm:text-xl font-bold text-foreground">{title}</h3>
-        <p className="text-sm text-muted-foreground mt-1 flex items-center justify-center gap-1.5">
-          <InfinityIcon className="w-3.5 h-3.5" /> {subtitle}
-        </p>
-      </div>
+      {(title || subtitle) && (
+        <div className="text-center">
+          {title && <h3 className="text-lg sm:text-xl font-bold text-foreground">{title}</h3>}
+          {subtitle && (
+            <p className="text-sm text-muted-foreground mt-1 flex items-center justify-center gap-1.5">
+              <InfinityIcon className="w-3.5 h-3.5" /> {subtitle}
+            </p>
+          )}
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {TOPUP_PACKS.map((pack) => (
           <Card
