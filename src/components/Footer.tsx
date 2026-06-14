@@ -7,10 +7,9 @@ export function Footer() {
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <Link to="/for-agents/docs" className="hover:text-primary transition-colors">Docs</Link>
           <Link to="/about" className="hover:text-primary transition-colors">About</Link>
-          <a href="https://status.yourechoagent.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Status</a>
           <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@ladysoleil33</a>
           <a href="mailto:support@yourechoagent.com" className="hover:text-primary transition-colors">Support</a>
-          <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+          <Link to="/privacy" className="hover:text-primary transition-colors">Privacy & Terms</Link>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
           © 2026 Echo Agent

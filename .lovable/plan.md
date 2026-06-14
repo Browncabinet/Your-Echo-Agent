@@ -1,17 +1,7 @@
-## Goal
-Replace the current Tablecharts.co P.S. line on the About page with a description of Motion Tablecharts as a live-chart tool for sales, marketing, and presentations across any industry.
+## Changes
 
-## Change
-**File:** `src/pages/About.tsx`  
-**Lines:** 109–120
+### Footer (`src/components/Footer.tsx`)
+- **Remove** the "Status" tab/link (line 10) — the user confirmed it is not needed.
+- **Update** the "Privacy" link text to "Privacy & Terms" (line 13) since the user wants Terms mentioned as well. The link destination remains `/privacy` (no separate Terms page exists in the codebase).
 
-Replace the existing P.S. paragraph:
-> P.S. I also run Tablecharts.co — clean, beautiful charts for pitch decks and presentations.
-
-With:
-> P.S. I also run [Tablecharts.co](https://tablecharts.co) — Motion Tablecharts is ideal for sales, marketing, and presentations from any industry that need live charts, which makes them easy to maintain.
-
-The link styling and structure remain identical; only the sentence copy changes.
-
-## Why
-The user wants the closing mention to reflect the live-charts value proposition (sales, marketing, presentations, any industry, easy maintenance) rather than the generic "clean, beautiful charts" description.
+No other files need to change.
