@@ -647,6 +647,7 @@ function Landing() {
       </main>
 
       <Footer />
+      <TopupCheckoutDialog priceId={topupPriceId} onClose={() => setTopupPriceId(null)} />
     </div>
   );
 }
