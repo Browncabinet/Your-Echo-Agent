@@ -68,7 +68,7 @@ export default function About() {
             <section>
               <h3 className="text-white font-semibold mb-1">What it is</h3>
               <p>
-                Your Echo Agent is an autonomous outreach platform that clones your voice, finds the right people, drafts hyper-personalized emails and LinkedIn messages, sends them, and handles replies intelligently — at a price that doesn't punish you for testing.
+                Your Echo Agent is an autonomous outreach platform that clones your approach — your way of sending messages — finds the right people, drafts hyper-personalized emails and LinkedIn messages, sends them, and handles replies intelligently — at a price that doesn't punish you for testing.
               </p>
             </section>
 
