@@ -4,16 +4,14 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Wallet, ArrowLeft, Zap, Key, Plus, Mail, Shield } from "lucide-react";
+import { PartnerShell } from "@/components/PartnerShell";
+import { Loader2, Wallet, Zap, Key, Plus, Mail, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { Footer } from "@/components/Footer";
 import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
@@ -42,6 +40,24 @@ const CREDIT_PACKS = [
   { price_id: "a2a_credit_100_once", amount: 100, label: "$100", hint: "~20K emails", popular: true },
   { price_id: "a2a_credit_500_once", amount: 500, label: "$500", hint: "Best for production" },
 ];
+
+function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-xl border border-white/[0.08] bg-[#0d0d14] ${className}`}>{children}</div>;
+}
+
+function PanelHeader({ icon: Icon, title, subtitle }: { icon?: typeof Wallet; title: string; subtitle?: string }) {
+  return (
+    <div className="px-5 py-3.5 border-b border-white/[0.06]">
+      <div className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
+        {Icon && <Icon className="w-3.5 h-3.5 text-indigo-300" />}
+        {title}
+      </div>
+      {subtitle && <p className="text-xs text-zinc-500 mt-0.5">{subtitle}</p>}
+    </div>
+  );
+}
+
+const inputCls = "h-10 bg-black/40 border-white/[0.08] focus-visible:border-white/30 focus-visible:ring-0 text-zinc-100";
 
 export default function PartnerBilling() {
   const { user } = useAuth();
@@ -72,148 +88,139 @@ export default function PartnerBilling() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex flex-1 items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-        </div>
-        <Footer />
-      </div>
+      <PartnerShell>
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-zinc-500" /></div>
+      </PartnerShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b bg-card">
-        <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/for-agents/dashboard" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
-          <h1 className="font-bold">Partner Billing</h1>
-        </div>
-      </header>
+    <PartnerShell>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">Billing</h1>
+        <p className="text-sm text-zinc-500 mt-1">Prepaid balance, top-ups, and spending controls.</p>
+      </div>
 
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 space-y-6">
-        {!partner && (
-          <Card className="p-8 text-center space-y-3">
-            <Key className="w-10 h-10 text-muted-foreground mx-auto" />
-            <h2 className="text-xl font-bold">No partner account yet</h2>
-            <p className="text-muted-foreground text-sm">
-              Hire an Echo Agent via the API at least once to create your partner billing record.
-            </p>
-            <Button asChild>
-              <Link to="/for-agents">Browse Agents</Link>
-            </Button>
-          </Card>
-        )}
+      {!partner && (
+        <Panel className="p-8 text-center space-y-3">
+          <Key className="w-10 h-10 text-zinc-500 mx-auto" />
+          <h2 className="text-xl font-semibold text-zinc-100">No partner account yet</h2>
+          <p className="text-zinc-500 text-sm">
+            Hire an Echo Agent via the API at least once to create your partner billing record.
+          </p>
+          <Button asChild className="bg-white text-zinc-900 hover:bg-zinc-100 font-medium">
+            <Link to="/for-agents">Browse Agents</Link>
+          </Button>
+        </Panel>
+      )}
 
-        {partner && (
-          <>
-            <div className="grid sm:grid-cols-3 gap-4">
-              <Card className="p-5">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wide mb-2">
-                  <Wallet className="w-4 h-4" /> Prepaid Balance
+      {partner && (
+        <div className="space-y-6">
+          {/* Stats */}
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              { label: "Prepaid balance", value: fmt(partner.balance_cents), icon: Wallet, hint: "Available to spend" },
+              { label: "Total spent", value: fmt(partner.total_spent_cents), hint: "All time" },
+              { label: "Active API keys", value: String(keyCount), hint: "Across all environments" },
+            ].map((s) => (
+              <Panel key={s.label} className="p-5">
+                <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-zinc-500 mb-1">
+                  {s.icon && <s.icon className="w-3 h-3" />}
+                  {s.label}
                 </div>
-                <div className="text-3xl font-bold">{fmt(partner.balance_cents)}</div>
-              </Card>
-              <Card className="p-5">
-                <div className="text-muted-foreground text-xs uppercase tracking-wide mb-2">Total Spent</div>
-                <div className="text-3xl font-bold">{fmt(partner.total_spent_cents)}</div>
-              </Card>
-              <Card className="p-5">
-                <div className="text-muted-foreground text-xs uppercase tracking-wide mb-2">Active API Keys</div>
-                <div className="text-3xl font-bold">{keyCount}</div>
-              </Card>
-            </div>
+                <div className="text-3xl font-semibold text-white tabular-nums">{s.value}</div>
+                <div className="text-[11px] text-zinc-600 mt-1">{s.hint}</div>
+              </Panel>
+            ))}
+          </div>
 
-            <SpendingControls partner={partner} onSaved={(p) => setPartner(p)} />
+          <SpendingControls partner={partner} onSaved={(p) => setPartner(p)} />
 
-
-
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="font-bold flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> Top up</h2>
-                  <p className="text-sm text-muted-foreground">Credit drawn down per delivered email, reply, or meeting at the agent's posted price.</p>
-                </div>
-              </div>
+          {/* A2A credit top-ups */}
+          <Panel>
+            <PanelHeader icon={Zap} title="Top up" subtitle="Credit drawn down per delivered email, reply, or meeting at the agent's posted price." />
+            <div className="p-5">
               <div className="grid sm:grid-cols-3 gap-3">
                 {CREDIT_PACKS.map((p) => (
                   <button
                     key={p.price_id}
                     onClick={() => setCheckoutPriceId(p.price_id)}
-                    className={`relative text-left p-5 rounded-lg border-2 transition hover:border-primary hover:bg-primary/5 ${
-                      p.popular ? "border-primary" : "border-border"
+                    className={`relative text-left p-5 rounded-lg border transition ${
+                      p.popular
+                        ? "border-indigo-500/40 bg-indigo-500/[0.06] hover:border-indigo-500/60"
+                        : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.18] hover:bg-white/[0.04]"
                     }`}
                   >
                     {p.popular && (
-                      <Badge className="absolute -top-2 right-3 text-[10px]">Popular</Badge>
+                      <span className="absolute -top-2 right-3 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-500 text-white">
+                        Popular
+                      </span>
                     )}
-                    <div className="text-2xl font-bold">{p.label}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{p.hint}</div>
-                    <Plus className="w-4 h-4 text-primary mt-3" />
+                    <div className="text-2xl font-semibold text-zinc-100 tabular-nums">{p.label}</div>
+                    <div className="text-xs text-zinc-500 mt-1">{p.hint}</div>
+                    <Plus className="w-4 h-4 text-indigo-300 mt-3" />
                   </button>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t">
+              <div className="mt-4 pt-4 border-t border-white/[0.06]">
                 <button
                   onClick={() => setCheckoutPriceId("a2a_credit_test_1_once")}
-                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                  className="text-xs text-zinc-500 hover:text-zinc-200 font-mono"
                 >
                   Run $1 sandbox test top-up →
                 </button>
               </div>
-            </Card>
+            </div>
+          </Panel>
 
-            {/* Email-volume top-ups — same SKUs humans buy, credited to balance_cents */}
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-1">
-                <Mail className="w-4 h-4 text-primary" />
-                <h2 className="font-bold">Email-volume top-ups</h2>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Same packs human users buy. Credit converts to your prepaid balance at the pack price and never expires.
-              </p>
+          {/* Email-volume top-ups */}
+          <Panel>
+            <PanelHeader icon={Mail} title="Email-volume top-ups" subtitle="Same packs human users buy. Credit converts to your prepaid balance at the pack price and never expires." />
+            <div className="p-5">
               <TopupPacks
                 title=""
                 subtitle="Never expire · Auto-credit to your A2A balance"
                 onSelect={(id) => setEmailTopupPriceId(id)}
               />
-            </Card>
+            </div>
+          </Panel>
 
-
-
-            <Card className="p-6">
-              <h2 className="font-bold mb-3">Recent A2A Jobs</h2>
+          {/* Recent A2A jobs */}
+          <Panel>
+            <PanelHeader title="Recent A2A jobs" />
+            <div className="p-5">
               {jobs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No jobs yet.</p>
+                <p className="text-sm text-zinc-500">No jobs yet.</p>
               ) : (
-                <div className="divide-y">
+                <div className="divide-y divide-white/[0.05]">
                   {jobs.map((j) => (
-                    <div key={j.id} className="py-3 flex items-center justify-between text-sm">
+                    <div key={j.id} className="py-3 flex items-center justify-between text-sm first:pt-0 last:pb-0">
                       <div>
-                        <div className="font-medium">{j.agent_id}</div>
-                        <div className="text-xs text-muted-foreground">{new Date(j.created_at).toLocaleString()}</div>
+                        <div className="font-medium text-zinc-100">{j.agent_id}</div>
+                        <div className="text-[11px] text-zinc-500 font-mono">{new Date(j.created_at).toLocaleString()}</div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="capitalize">{j.status}</Badge>
+                      <div className="flex items-center gap-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-mono uppercase tracking-wider bg-white/[0.05] text-zinc-300 border-white/10">
+                          {j.status}
+                        </span>
                         <div className="text-right">
-                          <div>{fmt(j.spend_cents)}</div>
-                          <div className="text-xs text-muted-foreground">{j.leads_sent} sent</div>
+                          <div className="text-zinc-100 tabular-nums">{fmt(j.spend_cents)}</div>
+                          <div className="text-[11px] text-zinc-500">{j.leads_sent} sent</div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-            </Card>
-          </>
-        )}
-      </main>
+            </div>
+          </Panel>
+        </div>
+      )}
 
       <Dialog open={!!checkoutPriceId} onOpenChange={(o) => !o && setCheckoutPriceId(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add Credit</DialogTitle>
+            <DialogTitle>Add credit</DialogTitle>
           </DialogHeader>
           {checkoutPriceId && partner && (
             <PartnerCheckout
@@ -232,8 +239,7 @@ export default function PartnerBilling() {
         customerEmail={partner?.billing_email || user?.email || undefined}
         returnPath="/for-agents/billing?topup=success"
       />
-      <Footer />
-    </div>
+    </PartnerShell>
   );
 }
 
@@ -290,42 +296,42 @@ function SpendingControls({ partner, onSaved }: { partner: Partner; onSaved: (p:
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="font-bold flex items-center gap-2 mb-1"><Shield className="w-4 h-4 text-primary" /> Spending controls</h2>
-      <p className="text-sm text-muted-foreground mb-5">Used as defaults when your hire requests omit a spending cap, and to trigger auto-recharge.</p>
+    <Panel>
+      <PanelHeader icon={Shield} title="Spending controls" subtitle="Used as defaults when your hire requests omit a spending cap, and to trigger auto-recharge." />
+      <div className="p-5">
+        <div className="grid sm:grid-cols-2 gap-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="cap" className="text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Default per-job cap ($)</Label>
+            <Input id="cap" type="number" min={1} max={1000} value={capDollars} onChange={(e) => setCapDollars(e.target.value)} className={inputCls} />
+            <p className="text-[11px] text-zinc-600">Applied when hire payload omits <code className="bg-white/[0.05] text-zinc-300 px-1 rounded font-mono">spending_cap_cents</code>.</p>
+          </div>
 
-      <div className="grid sm:grid-cols-2 gap-5">
-        <div className="space-y-2">
-          <Label htmlFor="cap" className="text-xs uppercase tracking-wide">Default per-job cap ($)</Label>
-          <Input id="cap" type="number" min={1} max={1000} value={capDollars} onChange={(e) => setCapDollars(e.target.value)} />
-          <p className="text-[11px] text-muted-foreground">Applied when hire payload omits <code>spending_cap_cents</code>.</p>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-[11px] uppercase tracking-wider text-zinc-500 font-medium">Auto-recharge</Label>
+              <Switch checked={autoEnabled} onCheckedChange={setAutoEnabled} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label htmlFor="thr" className="text-[10px] text-zinc-500">When balance &lt; ($)</Label>
+                <Input id="thr" type="number" min={1} value={thresholdDollars} onChange={(e) => setThresholdDollars(e.target.value)} disabled={!autoEnabled} className={inputCls} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="amt" className="text-[10px] text-zinc-500">Add ($)</Label>
+                <Input id="amt" type="number" min={5} value={amountDollars} onChange={(e) => setAmountDollars(e.target.value)} disabled={!autoEnabled} className={inputCls} />
+              </div>
+            </div>
+            <p className="text-[11px] text-zinc-600">Requires a saved payment method. We'll prompt for one before charging.</p>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs uppercase tracking-wide">Auto-recharge</Label>
-            <Switch checked={autoEnabled} onCheckedChange={setAutoEnabled} />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label htmlFor="thr" className="text-[10px] text-muted-foreground">When balance &lt; ($)</Label>
-              <Input id="thr" type="number" min={1} value={thresholdDollars} onChange={(e) => setThresholdDollars(e.target.value)} disabled={!autoEnabled} />
-            </div>
-            <div>
-              <Label htmlFor="amt" className="text-[10px] text-muted-foreground">Add ($)</Label>
-              <Input id="amt" type="number" min={5} value={amountDollars} onChange={(e) => setAmountDollars(e.target.value)} disabled={!autoEnabled} />
-            </div>
-          </div>
-          <p className="text-[11px] text-muted-foreground">Requires a saved payment method. We'll prompt for one before charging.</p>
+        <div className="mt-5 flex justify-end">
+          <Button onClick={save} disabled={saving} className="bg-indigo-500 hover:bg-indigo-400 text-white font-medium gap-2">
+            {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            Save controls
+          </Button>
         </div>
       </div>
-
-      <div className="mt-5 flex justify-end">
-        <Button onClick={save} disabled={saving}>
-          {saving && <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />}
-          Save controls
-        </Button>
-      </div>
-    </Card>
+    </Panel>
   );
 }

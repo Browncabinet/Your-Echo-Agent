@@ -1,11 +1,7 @@
 import { Link } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Logo } from "@/components/Logo";
+import { PartnerShell } from "@/components/PartnerShell";
 import { SeoHead } from "@/components/SeoHead";
-import { ArrowLeft, Wallet, LayoutDashboard, ExternalLink } from "lucide-react";
-import { Footer } from "@/components/Footer";
+import { ExternalLink } from "lucide-react";
 
 const PROJECT = "dqovpwkmmtxqlrdvfuzz";
 const BASE = `https://${PROJECT}.supabase.co/functions/v1`;
@@ -91,7 +87,7 @@ const events = [
   { e: "billing.insufficient_funds", d: "Top up to resume" },
 ];
 
-const errorCodes = [
+const errorCodes: [string, string, string][] = [
   ["unauthorized", "Missing or invalid credentials.", "Send Bearer eak_… key or signed-in user JWT."],
   ["rate_limit_exceeded", "Per-minute rate limit hit.", "Back off and retry after the next minute window."],
   ["agent_not_found", "No active agent with that id.", "Check the agent_id from /v1/agents."],
@@ -107,111 +103,115 @@ const errorCodes = [
   ["internal_error", "Unexpected server error.", "Retry; contact support if it persists."],
 ];
 
+function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5 ${className}`}>{children}</div>;
+}
+
 export default function ForAgentsDocs() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <PartnerShell>
       <SeoHead
         title="A2A API Docs — Echo Agents · OpenAPI 3.1, Webhooks, Errors"
         description="Full A2A 0.3.0 API reference for Echo Agents. OpenAPI 3.1 spec, HMAC-signed webhooks, standardized error catalog, and curl examples."
         path="/for-agents/docs"
       />
-      <header className="border-b bg-card">
-        <div className="container max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="cursor-pointer"><Logo /></Link>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm"><Link to="/for-agents/dashboard" className="gap-1"><LayoutDashboard className="w-3.5 h-3.5" /> Dashboard</Link></Button>
-            <Button asChild variant="ghost" size="sm"><Link to="/for-agents/billing" className="gap-1"><Wallet className="w-3.5 h-3.5" /> Billing</Link></Button>
-            <Button asChild variant="ghost" size="sm"><Link to="/for-agents" className="gap-1 text-muted-foreground"><ArrowLeft className="w-3.5 h-3.5" /> Marketplace</Link></Button>
-          </div>
-        </div>
-      </header>
 
-      <main className="flex-1 container max-w-4xl mx-auto px-4 py-10 space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">For Agents — API Docs</h1>
-          <p className="text-muted-foreground">A2A-native API for hiring autonomous outreach agents. Built on A2A protocol 0.3.0.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-100 mb-2">API Docs</h1>
+          <p className="text-zinc-500">A2A-native API for hiring autonomous outreach agents. Built on A2A protocol 0.3.0.</p>
         </div>
 
-        <Card className="p-5 space-y-2">
-          <h2 className="font-bold">Discovery</h2>
-          <p className="text-sm text-muted-foreground">Public A2A discovery manifest:</p>
-          <a className="block text-sm text-primary hover:underline" href={`${BASE}/well-known-agent`} target="_blank" rel="noreferrer">
+        <Panel className="space-y-2">
+          <h2 className="font-semibold text-zinc-100">Discovery</h2>
+          <p className="text-sm text-zinc-500">Public A2A discovery manifest:</p>
+          <a className="block text-sm text-indigo-300 hover:text-indigo-200 font-mono break-all" href={`${BASE}/well-known-agent`} target="_blank" rel="noreferrer">
             {BASE}/well-known-agent <ExternalLink className="inline w-3 h-3" />
           </a>
-          <p className="text-sm text-muted-foreground mt-3">OpenAPI 3.1 spec (machine-readable):</p>
-          <a className="block text-sm text-primary hover:underline" href={`${BASE}/a2a-openapi`} target="_blank" rel="noreferrer">
+          <p className="text-sm text-zinc-500 mt-3">OpenAPI 3.1 spec (machine-readable):</p>
+          <a className="block text-sm text-indigo-300 hover:text-indigo-200 font-mono break-all" href={`${BASE}/a2a-openapi`} target="_blank" rel="noreferrer">
             {BASE}/a2a-openapi <ExternalLink className="inline w-3 h-3" />
           </a>
-        </Card>
+        </Panel>
 
-        <Card className="p-5 space-y-2">
-          <h2 className="font-bold">Auth</h2>
-          <p className="text-sm text-muted-foreground">Get an API key from the <Link to="/for-agents/dashboard" className="text-primary underline">Partner Dashboard</Link>. Send it as <code className="bg-muted px-1 rounded">Authorization: Bearer eak_…</code>.</p>
-          <p className="text-sm text-muted-foreground">Rate limit: <strong>60 requests/min</strong> per key (default). Top up your balance on the <Link to="/for-agents/billing" className="text-primary underline">Billing page</Link>.</p>
-          <p className="text-sm text-muted-foreground">Replay safety: send a unique <code className="bg-muted px-1 rounded">Idempotency-Key</code> header on hire requests. Replays within 24h return the original response.</p>
-        </Card>
+        <Panel className="space-y-2">
+          <h2 className="font-semibold text-zinc-100">Auth</h2>
+          <p className="text-sm text-zinc-400">
+            Get an API key from the <Link to="/for-agents/dashboard" className="text-indigo-300 hover:text-indigo-200 underline">Partner Dashboard</Link>. Send it as <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">Authorization: Bearer eak_…</code>.
+          </p>
+          <p className="text-sm text-zinc-400">
+            Rate limit: <strong className="text-zinc-200">60 requests/min</strong> per key (default). Top up your balance on the <Link to="/for-agents/billing" className="text-indigo-300 hover:text-indigo-200 underline">Billing page</Link>.
+          </p>
+          <p className="text-sm text-zinc-400">
+            Replay safety: send a unique <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">Idempotency-Key</code> header on hire requests. Replays within 24h return the original response.
+          </p>
+        </Panel>
 
-        <Card className="p-5 space-y-2">
-          <h2 className="font-bold">Base URL</h2>
-          <code className="block bg-muted p-2 rounded text-xs break-all">{BASE}</code>
-          <p className="text-xs text-muted-foreground">Public-facing alias: <code className="bg-muted px-1 rounded">{PUBLIC_BASE}/api</code> (coming soon — same endpoints).</p>
-        </Card>
+        <Panel className="space-y-2">
+          <h2 className="font-semibold text-zinc-100">Base URL</h2>
+          <code className="block bg-black/40 border border-white/[0.06] p-2 rounded text-xs break-all text-zinc-300 font-mono">{BASE}</code>
+          <p className="text-xs text-zinc-500">Public-facing alias: <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono">{PUBLIC_BASE}/api</code> (coming soon — same endpoints).</p>
+        </Panel>
 
         <div className="space-y-5">
-          <h2 className="text-xl font-bold">Endpoints</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Endpoints</h2>
           {examples.map((ex, i) => {
             const headers: Record<string, string> = { Authorization: "Bearer eak_YOUR_KEY", ...(ex.headers || {}) };
             const headerLines = Object.entries(headers).map(([k, v]) => `  -H '${k}: ${v}'`).join(" \\\n");
             const curl = `curl -X ${ex.method} '${BASE}${ex.path}' \\\n${headerLines}${ex.body ? ` \\\n  -H 'Content-Type: application/json' \\\n  -d '${JSON.stringify(ex.body, null, 2)}'` : ""}`;
+            const methodCls = ex.method === "GET"
+              ? "bg-indigo-500/15 text-indigo-300 border-indigo-500/20"
+              : "bg-emerald-500/15 text-emerald-300 border-emerald-500/20";
             return (
-              <Card key={i} className="p-5 space-y-2">
+              <Panel key={i} className="space-y-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary">{ex.method}</span>
-                  <code className="text-sm font-mono break-all">{ex.path}</code>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-mono uppercase tracking-wider ${methodCls}`}>
+                    {ex.method}
+                  </span>
+                  <code className="text-sm font-mono text-zinc-100 break-all">{ex.path}</code>
                 </div>
-                <h3 className="font-semibold">{ex.title}</h3>
-                <p className="text-sm text-muted-foreground">{ex.desc}</p>
-                <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap">{curl}</pre>
-              </Card>
+                <h3 className="font-semibold text-zinc-100">{ex.title}</h3>
+                <p className="text-sm text-zinc-500">{ex.desc}</p>
+                <pre className="bg-black/40 border border-white/[0.06] p-3 rounded text-[11px] overflow-x-auto whitespace-pre-wrap text-zinc-300 font-mono">{curl}</pre>
+              </Panel>
             );
           })}
         </div>
 
-        <Card className="p-5">
-          <h2 className="font-bold mb-3">Webhook Events</h2>
-          <p className="text-sm text-muted-foreground mb-3">
-            All callbacks are signed with HMAC-SHA256 in <code className="bg-muted px-1 rounded">X-Echo-Signature: sha256=&lt;hex&gt;</code> using your partner-specific webhook secret (rotate it from the Dashboard).
-            Event type is in <code className="bg-muted px-1 rounded">X-Echo-Event</code>; attempt number in <code className="bg-muted px-1 rounded">X-Echo-Attempt</code>. Failed deliveries retry with backoff 1m / 5m / 30m / 2h / 12h (max 5 attempts).
+        <Panel>
+          <h2 className="font-semibold text-zinc-100 mb-3">Webhook events</h2>
+          <p className="text-sm text-zinc-400 mb-3">
+            All callbacks are signed with HMAC-SHA256 in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Signature: sha256=&lt;hex&gt;</code> using your partner-specific webhook secret (rotate it from the Dashboard).
+            Event type is in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Event</code>; attempt number in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Attempt</code>. Failed deliveries retry with backoff 1m / 5m / 30m / 2h / 12h (max 5 attempts).
           </p>
-          <ul className="divide-y">
+          <ul className="divide-y divide-white/[0.05]">
             {events.map(({ e, d }) => (
-              <li key={e} className="py-2 flex items-center justify-between text-sm">
-                <code className="font-mono text-primary">{e}</code>
-                <span className="text-muted-foreground text-xs text-right ml-3">{d}</span>
+              <li key={e} className="py-2 flex items-center justify-between text-sm gap-3">
+                <code className="font-mono text-indigo-300 text-xs">{e}</code>
+                <span className="text-zinc-500 text-xs text-right">{d}</span>
               </li>
             ))}
           </ul>
-        </Card>
+        </Panel>
 
-        <Card className="p-5">
-          <h2 className="font-bold mb-3">Error Codes</h2>
-          <p className="text-sm text-muted-foreground mb-3">
-            Every error response uses the shape <code className="bg-muted px-1 rounded text-xs">{`{ "error": "code", "message": "...", "hint"?: "..." }`}</code>.
+        <Panel>
+          <h2 className="font-semibold text-zinc-100 mb-3">Error codes</h2>
+          <p className="text-sm text-zinc-400 mb-3">
+            Every error response uses the shape <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded text-xs font-mono">{`{ "error": "code", "message": "...", "hint"?: "..." }`}</code>.
           </p>
-          <div className="divide-y">
+          <div className="divide-y divide-white/[0.05]">
             {errorCodes.map(([code, desc, hint]) => (
-              <div key={code} className="py-2.5 grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-1 sm:gap-3 text-sm">
-                <code className="font-mono text-destructive text-xs">{code}</code>
+              <div key={code} className="py-2.5 grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-1 sm:gap-3 text-sm">
+                <code className="font-mono text-red-300 text-xs">{code}</code>
                 <div>
-                  <p className="text-foreground">{desc}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">→ {hint}</p>
+                  <p className="text-zinc-200">{desc}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">→ {hint}</p>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
-      </main>
-      <Footer />
-    </div>
+        </Panel>
+      </div>
+    </PartnerShell>
   );
 }
