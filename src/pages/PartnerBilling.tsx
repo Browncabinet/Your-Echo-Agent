@@ -8,8 +8,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Wallet, ArrowLeft, Zap, Key, Plus } from "lucide-react";
+import { Loader2, Wallet, ArrowLeft, Zap, Key, Plus, Mail } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
+import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
 type Partner = {
   id: string;
@@ -40,6 +42,7 @@ export default function PartnerBilling() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [keyCount, setKeyCount] = useState(0);
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
+  const [emailTopupPriceId, setEmailTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
 
   useEffect(() => {
     if (!user) return;
