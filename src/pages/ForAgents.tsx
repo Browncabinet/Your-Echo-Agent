@@ -151,8 +151,8 @@ export default function ForAgents() {
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate("/auth")}>
-              Sign In
+            <Button size="sm" variant="outline" onClick={() => navigate("/for-agents/login")}>
+              Log In
             </Button>
             <Button size="sm" onClick={() => navigate("/for-agents/signup")}>
               Sign Up
