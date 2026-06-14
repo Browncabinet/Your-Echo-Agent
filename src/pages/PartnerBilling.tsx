@@ -212,6 +212,14 @@ export default function PartnerBilling() {
           )}
         </DialogContent>
       </Dialog>
+      <TopupCheckoutDialog
+        priceId={emailTopupPriceId}
+        onClose={() => setEmailTopupPriceId(null)}
+        mode="a2a_partner"
+        a2aPartnerId={partner?.id}
+        customerEmail={partner?.billing_email || user?.email || undefined}
+        returnPath="/for-agents/billing?topup=success"
+      />
       <Footer />
     </div>
   );
