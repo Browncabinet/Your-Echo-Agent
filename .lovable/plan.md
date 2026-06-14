@@ -1,49 +1,50 @@
-## Goal
-Use your own Stripe live account directly with the secret key you've already added (`STRIPE_LIVE_SECRET_KEY`), instead of waiting on Lovable's seamless go-live flow. Sandbox (test) keeps working as-is through Lovable so you can still preview safely.
 
-## Current state (good news)
-You've already provided everything needed:
-- `STRIPE_LIVE_SECRET_KEY` ✅
-- `STRIPE_LIVE_PUBLISHABLE_KEY` ✅
-- `STRIPE_LIVE_NETWORK_ID` ✅
-- `PAYMENTS_LIVE_WEBHOOK_SECRET` ✅ (will be replaced with the one from YOUR Stripe dashboard)
+# Email Top-Up Packs — Stripe + Bonus Bucket
 
-The shared Stripe helper (`supabase/functions/_shared/stripe.ts`) **already** routes live calls directly to Stripe using your `STRIPE_LIVE_SECRET_KEY` when present, and the client (`src/lib/stripe.ts`) **already** uses your hardcoded `pk_live_...` publishable key. So 80% of the wiring is done.
+Wire the three packs already shown on the Rate Limits page into real Stripe checkout and credit the user's account when payment succeeds.
 
-## What needs to change
+## Packs
 
-### 1. Remove Lovable-managed-only features from checkout
-`supabase/functions/create-checkout/index.ts` currently sends `managed_payments: { enabled: true }`. That's a Lovable seamless-Stripe feature and Stripe will reject it on your own live account. I'll remove that line and the `managed_payments: "true"` metadata flag.
+| Pack | Emails | Price | Effective |
+|---|---|---|---|
+| `topup_500` | +500 | $12 | $0.024 / email |
+| `topup_1000` | +1,000 | $22 | $0.022 / email |
+| `topup_2500` | +2,500 | $45 | $0.018 / email |
 
-### 2. Replace the live webhook secret with yours
-The current `PAYMENTS_LIVE_WEBHOOK_SECRET` was issued by Lovable's seamless flow. Your own Stripe account uses a different one. After my code change, you'll need to:
+All one-time payments (not subscriptions). Eligible for full compliance handling (digital service, SaaS tax code `txcd_10103001`), so I'll enable `managed_payments: { enabled: true }` on these sessions (+3.5% per transaction, can be turned off later).
 
-1. Open your live Stripe Dashboard → **Developers → Webhooks → Add endpoint**
-2. Endpoint URL:
-   `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/payments-webhook?env=live`
-3. Select events: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `checkout.session.completed`
-4. After creating, click "Reveal" the signing secret (`whsec_...`) and paste it when I prompt you via the secrets tool to update `PAYMENTS_LIVE_WEBHOOK_SECRET`.
+## Bonus-email behavior
 
-### 3. Recreate your products/prices in YOUR live Stripe account
-Any products you created through Lovable's sandbox live in Lovable's managed Stripe — not yours. You'll need them in your own live account with the same **lookup keys** (e.g. `starter_weekly`, `growth_weekly`, `power_weekly`) so checkout resolves them.
+Top-ups go into a **separate bucket from the weekly subscription cap** and **roll over until consumed**. This matches the value prop ("buy extra, don't lose it Monday") and keeps weekly reset logic untouched.
 
-I'll either:
-- (a) Write a one-off script you run once that creates the 3 weekly subscription products + prices in your live account with matching lookup keys, OR
-- (b) Walk you through creating them manually in the Stripe dashboard
+Enforcement order at send time: weekly subscription cap first, then bonus bucket. This way bonus emails only get spent after the included weekly allowance is exhausted.
 
-(Recommend option a — faster and prevents typos in lookup keys.)
+## Changes
 
-### 4. Verify
-- Preview keeps using sandbox (test cards still work).
-- Published site uses your live Stripe — I'll do a smoke check on the deployed `create-checkout` and `payments-webhook` functions.
+### 1. Database (migration)
+- New table `public.email_topups` — `user_id`, `emails_granted`, `emails_remaining`, `amount_cents`, `stripe_session_id` (unique, idempotency), `price_id`, `environment`, timestamps. RLS: user can SELECT own; service_role full access.
+- Update `public.current_week_caps(_user_id)` to also return `bonus_emails_remaining` (sum of `emails_remaining` across user's top-ups).
+- New SQL function `public.consume_bonus_emails(_user_id uuid, _amount int)` — SECURITY DEFINER, decrements oldest-first (FIFO), returns how many were consumed. Used by the send pipeline after the weekly cap is hit.
 
-## Files I'll edit
-- `supabase/functions/create-checkout/index.ts` — remove `managed_payments` payload + metadata
-- (optionally) `supabase/functions/setup-byok-products/index.ts` — one-off script to seed products in your live account
+### 2. Stripe products
+Create 3 one-time products via `batch_create_product` with lookup keys `topup_500`, `topup_1000`, `topup_2500`, tax code `txcd_10103001`, `quantity_min/max = 1`.
 
-## What I need from you AFTER code is deployed
-1. Create the webhook in your Stripe Dashboard (URL above) and paste the new `whsec_...` when prompted.
-2. Confirm whether you want me to script the product creation or do it manually.
+### 3. Edge functions
+- **`create-checkout`** (existing) — already resolves by `lookup_key` and picks `mode` based on price type, so it works for one-time prices unchanged. Add `managed_payments: { enabled: true }` for one-time sessions and a `payment_intent_data.description` from the Stripe product name.
+- **`payments-webhook`** (existing) — add `checkout.session.completed` handler: for one-time `mode: "payment"` sessions whose price `lookup_key` starts with `topup_`, upsert a row into `email_topups` keyed on `stripe_session_id` (idempotent), granting the corresponding emails.
+
+### 4. Frontend — Rate Limits page
+Replace the static "Buy" buttons on the three top-up cards with a handler that calls `useStripeCheckout({ priceId: 'topup_500' | 'topup_1000' | 'topup_2500', userId, customerEmail, returnUrl })` and renders the embedded checkout inline (modal/drawer, same pattern used for subscription checkout). On return, show a toast "+N emails added to your account" and refresh caps.
+
+### 5. UI surfacing of bonus bucket
+- Rate Limits page header: under the weekly meter, add a small line "Bonus emails: X remaining (rolls over)".
+- Dashboard caps widget: same secondary line.
+- Send pipeline: when weekly cap is reached but `bonus_emails_remaining > 0`, allow the send and call `consume_bonus_emails`. When both are zero, block with the existing cap-reached message + CTA to the Rate Limits page.
+
+### 6. Memory update
+Update `mem://features/pricing` and the Core memory rule — the "no pay-as-you-go packs" line is no longer accurate. New rule: weekly subs are the primary model; one-time email top-ups exist as overflow only ($12 / $22 / $45) and roll over.
 
 ## Out of scope
-- Disconnecting the Lovable-managed Stripe sandbox (you can leave it — sandbox stays useful for testing). If you want it fully removed later, you do that from the Payments dashboard's three-dots menu.
+- LinkedIn top-ups (assist-only, no caps to top up).
+- Refunds / expirations on bonus emails.
+- Auto-recharge.
