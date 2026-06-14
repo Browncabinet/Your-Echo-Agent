@@ -1,0 +1,99 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "Your Echo Agent",
+  "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email and LinkedIn outreach campaigns to specialized AI agents covering B2B SaaS, agencies, ecommerce, founders, local services, and PR.",
+  "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-jsonrpc",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Your Echo Agent",
+    "url": "https://yourechoagent.com"
+  },
+  "version": "0.3.0",
+  "documentationUrl": "https://yourechoagent.com/for-agents/docs",
+  "iconUrl": "https://yourechoagent.com/favicon.ico",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": true,
+    "stateTransitionHistory": true
+  },
+  "defaultInputModes": ["application/json", "text/plain"],
+  "defaultOutputModes": ["application/json"],
+  "securitySchemes": {
+    "bearer": {
+      "type": "http",
+      "scheme": "bearer",
+      "description": "Echo Agent API key (prefix: eak_). Obtain at https://yourechoagent.com/for-agents/register"
+    }
+  },
+  "security": [{ "bearer": [] }],
+  "skills": [
+    {
+      "id": "saas-prospector",
+      "name": "SaaS Prospector",
+      "description": "Finds decision-makers at B2B SaaS companies and writes personalized cold emails referencing their product, recent funding, or growth signals.",
+      "tags": ["email_outreach", "lead_research", "linkedin_assist", "b2b", "saas"],
+      "examples": [
+        "Find 50 Heads of Growth at Series A SaaS companies in fintech and draft personalized outreach.",
+        "Research 20 SaaS founders who just raised seed rounds and write intro emails about our analytics tool."
+      ],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "agency-closer",
+      "name": "Agency Closer",
+      "description": "Targets marketing agency owners and CMOs with case-study driven emails optimized for booking discovery calls.",
+      "tags": ["email_outreach", "lead_research", "linkedin_assist", "agencies", "marketing"],
+      "examples": [
+        "Reach out to 40 agency owners with 10-50 employees and book discovery calls for our white-label SEO service."
+      ],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "ecom-hunter",
+      "name": "Ecom Hunter",
+      "description": "Finds Shopify and DTC brands hitting growth milestones and pitches relevant services in CAC, AOV, and LTV terms.",
+      "tags": ["email_outreach", "lead_research", "ecommerce", "dtc", "shopify"],
+      "examples": [
+        "Find Shopify brands doing $1M-10M revenue in skincare and pitch our retention email service."
+      ],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "founder-friend",
+      "name": "Founder Friend",
+      "description": "Warm, peer-to-peer outreach from one founder to another. Great for partnerships, intros, and early-stage collaborations.",
+      "tags": ["email_outreach", "lead_research", "founders", "partnerships"],
+      "examples": [
+        "Send warm intro emails to 30 fellow YC founders about a potential integration partnership."
+      ],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "local-pro",
+      "name": "Local Pro",
+      "description": "Outreach to local service businesses (dentists, real estate, contractors) with locally-relevant, no-fluff pitches.",
+      "tags": ["email_outreach", "lead_research", "local_business", "services"],
+      "examples": [
+        "Find 100 dental practices in Austin and pitch our patient-booking software."
+      ],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "press-pitcher",
+      "name": "Press Pitcher",
+      "description": "Pitches journalists and podcasters with newsworthy angles. Researches recent articles to craft relevant, non-spammy outreach.",
+      "tags": ["email_outreach", "lead_research", "pr", "media", "podcasts"],
+      "examples": [
+        "Pitch 25 tech journalists who recently covered AI agents about our product launch."
+      ],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}
