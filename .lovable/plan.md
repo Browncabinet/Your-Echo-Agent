@@ -1,35 +1,29 @@
-# Plan: Google A2A-compliant AgentCard
+## Goal
+Make the A2A buyer path feel instant and self-serve: sign up, get an `eak_` key, see jobs/history, top up billing, and avoid mixed “human weekly plan” messaging in the A2A flow.
 
-Google's A2A directory expects a spec-compliant `AgentCard` JSON at `/.well-known/agent-card.json` (the existing `/.well-known/agent.json` is our custom registry manifest — we keep it). We'll add a new static file Google can crawl, exposing Your Echo Agent as one provider with 6 skills.
+## Plan
 
-## Changes
+1. **Make self-serve signup the obvious path**
+   - Update `/for-agents` hero and bottom CTA from “request an API key” to “create account + get instant API key”.
+   - Emphasize Google sign-in as the fastest route.
+   - Keep the existing `/for-agents/signup` flow, because it already calls `a2a-onboard` and mints an API key instantly.
+   - Remove/avoid any copy that implies emailing `hello@yourechoagent.com` or waiting for manual access.
 
-### 1. New static file: `public/.well-known/agent-card.json`
-Spec-compliant A2A `AgentCard` (schema 0.3.0) with:
-- `name`: "Your Echo Agent"
-- `description`: marketplace of autonomous outreach agents
-- `url`: `https://yourechoagent.com` + JSON-RPC endpoint URL
-- `provider`: { organization: "Your Echo Agent", url: homepage }
-- `version`: "0.3.0"
-- `documentationUrl`: `/for-agents/docs`
-- `capabilities`: { streaming: false, pushNotifications: true, stateTransitionHistory: true }
-- `defaultInputModes`: ["application/json", "text/plain"]
-- `defaultOutputModes`: ["application/json"]
-- `securitySchemes`: bearer `eak_` API key
-- `security`: [{ bearer: [] }]
-- `skills`: 6 skills, one per live agent (saas-prospector, ecom-outreach, vc-warm-intro, recruiter-sourcer, podcast-booker, founder-feedback) — each with `id`, `name`, `description`, `tags`, `examples`, `inputModes`, `outputModes`
+2. **Tighten the A2A buyer dashboard**
+   - Keep `/for-agents/dashboard` protected, but make it read like a buyer control center: API key status, balance, total spent, recent jobs, callback log, quick test hire, docs links.
+   - Add clearer empty states that point new buyers to: copy key, top up balance, run test hire.
+   - Keep key rotation and webhook-secret rotation intact.
 
-Served automatically by Vite/Lovable hosting at `https://yourechoagent.com/.well-known/agent-card.json` — no edge function needed, instant cache-friendly, crawlable.
+3. **Make billing self-serve and buyer-first**
+   - Update `/for-agents/billing` so new buyers without a partner record are sent to `/for-agents/signup`, not told to hire once first.
+   - Keep A2A credit packs (`$25`, `$100`, `$500`) and embedded checkout.
+   - Remove “Email-volume top-ups / same packs human users buy” from the A2A billing page to avoid mixing human email packs with A2A per-result billing.
 
-### 2. Update `public/.well-known/agent.json`
-Add a top-level `agentCard` pointer to the new file so anything following the old manifest can also find it.
+4. **Remove mixed human-vs-agent pricing from A2A pages**
+   - Update A2A page CTAs so “View Pricing” points buyers to A2A billing/top-up context after signup, not the weekly human pricing page.
+   - Update A2A copy to consistently say: prepaid balance, per-result pricing, no subscription required.
+   - Leave the regular `/pricing` page and homepage pricing for human users untouched unless you explicitly want a broader pricing redesign.
 
-### 3. (Optional, recommended) Add `<link rel="agent" href="/.well-known/agent-card.json">` to `index.html`
-Helps crawlers/aggregators that look at the homepage `<head>` rather than scanning well-known paths.
-
-## What you do after I implement
-1. Click **Update** in Publish to push the static file live (backend changes deploy auto, but static files in `public/` ship with frontend).
-2. Verify: `curl https://yourechoagent.com/.well-known/agent-card.json`
-3. Submit `https://yourechoagent.com` to Google's A2A directory — they'll fetch the card automatically.
-
-No database, no auth, no edge function changes. ~2 file edits.
+5. **Verify the flow**
+   - Check the relevant pages render cleanly: `/for-agents`, `/for-agents/signup`, `/for-agents/dashboard`, `/for-agents/billing`, `/for-agents/docs`.
+   - Confirm no remaining A2A-facing copy says manual signup, weekly plans, or human-user top-ups.
