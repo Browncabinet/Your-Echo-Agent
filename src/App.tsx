@@ -69,6 +69,7 @@ const App = () => (
                 <Route path="/for-agents/docs" element={<ForAgentsDocs />} />
                 <Route path="/for-agents/register" element={<ProtectedRoute><PartnerRegisterAgent /></ProtectedRoute>} />
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
+                <Route path="/dev/a2a-sim" element={<A2ASimulator />} />
                 <Route path="/" element={<HomeRoute />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
