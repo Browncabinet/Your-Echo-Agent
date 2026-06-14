@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.create-portal-session]
 verify_jwt = false
+
+[functions.echo-pipeline]
+verify_jwt = false
+
+[functions.charts-render]
+verify_jwt = false
