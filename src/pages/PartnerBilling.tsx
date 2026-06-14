@@ -125,6 +125,10 @@ export default function PartnerBilling() {
               </Card>
             </div>
 
+            <SpendingControls partner={partner} onSaved={(p) => setPartner(p)} />
+
+
+
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
