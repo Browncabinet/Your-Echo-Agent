@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
+import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
 type WeeklyTier = {
   id: string;
@@ -86,6 +88,19 @@ export default function Pricing() {
   const { user } = useAuth();
   const { openPortal, isActive } = useSubscription();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+  const [topupPriceId, setTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
+
+  // Auto-resume top-up flow after sign-in
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const pending = localStorage.getItem("pending_topup_priceId");
+      if (pending === "topup_500" || pending === "topup_1000" || pending === "topup_2500") {
+        setTopupPriceId(pending);
+        localStorage.removeItem("pending_topup_priceId");
+      }
+    } catch {/* ignore */}
+  }, [user]);
 
   const onChoose = (priceId: string) => {
     if (!user) {
@@ -97,6 +112,15 @@ export default function Pricing() {
       return;
     }
     setSelectedPriceId(priceId);
+  };
+
+  const onChooseTopup = (priceId: TopupPack["priceId"]) => {
+    if (!user) {
+      try { localStorage.setItem("pending_topup_priceId", priceId); } catch {/* ignore */}
+      navigate("/auth");
+      return;
+    }
+    setTopupPriceId(priceId);
   };
 
   const faqJsonLd = {
