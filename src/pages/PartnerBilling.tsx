@@ -259,3 +259,73 @@ function PartnerCheckout({ priceId, partnerId, customerEmail }: { priceId: strin
     </div>
   );
 }
+
+function SpendingControls({ partner, onSaved }: { partner: Partner; onSaved: (p: Partner) => void }) {
+  const [capDollars, setCapDollars] = useState(((partner.default_spending_cap_cents ?? 2500) / 100).toString());
+  const [autoEnabled, setAutoEnabled] = useState(!!partner.auto_recharge_enabled);
+  const [thresholdDollars, setThresholdDollars] = useState(((partner.auto_recharge_threshold_cents ?? 1000) / 100).toString());
+  const [amountDollars, setAmountDollars] = useState(((partner.auto_recharge_amount_cents ?? 5000) / 100).toString());
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const cap = Math.max(1, Math.min(Math.round(Number(capDollars) * 100), 100000));
+    const threshold = Math.max(100, Math.round(Number(thresholdDollars) * 100));
+    const amount = Math.max(500, Math.round(Number(amountDollars) * 100));
+    const { data, error } = await supabase
+      .from("a2a_partners")
+      .update({
+        default_spending_cap_cents: cap,
+        auto_recharge_enabled: autoEnabled,
+        auto_recharge_threshold_cents: threshold,
+        auto_recharge_amount_cents: amount,
+      })
+      .eq("id", partner.id)
+      .select("*")
+      .maybeSingle();
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Saved");
+    if (data) onSaved(data as Partner);
+  };
+
+  return (
+    <Card className="p-6">
+      <h2 className="font-bold flex items-center gap-2 mb-1"><Shield className="w-4 h-4 text-primary" /> Spending controls</h2>
+      <p className="text-sm text-muted-foreground mb-5">Used as defaults when your hire requests omit a spending cap, and to trigger auto-recharge.</p>
+
+      <div className="grid sm:grid-cols-2 gap-5">
+        <div className="space-y-2">
+          <Label htmlFor="cap" className="text-xs uppercase tracking-wide">Default per-job cap ($)</Label>
+          <Input id="cap" type="number" min={1} max={1000} value={capDollars} onChange={(e) => setCapDollars(e.target.value)} />
+          <p className="text-[11px] text-muted-foreground">Applied when hire payload omits <code>spending_cap_cents</code>.</p>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs uppercase tracking-wide">Auto-recharge</Label>
+            <Switch checked={autoEnabled} onCheckedChange={setAutoEnabled} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="thr" className="text-[10px] text-muted-foreground">When balance &lt; ($)</Label>
+              <Input id="thr" type="number" min={1} value={thresholdDollars} onChange={(e) => setThresholdDollars(e.target.value)} disabled={!autoEnabled} />
+            </div>
+            <div>
+              <Label htmlFor="amt" className="text-[10px] text-muted-foreground">Add ($)</Label>
+              <Input id="amt" type="number" min={5} value={amountDollars} onChange={(e) => setAmountDollars(e.target.value)} disabled={!autoEnabled} />
+            </div>
+          </div>
+          <p className="text-[11px] text-muted-foreground">Requires a saved payment method. We'll prompt for one before charging.</p>
+        </div>
+      </div>
+
+      <div className="mt-5 flex justify-end">
+        <Button onClick={save} disabled={saving}>
+          {saving && <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />}
+          Save controls
+        </Button>
+      </div>
+    </Card>
+  );
+}
