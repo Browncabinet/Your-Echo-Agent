@@ -152,6 +152,24 @@ export default function PartnerBilling() {
               </div>
             </Card>
 
+            {/* Email-volume top-ups — same SKUs humans buy, credited to balance_cents */}
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-1">
+                <Mail className="w-4 h-4 text-primary" />
+                <h2 className="font-bold">Email-volume top-ups</h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Same packs human users buy. Credit converts to your prepaid balance at the pack price and never expires.
+              </p>
+              <TopupPacks
+                title=""
+                subtitle="Never expire · Auto-credit to your A2A balance"
+                onSelect={(id) => setEmailTopupPriceId(id)}
+              />
+            </Card>
+
+
+
             <Card className="p-6">
               <h2 className="font-bold mb-3">Recent A2A Jobs</h2>
               {jobs.length === 0 ? (
