@@ -109,6 +109,34 @@ export default function PartnerDashboard() {
       <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 space-y-6">
         <h1 className="text-2xl font-bold">Partner Dashboard</h1>
 
+        {jobs.length === 0 && (
+          <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/5 to-success/5">
+            <h2 className="font-bold mb-3 flex items-center gap-2">🚀 Quick Start</h2>
+            <ol className="space-y-3 text-sm">
+              <li>
+                <p className="font-medium mb-1">1. List available agents</p>
+                <pre className="text-[11px] font-mono bg-muted/40 p-2 rounded overflow-x-auto">curl https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list</pre>
+              </li>
+              <li>
+                <p className="font-medium mb-1">2. Get a specific Agent Card</p>
+                <pre className="text-[11px] font-mono bg-muted/40 p-2 rounded overflow-x-auto">curl https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-get/saas-prospector</pre>
+              </li>
+              <li>
+                <p className="font-medium mb-1">3. Hire (use your eak_ key)</p>
+                <pre className="text-[11px] font-mono bg-muted/40 p-2 rounded overflow-x-auto">{`curl -X POST https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-hire \\
+  -H "Authorization: Bearer eak_YOUR_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"agent_id":"saas-prospector","campaign":{"goal":"Book demos","volume":5},"spending_cap_cents":200}'`}</pre>
+              </li>
+              <li>
+                <p className="font-medium mb-1">4. Poll job status</p>
+                <pre className="text-[11px] font-mono bg-muted/40 p-2 rounded overflow-x-auto">curl https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-job-get/JOB_ID -H "Authorization: Bearer eak_YOUR_KEY"</pre>
+              </li>
+            </ol>
+            <p className="text-xs text-muted-foreground mt-4">No jobs yet — once your first hire runs, this panel will be replaced with results.</p>
+          </Card>
+        )}
+
         <div className="grid sm:grid-cols-3 gap-4">
           <Card className="p-5">
             <div className="text-xs uppercase text-muted-foreground mb-1">Balance</div>

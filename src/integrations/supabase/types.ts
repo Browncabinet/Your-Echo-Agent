@@ -533,46 +533,64 @@ export type Database = {
         Row: {
           api_key_id: string
           auto_charge: boolean
+          auto_recharge_amount_cents: number
+          auto_recharge_enabled: boolean
+          auto_recharge_threshold_cents: number
           balance_cents: number
           billing_email: string
           created_at: string
           current_invoice_id: string | null
+          default_spending_cap_cents: number
+          display_name: string | null
           id: string
           owner_user_id: string | null
           pending_credit_cents: number
           stripe_customer_id: string | null
           total_spent_cents: number
           updated_at: string
+          use_case: string | null
           webhook_secret: string | null
         }
         Insert: {
           api_key_id: string
           auto_charge?: boolean
+          auto_recharge_amount_cents?: number
+          auto_recharge_enabled?: boolean
+          auto_recharge_threshold_cents?: number
           balance_cents?: number
           billing_email?: string
           created_at?: string
           current_invoice_id?: string | null
+          default_spending_cap_cents?: number
+          display_name?: string | null
           id?: string
           owner_user_id?: string | null
           pending_credit_cents?: number
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
+          use_case?: string | null
           webhook_secret?: string | null
         }
         Update: {
           api_key_id?: string
           auto_charge?: boolean
+          auto_recharge_amount_cents?: number
+          auto_recharge_enabled?: boolean
+          auto_recharge_threshold_cents?: number
           balance_cents?: number
           billing_email?: string
           created_at?: string
           current_invoice_id?: string | null
+          default_spending_cap_cents?: number
+          display_name?: string | null
           id?: string
           owner_user_id?: string | null
           pending_credit_cents?: number
           stripe_customer_id?: string | null
           total_spent_cents?: number
           updated_at?: string
+          use_case?: string | null
           webhook_secret?: string | null
         }
         Relationships: []
