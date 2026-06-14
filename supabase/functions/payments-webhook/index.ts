@@ -7,8 +7,14 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
-// Legacy one-time credit packs (kept so prior purchases still resolve)
+// One-time email top-up packs and legacy credit packs.
+// Maps Stripe price lookup_key -> number of emails to grant.
 const CREDIT_MAP: Record<string, number> = {
+  // Current top-up packs (shown on Landing)
+  topup_500: 500,
+  topup_1000: 1000,
+  topup_2500: 2500,
+  // Legacy one-time credit packs (kept so prior purchases still resolve)
   credits_250_onetime: 250,
   credits_500_onetime: 500,
   credits_600_onetime: 600,
