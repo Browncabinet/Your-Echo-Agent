@@ -1,48 +1,39 @@
-## Wire top-up packs everywhere (humans + A2A partners)
+## Rewrite the About page
 
-The three packs (+500 / $12, +1,000 / $22, +2,500 / $45) already exist as Stripe products and are wired on the Landing page. This plan extends them to every other surface and adds an A2A partner path so other agents can buy email volume too.
+Two changes: align the visual treatment with the dark indigo theme used on Home/Auth, and rewrite the copy to describe the service and the niche-LinkedIn approach instead of a personal note.
 
-## Surfaces to wire
+### Visual
 
-| Surface | Behavior |
-|---|---|
-| `HomePricingSection` (Home) | Add an "Email top-ups" row under the 3 subscription tiers. Cards open `TopupCheckoutDialog`. |
-| `Pricing` page (`/pricing`) | Same top-up row under the weekly tiers. Public visitors → redirect to `/auth?next=/pricing&topup=<priceId>`; on return, auto-open the dialog. |
-| `BuyCreditsModal` | Replace the legacy `credits_*_onetime` packs with `topup_500/1000/2500`. This is what fires from in-app "Buy emails" buttons (rate-limit page, cap-reached toasts). |
-| `RateLimits` / cap-reached toast | Already routes to `BuyCreditsModal`; inherits the new packs automatically. |
-| `PartnerBilling` (`/for-agents/billing`) | Add a second section "Email-volume top-ups" with the same 3 cards. Partner-mode checkout credits `a2a_partners.balance_cents` at the pack's dollar value (e.g. `topup_500` → +1,200¢). The existing `a2a_credit_25/100/500` packs stay for now. |
+- Swap `bg-background` (light) for the same dark indigo treatment used on Landing/Auth: `bg-[#06061a]` body, radial indigo/fuchsia glows, faint grid overlay, `Manrope` font, indigo border accents.
+- Header: transparent dark nav with white logo, `text-slate-400 hover:text-white` links, matching `Back` button.
+- Main card: replace the white glass card with a dark card — `border-indigo-500/15 bg-gradient-to-b from-indigo-950/40 to-[#06061a]/80`, soft indigo glow shadow.
+- Remove the round profile image. Replace with a small inline avatar chip + `@ladysoleil33` handle in the footer of the card (contact line only, no portrait).
+- Keep `<Footer />` as-is (already site-wide).
 
-## A2A purchase path
+### Copy (replaces lines 53–81)
 
-Other agents that hold an API key can already top up via the existing `/for-agents/billing` UI. To let them buy these new packs the same way:
+Headline inside the card:
+> **About Your Echo Agent**
+> Outreach that actually sounds like a real person — because it's built on a real PR technique.
 
-1. `TopupCheckoutDialog` accepts an optional `mode: "user" | "a2a_partner"` plus `a2aPartnerId`. In partner mode it passes `metadata.a2a_partner_id` through `create-checkout` (already supported via `extraMetadata`) and omits `userId`.
-2. `payments-webhook` `handleCheckoutCompleted` already branches on `metadata.a2a_partner_id` and credits `balance_cents`. Extend its `A2A_CREDIT_MAP` with:
-   - `topup_500: 1200`
-   - `topup_1000: 2200`
-   - `topup_2500: 4500`
-   (Cents granted = pack price, since A2A balance is denominated in cents.)
-3. No new edge functions; no new Stripe products.
+Body sections (short, scannable):
 
-This means the same Stripe SKU credits either `user_credits.balance` (emails) or `a2a_partners.balance_cents` (prepaid charge balance) depending on which metadata field the session was opened with — branching is already in the webhook.
+1. **What it is.** Your Echo Agent is an autonomous outreach platform that clones your voice, finds the right people, drafts hyper-personalized emails and LinkedIn messages, sends them, and handles replies intelligently — at a price that doesn't punish you for testing.
 
-## Logged-out behavior on public Pricing/Home
+2. **Why it's different.** Most cold-email tools blast generic templates at scraped lists. Your Echo Agent uses a technique borrowed from senior marketing, sales, and PR executives: discover contacts on LinkedIn through the **groups, organizations, and associations they actually follow in niche markets** — then engage with their content (comments, reactions) before sending an email. Every message lands warm, in-context, and human.
 
-Force sign-in. Clicking a top-up card while signed-out routes to `/auth?next=/pricing&topup=topup_500`. After Google OAuth, `Pricing` reads the `topup` query param on mount and opens `TopupCheckoutDialog` with that priceId. Keeps accounting clean (every credit grant has a `userId`).
+3. **Who built it.** Built by a tech business development executive and publicist with **15+ startup launches** across PR, growth, and product. The same playbook used to land coverage in top publications and book meetings for founders is now wired into an agent anyone can run.
 
-## Files touched
+4. **Contact.** Questions, feedback, or partnerships → DM **[@ladysoleil33 on X](https://x.com/ladysoleil33)**.
 
-- `src/components/TopupCheckoutDialog.tsx` — add `mode` + `a2aPartnerId` props; pass `metadata` to checkout when in partner mode.
-- `src/components/HomePricingSection.tsx` — add top-up row + dialog state.
-- `src/pages/Pricing.tsx` — add top-up row, dialog state, and `useEffect` to auto-open from `?topup=` query param.
-- `src/components/BuyCreditsModal.tsx` — swap pack list to `topup_500/1000/2500` with new pricing/labels.
-- `src/pages/PartnerBilling.tsx` — add "Email-volume top-ups" section using `TopupCheckoutDialog` in `mode="a2a_partner"`.
-- `supabase/functions/payments-webhook/index.ts` — extend `A2A_CREDIT_MAP` with the 3 new lookup keys → cents.
-- `src/pages/Auth.tsx` (small) — after sign-in, honor `next` + `topup` params on redirect.
-- Memory: update `mem://features/pricing` to note A2A partners can buy the same packs (credited as balance_cents).
+5. (Keep the existing Tablecharts.co P.S. line — it's a tasteful nod, not a personal note.)
 
-## Out of scope
+### Files
 
-- Retiring `a2a_credit_25/100/500` (kept for parity with partners already topping up).
-- Guest checkout without an account.
-- Auto-recharge / expirations.
+- `src/pages/About.tsx` — rewrite (theme + copy). Remove `profileImg` import.
+- Update `SeoHead` description to match new positioning: "Autonomous outreach agents that find niche LinkedIn contacts via groups and associations, then send personalized email — a real PR technique, automated."
+
+### Out of scope
+
+- No changes to global Footer, Logo, or other pages.
+- No new components.
