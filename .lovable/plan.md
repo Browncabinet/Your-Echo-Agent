@@ -1,50 +1,48 @@
+## Wire top-up packs everywhere (humans + A2A partners)
 
-# Email Top-Up Packs — Stripe + Bonus Bucket
+The three packs (+500 / $12, +1,000 / $22, +2,500 / $45) already exist as Stripe products and are wired on the Landing page. This plan extends them to every other surface and adds an A2A partner path so other agents can buy email volume too.
 
-Wire the three packs already shown on the Rate Limits page into real Stripe checkout and credit the user's account when payment succeeds.
+## Surfaces to wire
 
-## Packs
+| Surface | Behavior |
+|---|---|
+| `HomePricingSection` (Home) | Add an "Email top-ups" row under the 3 subscription tiers. Cards open `TopupCheckoutDialog`. |
+| `Pricing` page (`/pricing`) | Same top-up row under the weekly tiers. Public visitors → redirect to `/auth?next=/pricing&topup=<priceId>`; on return, auto-open the dialog. |
+| `BuyCreditsModal` | Replace the legacy `credits_*_onetime` packs with `topup_500/1000/2500`. This is what fires from in-app "Buy emails" buttons (rate-limit page, cap-reached toasts). |
+| `RateLimits` / cap-reached toast | Already routes to `BuyCreditsModal`; inherits the new packs automatically. |
+| `PartnerBilling` (`/for-agents/billing`) | Add a second section "Email-volume top-ups" with the same 3 cards. Partner-mode checkout credits `a2a_partners.balance_cents` at the pack's dollar value (e.g. `topup_500` → +1,200¢). The existing `a2a_credit_25/100/500` packs stay for now. |
 
-| Pack | Emails | Price | Effective |
-|---|---|---|---|
-| `topup_500` | +500 | $12 | $0.024 / email |
-| `topup_1000` | +1,000 | $22 | $0.022 / email |
-| `topup_2500` | +2,500 | $45 | $0.018 / email |
+## A2A purchase path
 
-All one-time payments (not subscriptions). Eligible for full compliance handling (digital service, SaaS tax code `txcd_10103001`), so I'll enable `managed_payments: { enabled: true }` on these sessions (+3.5% per transaction, can be turned off later).
+Other agents that hold an API key can already top up via the existing `/for-agents/billing` UI. To let them buy these new packs the same way:
 
-## Bonus-email behavior
+1. `TopupCheckoutDialog` accepts an optional `mode: "user" | "a2a_partner"` plus `a2aPartnerId`. In partner mode it passes `metadata.a2a_partner_id` through `create-checkout` (already supported via `extraMetadata`) and omits `userId`.
+2. `payments-webhook` `handleCheckoutCompleted` already branches on `metadata.a2a_partner_id` and credits `balance_cents`. Extend its `A2A_CREDIT_MAP` with:
+   - `topup_500: 1200`
+   - `topup_1000: 2200`
+   - `topup_2500: 4500`
+   (Cents granted = pack price, since A2A balance is denominated in cents.)
+3. No new edge functions; no new Stripe products.
 
-Top-ups go into a **separate bucket from the weekly subscription cap** and **roll over until consumed**. This matches the value prop ("buy extra, don't lose it Monday") and keeps weekly reset logic untouched.
+This means the same Stripe SKU credits either `user_credits.balance` (emails) or `a2a_partners.balance_cents` (prepaid charge balance) depending on which metadata field the session was opened with — branching is already in the webhook.
 
-Enforcement order at send time: weekly subscription cap first, then bonus bucket. This way bonus emails only get spent after the included weekly allowance is exhausted.
+## Logged-out behavior on public Pricing/Home
 
-## Changes
+Force sign-in. Clicking a top-up card while signed-out routes to `/auth?next=/pricing&topup=topup_500`. After Google OAuth, `Pricing` reads the `topup` query param on mount and opens `TopupCheckoutDialog` with that priceId. Keeps accounting clean (every credit grant has a `userId`).
 
-### 1. Database (migration)
-- New table `public.email_topups` — `user_id`, `emails_granted`, `emails_remaining`, `amount_cents`, `stripe_session_id` (unique, idempotency), `price_id`, `environment`, timestamps. RLS: user can SELECT own; service_role full access.
-- Update `public.current_week_caps(_user_id)` to also return `bonus_emails_remaining` (sum of `emails_remaining` across user's top-ups).
-- New SQL function `public.consume_bonus_emails(_user_id uuid, _amount int)` — SECURITY DEFINER, decrements oldest-first (FIFO), returns how many were consumed. Used by the send pipeline after the weekly cap is hit.
+## Files touched
 
-### 2. Stripe products
-Create 3 one-time products via `batch_create_product` with lookup keys `topup_500`, `topup_1000`, `topup_2500`, tax code `txcd_10103001`, `quantity_min/max = 1`.
-
-### 3. Edge functions
-- **`create-checkout`** (existing) — already resolves by `lookup_key` and picks `mode` based on price type, so it works for one-time prices unchanged. Add `managed_payments: { enabled: true }` for one-time sessions and a `payment_intent_data.description` from the Stripe product name.
-- **`payments-webhook`** (existing) — add `checkout.session.completed` handler: for one-time `mode: "payment"` sessions whose price `lookup_key` starts with `topup_`, upsert a row into `email_topups` keyed on `stripe_session_id` (idempotent), granting the corresponding emails.
-
-### 4. Frontend — Rate Limits page
-Replace the static "Buy" buttons on the three top-up cards with a handler that calls `useStripeCheckout({ priceId: 'topup_500' | 'topup_1000' | 'topup_2500', userId, customerEmail, returnUrl })` and renders the embedded checkout inline (modal/drawer, same pattern used for subscription checkout). On return, show a toast "+N emails added to your account" and refresh caps.
-
-### 5. UI surfacing of bonus bucket
-- Rate Limits page header: under the weekly meter, add a small line "Bonus emails: X remaining (rolls over)".
-- Dashboard caps widget: same secondary line.
-- Send pipeline: when weekly cap is reached but `bonus_emails_remaining > 0`, allow the send and call `consume_bonus_emails`. When both are zero, block with the existing cap-reached message + CTA to the Rate Limits page.
-
-### 6. Memory update
-Update `mem://features/pricing` and the Core memory rule — the "no pay-as-you-go packs" line is no longer accurate. New rule: weekly subs are the primary model; one-time email top-ups exist as overflow only ($12 / $22 / $45) and roll over.
+- `src/components/TopupCheckoutDialog.tsx` — add `mode` + `a2aPartnerId` props; pass `metadata` to checkout when in partner mode.
+- `src/components/HomePricingSection.tsx` — add top-up row + dialog state.
+- `src/pages/Pricing.tsx` — add top-up row, dialog state, and `useEffect` to auto-open from `?topup=` query param.
+- `src/components/BuyCreditsModal.tsx` — swap pack list to `topup_500/1000/2500` with new pricing/labels.
+- `src/pages/PartnerBilling.tsx` — add "Email-volume top-ups" section using `TopupCheckoutDialog` in `mode="a2a_partner"`.
+- `supabase/functions/payments-webhook/index.ts` — extend `A2A_CREDIT_MAP` with the 3 new lookup keys → cents.
+- `src/pages/Auth.tsx` (small) — after sign-in, honor `next` + `topup` params on redirect.
+- Memory: update `mem://features/pricing` to note A2A partners can buy the same packs (credited as balance_cents).
 
 ## Out of scope
-- LinkedIn top-ups (assist-only, no caps to top up).
-- Refunds / expirations on bonus emails.
-- Auto-recharge.
+
+- Retiring `a2a_credit_25/100/500` (kept for parity with partners already topping up).
+- Guest checkout without an account.
+- Auto-recharge / expirations.

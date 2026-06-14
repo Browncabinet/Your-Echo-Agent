@@ -126,6 +126,11 @@ const A2A_CREDIT_MAP: Record<string, number> = {
   a2a_credit_25_once: 2500,
   a2a_credit_100_once: 10000,
   a2a_credit_500_once: 50000,
+  // Email top-up SKUs are dual-purpose: when purchased with a2a_partner_id metadata,
+  // they credit the partner's balance_cents at the pack's dollar price.
+  topup_500: 1200,   // $12
+  topup_1000: 2200,  // $22
+  topup_2500: 4500,  // $45
 };
 
 async function handleCheckoutCompleted(session: any, env: StripeEnv) {

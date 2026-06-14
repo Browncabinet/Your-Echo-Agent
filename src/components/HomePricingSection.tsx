@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Check, ArrowRight, Sparkles, Minus, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
+import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 import {
   Table,
@@ -104,7 +107,18 @@ const weeklyTiers: WeeklyTier[] = [
 
 export function HomePricingSection() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showSavings, setShowSavings] = useState(false);
+  const [topupPriceId, setTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
+
+  const handleTopup = (priceId: TopupPack["priceId"]) => {
+    if (!user) {
+      try { localStorage.setItem("pending_topup_priceId", priceId); } catch {/* ignore */}
+      navigate("/auth");
+      return;
+    }
+    setTopupPriceId(priceId);
+  };
 
   return (
     <section className="mb-16 scroll-mt-20" id="pricing">
@@ -220,6 +234,11 @@ export function HomePricingSection() {
         )}
       </div>
 
+      {/* One-time top-up packs */}
+      <div className="mb-8">
+        <TopupPacks onSelect={handleTopup} />
+      </div>
+
       {/* Strong note */}
       <Card className="p-5 border-primary/30 bg-primary/5 text-center">
         <Sparkles className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -227,6 +246,9 @@ export function HomePricingSection() {
           Most users start with the <span className="font-bold">$19 Starter Weekly</span> to test safely. Once they begin seeing replies, booked calls, and revenue, they upgrade to <span className="font-bold">Growth or Power</span>.
         </p>
       </Card>
+
+      <TopupCheckoutDialog priceId={topupPriceId} onClose={() => setTopupPriceId(null)} />
     </section>
   );
 }
+

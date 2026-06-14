@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
+import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
 type WeeklyTier = {
   id: string;
@@ -86,6 +88,19 @@ export default function Pricing() {
   const { user } = useAuth();
   const { openPortal, isActive } = useSubscription();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+  const [topupPriceId, setTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
+
+  // Auto-resume top-up flow after sign-in
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const pending = localStorage.getItem("pending_topup_priceId");
+      if (pending === "topup_500" || pending === "topup_1000" || pending === "topup_2500") {
+        setTopupPriceId(pending);
+        localStorage.removeItem("pending_topup_priceId");
+      }
+    } catch {/* ignore */}
+  }, [user]);
 
   const onChoose = (priceId: string) => {
     if (!user) {
@@ -97,6 +112,15 @@ export default function Pricing() {
       return;
     }
     setSelectedPriceId(priceId);
+  };
+
+  const onChooseTopup = (priceId: TopupPack["priceId"]) => {
+    if (!user) {
+      try { localStorage.setItem("pending_topup_priceId", priceId); } catch {/* ignore */}
+      navigate("/auth");
+      return;
+    }
+    setTopupPriceId(priceId);
   };
 
   const faqJsonLd = {
@@ -211,6 +235,11 @@ export default function Pricing() {
           </div>
         </section>
 
+        {/* One-time top-up packs */}
+        <section className="mb-16">
+          <TopupPacks onSelect={onChooseTopup} />
+        </section>
+
         <Card className="p-6 md:p-8 mb-16 max-w-3xl mx-auto border-primary/30 bg-primary/5 text-center">
           <Sparkles className="w-6 h-6 text-primary mx-auto mb-3" />
           <p className="text-foreground text-base sm:text-lg leading-relaxed">
@@ -248,6 +277,11 @@ export default function Pricing() {
           {!selectedPriceId && <Loader2 className="w-6 h-6 animate-spin mx-auto my-8 text-primary" />}
         </DialogContent>
       </Dialog>
+      <TopupCheckoutDialog
+        priceId={topupPriceId}
+        onClose={() => setTopupPriceId(null)}
+        returnPath="/pricing?topup=success&session_id={CHECKOUT_SESSION_ID}"
+      />
       <Footer />
     </div>
   );
