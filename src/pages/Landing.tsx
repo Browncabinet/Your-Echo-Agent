@@ -614,18 +614,24 @@ function Landing() {
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 {[
-                  { emails: "500", price: "$12", per: "≈ $0.024 / email" },
-                  { emails: "1,000", price: "$22", per: "≈ $0.022 / email", featured: true },
-                  { emails: "2,500", price: "$45", per: "≈ $0.018 / email" },
+                  { emails: "500", price: "$12", per: "≈ $0.024 / email", priceId: "topup_500" },
+                  { emails: "1,000", price: "$22", per: "≈ $0.022 / email", featured: true, priceId: "topup_1000" },
+                  { emails: "2,500", price: "$45", per: "≈ $0.018 / email", priceId: "topup_2500" },
                 ].map((pack) => (
-                  <div key={pack.emails} className={`rounded-xl border p-5 backdrop-blur-xl ${pack.featured ? "border-primary/40 bg-primary/5" : "border-border/40 bg-card/20"}`}>
+                  <button
+                    key={pack.emails}
+                    type="button"
+                    onClick={() => setTopupPriceId(pack.priceId)}
+                    className={`text-left rounded-xl border p-5 backdrop-blur-xl transition hover:border-primary/60 hover:bg-primary/10 ${pack.featured ? "border-primary/40 bg-primary/5" : "border-border/40 bg-card/20"}`}
+                  >
                     <div className="font-mono text-[11px] uppercase tracking-wider text-foreground/50">+{pack.emails} emails</div>
                     <div className="mt-2 flex items-baseline gap-2">
                       <span className="text-3xl font-black text-foreground">{pack.price}</span>
                       <span className="text-xs text-foreground/60">one-time</span>
                     </div>
                     <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-primary/80">{pack.per}</div>
-                  </div>
+                    <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">Buy now <ArrowRight className="h-3 w-3" /></div>
+                  </button>
                 ))}
               </div>
             </div>
