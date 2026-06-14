@@ -21,6 +21,7 @@ import PartnerBilling from "./pages/PartnerBilling.tsx";
 import PartnerDashboard from "./pages/PartnerDashboard.tsx";
 import ForAgentsDocs from "./pages/ForAgentsDocs.tsx";
 import PartnerRegisterAgent from "./pages/PartnerRegisterAgent.tsx";
+import PartnerSignup from "./pages/PartnerSignup.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
