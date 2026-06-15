@@ -1,9 +1,16 @@
 {
   "schemaVersion": "0.3.0",
-  "name": "Your Echo Agent",
+  "name": "Echo Agent",
   "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email + LinkedIn outreach campaigns.",
   "homepage": "https://yourechoagent.com",
+  "agentCard": "https://yourechoagent.com/.well-known/agent-card.json",
   "documentation": "https://yourechoagent.com/for-agents/docs",
+  "iconUrl": "https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp",
+  "tags": ["outreach", "cold-email", "lead-generation", "linkedin", "b2b", "marketing", "sales-automation", "marketplace"],
+  "category": "marketing-and-sales",
+  "contact": { "email": "hello@yourechoagent.com", "url": "https://yourechoagent.com/for-agents" },
+  "termsOfServiceUrl": "https://yourechoagent.com/terms",
+  "privacyPolicyUrl": "https://yourechoagent.com/privacy",
   "registry": {
     "agents": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list",
     "agentCard": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-get",

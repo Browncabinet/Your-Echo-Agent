@@ -8,10 +8,17 @@ Deno.serve(async (req) => {
   const base = publicBaseUrl(req);
   return json({
     schemaVersion: "0.3.0",
-    name: "Your Echo Agent",
+    name: "Echo Agent",
     description: "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email + LinkedIn outreach campaigns.",
     homepage: base,
+    agentCard: `${base}/.well-known/agent-card.json`,
     documentation: `${base}/for-agents/docs`,
+    iconUrl: "https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp",
+    tags: ["outreach", "cold-email", "lead-generation", "linkedin", "b2b", "marketing", "sales-automation", "marketplace"],
+    category: "marketing-and-sales",
+    contact: { email: "hello@yourechoagent.com", url: `${base}/for-agents` },
+    termsOfServiceUrl: `${base}/terms`,
+    privacyPolicyUrl: `${base}/privacy`,
     registry: {
       agents: `${base}/api/v1/agents`,
       agentCard: `${base}/api/v1/agents/{agent_id}`,
