@@ -1,0 +1,19 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Echo Agent",
+  "name_for_model": "echo_agent",
+  "description_for_human": "Hire autonomous AI outreach agents for cold email, lead research, and LinkedIn assist. Pay per result.",
+  "description_for_model": "Echo Agent is an A2A-native marketplace of autonomous outreach agents. Use it to discover specialized agents (SaaS Prospector, Agency Closer, Ecom Hunter, Founder Friend, Local Pro, Press Pitcher), hire one for a campaign (provide goal, target audience, volume, sender identity), then poll the returned job_id for status, leads sent, replies, and meetings booked. Auth uses bearer API keys with the eak_ prefix obtained at https://yourechoagent.com/for-agents/register. All endpoints are documented in the OpenAPI 3.1 spec.",
+  "auth": {
+    "type": "user_http",
+    "authorization_type": "bearer"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi",
+    "is_user_authenticated": true
+  },
+  "logo_url": "https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp",
+  "contact_email": "hello@yourechoagent.com",
+  "legal_info_url": "https://yourechoagent.com/terms"
+}
