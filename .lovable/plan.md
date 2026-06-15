@@ -1,63 +1,52 @@
-# Optimize A2A Agent Card for Registries
+# Execute Adoption Push (Steps 1–4)
 
-Tighten `public/.well-known/agent-card.json` so it scores well on A2A registries (a2aregistry.org, agents.json directories, MCP/A2A crawlers) and matches the A2A 0.3.0 spec more completely.
+Skipping step 5 (SDK + examples repo) per the user's note — separate session.
 
-## Changes
+## Step 1 — Google Search Console verify + add property + sitemap
+Run via `code--exec` against the gateway (no code changes):
+1. `POST /siteVerification/v1/webResource?verificationMethod=META` with `{"site":{"identifier":"https://yourechoagent.com/","type":"SITE"}}` → flips site to verified. (Meta tag is already deployed in `index.html`.)
+2. `PUT /webmasters/v3/sites/https%3A%2F%2Fyourechoagent.com%2F` → adds it to the user's property list.
+3. `PUT /webmasters/v3/sites/https%3A%2F%2Fyourechoagent.com%2F/sitemaps/https%3A%2F%2Fyourechoagent.com%2Fsitemap.xml` → submits the sitemap.
+4. Repeat steps 1–3 for `https://www.yourechoagent.com/` (apex + www are separate GSC properties).
 
-### 1. Branding consistency
-- `name`: change `"Your Echo Agent"` → `"Echo Agent"` (matches `<title>`, OG tags, domain). Keep `provider.organization` as `"Echo Agent"` too.
-- `iconUrl`: swap `/favicon.ico` for the hosted PNG/WebP logo already used in JSON-LD (`https://storage.googleapis.com/.../echo_agent_logo.webp`). Registries render this as the card thumbnail; .ico looks broken.
+If a call returns `failedToFindMetaTag`, surface that and stop — means latest deploy hasn't propagated.
 
-### 2. Richer top-level metadata (A2A 0.3.0 optional fields registries index)
-Add:
-- `tags`: `["outreach", "cold-email", "lead-generation", "linkedin", "b2b", "marketing", "sales-automation", "marketplace"]`
-- `category`: `"marketing-and-sales"`
-- `homepage`: `"https://yourechoagent.com"` (some registries read this instead of `provider.url`)
-- `termsOfServiceUrl`: `https://yourechoagent.com/terms`
-- `privacyPolicyUrl`: `https://yourechoagent.com/privacy`
-- `contact`: `{ "email": "hello@yourechoagent.com", "url": "https://yourechoagent.com/for-agents" }`
+## Step 2 — AI-discovery metadata (file edits only)
+- **Create `public/.well-known/ai-plugin.json`** — ChatGPT plugin spec pointing at `a2a-openapi`. Includes `name_for_model`, `description_for_model`, `auth.type=user_http`, `api.url`, contact, legal links, logo.
+- **Rewrite `public/llms.txt`** — concise index: project summary, links to docs, OpenAPI, agent-card, agent.json, pricing, contact. Markdown-style per llmstxt.org spec.
+- **Create `public/llms-full.txt`** — long-form: full overview, all 6 skills with examples, 4 ready-to-run curl snippets (list agents, get card, hire, get job), webhook signature spec, error codes, rate limits, idempotency. This is what AI assistants will ingest end-to-end.
+- **Add per-agent JSON-LD** — second `<script type="application/ld+json">` block in `index.html` with a `SoftwareApplication` graph (one node per skill + parent `SoftwareApplication` for Echo Agent itself, with `offers`, `applicationCategory`, `featureList`).
 
-### 3. `additionalInterfaces` — expose REST alongside JSONRPC
-Registries that don't speak JSONRPC will skip the card. Add:
-```json
-"additionalInterfaces": [
-  { "transport": "JSONRPC", "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-jsonrpc" },
-  { "transport": "HTTP+JSON", "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list" }
-]
-```
-Keep `preferredTransport: "JSONRPC"`.
+## Step 3 — Quickstart panel on `/for-agents`
+Add a `<QuickstartSnippets />` component above the existing fold content:
+- Tabs: `curl` · `TypeScript (fetch)` · `Python` · `MCP client` · `LangChain tool wrapper`
+- Each tab: one syntax-highlighted code block + a "Copy" button (use existing toast for confirmation)
+- Below tabs: 3 small badges linking to `agent-card.json`, `agent.json`, OpenAPI spec
+- Styling: glass card, DM Sans, subtle Framer fade-in (matches brand memory)
+- No backend or schema changes — pure presentation in `src/pages/ForAgents.tsx` + a new `src/components/QuickstartSnippets.tsx`
 
-### 4. Skills polish
-For each of the 6 skills:
-- Add `pricing` hint (per-lead / per-reply cents) sourced from `a2a-openapi` schema, so registries can show "from $X / lead".
-- Trim `description` to ≤ 160 chars (registry list views truncate).
-- Keep `examples` (good for LLM-driven discovery) but cap at 2 each.
-- Add `outputSchema` reference: `"outputSchemaRef": "https://yourechoagent.com/.well-known/openapi.json#/components/schemas/Job"`.
+## Step 4 — Registry submissions checklist
+Create `docs/registry-submissions.md` with one section per target. Each section has: URL to submit, fields to paste (name, tagline, description, category, tags, logo URL, agent-card URL, contact), and a checkbox. Targets:
+- a2aregistry.org
+- wellknown.ai / agents.json directory
+- smithery.ai
+- Awesome-A2A (GitHub PR)
+- ProductHunt (AI Agents topic)
+- theresanaiforthat.com
+- futurepedia.io
+- aiagentsdirectory.com
+- Hugging Face Spaces (Agents)
+- Anthropic MCP Registry (when public — note as pending)
 
-### 5. Security scheme clarity
-- Rename key from `"bearer"` to `"echoApiKey"` (more descriptive in registry UIs).
-- Add `bearerFormat: "eak_*"` so consumers know the token shape.
-- Add a second scheme entry referencing the OAuth/JWT user flow for hosted-UI callers (optional, matches OpenAPI's `UserJWT`).
-
-### 6. Discovery cross-links
-Add:
-- `"openapi": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi"` (parity with `agent.json`).
-- `"wellKnownUrl": "https://yourechoagent.com/.well-known/agent-card.json"` (self-reference some registries require for canonicalization).
-- `"protocol": "a2a/0.3.0"` (mirrors `agent.json`).
-
-### 7. Keep both files in sync
-After updating `agent-card.json`, mirror the new fields (name, tags, contact, iconUrl) into:
-- `public/.well-known/agent.json`
-- `public/agent.json`
-- `supabase/functions/well-known-agent/index.ts` (dynamic version)
+Also include a "Pre-copy assets" block at top: canonical name, 60-char tagline, 160-char description, logo URL, screenshot URL, category, tags array — so the user pastes from one place.
 
 ## Out of scope
-- No edge-function logic changes.
-- No new endpoints — only metadata fields the existing functions already implement.
-- No DB or auth changes.
+- SDK / examples repo (step 5) — defer.
+- Paid placements — user decides.
+- New backend endpoints or schema changes — none needed.
 
-## Validation
-After edits:
-1. `curl https://yourechoagent.com/.well-known/agent-card.json | jq` — confirm valid JSON and all URLs resolve.
-2. Paste into the A2A registry validator (a2aregistry.org/validate) — expect zero schema errors.
-3. Confirm `iconUrl` loads in a browser (200 OK, image content-type).
+## Validation after build
+1. `curl https://yourechoagent.com/.well-known/ai-plugin.json | jq` — valid JSON, links resolve.
+2. `curl https://yourechoagent.com/llms.txt` and `/llms-full.txt` — return text/plain.
+3. GSC API call returns `verified: true` for both properties.
+4. Visit `/for-agents` preview — quickstart tabs render, copy buttons work.
