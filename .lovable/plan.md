@@ -1,32 +1,63 @@
-## Google Search Console Verification Plan
+# Optimize A2A Agent Card for Registries
 
-### Goal
-Verify `https://yourechoagent.com/` with Google Search Console so the site can be listed in A2A directories and tracked for search performance.
+Tighten `public/.well-known/agent-card.json` so it scores well on A2A registries (a2aregistry.org, agents.json directories, MCP/A2A crawlers) and matches the A2A 0.3.0 spec more completely.
 
-### Steps
+## Changes
 
-1. **Link Google Search Console connector to project**
-   - Link "Natasha's Google Search Console" (workspace connection) to this project so the gateway API key becomes available in edge functions.
+### 1. Branding consistency
+- `name`: change `"Your Echo Agent"` → `"Echo Agent"` (matches `<title>`, OG tags, domain). Keep `provider.organization` as `"Echo Agent"` too.
+- `iconUrl`: swap `/favicon.ico` for the hosted PNG/WebP logo already used in JSON-LD (`https://storage.googleapis.com/.../echo_agent_logo.webp`). Registries render this as the card thumbnail; .ico looks broken.
 
-2. **Request META verification token**
-   - Call the Google Site Verification API via the Lovable connector gateway to obtain a `google-site-verification` meta tag token for `https://yourechoagent.com/`.
+### 2. Richer top-level metadata (A2A 0.3.0 optional fields registries index)
+Add:
+- `tags`: `["outreach", "cold-email", "lead-generation", "linkedin", "b2b", "marketing", "sales-automation", "marketplace"]`
+- `category`: `"marketing-and-sales"`
+- `homepage`: `"https://yourechoagent.com"` (some registries read this instead of `provider.url`)
+- `termsOfServiceUrl`: `https://yourechoagent.com/terms`
+- `privacyPolicyUrl`: `https://yourechoagent.com/privacy`
+- `contact`: `{ "email": "hello@yourechoagent.com", "url": "https://yourechoagent.com/for-agents" }`
 
-3. **Inject meta tag into `index.html`**
-   - Add `<meta name="google-site-verification" content="<TOKEN>" />` inside the `<head>` of `public/index.html` (or `index.html` root).
+### 3. `additionalInterfaces` — expose REST alongside JSONRPC
+Registries that don't speak JSONRPC will skip the card. Add:
+```json
+"additionalInterfaces": [
+  { "transport": "JSONRPC", "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-jsonrpc" },
+  { "transport": "HTTP+JSON", "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list" }
+]
+```
+Keep `preferredTransport: "JSONRPC"`.
 
-4. **Publish/deploy the site**
-   - Ensure the meta tag is live at the root domain before Google fetches it.
+### 4. Skills polish
+For each of the 6 skills:
+- Add `pricing` hint (per-lead / per-reply cents) sourced from `a2a-openapi` schema, so registries can show "from $X / lead".
+- Trim `description` to ≤ 160 chars (registry list views truncate).
+- Keep `examples` (good for LLM-driven discovery) but cap at 2 each.
+- Add `outputSchema` reference: `"outputSchemaRef": "https://yourechoagent.com/.well-known/openapi.json#/components/schemas/Job"`.
 
-5. **Call Google verify endpoint**
-   - Invoke the verification API again to confirm Google sees the meta tag and marks the site as verified.
+### 5. Security scheme clarity
+- Rename key from `"bearer"` to `"echoApiKey"` (more descriptive in registry UIs).
+- Add `bearerFormat: "eak_*"` so consumers know the token shape.
+- Add a second scheme entry referencing the OAuth/JWT user flow for hosted-UI callers (optional, matches OpenAPI's `UserJWT`).
 
-6. **Add site to Search Console property list**
-   - Register the verified site so it appears in the user's Search Console dashboard and can be used for A2A directory submission.
+### 6. Discovery cross-links
+Add:
+- `"openapi": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi"` (parity with `agent.json`).
+- `"wellKnownUrl": "https://yourechoagent.com/.well-known/agent-card.json"` (self-reference some registries require for canonicalization).
+- `"protocol": "a2a/0.3.0"` (mirrors `agent.json`).
 
-### Verification Checklist
-- [ ] Meta tag visible in page source at `https://yourechoagent.com/`
-- [ ] Google Search Console API returns `200` on verify call
-- [ ] Site appears in Search Console dashboard
+### 7. Keep both files in sync
+After updating `agent-card.json`, mirror the new fields (name, tags, contact, iconUrl) into:
+- `public/.well-known/agent.json`
+- `public/agent.json`
+- `supabase/functions/well-known-agent/index.ts` (dynamic version)
 
-### A2A Directory Impact
-Once verified, the site will have Google Search Console ownership proof, which many A2A agent registries (e.g., Google A2A, AgentScope) require before accepting agent manifest submissions.
+## Out of scope
+- No edge-function logic changes.
+- No new endpoints — only metadata fields the existing functions already implement.
+- No DB or auth changes.
+
+## Validation
+After edits:
+1. `curl https://yourechoagent.com/.well-known/agent-card.json | jq` — confirm valid JSON and all URLs resolve.
+2. Paste into the A2A registry validator (a2aregistry.org/validate) — expect zero schema errors.
+3. Confirm `iconUrl` loads in a browser (200 OK, image content-type).

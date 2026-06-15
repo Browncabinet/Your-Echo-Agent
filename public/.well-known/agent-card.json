@@ -1,16 +1,32 @@
 {
   "protocolVersion": "0.3.0",
-  "name": "Your Echo Agent",
+  "protocol": "a2a/0.3.0",
+  "name": "Echo Agent",
   "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email and LinkedIn outreach campaigns to specialized AI agents covering B2B SaaS, agencies, ecommerce, founders, local services, and PR.",
   "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-jsonrpc",
   "preferredTransport": "JSONRPC",
+  "additionalInterfaces": [
+    { "transport": "JSONRPC", "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-jsonrpc" },
+    { "transport": "HTTP+JSON", "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agents-list" }
+  ],
+  "homepage": "https://yourechoagent.com",
+  "wellKnownUrl": "https://yourechoagent.com/.well-known/agent-card.json",
   "provider": {
-    "organization": "Your Echo Agent",
+    "organization": "Echo Agent",
     "url": "https://yourechoagent.com"
+  },
+  "contact": {
+    "email": "hello@yourechoagent.com",
+    "url": "https://yourechoagent.com/for-agents"
   },
   "version": "0.3.0",
   "documentationUrl": "https://yourechoagent.com/for-agents/docs",
-  "iconUrl": "https://yourechoagent.com/favicon.ico",
+  "openapi": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi",
+  "termsOfServiceUrl": "https://yourechoagent.com/terms",
+  "privacyPolicyUrl": "https://yourechoagent.com/privacy",
+  "iconUrl": "https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp",
+  "tags": ["outreach", "cold-email", "lead-generation", "linkedin", "b2b", "marketing", "sales-automation", "marketplace"],
+  "category": "marketing-and-sales",
   "capabilities": {
     "streaming": false,
     "pushNotifications": true,
@@ -19,25 +35,34 @@
   "defaultInputModes": ["application/json", "text/plain"],
   "defaultOutputModes": ["application/json"],
   "securitySchemes": {
-    "bearer": {
+    "echoApiKey": {
       "type": "http",
       "scheme": "bearer",
+      "bearerFormat": "eak_*",
       "description": "Echo Agent API key (prefix: eak_). Obtain at https://yourechoagent.com/for-agents/register"
+    },
+    "userJwt": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT",
+      "description": "Signed-in user JWT for hosted UI callers."
     }
   },
-  "security": [{ "bearer": [] }],
+  "security": [{ "echoApiKey": [] }, { "userJwt": [] }],
   "skills": [
     {
       "id": "saas-prospector",
       "name": "SaaS Prospector",
-      "description": "Finds decision-makers at B2B SaaS companies and writes personalized cold emails referencing their product, recent funding, or growth signals.",
+      "description": "Finds decision-makers at B2B SaaS companies and writes personalized cold emails referencing product, funding, or growth signals.",
       "tags": ["email_outreach", "lead_research", "linkedin_assist", "b2b", "saas"],
       "examples": [
         "Find 50 Heads of Growth at Series A SaaS companies in fintech and draft personalized outreach.",
         "Research 20 SaaS founders who just raised seed rounds and write intro emails about our analytics tool."
       ],
       "inputModes": ["application/json", "text/plain"],
-      "outputModes": ["application/json"]
+      "outputModes": ["application/json"],
+      "pricing": { "perLeadCents": 25, "perReplyCents": 100, "currency": "usd" },
+      "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     },
     {
       "id": "agency-closer",
@@ -45,10 +70,13 @@
       "description": "Targets marketing agency owners and CMOs with case-study driven emails optimized for booking discovery calls.",
       "tags": ["email_outreach", "lead_research", "linkedin_assist", "agencies", "marketing"],
       "examples": [
-        "Reach out to 40 agency owners with 10-50 employees and book discovery calls for our white-label SEO service."
+        "Reach out to 40 agency owners with 10-50 employees and book discovery calls for our white-label SEO service.",
+        "Pitch 25 boutique creative agencies on a new AI ad-copy tool."
       ],
       "inputModes": ["application/json", "text/plain"],
-      "outputModes": ["application/json"]
+      "outputModes": ["application/json"],
+      "pricing": { "perLeadCents": 25, "perReplyCents": 100, "currency": "usd" },
+      "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     },
     {
       "id": "ecom-hunter",
@@ -56,21 +84,27 @@
       "description": "Finds Shopify and DTC brands hitting growth milestones and pitches relevant services in CAC, AOV, and LTV terms.",
       "tags": ["email_outreach", "lead_research", "ecommerce", "dtc", "shopify"],
       "examples": [
-        "Find Shopify brands doing $1M-10M revenue in skincare and pitch our retention email service."
+        "Find Shopify brands doing $1M-10M revenue in skincare and pitch our retention email service.",
+        "Reach DTC supplement brands launching new SKUs with a CRO offer."
       ],
       "inputModes": ["application/json", "text/plain"],
-      "outputModes": ["application/json"]
+      "outputModes": ["application/json"],
+      "pricing": { "perLeadCents": 25, "perReplyCents": 100, "currency": "usd" },
+      "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     },
     {
       "id": "founder-friend",
       "name": "Founder Friend",
-      "description": "Warm, peer-to-peer outreach from one founder to another. Great for partnerships, intros, and early-stage collaborations.",
+      "description": "Warm peer-to-peer outreach from one founder to another. Great for partnerships, intros, and early-stage collaborations.",
       "tags": ["email_outreach", "lead_research", "founders", "partnerships"],
       "examples": [
-        "Send warm intro emails to 30 fellow YC founders about a potential integration partnership."
+        "Send warm intro emails to 30 fellow YC founders about a potential integration partnership.",
+        "Reach 20 indie hackers building dev-tools for a co-marketing swap."
       ],
       "inputModes": ["application/json", "text/plain"],
-      "outputModes": ["application/json"]
+      "outputModes": ["application/json"],
+      "pricing": { "perLeadCents": 20, "perReplyCents": 80, "currency": "usd" },
+      "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     },
     {
       "id": "local-pro",
@@ -78,21 +112,27 @@
       "description": "Outreach to local service businesses (dentists, real estate, contractors) with locally-relevant, no-fluff pitches.",
       "tags": ["email_outreach", "lead_research", "local_business", "services"],
       "examples": [
-        "Find 100 dental practices in Austin and pitch our patient-booking software."
+        "Find 100 dental practices in Austin and pitch our patient-booking software.",
+        "Reach 50 HVAC contractors in Phoenix with a lead-gen offer."
       ],
       "inputModes": ["application/json", "text/plain"],
-      "outputModes": ["application/json"]
+      "outputModes": ["application/json"],
+      "pricing": { "perLeadCents": 20, "perReplyCents": 80, "currency": "usd" },
+      "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     },
     {
       "id": "press-pitcher",
       "name": "Press Pitcher",
-      "description": "Pitches journalists and podcasters with newsworthy angles. Researches recent articles to craft relevant, non-spammy outreach.",
+      "description": "Pitches journalists and podcasters with newsworthy angles. Researches recent coverage to craft relevant, non-spammy outreach.",
       "tags": ["email_outreach", "lead_research", "pr", "media", "podcasts"],
       "examples": [
-        "Pitch 25 tech journalists who recently covered AI agents about our product launch."
+        "Pitch 25 tech journalists who recently covered AI agents about our product launch.",
+        "Find 30 podcast hosts in the SaaS niche and pitch our founder as a guest."
       ],
       "inputModes": ["application/json", "text/plain"],
-      "outputModes": ["application/json"]
+      "outputModes": ["application/json"],
+      "pricing": { "perLeadCents": 30, "perReplyCents": 120, "currency": "usd" },
+      "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     }
   ],
   "supportsAuthenticatedExtendedCard": false
