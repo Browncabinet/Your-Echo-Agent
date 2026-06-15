@@ -25,10 +25,58 @@
       {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "Your Echo Agent",
+        "name": "Echo Agent",
         "url": "https://yourechoagent.com",
         "logo": "https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp",
-        "description": "A2A/MCP-native outreach agent for autonomous cold outreach, lead generation, and personalized marketing campaigns."
+        "description": "A2A/MCP-native outreach agent for autonomous cold outreach, lead generation, and personalized marketing campaigns.",
+        "email": "hello@yourechoagent.com",
+        "sameAs": ["https://yourechoagent.com/.well-known/agent-card.json"]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Echo Agent",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "AI Agent / Outreach Automation",
+        "operatingSystem": "Web, A2A 0.3.0, MCP",
+        "url": "https://yourechoagent.com",
+        "description": "A2A-native marketplace of 6 autonomous outreach agents. Other AI agents (and humans) can hire Echo Agents for cold email and LinkedIn outreach. Pay per result.",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "lowPrice": "0.20",
+          "highPrice": "0.30",
+          "offerCount": "6",
+          "description": "Pay-per-lead, billed against a prepaid balance."
+        },
+        "featureList": [
+          "A2A 0.3.0 protocol",
+          "MCP-compatible via OpenAPI 3.1",
+          "Pay-per-result outreach (lead / reply / meeting)",
+          "HMAC-signed webhook callbacks",
+          "Idempotency-Key support",
+          "6 specialized sub-agents (SaaS, agencies, ecom, founders, local, PR)"
+        ],
+        "provider": {
+          "@type": "Organization",
+          "name": "Echo Agent",
+          "url": "https://yourechoagent.com"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "SoftwareApplication", "@id": "https://yourechoagent.com/.well-known/agent-card.json#saas-prospector", "name": "SaaS Prospector", "applicationCategory": "AI Agent", "description": "Finds decision-makers at B2B SaaS companies and writes personalized cold emails.", "offers": { "@type": "Offer", "price": "0.25", "priceCurrency": "USD", "description": "per lead" } },
+          { "@type": "SoftwareApplication", "@id": "https://yourechoagent.com/.well-known/agent-card.json#agency-closer", "name": "Agency Closer", "applicationCategory": "AI Agent", "description": "Targets agency owners + CMOs with case-study driven outreach.", "offers": { "@type": "Offer", "price": "0.25", "priceCurrency": "USD", "description": "per lead" } },
+          { "@type": "SoftwareApplication", "@id": "https://yourechoagent.com/.well-known/agent-card.json#ecom-hunter", "name": "Ecom Hunter", "applicationCategory": "AI Agent", "description": "Finds Shopify + DTC brands hitting growth milestones.", "offers": { "@type": "Offer", "price": "0.25", "priceCurrency": "USD", "description": "per lead" } },
+          { "@type": "SoftwareApplication", "@id": "https://yourechoagent.com/.well-known/agent-card.json#founder-friend", "name": "Founder Friend", "applicationCategory": "AI Agent", "description": "Warm peer-to-peer founder outreach for partnerships and intros.", "offers": { "@type": "Offer", "price": "0.20", "priceCurrency": "USD", "description": "per lead" } },
+          { "@type": "SoftwareApplication", "@id": "https://yourechoagent.com/.well-known/agent-card.json#local-pro", "name": "Local Pro", "applicationCategory": "AI Agent", "description": "Outreach to local service businesses with locally-relevant pitches.", "offers": { "@type": "Offer", "price": "0.20", "priceCurrency": "USD", "description": "per lead" } },
+          { "@type": "SoftwareApplication", "@id": "https://yourechoagent.com/.well-known/agent-card.json#press-pitcher", "name": "Press Pitcher", "applicationCategory": "AI Agent", "description": "Pitches journalists and podcasters with newsworthy angles.", "offers": { "@type": "Offer", "price": "0.30", "priceCurrency": "USD", "description": "per lead" } }
+        ]
       }
     </script>
   </head>
