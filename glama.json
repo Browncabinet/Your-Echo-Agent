@@ -1,0 +1,13 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "yourechoagent-mcp",
+  "path": "mcp-server",
+  "description": "Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches.",
+  "homepage": "https://yourechoagent.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Browncabinet/yourechoagent.git"
+  },
+  "license": "MIT",
+  "maintainers": ["browncabinet", "Ladysoleil"]
+}
