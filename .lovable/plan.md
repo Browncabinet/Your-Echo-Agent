@@ -1,32 +1,42 @@
-## Status: Stripe is already enabled in this project
+## Goal
+Keep the MCP server as `mcp-server/` inside the main Lovable repo, and make Glama pull/build from that subfolder so updates flow automatically when you push.
 
-Good news — you don't need to enable Stripe again. The full integration is already wired up:
+## Prerequisites
+1. **Confirm GitHub is connected to this Lovable project.** Open the Plus (+) menu → GitHub. If not connected: click **Connect project**, pick the `Browncabinet` org, and create a repo (suggest name `yourechoagent`). Lovable auto-syncs both ways after that — every chat edit pushes to `main`.
+2. There is no need for me to create a branch for the MCP work — since it's a subfolder, edits ship straight to `main` via Lovable's sync. Branches are only useful if you want to develop the MCP server locally in an IDE; tell me if so and I'll outline that flow instead.
 
-- **Test mode key** is active: `VITE_PAYMENTS_CLIENT_TOKEN` starts with `pk_test_` (orange "Payments are in test mode" banner shows)
-- **Live secret key** is stored as `STRIPE_LIVE_SECRET_KEY` for when you go live
-- **Webhook secrets** present: `PAYMENTS_LIVE_WEBHOOK_SECRET`
-- **Edge functions live**: `create-checkout`, `payments-webhook`, `create-portal-session`, `get-stripe-price`
-- **Checkout UI**: `StripeEmbeddedCheckout`, `TopupCheckoutDialog`, `/checkout/return` page
-- **Products configured** with lookup keys: `starter_weekly` ($19), `growth_weekly` ($39), `power_weekly` ($79), plus `topup_500/1000/2500` and A2A credit packs
-- **Subscriptions table** + `current_week_caps()` SQL function enforce weekly caps in send functions
+## What I'll do in build mode
 
-## What "enable + test checkout" means here
+### 1. Make the subfolder Glama-ready
+- **Move `mcp-server/glama.json` to the repo root as `glama.json`** and set `"path": "mcp-server"` so Glama knows where the package lives. Glama's scanner looks for the manifest at the repo root.
+- Add top-level metadata Glama uses: `name`, `description`, `homepage` (`https://yourechoagent.com`), `repository`, `license` (`MIT`), and a `maintainers` block pointing at `@Ladysoleil`.
+- Keep `mcp-server/package.json`, `tsup.config.ts`, and `src/` exactly as they are — no code changes.
 
-Since payments are already enabled, the plan is just to **verify the test flow end-to-end** — no code changes needed unless something is broken.
+### 2. Add a root README pointer
+- Append a short "MCP Server" section to the project's root `README.md` linking to `mcp-server/README.md`. Glama and humans both check the root README first.
 
-### Steps for you to run (manual, ~3 minutes)
-1. Open `/pricing` in the preview
-2. Click **Starter ($19/wk)** → Stripe embedded checkout loads
-3. Use test card `4242 4242 4242 4242`, any future expiry, any CVC, any ZIP
-4. Submit → you should land on `/checkout/return` with success
-5. Confirm in DB: a row appears in `subscriptions` with `status=active`, and `current_week_caps()` returns Starter limits for your user
+### 3. Add a GitHub Actions release workflow (optional but recommended for Glama)
+- New file: `.github/workflows/publish-mcp.yml`
+- Triggers on tags matching `mcp-v*` (so tagging `mcp-v0.1.1` cuts a release without touching the main app).
+- Steps: checkout → setup Node 20 → `cd mcp-server && npm ci && npm run build && npm publish --access public`.
+- Needs one repo secret: `NPM_TOKEN` (you'll add it in GitHub → Settings → Secrets after the repo is connected; I'll surface a reminder in chat).
 
-### What I would change in code
-**Nothing** — unless step 1–5 fails. If it does, tell me which step and I'll diagnose (likely candidates: webhook secret mismatch, price lookup_key not created in Stripe sandbox, or return URL).
+### 4. Submit to Glama
+- After the next push, you go to `https://glama.ai/mcp/servers/add`, paste the GitHub repo URL, and Glama will read the root `glama.json` and index `mcp-server/`. No further config needed.
 
-### When you're ready for live payments
-Separate flow — you'd claim the Stripe account in the Lovable Payments panel, then I can swap `VITE_PAYMENTS_CLIENT_TOKEN` to the live `pk_live_` key. Tell me when you want to do that.
+## Files changed
+- `glama.json` (created at root, copied from `mcp-server/glama.json`)
+- `mcp-server/glama.json` (deleted to avoid duplicate)
+- `README.md` (small section appended)
+- `.github/workflows/publish-mcp.yml` (created)
+
+## What I will NOT touch
+- `src/`, `supabase/functions/`, anything in the main app
+- The published Lovable site
+- The MCP server's source code or `package.json`
 
 ---
 
-**Confirm:** Do you want to (a) just run the test checkout above and report back, or (b) have me proactively verify the sandbox `starter_weekly` price exists and the webhook is firing before you test?
+**Two things to confirm before I build:**
+1. Repo name when you create it on GitHub — `yourechoagent` ok, or different?
+2. Do you want the GitHub Actions auto-publish-to-npm workflow now (#3), or skip it for now and publish manually with `npm publish` from your machine the first time?
