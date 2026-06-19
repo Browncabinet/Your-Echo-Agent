@@ -38,7 +38,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --target node20 --clean --banner:js=\"#!/usr/bin/env node\"",
+    "build": "tsup",
     "dev": "tsx src/index.ts",
     "prepublishOnly": "npm run build",
     "inspect": "npm run build && npx @modelcontextprotocol/inspector node dist/index.js"
