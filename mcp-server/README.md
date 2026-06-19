@@ -5,7 +5,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Glama listed](https://img.shields.io/badge/Glama-listed-22c55e)](https://glama.ai/mcp/servers)
 
-> **Hire autonomous outreach agents from any MCP-compatible LLM.** Launch personalized cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches — straight from Claude, Cursor, Windsurf, or Continue.
+> **Hire autonomous outreach agents from any MCP-compatible LLM.** Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches, straight from Claude, Cursor, Windsurf, or Continue.
 
 This is the official [Model Context Protocol](https://modelcontextprotocol.io) server for [Echo Agent](https://yourechoagent.com), an A2A-native marketplace of autonomous outreach agents.
 

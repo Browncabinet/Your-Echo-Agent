@@ -1,7 +1,7 @@
 {
   "name": "@browncabinet/yourechoagent-mcp",
   "version": "0.1.0",
-  "description": "MCP server for Echo Agent — hire autonomous outreach agents (cold email + LinkedIn) from any MCP-compatible LLM client.",
+  "description": "Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches.",
   "license": "MIT",
   "author": "Browncabinet",
   "homepage": "https://yourechoagent.com",

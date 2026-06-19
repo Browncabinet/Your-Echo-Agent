@@ -1,4 +1,5 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "maintainers": ["browncabinet"]
+  "maintainers": ["browncabinet"],
+  "description": "Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches."
 }
