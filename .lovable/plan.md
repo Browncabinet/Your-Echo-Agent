@@ -1,48 +1,32 @@
-## Goal
-Get the MCP server published to npm as `@browncabinet/yourechoagent-mcp` and live on GitHub at `Browncabinet/yourechoagent-mcp-server`, so Glama can verify the listing.
+## Status: Stripe is already enabled in this project
 
-## Part 1 — What I'll do inside this project
+Good news — you don't need to enable Stripe again. The full integration is already wired up:
 
-1. **Polish `mcp-server/package.json`** for npm publish:
-   - Confirm `name`, `version`, `description`, `bin`, `main`, `files`, `keywords`, `license`, `author`, `repository`, `homepage`, `bugs` fields.
-   - Add `"publishConfig": { "access": "public" }` (required for scoped package).
-   - Add `prepublishOnly` build script so `tsc` runs before publish.
-2. **Add `mcp-server/.npmignore`** (or rely on `files` whitelist) so only `dist/`, `README.md`, `LICENSE`, `glama.json` ship.
-3. **Verify `tsconfig.json`** outputs to `dist/` with declarations, and `bin` path matches the compiled file.
-4. **Smoke build** locally (`cd mcp-server && npm install && npm run build`) to confirm `dist/index.js` is produced and the shebang is intact.
+- **Test mode key** is active: `VITE_PAYMENTS_CLIENT_TOKEN` starts with `pk_test_` (orange "Payments are in test mode" banner shows)
+- **Live secret key** is stored as `STRIPE_LIVE_SECRET_KEY` for when you go live
+- **Webhook secrets** present: `PAYMENTS_LIVE_WEBHOOK_SECRET`
+- **Edge functions live**: `create-checkout`, `payments-webhook`, `create-portal-session`, `get-stripe-price`
+- **Checkout UI**: `StripeEmbeddedCheckout`, `TopupCheckoutDialog`, `/checkout/return` page
+- **Products configured** with lookup keys: `starter_weekly` ($19), `growth_weekly` ($39), `power_weekly` ($79), plus `topup_500/1000/2500` and A2A credit packs
+- **Subscriptions table** + `current_week_caps()` SQL function enforce weekly caps in send functions
 
-## Part 2 — What you'll do manually (I can't do these for you)
+## What "enable + test checkout" means here
 
-These require your accounts and credentials, which I don't have access to:
+Since payments are already enabled, the plan is just to **verify the test flow end-to-end** — no code changes needed unless something is broken.
 
-### A. Create the GitHub repo
-1. Go to https://github.com/new
-2. Owner: `Browncabinet`, Repo name: `yourechoagent-mcp-server`, Public, no README/license/gitignore (we already have them).
-3. On your machine:
-   ```bash
-   cd mcp-server
-   git init
-   git add .
-   git commit -m "Initial commit: Echo Agent MCP server"
-   git branch -M main
-   git remote add origin https://github.com/Browncabinet/yourechoagent-mcp-server.git
-   git push -u origin main
-   ```
+### Steps for you to run (manual, ~3 minutes)
+1. Open `/pricing` in the preview
+2. Click **Starter ($19/wk)** → Stripe embedded checkout loads
+3. Use test card `4242 4242 4242 4242`, any future expiry, any CVC, any ZIP
+4. Submit → you should land on `/checkout/return` with success
+5. Confirm in DB: a row appears in `subscriptions` with `status=active`, and `current_week_caps()` returns Starter limits for your user
 
-### B. Publish to npm
-1. Create npm account at https://npmjs.com/signup if you don't have one.
-2. Create the `@browncabinet` org at https://www.npmjs.com/org/create (free for public packages).
-3. On your machine:
-   ```bash
-   cd mcp-server
-   npm login
-   npm publish --access public
-   ```
-4. Verify at `https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp`.
+### What I would change in code
+**Nothing** — unless step 1–5 fails. If it does, tell me which step and I'll diagnose (likely candidates: webhook secret mismatch, price lookup_key not created in Stripe sandbox, or return URL).
 
-### C. Tell Glama
-If Glama already accepted the submission, no action needed — they'll detect the live npm + GitHub. If they emailed asking for the repo URL, reply with both links.
+### When you're ready for live payments
+Separate flow — you'd claim the Stripe account in the Lovable Payments panel, then I can swap `VITE_PAYMENTS_CLIENT_TOKEN` to the live `pk_live_` key. Tell me when you want to do that.
 
-## Notes
-- The `mcp-server/` folder currently lives inside this Lovable project. For the GitHub repo you'll push **only the `mcp-server/` contents** as the repo root (not the whole Lovable project). The `cd mcp-server && git init` above does exactly that.
-- Future updates: bump `version` in `package.json`, `npm publish` again, `git push` to GitHub.
+---
+
+**Confirm:** Do you want to (a) just run the test checkout above and report back, or (b) have me proactively verify the sandbox `starter_weekly` price exists and the webhook is firing before you test?
