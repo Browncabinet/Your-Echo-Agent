@@ -1,52 +1,103 @@
-# Execute Adoption Push (Steps 1–4)
+# Echo Agent MCP Server — Plan
 
-Skipping step 5 (SDK + examples repo) per the user's note — separate session.
+## Important upfront note
+I can't create GitHub repos or push code from here. I'll build the full MCP server **inside this project** under a new top-level folder `mcp-server/` (isolated from the Vite app — won't affect the web build). You'll then:
+1. Download the `mcp-server/` folder from the Lovable code editor (or via the connected GitHub sync), OR
+2. Create the `Browncabinet/yourechoagent-mcp-server` repo on GitHub and copy the folder contents in.
 
-## Step 1 — Google Search Console verify + add property + sitemap
-Run via `code--exec` against the gateway (no code changes):
-1. `POST /siteVerification/v1/webResource?verificationMethod=META` with `{"site":{"identifier":"https://yourechoagent.com/","type":"SITE"}}` → flips site to verified. (Meta tag is already deployed in `index.html`.)
-2. `PUT /webmasters/v3/sites/https%3A%2F%2Fyourechoagent.com%2F` → adds it to the user's property list.
-3. `PUT /webmasters/v3/sites/https%3A%2F%2Fyourechoagent.com%2F/sitemaps/https%3A%2F%2Fyourechoagent.com%2Fsitemap.xml` → submits the sitemap.
-4. Repeat steps 1–3 for `https://www.yourechoagent.com/` (apex + www are separate GSC properties).
+I'll give you exact terminal commands for the push + Glama submission at the end.
 
-If a call returns `failedToFindMetaTag`, surface that and stop — means latest deploy hasn't propagated.
+## Stack
+- **mcp-lite** (lightweight, TS-native MCP SDK) with **stdio transport** (Glama/Claude Desktop standard)
+- TypeScript, Node 20+, built with `tsup` → single `dist/index.js`
+- Zero runtime deps beyond `mcp-lite` + `zod`
+- Published as `@browncabinet/yourechoagent-mcp`
 
-## Step 2 — AI-discovery metadata (file edits only)
-- **Create `public/.well-known/ai-plugin.json`** — ChatGPT plugin spec pointing at `a2a-openapi`. Includes `name_for_model`, `description_for_model`, `auth.type=user_http`, `api.url`, contact, legal links, logo.
-- **Rewrite `public/llms.txt`** — concise index: project summary, links to docs, OpenAPI, agent-card, agent.json, pricing, contact. Markdown-style per llmstxt.org spec.
-- **Create `public/llms-full.txt`** — long-form: full overview, all 6 skills with examples, 4 ready-to-run curl snippets (list agents, get card, hire, get job), webhook signature spec, error codes, rate limits, idempotency. This is what AI assistants will ingest end-to-end.
-- **Add per-agent JSON-LD** — second `<script type="application/ld+json">` block in `index.html` with a `SoftwareApplication` graph (one node per skill + parent `SoftwareApplication` for Echo Agent itself, with `offers`, `applicationCategory`, `featureList`).
+## Folder layout
+```text
+mcp-server/
+├── src/
+│   ├── index.ts              # MCP server entrypoint (stdio)
+│   ├── client.ts             # Thin fetch wrapper around Echo A2A API
+│   ├── tools/
+│   │   ├── listAgents.ts
+│   │   ├── getAgentCard.ts
+│   │   ├── hireAgent.ts
+│   │   ├── getJobStatus.ts
+│   │   ├── controlJob.ts     # pause | resume | cancel
+│   │   └── rateJob.ts
+│   └── schemas.ts            # zod input schemas
+├── package.json
+├── tsconfig.json
+├── tsup.config.ts
+├── glama.json
+├── README.md
+├── CHANGELOG.md
+├── LICENSE                   # MIT
+└── .gitignore
+```
 
-## Step 3 — Quickstart panel on `/for-agents`
-Add a `<QuickstartSnippets />` component above the existing fold content:
-- Tabs: `curl` · `TypeScript (fetch)` · `Python` · `MCP client` · `LangChain tool wrapper`
-- Each tab: one syntax-highlighted code block + a "Copy" button (use existing toast for confirmation)
-- Below tabs: 3 small badges linking to `agent-card.json`, `agent.json`, OpenAPI spec
-- Styling: glass card, DM Sans, subtle Framer fade-in (matches brand memory)
-- No backend or schema changes — pure presentation in `src/pages/ForAgents.tsx` + a new `src/components/QuickstartSnippets.tsx`
+## Tools exposed
 
-## Step 4 — Registry submissions checklist
-Create `docs/registry-submissions.md` with one section per target. Each section has: URL to submit, fields to paste (name, tagline, description, category, tags, logo URL, agent-card URL, contact), and a checkbox. Targets:
-- a2aregistry.org
-- wellknown.ai / agents.json directory
-- smithery.ai
-- Awesome-A2A (GitHub PR)
-- ProductHunt (AI Agents topic)
-- theresanaiforthat.com
-- futurepedia.io
-- aiagentsdirectory.com
-- Hugging Face Spaces (Agents)
-- Anthropic MCP Registry (when public — note as pending)
+| Tool | Purpose | Key inputs |
+|---|---|---|
+| `list_available_agents` | Browse all 6 Echo agents, filter by niche/capability | `niche?`, `capability?` |
+| `get_agent_card` | Full agent details + pricing + skills | `agent_id` |
+| `hire_echo_agent` | Launch an outreach campaign | `agent_id`, `campaign{goal,target_audience,niche,volume,website_url}`, `sender_identity`, `spending_cap_cents?`, `callback_url?` |
+| `get_job_status` | Poll a running job | `job_id` |
+| `control_job` | Pause / resume / cancel | `job_id`, `action` |
+| `rate_job` | Submit 1–5 star rating after completion | `job_id`, `stars`, `feedback?` |
 
-Also include a "Pre-copy assets" block at top: canonical name, 60-char tagline, 160-char description, logo URL, screenshot URL, category, tags array — so the user pastes from one place.
+All tools return structured JSON content blocks. Errors mapped to MCP error responses with the HTTP body included.
 
-## Out of scope
-- SDK / examples repo (step 5) — defer.
-- Paid placements — user decides.
-- New backend endpoints or schema changes — none needed.
+## API wiring
+- Base URL: `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1` (the public A2A endpoints already shipped — `a2a-agents-list`, `a2a-agent-get`, `a2a-agent-hire`, `a2a-job-get`, `a2a-job-control`, `a2a-job-rate`)
+- Auth: `Authorization: Bearer ${ECHO_API_KEY}` (must start with `eak_`)
+- Optional `ECHO_API_BASE` env override for staging
 
-## Validation after build
-1. `curl https://yourechoagent.com/.well-known/ai-plugin.json | jq` — valid JSON, links resolve.
-2. `curl https://yourechoagent.com/llms.txt` and `/llms-full.txt` — return text/plain.
-3. GSC API call returns `verified: true` for both properties.
-4. Visit `/for-agents` preview — quickstart tabs render, copy buttons work.
+## glama.json
+```json
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["browncabinet"],
+  "env": [
+    {
+      "name": "ECHO_API_KEY",
+      "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",
+      "required": true
+    },
+    {
+      "name": "ECHO_API_BASE",
+      "description": "Override API base URL (defaults to production).",
+      "required": false
+    }
+  ]
+}
+```
+
+## README highlights
+- Glama install badge, npm version badge, MIT badge
+- One-click install snippets for **Claude Desktop**, **Cursor**, **Windsurf**, **Continue**, generic stdio
+- Tool reference table
+- Example prompts ("Hire the SaaS Prospector to find 50 fintech CTOs…")
+- Link back to `yourechoagent.com/for-agents`
+
+## CHANGELOG.md
+- `0.1.0` — Initial release, 6 tools, stdio transport
+
+## Suggested Glama short description
+> Hire autonomous outreach agents from Echo Agent — let your LLM launch personalized cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches via the A2A protocol.
+
+## After build — what I'll hand you
+1. **GitHub setup commands** (you create the empty repo, I give you the exact `git init` → `git remote add` → `git push` sequence)
+2. **Local test command** with MCP Inspector: `npx @modelcontextprotocol/inspector node mcp-server/dist/index.js`
+3. **Glama submission URL** (`https://glama.ai/mcp/servers/submit`) + pre-filled metadata
+4. **npm publish** commands (optional, for `@browncabinet/yourechoagent-mcp`)
+
+## Out of scope (ask if you want these)
+- Actually creating the GitHub repo (needs your account)
+- Publishing to npm (needs your `NPM_TOKEN`)
+- SSE/HTTP transport variant (stdio is the Glama standard)
+- Webhook receiver helper (callback handling stays on your app side)
+
+Approve and I'll build it.

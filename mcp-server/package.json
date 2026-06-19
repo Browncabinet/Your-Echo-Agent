@@ -1,0 +1,59 @@
+{
+  "name": "@browncabinet/yourechoagent-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Echo Agent — hire autonomous outreach agents (cold email + LinkedIn) from any MCP-compatible LLM client.",
+  "license": "MIT",
+  "author": "Browncabinet",
+  "homepage": "https://yourechoagent.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Browncabinet/yourechoagent-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Browncabinet/yourechoagent-mcp-server/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "echo-agent",
+    "a2a",
+    "outreach",
+    "cold-email",
+    "lead-generation",
+    "linkedin",
+    "claude",
+    "cursor",
+    "ai-agents"
+  ],
+  "type": "module",
+  "bin": {
+    "yourechoagent-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "glama.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --target node20 --clean --banner:js=\"#!/usr/bin/env node\"",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build",
+    "inspect": "npm run build && npx @modelcontextprotocol/inspector node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
