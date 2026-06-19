@@ -1,16 +1,48 @@
-## Update Glama Listing Description
+## Goal
+Get the MCP server published to npm as `@browncabinet/yourechoagent-mcp` and live on GitHub at `Browncabinet/yourechoagent-mcp-server`, so Glama can verify the listing.
 
-The current `mcp-server/glama.json` only contains a `$schema` and `maintainers` — it lacks a description field that Glama can display in its directory.
+## Part 1 — What I'll do inside this project
 
-### Changes
+1. **Polish `mcp-server/package.json`** for npm publish:
+   - Confirm `name`, `version`, `description`, `bin`, `main`, `files`, `keywords`, `license`, `author`, `repository`, `homepage`, `bugs` fields.
+   - Add `"publishConfig": { "access": "public" }` (required for scoped package).
+   - Add `prepublishOnly` build script so `tsc` runs before publish.
+2. **Add `mcp-server/.npmignore`** (or rely on `files` whitelist) so only `dist/`, `README.md`, `LICENSE`, `glama.json` ship.
+3. **Verify `tsconfig.json`** outputs to `dist/` with declarations, and `bin` path matches the compiled file.
+4. **Smoke build** locally (`cd mcp-server && npm install && npm run build`) to confirm `dist/index.js` is produced and the shebang is intact.
 
-1. **`mcp-server/glama.json`** — add a `description` field with the founder angle:
-   > "Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches."
+## Part 2 — What you'll do manually (I can't do these for you)
 
-2. **`mcp-server/package.json`** — update the `description` field to match the new Glama description so npm and Glama stay in sync.
+These require your accounts and credentials, which I don't have access to:
 
-3. **`mcp-server/README.md`** — update the top tagline (line 8) to weave in the founder angle so the README narrative stays consistent with the Glama listing.
+### A. Create the GitHub repo
+1. Go to https://github.com/new
+2. Owner: `Browncabinet`, Repo name: `yourechoagent-mcp-server`, Public, no README/license/gitignore (we already have them).
+3. On your machine:
+   ```bash
+   cd mcp-server
+   git init
+   git add .
+   git commit -m "Initial commit: Echo Agent MCP server"
+   git branch -M main
+   git remote add origin https://github.com/Browncabinet/yourechoagent-mcp-server.git
+   git push -u origin main
+   ```
 
-### Out of scope
-- No code or tool changes.
-- No npm publish or GitHub push — the user handles that after approving.
+### B. Publish to npm
+1. Create npm account at https://npmjs.com/signup if you don't have one.
+2. Create the `@browncabinet` org at https://www.npmjs.com/org/create (free for public packages).
+3. On your machine:
+   ```bash
+   cd mcp-server
+   npm login
+   npm publish --access public
+   ```
+4. Verify at `https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp`.
+
+### C. Tell Glama
+If Glama already accepted the submission, no action needed — they'll detect the live npm + GitHub. If they emailed asking for the repo URL, reply with both links.
+
+## Notes
+- The `mcp-server/` folder currently lives inside this Lovable project. For the GitHub repo you'll push **only the `mcp-server/` contents** as the repo root (not the whole Lovable project). The `cd mcp-server && git init` above does exactly that.
+- Future updates: bump `version` in `package.json`, `npm publish` again, `git push` to GitHub.
