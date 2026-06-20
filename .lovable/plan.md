@@ -1,42 +1,26 @@
-## What’s actually failing
+The repeat failure is likely not fixed by another Glama metadata tweak. Glama’s current `glama.json` schema only supports `maintainers`, so release behavior is controlled by the Dockerfile/admin build spec. The most suspicious issue in the repo is that `mcp-server/package-lock.json` points many packages at Lovable’s private npm mirror (`europe-west4-npm.pkg.dev/lovable-core-prod/...`), which Glama’s Docker builder cannot access. That can make `npm ci` fail or cause Glama to fall back to building the root Vite app.
 
-Glama releases are containerized builds that start the MCP server and verify it responds. The current root `Dockerfile` only prints a message and exits, so even if Docker builds, Glama can still fail the review because there is no running MCP server.
+Plan:
 
-Do I know what the issue is? Yes: we should stop trying to bypass Glama’s Docker review and instead give it a real Docker image that runs the existing `mcp-server/` package.
+1. Replace the Docker install strategy
+   - Update the root `Dockerfile` so it does not rely on `mcp-server/package-lock.json`.
+   - Use npm’s public registry explicitly.
+   - Run `npm install` from `mcp-server/package.json`, then `npm run build`, then prune dev dependencies.
+   - Keep the final command as `node dist/index.js` so Glama can start and introspect the stdio MCP server.
 
-## Plan
+2. Tighten `.dockerignore`
+   - Keep only files needed for the Docker build.
+   - Do not include the private-mirror lockfile in the Docker context.
+   - Include `mcp-server/package.json`, `mcp-server/tsconfig.json`, `mcp-server/tsup.config.ts`, and `mcp-server/src/**`.
 
-1. **Replace the root `Dockerfile`**
-   - Use a Node 20 image.
-   - Copy only the `mcp-server` package files.
-   - Run `npm ci` and `npm run build` inside `mcp-server`.
-   - Start the real stdio MCP server with `node dist/index.js`.
+3. Add Glama-friendly environment docs to the image
+   - Add Docker labels for title/description/source.
+   - Add an `ECHO_API_KEY` placeholder env var in the Dockerfile so Glama’s admin form can map the required key, while the server still allows `tools/list` without a real key.
 
-2. **Fix `.dockerignore`**
-   - Keep the Docker context small, but include the files Docker actually needs:
-     - `mcp-server/package.json`
-     - `mcp-server/package-lock.json`
-     - `mcp-server/src/**`
-     - `mcp-server/tsconfig.json`
-     - `mcp-server/tsup.config.ts`
-     - `README.md`, `LICENSE`, `glama.json`
+4. Keep `glama.json` minimal
+   - Leave it as only `$schema` + `maintainers`, because the live schema rejects/ignores other fields.
 
-3. **Clean up `glama.json` for Glama’s real schema**
-   - Glama’s own docs say `glama.json` is mainly for ownership/claim metadata, especially `$schema` and `maintainers`.
-   - Add the maintainer GitHub username.
-   - Remove unsupported remote/Docker bypass fields that may be ignored or rejected by schema validation.
+5. Update release instructions
+   - Update the Glama docs note to say: in Glama Dockerfile admin page, build from root `Dockerfile`; set required env var `ECHO_API_KEY`; deploy; then make release.
 
-4. **Update the troubleshooting note**
-   - Replace the outdated “remote no-op Dockerfile” plan with the real release approach.
-
-## After implementation
-
-You’ll push/publish, then in Glama use the Dockerfile/release flow again. This time Glama should build a real MCP package instead of the full Vite app or an empty echo image.
-
-<presentation-actions>
-  <presentation-open-history>View History</presentation-open-history>
-</presentation-actions>
-
-<presentation-actions>
-<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
-</presentation-actions>
+After this, the next Glama review/release should build using public npm, start the real MCP server, and pass tool introspection instead of trying to build the root website or using inaccessible package URLs.
