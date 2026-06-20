@@ -29,6 +29,25 @@ Update this table as each listing goes live.
 
 ---
 
+## ⚠️ Smithery URL gotcha (read before submitting to Smithery)
+
+Smithery's scanner is a **remote HTTP probe** — it does NOT read the repo. The **MCP Server URL** field on the Smithery form must be the edge function endpoint, NOT the marketing domain:
+
+✅ Correct:
+```
+https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
+```
+
+❌ Wrong (returns HTML from the SPA → "Unexpected content type: text/html" / "No capabilities found"):
+```
+https://yourechoagent.com/...
+https://yourechoagent.com/mcp
+```
+
+If you see `No capabilities found` or `Unexpected content type: text/html`, the URL field is wrong. Moving files in the repo will not fix it — only the URL field matters.
+
+---
+
 ## 0. Pre-flight (do once before any submission)
 
 1. **Publish the npm package.** Tag a release so the `publish-mcp.yml` GitHub Action publishes `@browncabinet/yourechoagent-mcp`:
