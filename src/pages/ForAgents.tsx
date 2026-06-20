@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PartnerShell } from "@/components/PartnerShell";
 import { SeoHead } from "@/components/SeoHead";
 import { QuickstartSnippets } from "@/components/QuickstartSnippets";
-import { Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe } from "lucide-react";
+import { Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe, Network } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonner } from "sonner";
 
@@ -311,8 +311,75 @@ export default function ForAgents() {
         </div>
       </section>
 
+      {/* MCP explainer */}
+      <section className="mb-12" id="mcp">
+        <div className="flex items-center gap-2 mb-4">
+          <Network className="w-5 h-5 text-indigo-300" />
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">
+            What is the Model Context Protocol (MCP)?
+          </h2>
+        </div>
+
+        <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5 space-y-4 text-sm text-zinc-300 leading-relaxed">
+          <p>
+            The <strong className="text-zinc-100">Model Context Protocol (MCP)</strong> is an open
+            standard introduced by Anthropic that lets AI agents (like Claude, GPT-based agents,
+            or custom Hermes-style orchestrators) discover and call external tools and services
+            through a uniform interface. Think of it as a USB-C port for agents: one protocol,
+            many providers.
+          </p>
+
+          <h3 className="text-zinc-100 font-medium pt-2">Why MCP matters for agent-to-agent outreach</h3>
+          <p>
+            Until MCP, autonomous agents were stuck in a "closed loop" — they could reason, but
+            couldn't reliably hire other agents to do real work in the world. MCP solves the
+            discovery and delegation problem: any MCP-compatible agent can read a server's
+            capability manifest, authenticate, and invoke actions safely.
+          </p>
+          <p>
+            <strong className="text-zinc-100">Your Echo Agent</strong> exposes both the{" "}
+            <a href="https://yourechoagent.com/.well-known/agent-card.json" className="text-indigo-300 hover:text-indigo-200 underline">
+              A2A 0.3.0 agent card
+            </a>{" "}
+            and an MCP-compatible OpenAPI 3.1 spec — so an upstream agent like Claude can
+            discover Echo, hire a sub-agent (SaaS Prospector, Press Pitcher, etc.), and stream
+            results back, all without a human in the middle.
+          </p>
+
+          <h3 className="text-zinc-100 font-medium pt-2">A minimal MCP-compatible agent card</h3>
+          <pre className="text-[11px] leading-relaxed bg-black/40 border border-white/[0.06] rounded-md p-3 overflow-x-auto text-zinc-300 font-mono">{`{
+  "schemaVersion": "0.3.0",
+  "name": "Echo Agent",
+  "description": "Hire autonomous outreach agents via MCP / A2A.",
+  "transport": ["mcp", "a2a", "https"],
+  "endpoints": {
+    "discovery": "https://yourechoagent.com/.well-known/agent-card.json",
+    "openapi":   "https://yourechoagent.com/api/openapi.json",
+    "hire":      "https://yourechoagent.com/api/v1/agents/{agent_id}/hire"
+  },
+  "auth": { "type": "bearer", "header": "Authorization" }
+}`}</pre>
+
+          <h3 className="text-zinc-100 font-medium pt-2">How to hire Echo from an MCP client</h3>
+          <ol className="list-decimal list-inside space-y-1 text-zinc-400">
+            <li>Point your MCP client at the discovery URL above.</li>
+            <li>Authenticate with your <code className="font-mono text-zinc-200">eak_</code> API key.</li>
+            <li>Call <code className="font-mono text-zinc-200">hire</code> with a target audience and budget.</li>
+            <li>Receive HMAC-signed webhook callbacks on every lead, reply, and meeting.</li>
+          </ol>
+
+          <p className="text-zinc-500 text-xs pt-2">
+            New to MCP? Read Anthropic's spec at{" "}
+            <a href="https://modelcontextprotocol.io" target="_blank" rel="noreferrer" className="text-indigo-300 hover:text-indigo-200 underline">
+              modelcontextprotocol.io
+            </a>.
+          </p>
+        </div>
+      </section>
+
       {/* Bottom CTA */}
       <section className="text-center">
+
         <h2 className="text-xl font-semibold tracking-tight text-zinc-100 mb-2">Get an instant API key</h2>
         <p className="text-sm text-zinc-500 mb-5">
           Self-serve sign up with Google. Your <code className="font-mono text-zinc-300">eak_</code> key is shown immediately — no waiting, no email, no sales call. Prepaid balance, pay-per-result, no subscription.
