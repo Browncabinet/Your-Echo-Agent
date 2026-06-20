@@ -52,7 +52,10 @@ Update this table as each listing goes live.
 
 ## 1. Glama.ai (priority #1)
 
+📋 **Ready-to-paste submission card:** [`docs/glama-submission-card.md`](./glama-submission-card.md)
+
 Two paths — do both.
+
 
 ### Path A — Auto-discovery (passive)
 Glama periodically crawls public GitHub repos for a valid root-level `glama.json`. Yours is committed, so it will be picked up within 1–7 days automatically.
