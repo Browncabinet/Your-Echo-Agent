@@ -8,6 +8,8 @@
     "url": "https://github.com/Browncabinet/Your-Echo-Agent.git"
   },
   "license": "MIT",
+  "iconUrl": "https://yourechoagent.com/echo-agent-logo.png",
+  "logoUrl": "https://yourechoagent.com/echo-agent-logo.png",
   "maintainers": ["browncabinet", "Ladysoleil"],
   "remote": {
     "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
