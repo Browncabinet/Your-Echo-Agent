@@ -1,70 +1,50 @@
-## Issue
+# Publish the MCP server to npm (manual route)
 
-The Dockerfile release now builds successfully on Glama, but Glama shows:
+Since you have npm org access and admin on the GitHub repo, the fastest path is to publish directly from your laptop. No GitHub secrets needed.
 
-```
-This server cannot be installed
-```
+## Steps you run in your Terminal
 
-This is a separate problem from the Dockerfile build. Glama's "Install" button needs an **install manifest** describing how end users run the server in their MCP client (Claude Desktop, Cursor, etc.). Our current `glama.json` only has:
+```bash
+# 1. Make sure you're logged into the right npm account
+npm whoami
+# If not logged in:
+npm login
 
-```json
-{ "$schema": "...", "maintainers": ["Browncabinet"] }
-```
+# 2. Confirm you have publish rights to the scope
+npm access list packages @browncabinet
 
-There is no `install` block, no env schema, and no npm/stdio entrypoint declared — so Glama has nothing to generate an install snippet from, and marks the server uninstallable.
+# 3. Go to the MCP server folder inside your cloned repo
+cd ~/path/to/Your-Echo-Agent/mcp-server
+# (adjust path — wherever you cloned it)
 
-## Plan
+# 4. Install deps and build
+npm install
+npm run build
 
-1. Expand `glama.json` to a full Glama server manifest with:
-   - `name`, `description`, `homepage`, `repository`, `license`
-   - `install` block describing the stdio launch:
-     - `command`: `npx`
-     - `args`: `["-y", "@browncabinet/yourechoagent-mcp"]`
-   - `env` schema declaring `ECHO_API_KEY` as a required secret, with placeholder `eak_your_key_here` and a link to get one
-   - Optional `ECHO_API_BASE` as non-required
-   - `transports`: `["stdio"]`
-   - `tools` summary (6 tools already in `public/.well-known/mcp/server-card.json`)
+# 5. Publish (scoped packages need --access public the first time)
+npm publish --access public
 
-2. Leave the Dockerfile and `package.json` start scripts alone — they work now.
-
-3. Note: the npm package `@browncabinet/yourechoagent-mcp` must actually be published for the `npx -y` install to succeed for end users. If it has not been published yet, Glama installs will fail with "package not found" even after the manifest is fixed. The `.github/workflows/publish-mcp.yml` workflow publishes on tag `mcp-v*`. You will need to push a tag like `mcp-v0.1.0` (and have `NPM_TOKEN` set in the repo secrets) to publish.
-
-4. After committing the new `glama.json`, sync GitHub and click "Re-scan" / "Refresh" on the Glama server page. The Install button should populate with the npx command and the `ECHO_API_KEY` field.
-
-## Technical details
-
-New `glama.json` shape (Glama's schema):
-
-```json
-{
-  "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "maintainers": ["Browncabinet"],
-  "name": "yourechoagent-mcp",
-  "description": "Hire autonomous outreach agents from any MCP-compatible LLM.",
-  "homepage": "https://yourechoagent.com",
-  "repository": "https://github.com/Browncabinet/Your-Echo-Agent",
-  "license": "MIT",
-  "transports": ["stdio"],
-  "install": {
-    "command": "npx",
-    "args": ["-y", "@browncabinet/yourechoagent-mcp"]
-  },
-  "env": {
-    "ECHO_API_KEY": {
-      "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",
-      "required": true,
-      "secret": true,
-      "placeholder": "eak_your_key_here"
-    },
-    "ECHO_API_BASE": {
-      "description": "Override API base URL (defaults to production).",
-      "required": false
-    }
-  }
-}
+# 6. Verify it's live
+npm view @browncabinet/yourechoagent-mcp version
 ```
 
-## Open question
+## What success looks like
 
-Has `@browncabinet/yourechoagent-mcp` been published to npm yet? If not, I can also update the plan to walk through publishing it (push `mcp-v0.1.0` tag, confirm `NPM_TOKEN` secret is set) before re-testing the Glama install.
+- Step 5 prints `+ @browncabinet/yourechoagent-mcp@0.1.0`
+- Step 6 returns `0.1.0`
+- Glama's "Install" button now works for end users — `npx @browncabinet/yourechoagent-mcp` will resolve
+
+## If something goes wrong
+
+- **`404 Not Found` on `npm access list`** — the `@browncabinet` org doesn't exist yet on npm. Create it at https://www.npmjs.com/org/create (free for public packages).
+- **`403 Forbidden` on publish** — your npm account isn't a member of the org with publish rights. Add yourself at npmjs.com → @browncabinet → Members.
+- **`402 Payment Required`** — you forgot `--access public`. Scoped packages default to private (paid). Re-run with the flag.
+- **`mcp-server` folder doesn't exist** — I'll need to check the repo structure; let me know and I'll look.
+
+## Note on the GitHub Action route
+
+Once this manual publish works, the GitHub Action (`.github/workflows/publish-mcp.yml`) is still useful for future releases — but you can set that up later when you want v0.1.1. No urgency.
+
+## No file changes needed
+
+This plan is entirely terminal commands you run locally. I'm not modifying any project files.
