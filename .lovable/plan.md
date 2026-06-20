@@ -1,26 +1,64 @@
-The repeat failure is likely not fixed by another Glama metadata tweak. Glama’s current `glama.json` schema only supports `maintainers`, so release behavior is controlled by the Dockerfile/admin build spec. The most suspicious issue in the repo is that `mcp-server/package-lock.json` points many packages at Lovable’s private npm mirror (`europe-west4-npm.pkg.dev/lovable-core-prod/...`), which Glama’s Docker builder cannot access. That can make `npm ci` fail or cause Glama to fall back to building the root Vite app.
+I reviewed the current Docker setup. The repo now looks correctly configured for Glama’s Dockerfile build:
 
-Plan:
+- Root `Dockerfile` builds only `mcp-server`, not the frontend app.
+- It ignores `mcp-server/package-lock.json`, which was the likely cause because it can point to a private npm mirror.
+- It installs from the public npm registry.
+- Final command is `node dist/index.js`, which is what Glama needs for MCP stdio inspection.
+- `glama.json` is minimal and valid.
 
-1. Replace the Docker install strategy
-   - Update the root `Dockerfile` so it does not rely on `mcp-server/package-lock.json`.
-   - Use npm’s public registry explicitly.
-   - Run `npm install` from `mcp-server/package.json`, then `npm run build`, then prune dev dependencies.
-   - Keep the final command as `node dist/index.js` so Glama can start and introspect the stdio MCP server.
+Follow these steps exactly:
 
-2. Tighten `.dockerignore`
-   - Keep only files needed for the Docker build.
-   - Do not include the private-mirror lockfile in the Docker context.
-   - Include `mcp-server/package.json`, `mcp-server/tsconfig.json`, `mcp-server/tsup.config.ts`, and `mcp-server/src/**`.
+1. Sync Lovable changes to GitHub
+   - Open your GitHub repo: `https://github.com/Browncabinet/Your-Echo-Agent`
+   - Confirm these files show the latest changes:
+     - `Dockerfile`
+     - `.dockerignore`
+     - `glama.json`
+     - `docs/registry-submissions.md`
+   - In `Dockerfile`, confirm line 8 says:
+     ```dockerfile
+     RUN npm install --include=dev --registry=https://registry.npmjs.org/
+     ```
+   - Confirm the Dockerfile does not copy `mcp-server/package-lock.json`.
 
-3. Add Glama-friendly environment docs to the image
-   - Add Docker labels for title/description/source.
-   - Add an `ECHO_API_KEY` placeholder env var in the Dockerfile so Glama’s admin form can map the required key, while the server still allows `tools/list` without a real key.
+2. If GitHub has not updated yet
+   - Wait 1–3 minutes for Lovable GitHub sync.
+   - Refresh GitHub.
+   - If it still does not update, use Lovable’s GitHub sync/status controls to reconnect or force sync.
+   - Do not retry Glama until GitHub shows the updated `Dockerfile`.
 
-4. Keep `glama.json` minimal
-   - Leave it as only `$schema` + `maintainers`, because the live schema rejects/ignores other fields.
+3. Retry the Glama Dockerfile build
+   - Go to:
+     ```text
+     https://glama.ai/mcp/servers/Browncabinet/Your-Echo-Agent/admin/dockerfile
+     ```
+   - Make sure Glama is using the repo root Dockerfile:
+     ```text
+     Dockerfile
+     ```
+   - Do not point it at `mcp-server/Dockerfile`.
+   - Add this required environment variable:
+     ```text
+     ECHO_API_KEY=eak_your_key_here
+     ```
+   - Leave `ECHO_API_BASE` blank unless Glama requires every declared env var.
+   - Click `Deploy` / build test.
 
-5. Update release instructions
-   - Update the Glama docs note to say: in Glama Dockerfile admin page, build from root `Dockerfile`; set required env var `ECHO_API_KEY`; deploy; then make release.
+4. If the build succeeds
+   - Click `Make Release` / `Create Release`.
 
-After this, the next Glama review/release should build using public npm, start the real MCP server, and pass tool introspection instead of trying to build the root website or using inaccessible package URLs.
+5. If it fails again
+   - Copy the first real error from the Glama build log.
+   - The useful part is usually near the first red error, especially lines containing:
+     ```text
+     npm ERR!
+     COPY failed
+     Module not found
+     Cannot find package
+     EACCES
+     private npm mirror
+     europe-west4-npm.pkg.dev
+     ```
+   - Send me that exact error text, not just “failed again”.
+
+Important: retry Glama only after GitHub visibly contains the updated root `Dockerfile`; otherwise Glama will keep rebuilding the old broken version.
