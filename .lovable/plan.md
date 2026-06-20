@@ -1,26 +1,33 @@
-## Goal
-Add your new purple circles logo to the Glama.ai MCP server listing so it displays correctly instead of the old .webp version.
+## What's happening
 
-## How Glama reads logos
-Glama auto-reads `glama.json` from your repo root. It supports an `iconUrl` field (public URL) or lets you upload a file during manual submission. Because your listing is auto-detected from the repo, the logo must live as a public URL inside `glama.json`.
+Glama's automated reviewer is auto-generating a Dockerfile that clones your repo and runs `pnpm install && pnpm build` against the **entire Lovable web app** — then failing because pnpm's strict module resolution can't find `@tanstack/query-core` (a peer of `@tanstack/react-query`).
 
-## Plan
+This is wrong on two levels:
+1. Your MCP server is **remote/hosted** (Supabase edge function at `/functions/v1/mcp-http`). Glama should not be building anything — it should just register the remote URL.
+2. Even if it did build, the Vite app build is irrelevant to the MCP server.
 
-1. **Save the uploaded logo to the site**
-   - Copy your uploaded `echo_agent_logo-4.png` into `public/echo-agent-logo.png`
-   - Once published, it will be live at `https://yourechoagent.com/echo-agent-logo.png`
+## Fix
 
-2. **Update `glama.json`**
-   - Add `"iconUrl": "https://yourechoagent.com/echo-agent-logo.png"` so Glama picks it up on the next scan
+Two changes, both in this repo, then push to GitHub and trigger a rescan.
 
-3. **Update other discovery files (optional but recommended)**
-   - Update `iconUrl` in `public/agent.json` and `public/.well-known/mcp/server-card.json` to the same new URL
+### 1. Make `glama.json` unambiguously remote-only
+Some Glama reviewers still attempt a build when they see `package.json` at root. Add explicit signals so they skip the build path:
+- Keep the existing `remote.url` + `remote.transport`
+- Add `"runtime": "remote"` at top level
+- Add `"installation": { "type": "remote" }` so the reviewer doesn't try Docker
+- Move build-related metadata out
 
-4. **Republish**
-   - Push the changes to your repo so Glama can re-scan
+### 2. Add `@tanstack/query-core` as an explicit dependency
+Safety net in case Glama still tries to build. pnpm's strict hoisting hides the transitive peer; adding it explicitly resolves the Rollup "failed to resolve import" error.
 
-5. **Rescan on Glama**
-   - Visit your server page on Glama and trigger a re-scan, or wait for the next auto-refresh
+```json
+"@tanstack/query-core": "^5.83.0",
+```
 
-## Note on the old logo
-Your existing Google Cloud Storage .webp URL is referenced in a few places. If you want everything consistent, we can swap all of them to the new PNG in the same pass.
+### 3. Republish + push to GitHub
+
+After Lovable publishes and the changes are pushed to `Browncabinet/Your-Echo-Agent`, go to your server page on glama.ai and click "Re-review" (or wait for auto-retry). The reviewer should detect the remote endpoint and skip the Docker build entirely.
+
+## If Glama still tries to build
+
+Fallback: add a top-level `Dockerfile` that is a no-op (just declares the remote URL) — this overrides the auto-generated one. We'll only do this if step 1+2 don't clear the review.
