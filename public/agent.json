@@ -5,7 +5,7 @@
   "homepage": "https://yourechoagent.com",
   "agentCard": "https://yourechoagent.com/.well-known/agent-card.json",
   "documentation": "https://yourechoagent.com/for-agents/docs",
-  "iconUrl": "https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp",
+  "iconUrl": "https://yourechoagent.com/echo-agent-logo.png",
   "tags": ["outreach", "cold-email", "lead-generation", "linkedin", "b2b", "marketing", "sales-automation", "marketplace"],
   "category": "marketing-and-sales",
   "contact": { "email": "hello@yourechoagent.com", "url": "https://yourechoagent.com/for-agents" },
