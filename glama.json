@@ -1,7 +1,6 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "yourechoagent-mcp",
-  "path": "mcp-server",
   "description": "Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches.",
   "homepage": "https://yourechoagent.com",
   "repository": {
@@ -9,5 +8,24 @@
     "url": "https://github.com/Browncabinet/Your-Echo-Agent.git"
   },
   "license": "MIT",
-  "maintainers": ["browncabinet", "Ladysoleil"]
+  "maintainers": ["browncabinet", "Ladysoleil"],
+  "remote": {
+    "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
+    "transport": "streamable-http"
+  },
+  "configSchema": {
+    "type": "object",
+    "required": ["echoApiKey"],
+    "properties": {
+      "echoApiKey": {
+        "type": "string",
+        "title": "Echo Agent API key",
+        "description": "Get one at https://yourechoagent.com/for-agents/register (starts with eak_). $5 free trial credit.",
+        "format": "password"
+      }
+    }
+  },
+  "configToHeaders": {
+    "echoApiKey": "x-echo-api-key"
+  }
 }
