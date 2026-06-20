@@ -10,7 +10,7 @@ Everything below is ready to copy/paste into the Glama "Add server" form at <htt
 https://github.com/Browncabinet/yourechoagent
 ```
 
-(Subfolder: `mcp-server/` — Glama detects this from your `glama.json` `"path": "mcp-server"`.)
+Subfolder: `mcp-server/` — Glama detects this from your `glama.json` `"path": "mcp-server"`.
 
 ---
 
@@ -110,7 +110,7 @@ If Glama requires a file upload instead of URL, download that image and upload a
 
 ## 11. Claude Desktop config snippet (Glama often asks for this)
 
-````json
+```json
 {
   "mcpServers": {
     "echo-agent": {
@@ -122,14 +122,4 @@ If Glama requires a file upload instead of URL, download that image and upload a
     }
   }
 }
-````
-
----
-
-## What I'll do once you approve this plan
-
-Switch to build mode and:
-1. Save this exact card as `docs/glama-submission-card.md` in your repo so you have a single file to reference any time you re-submit or update the listing
-2. Cross-link it from `docs/registry-submissions.md`
-
-That's it — no app code changes. Approve and I'll create the file.
+```
