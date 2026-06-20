@@ -1,5 +1,4 @@
 // Streamable HTTP MCP server for Echo Agent — hosted endpoint for Smithery & remote MCP clients.
-// Mirrors the stdio mcp-server/ tools, but forwards to the existing a2a-* edge functions.
 import { Hono } from "npm:hono@4";
 import { McpServer, StreamableHttpTransport } from "npm:mcp-lite@^0.10.0";
 import { z } from "npm:zod@3";
@@ -60,11 +59,7 @@ function asText(result: unknown) {
 }
 
 function buildServer(apiKey: string | null) {
-  const mcp = new McpServer({
-    name: "yourechoagent-mcp",
-    version: "0.1.0",
-    schemaAdapter: (schema) => z.toJSONSchema(schema as z.ZodType),
-  });
+  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.1.0" });
 
   const needKey = () => {
     if (!apiKey) {
@@ -75,85 +70,146 @@ function buildServer(apiKey: string | null) {
 
   mcp.tool("list_available_agents", {
     description: "Browse Echo Agents available for hire. Optional filter by niche (saas, agency, ecom, founders, local, pr) or capability (email_outreach, lead_research, linkedin_assist).",
-    inputSchema: z.object({
-      niche: z.string().optional(),
-      capability: z.string().optional(),
-    }),
-    handler: async (args) => asText(await callA2A("a2a-agents-list", {
-      method: "GET",
-      query: { niche: args?.niche, capability: args?.capability },
-    })),
+    inputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string", description: "Filter by niche substring." },
+        capability: { type: "string", description: "Filter by capability." },
+      },
+    },
+    handler: async (args: any) => {
+      const parsed = z.object({ niche: z.string().optional(), capability: z.string().optional() }).parse(args ?? {});
+      return asText(await callA2A("a2a-agents-list", {
+        method: "GET",
+        query: { niche: parsed.niche, capability: parsed.capability },
+      }));
+    },
   });
 
   mcp.tool("get_agent_card", {
     description: "Retrieve the full A2A agent card for one Echo Agent (skills, pricing, modes, examples).",
-    inputSchema: z.object({
-      agent_id: z.string().min(1).describe("e.g. 'saas-prospector'"),
-    }),
-    handler: async (args) => asText(await callA2A("a2a-agent-get", {
-      method: "GET",
-      query: { agent_id: args.agent_id },
-    })),
+    inputSchema: {
+      type: "object",
+      required: ["agent_id"],
+      properties: { agent_id: { type: "string", description: "e.g. 'saas-prospector'" } },
+    },
+    handler: async (args: any) => {
+      const parsed = z.object({ agent_id: z.string().min(1) }).parse(args ?? {});
+      return asText(await callA2A("a2a-agent-get", { method: "GET", query: { agent_id: parsed.agent_id } }));
+    },
   });
 
   mcp.tool("hire_echo_agent", {
-    description: "Hire an Echo Agent to run an outreach campaign. Returns a job_id you can poll with get_job_status. Requires ECHO_API_KEY config.",
-    inputSchema: z.object({
-      agent_id: z.string().min(1),
-      campaign: z.object({
-        name: z.string().optional(),
-        goal: z.string().min(1),
-        target_audience: z.union([z.string(), z.array(z.string())]),
-        niche: z.string().optional(),
-        volume: z.number().int().min(1).max(1000),
-        website_url: z.string().optional(),
-      }),
-      sender_identity: z.object({
-        name: z.string().min(1),
-        email: z.string().email(),
-        company: z.string().optional(),
-        scheduling_link: z.string().optional(),
-      }),
-      spending_cap_cents: z.number().int().positive().optional(),
-      callback_url: z.string().url().optional(),
-    }),
-    handler: async (args) => {
+    description: "Hire an Echo Agent to run an outreach campaign. Returns a job_id you can poll with get_job_status. Requires ECHO_API_KEY.",
+    inputSchema: {
+      type: "object",
+      required: ["agent_id", "campaign", "sender_identity"],
+      properties: {
+        agent_id: { type: "string" },
+        campaign: {
+          type: "object",
+          required: ["goal", "target_audience", "volume"],
+          properties: {
+            name: { type: "string" },
+            goal: { type: "string" },
+            target_audience: { oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }] },
+            niche: { type: "string" },
+            volume: { type: "integer", minimum: 1, maximum: 1000 },
+            website_url: { type: "string" },
+          },
+        },
+        sender_identity: {
+          type: "object",
+          required: ["name", "email"],
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+            company: { type: "string" },
+            scheduling_link: { type: "string" },
+          },
+        },
+        spending_cap_cents: { type: "integer" },
+        callback_url: { type: "string" },
+      },
+    },
+    handler: async (args: any) => {
       const key = needKey();
-      return asText(await callA2A("a2a-agent-hire", { method: "POST", apiKey: key, body: args }));
+      const parsed = z.object({
+        agent_id: z.string().min(1),
+        campaign: z.object({
+          name: z.string().optional(),
+          goal: z.string().min(1),
+          target_audience: z.union([z.string(), z.array(z.string())]),
+          niche: z.string().optional(),
+          volume: z.number().int().min(1).max(1000),
+          website_url: z.string().optional(),
+        }),
+        sender_identity: z.object({
+          name: z.string().min(1),
+          email: z.string().email(),
+          company: z.string().optional(),
+          scheduling_link: z.string().optional(),
+        }),
+        spending_cap_cents: z.number().int().positive().optional(),
+        callback_url: z.string().url().optional(),
+      }).parse(args ?? {});
+      return asText(await callA2A("a2a-agent-hire", { method: "POST", apiKey: key, body: parsed }));
     },
   });
 
   mcp.tool("get_job_status", {
     description: "Poll a hired job. Returns status, progress, leads, emails sent, replies, and spend.",
-    inputSchema: z.object({ job_id: z.string().min(1) }),
-    handler: async (args) => {
+    inputSchema: {
+      type: "object",
+      required: ["job_id"],
+      properties: { job_id: { type: "string" } },
+    },
+    handler: async (args: any) => {
       const key = needKey();
-      return asText(await callA2A("a2a-job-get", { method: "GET", apiKey: key, query: { job_id: args.job_id } }));
+      const parsed = z.object({ job_id: z.string().min(1) }).parse(args ?? {});
+      return asText(await callA2A("a2a-job-get", { method: "GET", apiKey: key, query: { job_id: parsed.job_id } }));
     },
   });
 
   mcp.tool("control_job", {
     description: "Pause, resume, or cancel a running job.",
-    inputSchema: z.object({
-      job_id: z.string().min(1),
-      action: z.enum(["pause", "resume", "cancel"]),
-    }),
-    handler: async (args) => {
+    inputSchema: {
+      type: "object",
+      required: ["job_id", "action"],
+      properties: {
+        job_id: { type: "string" },
+        action: { type: "string", enum: ["pause", "resume", "cancel"] },
+      },
+    },
+    handler: async (args: any) => {
       const key = needKey();
-      return asText(await callA2A("a2a-job-control", { method: "POST", apiKey: key, body: args }));
+      const parsed = z.object({
+        job_id: z.string().min(1),
+        action: z.enum(["pause", "resume", "cancel"]),
+      }).parse(args ?? {});
+      return asText(await callA2A("a2a-job-control", { method: "POST", apiKey: key, body: parsed }));
     },
   });
 
   mcp.tool("rate_job", {
     description: "Submit a 1–5 star rating for a completed job, with optional written feedback.",
-    inputSchema: z.object({
-      job_id: z.string().min(1),
-      stars: z.number().int().min(1).max(5),
-      feedback: z.string().optional(),
-    }),
-    handler: async (args) => {
+    inputSchema: {
+      type: "object",
+      required: ["job_id", "stars"],
+      properties: {
+        job_id: { type: "string" },
+        stars: { type: "integer", minimum: 1, maximum: 5 },
+        feedback: { type: "string" },
+      },
+    },
+    handler: async (args: any) => {
       const key = needKey();
-      return asText(await callA2A("a2a-job-rate", { method: "POST", apiKey: key, body: args }));
+      const parsed = z.object({
+        job_id: z.string().min(1),
+        stars: z.number().int().min(1).max(5),
+        feedback: z.string().optional(),
+      }).parse(args ?? {});
+      return asText(await callA2A("a2a-job-rate", { method: "POST", apiKey: key, body: parsed }));
     },
   });
 
