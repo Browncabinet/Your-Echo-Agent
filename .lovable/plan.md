@@ -1,33 +1,56 @@
 ## What's happening
 
-Glama's automated reviewer is auto-generating a Dockerfile that clones your repo and runs `pnpm install && pnpm build` against the **entire Lovable web app** — then failing because pnpm's strict module resolution can't find `@tanstack/query-core` (a peer of `@tanstack/react-query`).
+Glama's reviewer is still auto-generating a Dockerfile and running `pnpm install && pnpm build` against the full Vite app, even though `glama.json` declares `runtime: "remote"`. The pnpm build fails on a transitive peer (`@tanstack/query-core`) inside the web app — which has nothing to do with the MCP server.
 
-This is wrong on two levels:
-1. Your MCP server is **remote/hosted** (Supabase edge function at `/functions/v1/mcp-http`). Glama should not be building anything — it should just register the remote URL.
-2. Even if it did build, the Vite app build is irrelevant to the MCP server.
+The remote-runtime hints aren't being respected, so we need to **override** the auto-generated Dockerfile with our own minimal one that does nothing but declare the remote endpoint. When Glama sees a `Dockerfile` at the repo root, it uses that instead of generating one.
 
 ## Fix
 
-Two changes, both in this repo, then push to GitHub and trigger a rescan.
+### 1. Add a no-op `Dockerfile` at repo root
 
-### 1. Make `glama.json` unambiguously remote-only
-Some Glama reviewers still attempt a build when they see `package.json` at root. Add explicit signals so they skip the build path:
-- Keep the existing `remote.url` + `remote.transport`
-- Add `"runtime": "remote"` at top level
-- Add `"installation": { "type": "remote" }` so the reviewer doesn't try Docker
-- Move build-related metadata out
+A tiny image that exits successfully and documents the remote URL. Glama's build step passes; its runtime step is skipped because the server is remote.
 
-### 2. Add `@tanstack/query-core` as an explicit dependency
-Safety net in case Glama still tries to build. pnpm's strict hoisting hides the transitive peer; adding it explicitly resolves the Rollup "failed to resolve import" error.
-
-```json
-"@tanstack/query-core": "^5.83.0",
+```dockerfile
+# Echo Agent MCP is a REMOTE server — no local build required.
+# Endpoint: https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
+# Transport: streamable-http
+# See glama.json for the remote configuration.
+FROM alpine:3.20
+LABEL org.opencontainers.image.title="yourechoagent-mcp"
+LABEL org.opencontainers.image.description="Remote MCP server — hosted endpoint, no local install required."
+LABEL org.opencontainers.image.source="https://github.com/Browncabinet/Your-Echo-Agent"
+LABEL com.glama.mcp.runtime="remote"
+LABEL com.glama.mcp.endpoint="https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http"
+CMD ["echo", "Echo Agent MCP is a remote server. Configure your client with the URL in glama.json."]
 ```
 
-### 3. Republish + push to GitHub
+### 2. Add `.dockerignore` so the build context stays tiny
 
-After Lovable publishes and the changes are pushed to `Browncabinet/Your-Echo-Agent`, go to your server page on glama.ai and click "Re-review" (or wait for auto-retry). The reviewer should detect the remote endpoint and skip the Docker build entirely.
+```
+*
+!Dockerfile
+!glama.json
+!LICENSE
+!README.md
+```
 
-## If Glama still tries to build
+This guarantees the image build can never accidentally pull in `package.json` and trigger pnpm.
 
-Fallback: add a top-level `Dockerfile` that is a no-op (just declares the remote URL) — this overrides the auto-generated one. We'll only do this if step 1+2 don't clear the review.
+### 3. Belt-and-suspenders update to `glama.json`
+
+Add `"dockerfilePath": "./Dockerfile"` so the reviewer explicitly points at our file rather than generating one. Keep the existing `runtime: "remote"` and `installation.type: "remote"` fields.
+
+### 4. Republish + re-review
+
+Lovable publishes → GitHub syncs → on glama.ai click **Re-review**. The Docker build will succeed (it's a 5MB alpine image with one echo command), and the remote endpoint stays the source of truth for actual MCP traffic.
+
+## If this still fails
+
+The next escalation is opening a support ticket with Glama, because at that point their reviewer is ignoring both the `runtime: remote` declaration AND the user-provided Dockerfile, which would be a platform bug on their side. We'd attach the failing build log and link to `glama.json`.
+
+## Files to change
+
+- **new** `Dockerfile` — minimal alpine, no build steps
+- **new** `.dockerignore` — exclude everything except metadata
+- **edit** `glama.json` — add `dockerfilePath`
+- **edit** `.lovable/plan.md` — update troubleshooting notes
