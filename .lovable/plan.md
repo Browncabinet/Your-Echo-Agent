@@ -1,6 +1,28 @@
-This is not where you paste the actual API key value. Glama is asking for the **schema** of environment variables your server needs.
+Do I know what the issue is? **Yes.**
 
-Use this JSON instead:
+The big chunk message is only a **warning** from the website build. The real failure is this line:
+
+```text
+ERR_PNPM_NO_SCRIPT_OR_SERVER Missing script start or file server.js
+```
+
+That means Glama successfully built the image, then tried to start the MCP server with `pnpm start`, but `mcp-server/package.json` does not currently have a `start` script.
+
+## Plan
+
+1. Add this script to `mcp-server/package.json`:
+
+```json
+"start": "node dist/index.js"
+```
+
+2. Keep the Dockerfile path as:
+
+```text
+Dockerfile
+```
+
+3. Use this in Glama’s **Environment variables JSON schema** box:
 
 ```json
 {
@@ -9,22 +31,28 @@ Use this JSON instead:
     "ECHO_API_KEY": {
       "type": "string",
       "description": "Your Echo API key"
-    },
-    "ECHO_API_BASE": {
-      "type": "string",
-      "description": "Optional Echo API base URL"
     }
   },
   "required": ["ECHO_API_KEY"]
 }
 ```
 
-Then save/build. After that, Glama should ask you to provide the actual value for `ECHO_API_KEY` somewhere in the release/deploy settings.
+4. If Glama forces the **placeholder arguments** box to be filled, use this exact JSON:
 
-If it has a separate “Environment variables” or “Secrets” value box, put:
-
-```text
-ECHO_API_KEY = eak_your_real_key_here
+```json
+{
+  "ECHO_API_KEY": "eak_your_key_here"
+}
 ```
 
-Do **not** paste the real key into the JSON schema field unless Glama specifically labels that field as the secret value field.
+5. Re-sync/push to GitHub, then retry the Glama Dockerfile build.
+
+Expected result: Glama should no longer fail with `Missing script start or file server.js`.
+
+<presentation-actions>
+  <presentation-open-history>View History</presentation-open-history>
+</presentation-actions>
+
+<presentation-actions>
+<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
+</presentation-actions>
