@@ -84,10 +84,19 @@ Glama periodically crawls public GitHub repos for a valid root-level `glama.json
 ## 2. Other MCP-specific registries
 
 ### Smithery.ai
-1. <https://smithery.ai/new> → sign in with GitHub
-2. Point at the same repo, subfolder `mcp-server/`
-3. Smithery auto-generates a one-click install URL for Claude Desktop
-4. Once approved, add the Smithery install badge to `mcp-server/README.md`
+Smithery requires a **hosted HTTPS MCP server speaking Streamable HTTP** — it no longer accepts stdio/GitHub-only submissions. We host one as a Lovable Cloud edge function (`supabase/functions/mcp-http`).
+
+**Hosted endpoint:** `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`
+**Transport:** Streamable HTTP
+**Config:** `smithery.yaml` at repo root declares required field `echoApiKey`, mapped to header `x-echo-api-key`.
+
+Steps:
+1. Verify the endpoint is live with an MCP `initialize` POST (Accept must include `application/json, text/event-stream`).
+2. Go to <https://smithery.ai/new> → sign in with GitHub.
+3. Paste the hosted URL above (NOT the GitHub repo).
+4. Smithery scans the server. If the scan can't enumerate tools, it falls back to `https://yourechoagent.com/.well-known/mcp/server-card.json`.
+5. Confirm config field `echoApiKey`; get-key URL `https://yourechoagent.com/for-agents/register`.
+6. Submit. Once approved, add the Smithery install badge to `mcp-server/README.md`.
 
 ### mcpservers.org / official servers repo
 - Open a PR against <https://github.com/modelcontextprotocol/servers>
