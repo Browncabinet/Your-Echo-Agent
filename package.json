@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "start": "cd mcp-server && (test -d node_modules || npm install --include=dev --registry=https://registry.npmjs.org/) && (test -d dist || npm run build) && node dist/index.js",
+    "start:mcp": "cd mcp-server && node dist/index.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

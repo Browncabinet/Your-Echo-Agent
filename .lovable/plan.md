@@ -1,58 +1,52 @@
-Do I know what the issue is? **Yes.**
+Do I know what the issue is? Yes.
 
-The big chunk message is only a **warning** from the website build. The real failure is this line:
+The latest project Dockerfile does not run `pnpm start`; it runs:
+
+```text
+node dist/index.js
+```
+
+So if Glama still logs:
 
 ```text
 ERR_PNPM_NO_SCRIPT_OR_SERVER Missing script start or file server.js
 ```
 
-That means Glama successfully built the image, then tried to start the MCP server with `pnpm start`, but `mcp-server/package.json` does not currently have a `start` script.
+then Glama is still starting the server with `pnpm start` from its configured command/args or from an older synced GitHub version, not from the current Dockerfile command.
 
 ## Plan
 
-1. Add this script to `mcp-server/package.json`:
+1. Make the repo safe even if Glama ignores the Dockerfile `CMD` and runs `pnpm start` at the repo root.
+   - Add a root `start` script that starts the MCP server.
+   - Add a root `postinstall` script that installs/builds the MCP server if Glama installs from the repo root.
+
+2. Keep the existing `mcp-server/package.json` start script:
 
 ```json
 "start": "node dist/index.js"
 ```
 
-2. Keep the Dockerfile path as:
+3. Keep the Dockerfile command as-is:
+
+```dockerfile
+CMD ["node", "dist/index.js"]
+```
+
+4. Update the troubleshooting note so the exact Glama fields are clear:
+   - Dockerfile path: `Dockerfile`
+   - Environment variables JSON schema: the `ECHO_API_KEY` schema
+   - Placeholder arguments: `{"ECHO_API_KEY":"eak_your_key_here"}`
+   - Do not set command/args to `pnpm start` in Glama when using Dockerfile release.
+
+5. After you approve, I’ll implement the small package/script update and note the exact retry steps.
+
+## Technical details
+
+The fallback root scripts will make both of these startup paths work:
 
 ```text
-Dockerfile
+Dockerfile path: node dist/index.js inside /app/mcp-server
+Glama fallback path: pnpm start from repo root
 ```
 
-3. Use this in Glama’s **Environment variables JSON schema** box:
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "ECHO_API_KEY": {
-      "type": "string",
-      "description": "Your Echo API key"
-    }
-  },
-  "required": ["ECHO_API_KEY"]
-}
-```
-
-4. If Glama forces the **placeholder arguments** box to be filled, use this exact JSON:
-
-```json
-{
-  "ECHO_API_KEY": "eak_your_key_here"
-}
-```
-
-5. Re-sync/push to GitHub, then retry the Glama Dockerfile build.
-
-Expected result: Glama should no longer fail with `Missing script start or file server.js`.
-
-<presentation-actions>
-  <presentation-open-history>View History</presentation-open-history>
-</presentation-actions>
-
-<presentation-actions>
-<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
-</presentation-actions>
+That should remove the specific `Missing script start or file server.js` failure even if Glama is not honoring the Dockerfile `CMD`.
