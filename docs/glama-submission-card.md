@@ -7,7 +7,7 @@ Everything below is ready to copy/paste into the Glama "Add server" form at <htt
 ## 1. Repository
 
 ```
-https://github.com/Browncabinet/yourechoagent
+https://github.com/Browncabinet/Your-Echo-Agent
 ```
 
 Subfolder: `mcp-server/` — Glama detects this from your `glama.json` `"path": "mcp-server"`.
