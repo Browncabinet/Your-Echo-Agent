@@ -15,6 +15,7 @@
     "type": "remote",
     "build": false
   },
+  "dockerfilePath": "./Dockerfile",
   "remote": {
     "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
     "transport": "streamable-http"
