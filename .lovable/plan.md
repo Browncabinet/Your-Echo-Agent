@@ -1,29 +1,26 @@
-## Why the score is 76%
+## Goal
+Add your new purple circles logo to the Glama.ai MCP server listing so it displays correctly instead of the old .webp version.
 
-The last SEO scan flagged 3 issues on the published site. Fixing them should noticeably raise the quality score.
+## How Glama reads logos
+Glama auto-reads `glama.json` from your repo root. It supports an `iconUrl` field (public URL) or lets you upload a file during manual submission. Because your listing is auto-detected from the repo, the logo must live as a public URL inside `glama.json`.
 
-## What I'll fix
+## Plan
 
-**1. Page loads slowly (LCP / performance — low)**
-- Find the hero element on `/` (largest above-the-fold image or H1).
-- For the hero image: set explicit `width` + `height`, remove `loading="lazy"`, add `fetchpriority="high"`.
-- For headline fonts: add `font-display: swap` to `@font-face` rules so text paints instantly with a fallback font.
+1. **Save the uploaded logo to the site**
+   - Copy your uploaded `echo_agent_logo-4.png` into `public/echo-agent-logo.png`
+   - Once published, it will be live at `https://yourechoagent.com/echo-agent-logo.png`
 
-**2. Add a Model Context Protocol (MCP) guide (content — low)**
-- Add a new section to `/for-agents` (or a new `/blog/what-is-model-context-protocol` route) explaining MCP, agent-to-agent delegation, and how Your Echo Agent fits in.
-- Target keywords: "what is model context protocol", "mcp server", "model context protocol anthropic".
-- Include definition, A2A commerce benefit, and a sample MCP-compatible agent card snippet.
+2. **Update `glama.json`**
+   - Add `"iconUrl": "https://yourechoagent.com/echo-agent-logo.png"` so Glama picks it up on the next scan
 
-I'll ask you which placement you prefer before writing it.
+3. **Update other discovery files (optional but recommended)**
+   - Update `iconUrl` in `public/agent.json` and `public/.well-known/mcp/server-card.json` to the same new URL
 
-**3. Google Search Console (indexing — mid) — needs you**
-- This one I can't fully do for you: it requires you to authorize Google Search Console via the connector, verify ownership of `yourechoagent.com`, and submit the sitemap.
-- I'll surface the connector and walk you through it after #1 and #2 are merged.
+4. **Republish**
+   - Push the changes to your repo so Glama can re-scan
 
-## Order
+5. **Rescan on Glama**
+   - Visit your server page on Glama and trigger a re-scan, or wait for the next auto-refresh
 
-1. Performance fix (quick win, code-only).
-2. MCP content section (after you pick: inline on `/for-agents` vs. new `/blog/...` route).
-3. GSC connection (your action, I'll guide).
-
-After #1 and #2, republish and rerun the SEO scan — score should climb. GSC unlocks the remaining points once verified.
+## Note on the old logo
+Your existing Google Cloud Storage .webp URL is referenced in a few places. If you want everything consistent, we can swap all of them to the new PNG in the same pass.
