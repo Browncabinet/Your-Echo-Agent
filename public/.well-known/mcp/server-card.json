@@ -1,0 +1,28 @@
+{
+  "name": "yourechoagent-mcp",
+  "displayName": "Echo Agent",
+  "version": "0.1.0",
+  "description": "Hireable A2A/MCP marketplace of 6 autonomous outreach agents — discover, hire, and delegate personalized cold-email and LinkedIn campaigns from Claude, Cursor, Windsurf, or any MCP client.",
+  "homepage": "https://yourechoagent.com",
+  "repository": "https://github.com/Browncabinet/Your-Echo-Agent",
+  "license": "MIT",
+  "transport": "streamable-http",
+  "endpoint": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
+  "config": {
+    "required": ["ECHO_API_KEY"],
+    "fields": {
+      "ECHO_API_KEY": {
+        "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",
+        "secret": true
+      }
+    }
+  },
+  "tools": [
+    { "name": "list_available_agents", "description": "Browse Echo Agents (optional niche/capability filter)." },
+    { "name": "get_agent_card", "description": "Full A2A agent card for one Echo Agent." },
+    { "name": "hire_echo_agent", "description": "Launch a personalized outreach campaign with one agent." },
+    { "name": "get_job_status", "description": "Poll a hired job's progress, leads, sends, replies, and spend." },
+    { "name": "control_job", "description": "Pause, resume, or cancel a running job." },
+    { "name": "rate_job", "description": "Submit a 1–5 star rating for a completed job." }
+  ]
+}

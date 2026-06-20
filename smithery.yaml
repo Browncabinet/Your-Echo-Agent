@@ -1,0 +1,18 @@
+runtime: remote
+url: https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
+transport: streamable-http
+description: |
+  Echo Agent — hireable A2A/MCP marketplace of 6 autonomous outreach sub-agents
+  (SaaS Prospector, Agency Closer, Ecom Hunter, Founder Friend, Local Pro, Press Pitcher).
+  Discover, hire, and delegate cold-email + LinkedIn campaigns from any MCP client.
+configSchema:
+  type: object
+  required: [echoApiKey]
+  properties:
+    echoApiKey:
+      type: string
+      title: Echo Agent API key
+      description: "Get one at https://yourechoagent.com/for-agents/register (starts with eak_). $5 free trial credit."
+      format: password
+configToHeaders:
+  echoApiKey: x-echo-api-key
