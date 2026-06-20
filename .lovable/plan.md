@@ -1,135 +1,43 @@
-# Your Glama.ai Submission Card
+## Goal
 
-Everything below is ready to copy/paste into the Glama "Add server" form at <https://glama.ai/mcp/servers>. Glama auto-reads `glama.json` from your repo root, but the form will ask you to confirm/fill these fields.
+Smithery requires a live HTTPS MCP server speaking Streamable HTTP transport. Currently `mcp-server/` is stdio-only (Claude Desktop / Cursor via `npx`). I'll add an HTTP-transport twin hosted as a Lovable Cloud Edge Function, keeping the existing stdio package untouched so Glama / Claude Desktop continue working.
 
----
+## What to build
 
-## 1. Repository
+### 1. New edge function: `supabase/functions/mcp-http/index.ts`
+- Use `mcp-lite` (`npm:mcp-lite@^0.10.0`) + Hono for Streamable HTTP transport (the pattern Smithery requires).
+- Re-implement the same 6 tools as the stdio server, calling the existing `a2a-*` edge functions internally:
+  - `list_available_agents` → `a2a-agents-list`
+  - `get_agent_card` → `a2a-agent-get`
+  - `hire_echo_agent` → `a2a-agent-hire`
+  - `get_job_status` → `a2a-job-get`
+  - `control_job` → `a2a-job-control`
+  - `rate_job` → `a2a-job-rate`
+- Auth model: Smithery passes per-user config (the `ECHO_API_KEY`) as query params or headers. Read `ECHO_API_KEY` from `?apiKey=...` query string OR `x-echo-api-key` header (Smithery's config-injection pattern), then forward as `Authorization: Bearer eak_...` to the internal A2A functions.
+- CORS + OPTIONS handling per Lovable edge-function rules.
+- Public function (no JWT) so Smithery's scanner can reach it.
 
-```
-https://github.com/Browncabinet/yourechoagent
-```
+### 2. Static server card: `public/.well-known/mcp/server-card.json`
+- Lets Smithery's scanner enumerate tools/metadata even before a real API key is supplied (since most tools require auth).
+- Lists name, description, 6 tools, required config field `ECHO_API_KEY`.
 
-(Subfolder: `mcp-server/` — Glama detects this from your `glama.json` `"path": "mcp-server"`.)
+### 3. Smithery config: `smithery.yaml` at repo root
+- Declares: runtime `remote`, URL = `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`, transport `streamable-http`, config schema requiring `echoApiKey` (mapped to header `x-echo-api-key`).
 
----
+### 4. Docs updates
+- `docs/registry-submissions.md`: rewrite the Smithery section — submit the hosted URL `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`, not the GitHub repo.
+- `mcp-server/README.md`: add a "Hosted (Smithery / remote MCP)" section pointing at the same URL, alongside the existing stdio install snippets.
 
-## 2. Core fields
+## What stays the same
+- `mcp-server/` npm package — still stdio, still on npm, still works in Claude Desktop / Cursor / Windsurf.
+- `glama.json` — Glama listing unchanged (it already accepts stdio).
+- Existing A2A edge functions — no changes; the new function is a thin MCP adapter.
 
-| Field | Value |
-|---|---|
-| **Server name** | `yourechoagent-mcp` |
-| **Display name** | Echo Agent |
-| **Tagline (≤80ch)** | Hire autonomous outreach agents from any MCP-compatible LLM |
-| **Homepage** | https://yourechoagent.com |
-| **Documentation** | https://yourechoagent.com/for-agents/docs |
-| **License** | MIT |
-| **Category** | Marketing & Sales / AI Agents |
-| **Maintainers** | browncabinet, Ladysoleil |
-| **Contact email** | hello@yourechoagent.com |
+## Submission flow after build
+1. Edge function deploys automatically.
+2. Verify with `curl -X POST https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http` returns valid MCP `initialize` response.
+3. Go to <https://smithery.ai/new>, paste the hosted URL, complete publishing flow.
 
----
-
-## 3. Description (paste into "Description" field)
-
-> Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches, straight from Claude, Cursor, Windsurf, or Continue.
-
----
-
-## 4. Long description / About (if requested)
-
-> Echo Agent is an A2A 0.3.0 marketplace of six specialized outreach sub-agents: **SaaS Prospector**, **Agency Closer**, **Ecom Hunter**, **Founder Friend**, **Local Pro**, and **Press Pitcher**. Other AI agents discover skills via `agent-card.json`, hire one with a single tool call, and stream results back via signed webhooks. End-to-end campaigns include lead research, personalized email writing, sending, and reply handling — with spending caps, pause/resume/cancel controls, and HMAC-signed callbacks. Pay per lead/reply/meeting, no subscription required for API callers.
-
----
-
-## 5. Install / run command
-
-| Field | Value |
-|---|---|
-| **Command** | `npx` |
-| **Args** | `-y @browncabinet/yourechoagent-mcp` |
-| **Transport** | stdio |
-| **Runtime** | Node.js ≥ 20 |
-| **npm package** | https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp |
-
----
-
-## 6. Environment variables
-
-| Name | Required | Description |
-|---|---|---|
-| `ECHO_API_KEY` | ✅ Yes | Echo Agent API key (prefix `eak_`). Get one at https://yourechoagent.com/for-agents/register — first $5 credit is free. |
-| `ECHO_API_BASE` | ❌ No | Override API base URL (defaults to production). |
-
----
-
-## 7. Tools exposed by the server (6)
-
-| Tool | Description |
-|---|---|
-| `list_available_agents` | Browse all Echo Agents (optional `niche` / `capability` filter) |
-| `get_agent_card` | Full A2A card for one agent |
-| `hire_echo_agent` | Launch a campaign with one agent |
-| `get_job_status` | Poll a running job |
-| `control_job` | `pause` / `resume` / `cancel` a job |
-| `rate_job` | Leave a 1–5 star rating after completion |
-
----
-
-## 8. Tags / keywords
-
-```
-mcp, model-context-protocol, a2a, outreach, cold-email, lead-generation,
-linkedin, b2b, marketing, sales-automation, marketplace, claude, cursor,
-ai-agents
-```
-
----
-
-## 9. Logo / icon
-
-Use this URL when the form asks for an icon:
-
-```
-https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp
-```
-
-If Glama requires a file upload instead of URL, download that image and upload as `echo-agent-logo.png` (it's already 512×512, square).
-
----
-
-## 10. Example prompts (paste into "Examples" or "Usage" field)
-
-> "Use the SaaS Prospector to find 50 Heads of Growth at Series A fintech SaaS companies and pitch our analytics tool. Sender: Jane Doe, jane@acme.io, cap spend at $25."
-
-> "List Echo agents filtered by niche `ecommerce`."
-
-> "Check status of job `job_abc123` and pause it if more than 30% of replies are negative."
-
----
-
-## 11. Claude Desktop config snippet (Glama often asks for this)
-
-````json
-{
-  "mcpServers": {
-    "echo-agent": {
-      "command": "npx",
-      "args": ["-y", "@browncabinet/yourechoagent-mcp"],
-      "env": {
-        "ECHO_API_KEY": "eak_your_key_here"
-      }
-    }
-  }
-}
-````
-
----
-
-## What I'll do once you approve this plan
-
-Switch to build mode and:
-1. Save this exact card as `docs/glama-submission-card.md` in your repo so you have a single file to reference any time you re-submit or update the listing
-2. Cross-link it from `docs/registry-submissions.md`
-
-That's it — no app code changes. Approve and I'll create the file.
+## Out of scope
+- OAuth for Smithery (using simple API-key-in-config instead — same pattern as most listed MCP servers).
+- Migrating the stdio package to HTTP.

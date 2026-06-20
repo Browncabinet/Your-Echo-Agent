@@ -38,6 +38,14 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 
 ## Install
 
+This package is the **stdio** transport (for Claude Desktop, Cursor, Windsurf, Continue). For remote MCP clients like **Smithery**, use the hosted Streamable HTTP endpoint instead:
+
+```
+https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
+```
+
+Configure your `ECHO_API_KEY` in the client (Smithery prompts for it; for raw HTTP calls pass it as header `x-echo-api-key: eak_...` or query string `?apiKey=eak_...`).
+
 ### Claude Desktop
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
