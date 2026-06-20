@@ -1,146 +1,151 @@
-# Registry Submission Playbook
+# Glama.ai Setup + MCP Server Verification
 
-Goal: get Echo Agent's MCP server listed on **Glama.ai** first, then roll out to the other registries already tracked in `docs/registry-submissions.md`. No code changes — this is a checklist + copy/paste assets you'll execute outside Lovable (GitHub, npm, registry web forms).
+Goal: get your MCP server published, locally verified, and listed on Glama.ai. Below is the exact order of operations with copy-paste terminal commands.
 
 ---
 
-## 0. Pre-flight (do once)
+## Part A — Verify the MCP server locally (do this first)
 
-Before any submission, confirm these are live:
+Run these from your local clone of the repo. This catches any build/runtime issues **before** you publish to npm or submit to Glama.
 
-1. **npm package published.** Tag a release so the GitHub Action publishes `@browncabinet/yourechoagent-mcp`:
-   ```bash
-   git checkout main && git pull
-   git tag mcp-v0.1.0
-   git push origin mcp-v0.1.0
+```bash
+# 1. Clone & enter the MCP server folder
+git clone https://github.com/Browncabinet/yourechoagent.git
+cd yourechoagent/mcp-server
+
+# 2. Install + build
+npm install
+npm run build
+
+# 3. Smoke test — does the binary start?
+node dist/index.js
+# Should print something like: "Echo Agent MCP server running on stdio"
+# Ctrl+C to exit.
+
+# 4. Full inspection via MCP Inspector (interactive UI in your browser)
+ECHO_API_KEY=eak_your_test_key_here npm run inspect
+# Opens http://localhost:5173 — click "Connect", then:
+#   - Tools tab: confirm all 6 tools appear (list_available_agents,
+#     get_agent_card, hire_echo_agent, get_job_status, control_job, rate_job)
+#   - Call list_available_agents with no args → should return the 6 agents
+#   - Call get_agent_card with id="saas-prospector" → should return the card
+```
+
+If any of those fail, fix before continuing. Common issues:
+- **`ECHO_API_KEY` missing** → set it in the env block
+- **401 from API** → key wrong or not yet activated at /for-agents/register
+- **Tool not listed** → check `mcp-server/src/index.ts` registers it
+
+---
+
+## Part B — Publish to npm (required for Glama)
+
+Glama lists the npm install command, so the package must be public first.
+
+```bash
+# Make sure NPM_TOKEN is set as a GitHub Actions secret first:
+#   GitHub repo → Settings → Secrets and variables → Actions → New secret
+#   Name: NPM_TOKEN
+#   Value: an "Automation" token from https://www.npmjs.com/settings/<you>/tokens
+
+# Tag and push — the publish-mcp.yml workflow does the rest
+cd /path/to/yourechoagent
+git checkout main && git pull
+git tag mcp-v0.1.0
+git push origin mcp-v0.1.0
+
+# Watch the workflow
+# https://github.com/Browncabinet/yourechoagent/actions
+
+# Verify the package is live (give it ~2 min after the action finishes)
+npm view @browncabinet/yourechoagent-mcp
+# Should print the package manifest with version 0.1.0
+```
+
+Quick end-to-end test that any Glama user could run:
+
+```bash
+ECHO_API_KEY=eak_test_xxx npx -y @browncabinet/yourechoagent-mcp
+# Should boot and print "Echo Agent MCP server running on stdio"
+```
+
+---
+
+## Part C — Verify the MCP server inside Claude Desktop
+
+This is the same install path Glama documents, so confirming it works = your listing will "just work" for every Claude user.
+
+1. Open (or create) `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, or `%APPDATA%\Claude\claude_desktop_config.json` on Windows.
+2. Add this block (merge with existing `mcpServers` if present):
+
+   ```json
+   {
+     "mcpServers": {
+       "echo-agent": {
+         "command": "npx",
+         "args": ["-y", "@browncabinet/yourechoagent-mcp"],
+         "env": {
+           "ECHO_API_KEY": "eak_your_key_here"
+         }
+       }
+     }
+   }
    ```
-   Verify: <https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp>
-   Requires `NPM_TOKEN` secret in GitHub → Settings → Secrets → Actions.
 
-2. **`glama.json` is at repo root** (it is — confirmed). Glama scans the repo root for this file.
+3. **Fully quit and reopen Claude Desktop.**
+4. In a new chat, click the 🔌 plug icon in the input bar — `echo-agent` should be listed with 6 tools.
+5. Test prompt:
+   > "Use echo-agent to list available agents filtered by niche `saas`."
 
-3. **Public URLs reachable** (200 OK):
-   - <https://yourechoagent.com/.well-known/agent-card.json>
-   - <https://yourechoagent.com/.well-known/agent.json>
-   - <https://yourechoagent.com/.well-known/ai-plugin.json>
-   - OpenAPI: <https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi>
+If Claude calls `list_available_agents` and returns JSON, you're golden.
 
 ---
 
-## 1. Glama.ai (priority #1)
+## Part D — Submit to Glama.ai
 
-Glama auto-discovers MCP servers from public GitHub repos that contain a valid `glama.json`. Two paths:
-
-### Path A — Auto-discovery (passive)
-Glama's crawler periodically scans GitHub for repos with `glama.json` at the root. Since yours is already committed and public, it will be picked up on the next crawl (typically 1–7 days).
-
-### Path B — Manual submission (recommended, faster)
 1. Go to <https://glama.ai/mcp/servers>
-2. Click **"Add server"** (top right) → sign in with GitHub
-3. Paste repo URL: `https://github.com/Browncabinet/yourechoagent`
-4. Glama reads `glama.json` and pre-fills the listing
-5. Confirm fields:
-   - **Name:** yourechoagent-mcp
-   - **Description:** (already in glama.json)
-   - **Install command:** `npx -y @browncabinet/yourechoagent-mcp`
-   - **Env var:** `ECHO_API_KEY` (required)
-6. Submit for review (usually approved within 24–48h)
+2. Top right → **Add server** → sign in with GitHub
+3. Repo URL: `https://github.com/Browncabinet/yourechoagent`
+4. Glama parses your root `glama.json` and pre-fills:
+   - Name: `yourechoagent-mcp`
+   - Description: (from glama.json)
+   - Repo, license, maintainers
+5. Add/confirm the install block they ask for:
+   - **Command:** `npx`
+   - **Args:** `-y @browncabinet/yourechoagent-mcp`
+   - **Required env:** `ECHO_API_KEY` (description: "Echo Agent API key, prefix `eak_`. Get one at https://yourechoagent.com/for-agents/register")
+6. Submit. Approval is typically 24–48h.
 
-### Glama listing hygiene
-Once live, Glama shows a quality badge. Earn it by ensuring:
-- ✅ README has install instructions for Claude / Cursor / Windsurf (already done)
-- ✅ MIT license file (already done)
-- ✅ npm package is public and installable
-- ✅ Repo has a logo (add `mcp-server/logo.png` 512×512 — optional but recommended)
-- ✅ Working `npm run inspect` for MCP Inspector validation
+Glama also auto-crawls — your repo is already discoverable passively, but manual submit jumps the queue.
 
 ---
 
-## 2. Other MCP-specific registries
+## Part E — After approval (small follow-ups in this repo)
 
-### Smithery.ai
-1. Go to <https://smithery.ai/new>
-2. Sign in with GitHub
-3. Point at the same repo + subfolder `mcp-server/`
-4. Smithery auto-generates a one-click install URL for Claude Desktop
-5. Add the Smithery install button to `mcp-server/README.md` once approved
-
-### mcpservers.org (community index)
-- Open a PR at <https://github.com/modelcontextprotocol/servers> adding Echo Agent to the community section
-- Title: `Add Echo Agent — A2A/MCP outreach marketplace`
-
-### Anthropic Official MCP Registry
-- Watch <https://github.com/modelcontextprotocol/registry> for public launch
-- Once open, submit using the same `glama.json` metadata
+Once Glama emails you the live listing URL, I'll (in build mode):
+1. Replace the placeholder Glama badge in `mcp-server/README.md` with the real listing URL
+2. Update the **Submission status** table in `docs/registry-submissions.md`
+3. Optionally add an "As seen on Glama" link to the `/for-agents` page
 
 ---
 
-## 3. A2A registries (for agent-card.json, not MCP)
+## Prompts to copy for your terminal (TL;DR)
 
-### a2aregistry.org
-1. <https://a2aregistry.org/submit>
-2. Paste Agent Card URL: `https://yourechoagent.com/.well-known/agent-card.json`
-3. They auto-validate against A2A 0.3.0 spec
+```bash
+# Local verify
+cd mcp-server && npm install && npm run build && node dist/index.js
 
-### wellknown.ai
-1. <https://wellknown.ai>
-2. Submit `https://yourechoagent.com/.well-known/agent.json`
+# MCP Inspector
+ECHO_API_KEY=eak_xxx npm run inspect
 
-### Awesome-A2A (GitHub PR)
-- Fork <https://github.com/google-a2a/awesome-a2a>
-- Add under **Marketplaces** section:
-  ```markdown
-  - [Echo Agent](https://yourechoagent.com) — A2A 0.3.0 marketplace of 6 outreach sub-agents. Pay per lead/reply.
-  ```
-- Open PR
+# Publish
+git tag mcp-v0.1.0 && git push origin mcp-v0.1.0
 
----
+# Confirm published
+npm view @browncabinet/yourechoagent-mcp
 
-## 4. General AI tool directories
+# Smoke test the published package
+ECHO_API_KEY=eak_xxx npx -y @browncabinet/yourechoagent-mcp
+```
 
-Use the pre-copy assets block in `docs/registry-submissions.md` (already prepared). For each:
-
-| Registry | URL | Notes |
-|---|---|---|
-| There's An AI For That | https://theresanaiforthat.com/submit | Category: Sales/Outreach |
-| Futurepedia | https://www.futurepedia.io/submit-tool | Paid fast-track available |
-| AI Agents Directory | https://aiagentsdirectory.com/submit | Free |
-| TopAI.tools | https://topai.tools/submit | Free |
-| Easy With AI | https://easywithai.com/submit | Free |
-| AI Tool Hunt | https://www.aitoolhunt.com/submit | Free |
-
-For each form, paste:
-- **Name:** Echo Agent
-- **Tagline:** Hireable 24/7 A2A outreach agent for AI agents
-- **Logo:** https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp
-- **Description:** (long version from `docs/registry-submissions.md`)
-
----
-
-## 5. Launch platforms (after registries are live)
-
-1. **Product Hunt** — schedule in "AI Agents" topic, ideally a Tuesday/Wednesday launch
-2. **Hacker News Show HN** — title: `Show HN: Echo Agent – hire an AI agent to do your cold outreach (A2A/MCP)`
-3. **Indie Hackers** — post in "Show IH" milestone
-4. **Reddit** — r/AI_Agents, r/LangChain (check rules first)
-
----
-
-## 6. Tracking
-
-After each submission:
-1. Save the live listing URL in `docs/registry-submissions.md` (check the box + add URL next to each item)
-2. Set 90-day calendar reminder to refresh metadata
-3. Once 3+ registries approve, add an "As seen on" strip to `/for-agents` for social proof
-
----
-
-## What I'll do once you approve
-
-Switch to build mode and I'll:
-1. Update `docs/registry-submissions.md` with this expanded Glama section + step-by-step instructions
-2. Add a `## Submission status` tracking table at the top
-3. Optionally generate a 512×512 `mcp-server/logo.png` placeholder for Glama (or you upload your existing logo)
-4. Add a Smithery install badge placeholder to `mcp-server/README.md`
-
-No app code changes — docs and assets only.
+No code changes are required for any of this — everything is terminal + Glama web form + Claude Desktop config. Approve to proceed and I'll stand by to wire up the badge + status table once the listing goes live.
