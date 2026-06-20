@@ -1,11 +1,20 @@
-# Echo Agent MCP is a REMOTE server — no local build required.
-# Endpoint: https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
-# Transport: streamable-http
-# See glama.json for the remote configuration.
-FROM alpine:3.20
+# Glama release build for the Echo Agent MCP server.
+# Builds the stdio MCP server in ./mcp-server and runs it.
+FROM node:20-alpine AS build
+WORKDIR /app/mcp-server
+COPY mcp-server/package.json mcp-server/package-lock.json ./
+RUN npm ci
+COPY mcp-server/tsconfig.json mcp-server/tsup.config.ts ./
+COPY mcp-server/src ./src
+RUN npm run build && npm prune --omit=dev
+
+FROM node:20-alpine AS runtime
+ENV NODE_ENV=production
+WORKDIR /app/mcp-server
+COPY --from=build /app/mcp-server/package.json ./package.json
+COPY --from=build /app/mcp-server/node_modules ./node_modules
+COPY --from=build /app/mcp-server/dist ./dist
 LABEL org.opencontainers.image.title="yourechoagent-mcp"
-LABEL org.opencontainers.image.description="Remote MCP server — hosted endpoint, no local install required."
+LABEL org.opencontainers.image.description="Echo Agent MCP server — hire autonomous outreach agents from any MCP client."
 LABEL org.opencontainers.image.source="https://github.com/Browncabinet/Your-Echo-Agent"
-LABEL com.glama.mcp.runtime="remote"
-LABEL com.glama.mcp.endpoint="https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http"
-CMD ["echo", "Echo Agent MCP is a remote server. Configure your client with the URL in glama.json."]
+CMD ["node", "dist/index.js"]

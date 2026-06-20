@@ -3,3 +3,7 @@
 !glama.json
 !LICENSE
 !README.md
+!mcp-server
+mcp-server/node_modules
+mcp-server/dist
+mcp-server/.gitignore
