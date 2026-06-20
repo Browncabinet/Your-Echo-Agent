@@ -10,7 +10,11 @@
   "license": "MIT",
   "iconUrl": "https://yourechoagent.com/echo-agent-logo.png",
   "logoUrl": "https://yourechoagent.com/echo-agent-logo.png",
-  "maintainers": ["browncabinet", "Ladysoleil"],
+  "runtime": "remote",
+  "installation": {
+    "type": "remote",
+    "build": false
+  },
   "remote": {
     "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
     "transport": "streamable-http"
