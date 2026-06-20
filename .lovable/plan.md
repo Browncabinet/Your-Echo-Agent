@@ -1,56 +1,42 @@
-## What's happening
+## What’s actually failing
 
-Glama's reviewer is still auto-generating a Dockerfile and running `pnpm install && pnpm build` against the full Vite app, even though `glama.json` declares `runtime: "remote"`. The pnpm build fails on a transitive peer (`@tanstack/query-core`) inside the web app — which has nothing to do with the MCP server.
+Glama releases are containerized builds that start the MCP server and verify it responds. The current root `Dockerfile` only prints a message and exits, so even if Docker builds, Glama can still fail the review because there is no running MCP server.
 
-The remote-runtime hints aren't being respected, so we need to **override** the auto-generated Dockerfile with our own minimal one that does nothing but declare the remote endpoint. When Glama sees a `Dockerfile` at the repo root, it uses that instead of generating one.
+Do I know what the issue is? Yes: we should stop trying to bypass Glama’s Docker review and instead give it a real Docker image that runs the existing `mcp-server/` package.
 
-## Fix
+## Plan
 
-### 1. Add a no-op `Dockerfile` at repo root
+1. **Replace the root `Dockerfile`**
+   - Use a Node 20 image.
+   - Copy only the `mcp-server` package files.
+   - Run `npm ci` and `npm run build` inside `mcp-server`.
+   - Start the real stdio MCP server with `node dist/index.js`.
 
-A tiny image that exits successfully and documents the remote URL. Glama's build step passes; its runtime step is skipped because the server is remote.
+2. **Fix `.dockerignore`**
+   - Keep the Docker context small, but include the files Docker actually needs:
+     - `mcp-server/package.json`
+     - `mcp-server/package-lock.json`
+     - `mcp-server/src/**`
+     - `mcp-server/tsconfig.json`
+     - `mcp-server/tsup.config.ts`
+     - `README.md`, `LICENSE`, `glama.json`
 
-```dockerfile
-# Echo Agent MCP is a REMOTE server — no local build required.
-# Endpoint: https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
-# Transport: streamable-http
-# See glama.json for the remote configuration.
-FROM alpine:3.20
-LABEL org.opencontainers.image.title="yourechoagent-mcp"
-LABEL org.opencontainers.image.description="Remote MCP server — hosted endpoint, no local install required."
-LABEL org.opencontainers.image.source="https://github.com/Browncabinet/Your-Echo-Agent"
-LABEL com.glama.mcp.runtime="remote"
-LABEL com.glama.mcp.endpoint="https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http"
-CMD ["echo", "Echo Agent MCP is a remote server. Configure your client with the URL in glama.json."]
-```
+3. **Clean up `glama.json` for Glama’s real schema**
+   - Glama’s own docs say `glama.json` is mainly for ownership/claim metadata, especially `$schema` and `maintainers`.
+   - Add the maintainer GitHub username.
+   - Remove unsupported remote/Docker bypass fields that may be ignored or rejected by schema validation.
 
-### 2. Add `.dockerignore` so the build context stays tiny
+4. **Update the troubleshooting note**
+   - Replace the outdated “remote no-op Dockerfile” plan with the real release approach.
 
-```
-*
-!Dockerfile
-!glama.json
-!LICENSE
-!README.md
-```
+## After implementation
 
-This guarantees the image build can never accidentally pull in `package.json` and trigger pnpm.
+You’ll push/publish, then in Glama use the Dockerfile/release flow again. This time Glama should build a real MCP package instead of the full Vite app or an empty echo image.
 
-### 3. Belt-and-suspenders update to `glama.json`
+<presentation-actions>
+  <presentation-open-history>View History</presentation-open-history>
+</presentation-actions>
 
-Add `"dockerfilePath": "./Dockerfile"` so the reviewer explicitly points at our file rather than generating one. Keep the existing `runtime: "remote"` and `installation.type: "remote"` fields.
-
-### 4. Republish + re-review
-
-Lovable publishes → GitHub syncs → on glama.ai click **Re-review**. The Docker build will succeed (it's a 5MB alpine image with one echo command), and the remote endpoint stays the source of truth for actual MCP traffic.
-
-## If this still fails
-
-The next escalation is opening a support ticket with Glama, because at that point their reviewer is ignoring both the `runtime: remote` declaration AND the user-provided Dockerfile, which would be a platform bug on their side. We'd attach the failing build log and link to `glama.json`.
-
-## Files to change
-
-- **new** `Dockerfile` — minimal alpine, no build steps
-- **new** `.dockerignore` — exclude everything except metadata
-- **edit** `glama.json` — add `dockerfilePath`
-- **edit** `.lovable/plan.md` — update troubleshooting notes
+<presentation-actions>
+<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
+</presentation-actions>
