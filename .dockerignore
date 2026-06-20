@@ -4,6 +4,12 @@
 !LICENSE
 !README.md
 !mcp-server
+!mcp-server/package.json
+!mcp-server/tsconfig.json
+!mcp-server/tsup.config.ts
+!mcp-server/src
+!mcp-server/src/**
+mcp-server/package-lock.json
 mcp-server/node_modules
 mcp-server/dist
 mcp-server/.gitignore

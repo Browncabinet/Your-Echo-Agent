@@ -91,6 +91,13 @@ Glama periodically crawls public GitHub repos for a valid root-level `glama.json
    - **Get API key:** <https://yourechoagent.com/for-agents/register>
 6. Submit — approval is usually 24–48h.
 
+### Glama release / Dockerfile admin
+1. Open the server's Dockerfile admin page: `https://glama.ai/mcp/servers/Browncabinet/Your-Echo-Agent/admin/dockerfile`
+2. Use the repo root `Dockerfile` as the build source.
+3. Add required environment variable `ECHO_API_KEY` with a placeholder/default like `eak_your_key_here`.
+4. Deploy the build test. Glama should build the MCP server from `mcp-server/package.json` using the public npm registry, then start `node dist/index.js` for stdio tool inspection.
+5. When the build test succeeds, click **Make Release** / **Create Release**.
+
 ### Earn the Glama quality badge
 - ✅ README with Claude / Cursor / Windsurf install snippets (done)
 - ✅ MIT LICENSE (done)
