@@ -10,7 +10,9 @@ Everything below is ready to copy/paste into the Glama "Add server" form at <htt
 https://github.com/Browncabinet/Your-Echo-Agent
 ```
 
-Subfolder: `mcp-server/` — Glama detects this from your `glama.json` `"path": "mcp-server"`.
+Dockerfile: use the repo root `Dockerfile`. It builds the stdio MCP server from `mcp-server/` and starts `node dist/index.js` for Glama inspection.
+
+Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default can be `eak_your_key_here` in Glama's Dockerfile admin page).
 
 ---
 
