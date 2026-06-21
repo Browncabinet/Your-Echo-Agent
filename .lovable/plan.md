@@ -1,40 +1,14 @@
-## Reuse your existing npm token — skip to step 2
+## Glama install fix — Docker runtime
 
-You already have an npm token, so no need to create a new one. Pick up here:
+`glama.json` now uses the repo-root `Dockerfile` (`runtime: docker`) instead of `npx`. This works without the npm package being published, so Glama can build and run the stdio MCP server immediately.
 
-### 1. Add the token to your GitHub repo
-- Go to: https://github.com/Browncabinet/Your-Echo-Agent/settings/secrets/actions
-- Click **New repository secret**
-- Name: `NPM_TOKEN` (exact, case-sensitive)
-- Value: paste your existing npm token
-- Click **Add secret**
+### Re-trigger Glama
+1. Go to your server's page on https://glama.ai/mcp/servers
+2. Click **Re-scan** (or re-submit `https://github.com/Browncabinet/Your-Echo-Agent` at https://glama.ai/mcp/servers/add)
+3. Glama pulls the updated `glama.json`, builds the Dockerfile, and the "cannot be installed" badge clears
 
-If a secret named `NPM_TOKEN` already exists, click it → **Update secret** and paste the token again to be safe.
-
-Note: it must be an **Automation** token (or Classic with "Publish" scope). Granular tokens scoped to `@browncabinet` work too. If unsure, generate a fresh Automation token at https://www.npmjs.com/settings/[your-username]/tokens — old "read-only" tokens won't publish.
-
-### 2. Make sure the `@browncabinet` npm org exists
-- Visit: https://www.npmjs.com/org/browncabinet
-- If it 404s, create it (free for public packages): https://www.npmjs.com/org/create → name `browncabinet`
-- Confirm your npm user is a member with publish rights
-
-### 3. Create the release tag (triggers auto-publish)
-- Go to: https://github.com/Browncabinet/Your-Echo-Agent/releases/new
-- **Choose a tag** → type `mcp-v0.1.0` → **Create new tag on publish**
-- Title: `MCP server v0.1.0`
-- Click **Publish release**
-
-### 4. Watch the workflow
-- https://github.com/Browncabinet/Your-Echo-Agent/actions
-- Wait ~1–2 minutes for the "Publish MCP Server" job to go green
-
-### 5. Verify
-- https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp should show version `0.1.0`
-
-### 6. Submit to glama.ai
-- https://glama.ai/mcp/servers/add
-- Paste repo URL: `https://github.com/Browncabinet/Your-Echo-Agent`
-- Glama reads your `glama.json` automatically
-
-## If the workflow fails
-Paste the red step's log here and I'll diagnose. Most common: token isn't Automation-type, or org doesn't exist yet.
+### (Optional later) Publish to npm for `npx` users
+Claude Desktop / Cursor / Windsurf users prefer `npx -y @browncabinet/yourechoagent-mcp`. To enable that path:
+1. Add `NPM_TOKEN` at https://github.com/Browncabinet/Your-Echo-Agent/settings/secrets/actions
+2. Create release tag `mcp-v0.1.0` at https://github.com/Browncabinet/Your-Echo-Agent/releases/new
+3. GitHub Action publishes the package automatically
