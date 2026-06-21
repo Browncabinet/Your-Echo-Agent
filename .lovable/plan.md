@@ -1,87 +1,72 @@
-## What went wrong
+## What’s happening
 
-The npm login worked. The remaining error is:
+- `npm` is running from your home folder: `/Users/natashas.`
+- That folder does **not** contain `package.json`, so commands like `npm install`, `npm run build`, or `npm publish` fail with `ENOENT`.
+- `npm view @browncabinet/yourechoagent-mcp version` returns `404` because the package has not been published yet, or it is private/inaccessible.
 
-```text
-ENOENT Could not read package.json: no such file or directory, open '/Users/natashas./package.json'
-```
+## Plan
 
-That means Terminal is still in your home folder (`~`), but `npm install`, `npm run build`, and `npm publish` must be run inside the folder that contains the MCP package’s `package.json`.
+1. **Confirm npm login worked**
+   - Run:
+     ```bash
+     npm whoami
+     ```
+   - Expected: your npm username prints.
 
-## Fix steps to run in Terminal
+2. **Find the real package folder**
+   - Run:
+     ```bash
+     find ~ -name package.json -path '*mcp*' 2>/dev/null
+     ```
+   - This should print the path to the MCP package’s `package.json`.
 
-### 1. Find the correct package folder
+3. **Move into that folder**
+   - If the result is something like:
+     ```bash
+     /Users/natashas./some-folder/yourechoagent-mcp/package.json
+     ```
+   - Run:
+     ```bash
+     cd /Users/natashas./some-folder/yourechoagent-mcp
+     ```
+   - Important: `cd` into the folder, not the `package.json` file.
 
-Run this from your home folder:
+4. **Verify you are in the right place**
+   - Run:
+     ```bash
+     pwd
+     ls
+     cat package.json | grep -E '"name"|"version"'
+     ```
+   - Expected package name:
+     ```bash
+     @browncabinet/yourechoagent-mcp
+     ```
 
-```bash
-find ~ -name package.json -path '*mcp*' 2>/dev/null
-```
+5. **Install, build, and publish**
+   - Run:
+     ```bash
+     npm install
+     npm run build
+     npm publish --access public
+     ```
 
-Look for a result that ends something like:
+6. **Verify it published**
+   - Run:
+     ```bash
+     npm view @browncabinet/yourechoagent-mcp version
+     ```
+   - Expected:
+     ```bash
+     0.1.0
+     ```
 
-```text
-.../yourechoagent.../mcp-server/package.json
-```
+## If step 2 returns nothing
 
-### 2. Go into that folder
-
-Use the folder path from the result, but remove `/package.json` at the end.
-
-Example:
-
-```bash
-cd ~/Your-Echo-Agent/mcp-server
-```
-
-Then verify you are in the right place:
-
-```bash
-pwd
-ls
-```
-
-You should see `package.json` listed.
-
-### 3. Confirm the package name/version
-
-```bash
-cat package.json | grep '"name"\|"version"'
-```
-
-You want to see:
-
-```text
-"name": "@browncabinet/yourechoagent-mcp"
-"version": "0.1.0"
-```
-
-### 4. Install, build, and publish
-
-```bash
-npm install
-npm run build
-npm publish --access public
-```
-
-### 5. Verify it published
-
-```bash
-npm view @browncabinet/yourechoagent-mcp version
-```
-
-Success means it prints:
-
-```text
-0.1.0
-```
-
-## If `find` returns nothing
-
-That means the repo/package is not on your Mac in the expected location. In that case, paste the output of:
+Run this broader search and paste the output:
 
 ```bash
-ls ~
+find ~ -name package.json 2>/dev/null | head -50
 ```
 
-and I’ll help identify where the repo is.
+That means the repo may not be downloaded on your Mac yet, or it is stored outside your home folder.
