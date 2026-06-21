@@ -1,50 +1,87 @@
-# Publish the MCP server to npm (manual route)
+## What went wrong
 
-Since you have npm org access and admin on the GitHub repo, the fastest path is to publish directly from your laptop. No GitHub secrets needed.
+The npm login worked. The remaining error is:
 
-## Steps you run in your Terminal
+```text
+ENOENT Could not read package.json: no such file or directory, open '/Users/natashas./package.json'
+```
+
+That means Terminal is still in your home folder (`~`), but `npm install`, `npm run build`, and `npm publish` must be run inside the folder that contains the MCP package’s `package.json`.
+
+## Fix steps to run in Terminal
+
+### 1. Find the correct package folder
+
+Run this from your home folder:
 
 ```bash
-# 1. Make sure you're logged into the right npm account
-npm whoami
-# If not logged in:
-npm login
+find ~ -name package.json -path '*mcp*' 2>/dev/null
+```
 
-# 2. Confirm you have publish rights to the scope
-npm access list packages @browncabinet
+Look for a result that ends something like:
 
-# 3. Go to the MCP server folder inside your cloned repo
-cd ~/path/to/Your-Echo-Agent/mcp-server
-# (adjust path — wherever you cloned it)
+```text
+.../yourechoagent.../mcp-server/package.json
+```
 
-# 4. Install deps and build
+### 2. Go into that folder
+
+Use the folder path from the result, but remove `/package.json` at the end.
+
+Example:
+
+```bash
+cd ~/Your-Echo-Agent/mcp-server
+```
+
+Then verify you are in the right place:
+
+```bash
+pwd
+ls
+```
+
+You should see `package.json` listed.
+
+### 3. Confirm the package name/version
+
+```bash
+cat package.json | grep '"name"\|"version"'
+```
+
+You want to see:
+
+```text
+"name": "@browncabinet/yourechoagent-mcp"
+"version": "0.1.0"
+```
+
+### 4. Install, build, and publish
+
+```bash
 npm install
 npm run build
-
-# 5. Publish (scoped packages need --access public the first time)
 npm publish --access public
+```
 
-# 6. Verify it's live
+### 5. Verify it published
+
+```bash
 npm view @browncabinet/yourechoagent-mcp version
 ```
 
-## What success looks like
+Success means it prints:
 
-- Step 5 prints `+ @browncabinet/yourechoagent-mcp@0.1.0`
-- Step 6 returns `0.1.0`
-- Glama's "Install" button now works for end users — `npx @browncabinet/yourechoagent-mcp` will resolve
+```text
+0.1.0
+```
 
-## If something goes wrong
+## If `find` returns nothing
 
-- **`404 Not Found` on `npm access list`** — the `@browncabinet` org doesn't exist yet on npm. Create it at https://www.npmjs.com/org/create (free for public packages).
-- **`403 Forbidden` on publish** — your npm account isn't a member of the org with publish rights. Add yourself at npmjs.com → @browncabinet → Members.
-- **`402 Payment Required`** — you forgot `--access public`. Scoped packages default to private (paid). Re-run with the flag.
-- **`mcp-server` folder doesn't exist** — I'll need to check the repo structure; let me know and I'll look.
+That means the repo/package is not on your Mac in the expected location. In that case, paste the output of:
 
-## Note on the GitHub Action route
+```bash
+ls ~
+```
 
-Once this manual publish works, the GitHub Action (`.github/workflows/publish-mcp.yml`) is still useful for future releases — but you can set that up later when you want v0.1.1. No urgency.
-
-## No file changes needed
-
-This plan is entirely terminal commands you run locally. I'm not modifying any project files.
+and I’ll help identify where the repo is.
