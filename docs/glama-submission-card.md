@@ -46,13 +46,15 @@ Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default ca
 
 ## 5. Install / run command
 
+Glama builds and runs the server from the repo's root `Dockerfile` (declared in `glama.json` as `runtime: docker`). End-users on Claude Desktop / Cursor / Windsurf use `npx` once the npm package is published.
+
 | Field | Value |
 |---|---|
-| **Command** | `npx` |
-| **Args** | `-y @browncabinet/yourechoagent-mcp` |
+| **Glama runtime** | docker (Dockerfile at repo root) |
+| **Client command (stdio)** | `npx -y @browncabinet/yourechoagent-mcp` |
 | **Transport** | stdio |
 | **Runtime** | Node.js ≥ 20 |
-| **npm package** | https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp |
+| **npm package** | https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp (publish pending) |
 
 ---
 
