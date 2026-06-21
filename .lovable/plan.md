@@ -1,49 +1,40 @@
-## Easier path: skip the Terminal entirely
+## Reuse your existing npm token — skip to step 2
 
-Your repo already has a GitHub Actions workflow (`.github/workflows/publish-mcp.yml`) that publishes the MCP server to npm automatically whenever you push a tag like `mcp-v0.1.0`. We just need to wire up one secret and create the tag — all from the GitHub website. No Terminal needed.
+You already have an npm token, so no need to create a new one. Pick up here:
 
-## Steps (all in the browser)
-
-### 1. Create an npm automation token
-- Go to https://www.npmjs.com/ and log in
-- Top-right avatar → **Access Tokens** → **Generate New Token** → **Classic Token**
-- Type: **Automation** (works with 2FA)
-- Copy the token (starts with `npm_...`)
-
-### 2. Add the token to your GitHub repo
-- Go to https://github.com/Browncabinet/Your-Echo-Agent
-- **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-- Name: `NPM_TOKEN`
-- Value: paste the token from step 1
+### 1. Add the token to your GitHub repo
+- Go to: https://github.com/Browncabinet/Your-Echo-Agent/settings/secrets/actions
+- Click **New repository secret**
+- Name: `NPM_TOKEN` (exact, case-sensitive)
+- Value: paste your existing npm token
 - Click **Add secret**
 
-### 3. Confirm npm scope access
-- Make sure your npm user is a member of the `@browncabinet` org on npmjs.com
-- If the org does not exist yet: https://www.npmjs.com/org/create → name it `browncabinet` (free tier is fine for public packages)
+If a secret named `NPM_TOKEN` already exists, click it → **Update secret** and paste the token again to be safe.
 
-### 4. Create the release tag
-- Go to https://github.com/Browncabinet/Your-Echo-Agent/releases/new
+Note: it must be an **Automation** token (or Classic with "Publish" scope). Granular tokens scoped to `@browncabinet` work too. If unsure, generate a fresh Automation token at https://www.npmjs.com/settings/[your-username]/tokens — old "read-only" tokens won't publish.
+
+### 2. Make sure the `@browncabinet` npm org exists
+- Visit: https://www.npmjs.com/org/browncabinet
+- If it 404s, create it (free for public packages): https://www.npmjs.com/org/create → name `browncabinet`
+- Confirm your npm user is a member with publish rights
+
+### 3. Create the release tag (triggers auto-publish)
+- Go to: https://github.com/Browncabinet/Your-Echo-Agent/releases/new
 - **Choose a tag** → type `mcp-v0.1.0` → **Create new tag on publish**
 - Title: `MCP server v0.1.0`
 - Click **Publish release**
 
-This push triggers the workflow. Watch it run at:
-https://github.com/Browncabinet/Your-Echo-Agent/actions
+### 4. Watch the workflow
+- https://github.com/Browncabinet/Your-Echo-Agent/actions
+- Wait ~1–2 minutes for the "Publish MCP Server" job to go green
 
-### 5. Verify it published
-After the workflow turns green (about 1–2 minutes), open:
-https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp
+### 5. Verify
+- https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp should show version `0.1.0`
 
 ### 6. Submit to glama.ai
-Your `glama.json` is already correctly configured in the repo root. Submit the repo at:
-https://glama.ai/mcp/servers/add
+- https://glama.ai/mcp/servers/add
+- Paste repo URL: `https://github.com/Browncabinet/Your-Echo-Agent`
+- Glama reads your `glama.json` automatically
 
-Glama will read `glama.json` and list the server, using `npx -y @browncabinet/yourechoagent-mcp` for install.
-
-## If something fails
-
-- **Workflow fails at "Publish to npm" with 401/403** → `NPM_TOKEN` is missing, wrong, or not an Automation token. Recreate and re-add.
-- **Workflow fails with "402 Payment Required"** → the `@browncabinet` scope is set to private. Go to npmjs.com → org settings → make it public, or the workflow's `--access public` flag should handle it once your user has publish rights.
-- **No `@browncabinet` org** → create it (free) at https://www.npmjs.com/org/create.
-
-Paste any failed workflow log here and I'll diagnose.
+## If the workflow fails
+Paste the red step's log here and I'll diagnose. Most common: token isn't Automation-type, or org doesn't exist yet.
