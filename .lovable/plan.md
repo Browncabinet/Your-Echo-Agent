@@ -1,14 +1,6 @@
-## Glama install fix — Docker runtime
+Put your uploaded logo in the repo so it is publicly available and synced to Git.
 
-`glama.json` now uses the repo-root `Dockerfile` (`runtime: docker`) instead of `npx`. This works without the npm package being published, so Glama can build and run the stdio MCP server immediately.
+1. Replace `src/assets/echo_agent_logo.png` with the uploaded image so it updates across the site.
+2. Copy the same image to `public/echo-agent-logo.png`. Once published, Glama (and anyone else) can reach it at `https://yourechoagent.com/echo-agent-logo.png` — the URL already referenced in `public/.well-known/mcp/server-card.json`.
 
-### Re-trigger Glama
-1. Go to your server's page on https://glama.ai/mcp/servers
-2. Click **Re-scan** (or re-submit `https://github.com/Browncabinet/Your-Echo-Agent` at https://glama.ai/mcp/servers/add)
-3. Glama pulls the updated `glama.json`, builds the Dockerfile, and the "cannot be installed" badge clears
-
-### (Optional later) Publish to npm for `npx` users
-Claude Desktop / Cursor / Windsurf users prefer `npx -y @browncabinet/yourechoagent-mcp`. To enable that path:
-1. Add `NPM_TOKEN` at https://github.com/Browncabinet/Your-Echo-Agent/settings/secrets/actions
-2. Create release tag `mcp-v0.1.0` at https://github.com/Browncabinet/Your-Echo-Agent/releases/new
-3. GitHub Action publishes the package automatically
+No other changes needed.
