@@ -15,73 +15,84 @@ import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
-type WeeklyTier = {
+type MonthlyTier = {
   id: string;
+  monthlyPriceId: string;
+  annualPriceId: string;
   name: string;
-  price: number;
-  emails: number;
-  linkedin: number;
+  monthly: number;
+  annual: number; // effective per-month price when billed annually
   description: string;
   features: string[];
+  cta: string;
   highlight?: boolean;
   badge?: string;
+  primaryCta?: boolean;
 };
 
-const weeklyTiers: WeeklyTier[] = [
+const monthlyTiers: MonthlyTier[] = [
   {
-    id: "starter_weekly",
-    name: "Starter Weekly",
-    price: 19,
-    emails: 500,
-    linkedin: 50,
-    description: "Perfect for testing and your first campaign",
+    id: "starter",
+    monthlyPriceId: "starter_monthly",
+    annualPriceId: "starter_annual",
+    name: "Starter",
+    monthly: 19,
+    annual: 15,
+    description: "Perfect for testing your first niche and campaign",
+    cta: "Start with Starter",
+    primaryCta: true,
     features: [
-      "500 emails / week",
-      "50 LinkedIn Assist actions / week",
+      "80 discoveries per week",
+      "800 emails per month",
       "Full Echo Agent + Reply Handler",
       "Niche-first targeting",
-      "Cancel or pause anytime",
+      "Instant access — cancel anytime",
     ],
   },
   {
-    id: "growth_weekly",
-    name: "Growth Weekly",
-    price: 39,
-    emails: 1500,
-    linkedin: 150,
-    description: "Best value for most users getting real results",
-    features: [
-      "1,500 emails / week",
-      "150 LinkedIn Assist actions / week",
-      "Full Echo Agent + Reply Handler",
-      "Priority sending queue",
-      "Cancel or pause anytime",
-    ],
+    id: "growth",
+    monthlyPriceId: "growth_monthly",
+    annualPriceId: "growth_annual",
+    name: "Growth",
+    monthly: 79,
+    annual: 63,
+    description: "Best value for users getting real results",
+    cta: "Choose Growth",
     highlight: true,
-    badge: "Most Popular",
+    badge: "Recommended",
+    features: [
+      "300 discoveries per week",
+      "Unlimited emails per month",
+      "Full My Radar + advanced features",
+      "Priority sending queue",
+      "Advanced analytics & A/B testing",
+    ],
   },
   {
-    id: "power_weekly",
-    name: "Power Weekly",
-    price: 79,
-    emails: 4000,
-    linkedin: 400,
-    description: "For power users and agencies scaling fast",
+    id: "pro",
+    monthlyPriceId: "pro_monthly",
+    annualPriceId: "pro_annual",
+    name: "Pro",
+    monthly: 199,
+    annual: 159,
+    description: "For agencies and teams scaling outreach",
+    cta: "Go Pro",
     features: [
-      "4,000 emails / week",
-      "400 LinkedIn Assist actions / week",
-      "Full Echo Agent + Reply Handler",
-      "Priority sending queue",
-      "Cancel or pause anytime",
+      "800+ discoveries per week",
+      "Unlimited emails per month",
+      "Team seats included",
+      "Priority support",
+      "Dedicated onboarding",
     ],
   },
 ];
 
 const faqs = [
-  { q: "Can I cancel or change tiers anytime?", a: "Yes. All weekly plans renew every 7 days. Cancel, pause, or switch from your dashboard — access continues until the current week ends." },
-  { q: "What counts as a LinkedIn Assist action?", a: "Each AI generation that returns group suggestions plus comment/DM drafts counts as one action. You then post or message manually from LinkedIn." },
-  { q: "Does my email allowance roll over?", a: "No — every weekly plan resets every Monday so you always get a fresh quota. This keeps deliverability healthy." },
-  { q: "What happens if I hit my weekly cap?", a: "Sending pauses until the week resets, or you can upgrade instantly to keep going." },
+  { q: "What happens after the 5-day $9 trial?", a: "After 5 days, your trial ends automatically. There's no auto-charge and no credit card required to start. If you love it, choose any monthly plan — Starter ($19), Growth ($79), or Pro ($199) — to keep going. Your discoveries and contacts stay in your account." },
+  { q: "How does the pay-per-result option work?", a: "Pay-per-result is an optional add-on for A2A (agent-to-agent) traffic and overage. You pre-fund a balance and get charged $0.08–$0.25 per qualified lead or reply, with a hard spending cap per job so you never overspend. It works alongside any monthly plan." },
+  { q: "Can I change plans anytime?", a: "Yes. Upgrade, downgrade, pause, or cancel from your dashboard in one click. Changes take effect immediately, and we prorate the difference on your next invoice." },
+  { q: "What's the difference between monthly and annual billing?", a: "Annual billing saves you ~20% (e.g., Starter drops from $19 to $15/month). You're billed once for the year and can still cancel anytime — we refund the unused months on request." },
+  { q: "Do discoveries reset weekly or monthly?", a: "Discoveries reset every week to keep your pipeline fresh. Emails reset monthly (Starter) or are unlimited (Growth / Pro)." },
 ];
 
 export default function Pricing() {
@@ -90,6 +101,7 @@ export default function Pricing() {
   const { openPortal, isActive } = useSubscription();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
   const [topupPriceId, setTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   // Auto-resume top-up flow after sign-in
   useEffect(() => {
@@ -138,7 +150,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Pricing — Your Echo Agent"
-        description="Weekly plans from $19. AI outreach, event discovery, and reply handling in one app. Top-ups never expire. 50 free emails to start."
+        description="Monthly plans from $19. AI outreach + event/community discovery. Try Growth for $9 / 5 days, no credit card. Cancel anytime."
         path="/pricing"
         jsonLd={faqJsonLd}
       />
@@ -169,10 +181,10 @@ export default function Pricing() {
             <Sparkles className="w-3 h-3 mr-1" /> Pick your audience
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Pricing for humans and agents
+            Simple monthly pricing
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-            Weekly plans for people running outreach themselves — or pay-per-result A2A access for other agents.
+            Start in minutes. Cancel anytime. Save ~20% with annual billing.
           </p>
         </div>
 
@@ -183,64 +195,105 @@ export default function Pricing() {
           </TabsList>
 
           <TabsContent value="human">
+            {/* $9 / 5-day trial banner */}
+            <Card className="p-6 md:p-8 mb-10 max-w-4xl mx-auto border-2 border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 relative overflow-hidden">
+              <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">Limited offer</Badge>
+              <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-foreground mb-1">
+                    Try full Growth for $9 — 5 days
+                  </h3>
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    Full access to discoveries, My Radar, and unlimited emails. One-time charge. <span className="font-semibold text-foreground">No credit card required to start.</span>
+                  </p>
+                </div>
+                <Button size="lg" className="shrink-0" onClick={() => onChoose("trial_growth_5day")}>
+                  <Zap className="w-4 h-4 mr-1.5" /> Start $9 trial
+                </Button>
+              </div>
+            </Card>
+
             <section className="mb-16">
               <div className="text-center mb-8">
-                <Badge className="mb-3 bg-primary text-primary-foreground">
-                  <CalendarClock className="w-3 h-3 mr-1" /> Weekly Plans
-                </Badge>
+                <div className="inline-flex items-center gap-3 bg-muted rounded-full p-1">
+                  <button
+                    type="button"
+                    onClick={() => setBilling("monthly")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billing === "monthly" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBilling("annual")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${billing === "annual" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
+                  >
+                    Annual
+                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border-0">Save ~20%</Badge>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {weeklyTiers.map((tier) => (
-                  <Card
-                    key={tier.id}
-                    className={`p-8 flex flex-col relative transition-all ${
-                      tier.highlight
-                        ? "border-primary ring-4 ring-primary/20 shadow-xl md:scale-105 bg-gradient-to-br from-primary/5 to-transparent"
-                        : "hover:border-primary/40 hover:shadow-md"
-                    }`}
-                  >
-                    <Badge
-                      variant="secondary"
-                      className="absolute -top-3 right-4 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                {monthlyTiers.map((tier) => {
+                  const price = billing === "annual" ? tier.annual : tier.monthly;
+                  const priceId = billing === "annual" ? tier.annualPriceId : tier.monthlyPriceId;
+                  const isCtaPrimary = tier.primaryCta || tier.highlight;
+                  return (
+                    <Card
+                      key={tier.id}
+                      className={`p-8 flex flex-col relative transition-all ${
+                        tier.highlight
+                          ? "border-primary ring-4 ring-primary/20 shadow-xl md:scale-105 bg-gradient-to-br from-primary/5 to-transparent"
+                          : "hover:border-primary/40 hover:shadow-md"
+                      }`}
                     >
-                      Cancel or change anytime
-                    </Badge>
-                    {tier.badge && (
-                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1">
-                        <Sparkles className="w-3 h-3 mr-1" /> {tier.badge}
-                      </Badge>
-                    )}
+                      {tier.badge && (
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1">
+                          <Sparkles className="w-3 h-3 mr-1" /> {tier.badge}
+                        </Badge>
+                      )}
 
-                    <div className="text-center mb-6">
-                      <h3 className="text-xl font-bold text-foreground mb-1">{tier.name}</h3>
-                      <p className="text-sm text-muted-foreground">{tier.description}</p>
-                      <div className="mt-4">
-                        <p className="text-5xl sm:text-6xl font-bold text-foreground">${tier.price}</p>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">per week</p>
+                      <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-foreground mb-1">{tier.name}</h3>
+                        <p className="text-sm text-muted-foreground min-h-[2.5rem]">{tier.description}</p>
+                        <div className="mt-4">
+                          <p className="text-5xl sm:text-6xl font-bold text-foreground">${price}</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+                            per month{billing === "annual" ? " · billed annually" : ""}
+                          </p>
+                          {billing === "monthly" && (
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                              or ${tier.annual}/mo billed annually
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <ul className="space-y-3 mb-8 flex-1">
-                      {tier.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm text-foreground">
-                          <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
+                      <ul className="space-y-3 mb-8 flex-1">
+                        {tier.features.map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-sm text-foreground">
+                            <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
 
-                    <Button
-                      size="lg"
-                      variant={tier.highlight ? "default" : "outline"}
-                      className="w-full"
-                      onClick={() => onChoose(tier.id)}
-                    >
-                      {isActive ? "Manage subscription" : `Start ${tier.name}`}
-                    </Button>
-                  </Card>
-                ))}
+                      <Button
+                        size="lg"
+                        variant={isCtaPrimary ? "default" : "outline"}
+                        className="w-full"
+                        onClick={() => onChoose(priceId)}
+                      >
+                        {isActive ? "Manage subscription" : tier.cta}
+                      </Button>
+                    </Card>
+                  );
+                })}
               </div>
+              <p className="text-center text-xs text-muted-foreground mt-6">
+                All plans include: full Echo Agent, Reply Handler, event & community discovery, and email tracking. Cancel anytime.
+              </p>
             </section>
 
             <section className="mb-16">
@@ -250,10 +303,11 @@ export default function Pricing() {
             <Card className="p-6 md:p-8 mb-16 max-w-3xl mx-auto border-primary/30 bg-primary/5 text-center">
               <Sparkles className="w-6 h-6 text-primary mx-auto mb-3" />
               <p className="text-foreground text-base sm:text-lg leading-relaxed">
-                Most users start with the <span className="font-bold">$19 Starter Weekly</span> to test safely. Once replies and booked calls come in, they upgrade to <span className="font-bold">Growth or Power</span>.
+                Most users start with <span className="font-bold">Starter at $19/month</span> to test their niche. Once replies come in, they upgrade to <span className="font-bold">Growth or Pro</span>.
               </p>
             </Card>
           </TabsContent>
+
 
           <TabsContent value="a2a">
             <section className="mb-12">
@@ -331,7 +385,7 @@ export default function Pricing() {
       <Dialog open={!!selectedPriceId} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Start your weekly plan</DialogTitle>
+            <DialogTitle>Start your plan</DialogTitle>
             <DialogDescription>Secure checkout — cancel anytime from your dashboard.</DialogDescription>
           </DialogHeader>
           {selectedPriceId && user && (
