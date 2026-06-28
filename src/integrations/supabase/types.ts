@@ -1207,6 +1207,8 @@ export type Database = {
       current_week_caps: {
         Args: { _user_id: string }
         Returns: {
+          discoveries_cap: number
+          discoveries_used: number
           email_cap: number
           emails_used: number
           linkedin_cap: number
