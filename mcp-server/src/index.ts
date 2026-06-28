@@ -6,6 +6,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { EchoClient } from "./client.js";
+import { callHostedTool } from "./client.js";
 
 const apiKey = process.env.ECHO_API_KEY || "";
 const apiBase = process.env.ECHO_API_BASE;
