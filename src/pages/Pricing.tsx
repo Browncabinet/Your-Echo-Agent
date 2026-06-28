@@ -15,73 +15,84 @@ import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 
-type WeeklyTier = {
+type MonthlyTier = {
   id: string;
+  monthlyPriceId: string;
+  annualPriceId: string;
   name: string;
-  price: number;
-  emails: number;
-  linkedin: number;
+  monthly: number;
+  annual: number; // effective per-month price when billed annually
   description: string;
   features: string[];
+  cta: string;
   highlight?: boolean;
   badge?: string;
+  primaryCta?: boolean;
 };
 
-const weeklyTiers: WeeklyTier[] = [
+const monthlyTiers: MonthlyTier[] = [
   {
-    id: "starter_weekly",
-    name: "Starter Weekly",
-    price: 19,
-    emails: 500,
-    linkedin: 50,
-    description: "Perfect for testing and your first campaign",
+    id: "starter",
+    monthlyPriceId: "starter_monthly",
+    annualPriceId: "starter_annual",
+    name: "Starter",
+    monthly: 19,
+    annual: 15,
+    description: "Perfect for testing your first niche and campaign",
+    cta: "Start with Starter",
+    primaryCta: true,
     features: [
-      "500 emails / week",
-      "50 LinkedIn Assist actions / week",
+      "80 discoveries per week",
+      "800 emails per month",
       "Full Echo Agent + Reply Handler",
       "Niche-first targeting",
-      "Cancel or pause anytime",
+      "Instant access — cancel anytime",
     ],
   },
   {
-    id: "growth_weekly",
-    name: "Growth Weekly",
-    price: 39,
-    emails: 1500,
-    linkedin: 150,
-    description: "Best value for most users getting real results",
-    features: [
-      "1,500 emails / week",
-      "150 LinkedIn Assist actions / week",
-      "Full Echo Agent + Reply Handler",
-      "Priority sending queue",
-      "Cancel or pause anytime",
-    ],
+    id: "growth",
+    monthlyPriceId: "growth_monthly",
+    annualPriceId: "growth_annual",
+    name: "Growth",
+    monthly: 79,
+    annual: 63,
+    description: "Best value for users getting real results",
+    cta: "Choose Growth",
     highlight: true,
-    badge: "Most Popular",
+    badge: "Recommended",
+    features: [
+      "300 discoveries per week",
+      "Unlimited emails per month",
+      "Full My Radar + advanced features",
+      "Priority sending queue",
+      "Advanced analytics & A/B testing",
+    ],
   },
   {
-    id: "power_weekly",
-    name: "Power Weekly",
-    price: 79,
-    emails: 4000,
-    linkedin: 400,
-    description: "For power users and agencies scaling fast",
+    id: "pro",
+    monthlyPriceId: "pro_monthly",
+    annualPriceId: "pro_annual",
+    name: "Pro",
+    monthly: 199,
+    annual: 159,
+    description: "For agencies and teams scaling outreach",
+    cta: "Go Pro",
     features: [
-      "4,000 emails / week",
-      "400 LinkedIn Assist actions / week",
-      "Full Echo Agent + Reply Handler",
-      "Priority sending queue",
-      "Cancel or pause anytime",
+      "800+ discoveries per week",
+      "Unlimited emails per month",
+      "Team seats included",
+      "Priority support",
+      "Dedicated onboarding",
     ],
   },
 ];
 
 const faqs = [
-  { q: "Can I cancel or change tiers anytime?", a: "Yes. All weekly plans renew every 7 days. Cancel, pause, or switch from your dashboard — access continues until the current week ends." },
-  { q: "What counts as a LinkedIn Assist action?", a: "Each AI generation that returns group suggestions plus comment/DM drafts counts as one action. You then post or message manually from LinkedIn." },
-  { q: "Does my email allowance roll over?", a: "No — every weekly plan resets every Monday so you always get a fresh quota. This keeps deliverability healthy." },
-  { q: "What happens if I hit my weekly cap?", a: "Sending pauses until the week resets, or you can upgrade instantly to keep going." },
+  { q: "What happens after the 5-day $9 trial?", a: "After 5 days, your trial ends automatically. There's no auto-charge and no credit card required to start. If you love it, choose any monthly plan — Starter ($19), Growth ($79), or Pro ($199) — to keep going. Your discoveries and contacts stay in your account." },
+  { q: "How does the pay-per-result option work?", a: "Pay-per-result is an optional add-on for A2A (agent-to-agent) traffic and overage. You pre-fund a balance and get charged $0.08–$0.25 per qualified lead or reply, with a hard spending cap per job so you never overspend. It works alongside any monthly plan." },
+  { q: "Can I change plans anytime?", a: "Yes. Upgrade, downgrade, pause, or cancel from your dashboard in one click. Changes take effect immediately, and we prorate the difference on your next invoice." },
+  { q: "What's the difference between monthly and annual billing?", a: "Annual billing saves you ~20% (e.g., Starter drops from $19 to $15/month). You're billed once for the year and can still cancel anytime — we refund the unused months on request." },
+  { q: "Do discoveries reset weekly or monthly?", a: "Discoveries reset every week to keep your pipeline fresh. Emails reset monthly (Starter) or are unlimited (Growth / Pro)." },
 ];
 
 export default function Pricing() {
