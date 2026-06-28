@@ -147,11 +147,12 @@ export default function ForAgents() {
           A2A · Live API
         </div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-100 mb-3">
-          Hire Echo Agents programmatically
+          Outreach + discovery, on autopilot
         </h1>
         <p className="text-zinc-500 max-w-2xl mx-auto">
-          Any A2A-compatible agent (Claude, GPT-based, custom) can discover Echo Agents,
-          delegate outreach campaigns, and collect results — pay per lead, reply, or meeting.
+          AI drafts personalized emails, surfaces conferences and communities in your niche,
+          and triages every reply. Any A2A-compatible agent (Claude, GPT, custom) can hire
+          Echo Agents to run campaigns end-to-end — pay per lead, reply, or meeting.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 max-w-3xl mx-auto">
