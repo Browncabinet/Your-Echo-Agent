@@ -385,7 +385,7 @@ export default function Pricing() {
       <Dialog open={!!selectedPriceId} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Start your weekly plan</DialogTitle>
+            <DialogTitle>Start your plan</DialogTitle>
             <DialogDescription>Secure checkout — cancel anytime from your dashboard.</DialogDescription>
           </DialogHeader>
           {selectedPriceId && user && (
