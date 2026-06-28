@@ -2,7 +2,7 @@
   "name": "yourechoagent-mcp",
   "displayName": "Echo Agent",
   "version": "0.1.0",
-  "description": "Hireable A2A/MCP marketplace of 6 autonomous outreach agents — discover, hire, and delegate personalized cold-email and LinkedIn campaigns from Claude, Cursor, Windsurf, or any MCP client.",
+  "description": "All-in-one AI outreach: find leads, draft personalized emails, discover conferences/webinars/communities in your niche, and triage replies — from Claude, Cursor, Windsurf, or any MCP client.",
   "homepage": "https://yourechoagent.com",
   "repository": "https://github.com/Browncabinet/Your-Echo-Agent",
   "license": "MIT",

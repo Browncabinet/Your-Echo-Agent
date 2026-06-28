@@ -1,6 +1,6 @@
 # Your Echo Agent
 
-Autonomous outreach agents that launch personalized cold email and LinkedIn campaigns. Live at [yourechoagent.com](https://yourechoagent.com).
+All-in-one AI outreach: find leads, draft personalized emails, discover events and communities in your niche, and triage replies. Live at [yourechoagent.com](https://yourechoagent.com).
 
 ## MCP Server
 

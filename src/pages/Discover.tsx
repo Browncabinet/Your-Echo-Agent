@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "@/hooks/use-toast";
 import { downloadICS, type DiscoverOpportunity } from "@/lib/ics";
 import { CalendarPlus, MessageSquare, Users, Mail, Bookmark, Loader2, ExternalLink, Sparkles, Info } from "lucide-react";
+import { SeoHead } from "@/components/SeoHead";
 
 type Kind = "group" | "conference" | "webinar" | "podcast";
 const KIND_LABEL: Record<Kind, string> = { group: "Groups", conference: "Conferences", webinar: "Webinars", podcast: "Podcasts" };
@@ -135,6 +136,11 @@ export default function Discover() {
 
   return (
     <PartnerShell width="wide">
+      <SeoHead
+        title="Discover events & communities — Your Echo Agent"
+        description="Find conferences, webinars, podcasts, and groups in your niche. Save to Radar, draft comments, extract contacts."
+        path="/for-agents/discover"
+      />
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>

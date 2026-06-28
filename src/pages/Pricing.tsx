@@ -137,8 +137,8 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Pricing — Weekly Plans from $19 · Your Echo Agent"
-        description="Simple weekly plans: Starter $19, Growth $39, Power $79. Cold email + LinkedIn outreach in one place. Cancel or pause anytime."
+        title="Pricing — Your Echo Agent"
+        description="Weekly plans from $19. AI outreach, event discovery, and reply handling in one app. Top-ups never expire. 50 free emails to start."
         path="/pricing"
         jsonLd={faqJsonLd}
       />

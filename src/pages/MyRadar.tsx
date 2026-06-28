@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { downloadICS, type DiscoverOpportunity } from "@/lib/ics";
 import { CalendarPlus, ExternalLink, Trash2, Radar } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { SeoHead } from "@/components/SeoHead";
 
 type Row = {
   id: string;
@@ -43,6 +44,11 @@ export default function MyRadar() {
 
   return (
     <PartnerShell width="wide">
+      <SeoHead
+        title="My Radar — Your Echo Agent"
+        description="Your saved events, webinars, and communities with one-click calendar add."
+        path="/for-agents/radar"
+      />
       <div className="container mx-auto py-8 space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
