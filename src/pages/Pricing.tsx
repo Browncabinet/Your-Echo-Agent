@@ -180,10 +180,10 @@ export default function Pricing() {
             <Sparkles className="w-3 h-3 mr-1" /> Pick your audience
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Pricing for humans and agents
+            Simple monthly pricing
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-            Weekly plans for people running outreach themselves — or pay-per-result A2A access for other agents.
+            Start in minutes. Cancel anytime. Save ~20% with annual billing.
           </p>
         </div>
 
@@ -194,64 +194,105 @@ export default function Pricing() {
           </TabsList>
 
           <TabsContent value="human">
+            {/* $9 / 5-day trial banner */}
+            <Card className="p-6 md:p-8 mb-10 max-w-4xl mx-auto border-2 border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-emerald-500/10 relative overflow-hidden">
+              <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">Limited offer</Badge>
+              <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-foreground mb-1">
+                    Try full Growth for $9 — 5 days
+                  </h3>
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    Full access to discoveries, My Radar, and unlimited emails. One-time charge. <span className="font-semibold text-foreground">No credit card required to start.</span>
+                  </p>
+                </div>
+                <Button size="lg" className="shrink-0" onClick={() => onChoose("trial_growth_5day")}>
+                  <Zap className="w-4 h-4 mr-1.5" /> Start $9 trial
+                </Button>
+              </div>
+            </Card>
+
             <section className="mb-16">
               <div className="text-center mb-8">
-                <Badge className="mb-3 bg-primary text-primary-foreground">
-                  <CalendarClock className="w-3 h-3 mr-1" /> Weekly Plans
-                </Badge>
+                <div className="inline-flex items-center gap-3 bg-muted rounded-full p-1">
+                  <button
+                    type="button"
+                    onClick={() => setBilling("monthly")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${billing === "monthly" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBilling("annual")}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${billing === "annual" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}
+                  >
+                    Annual
+                    <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border-0">Save ~20%</Badge>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {weeklyTiers.map((tier) => (
-                  <Card
-                    key={tier.id}
-                    className={`p-8 flex flex-col relative transition-all ${
-                      tier.highlight
-                        ? "border-primary ring-4 ring-primary/20 shadow-xl md:scale-105 bg-gradient-to-br from-primary/5 to-transparent"
-                        : "hover:border-primary/40 hover:shadow-md"
-                    }`}
-                  >
-                    <Badge
-                      variant="secondary"
-                      className="absolute -top-3 right-4 border-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                {monthlyTiers.map((tier) => {
+                  const price = billing === "annual" ? tier.annual : tier.monthly;
+                  const priceId = billing === "annual" ? tier.annualPriceId : tier.monthlyPriceId;
+                  const isCtaPrimary = tier.primaryCta || tier.highlight;
+                  return (
+                    <Card
+                      key={tier.id}
+                      className={`p-8 flex flex-col relative transition-all ${
+                        tier.highlight
+                          ? "border-primary ring-4 ring-primary/20 shadow-xl md:scale-105 bg-gradient-to-br from-primary/5 to-transparent"
+                          : "hover:border-primary/40 hover:shadow-md"
+                      }`}
                     >
-                      Cancel or change anytime
-                    </Badge>
-                    {tier.badge && (
-                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1">
-                        <Sparkles className="w-3 h-3 mr-1" /> {tier.badge}
-                      </Badge>
-                    )}
+                      {tier.badge && (
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1">
+                          <Sparkles className="w-3 h-3 mr-1" /> {tier.badge}
+                        </Badge>
+                      )}
 
-                    <div className="text-center mb-6">
-                      <h3 className="text-xl font-bold text-foreground mb-1">{tier.name}</h3>
-                      <p className="text-sm text-muted-foreground">{tier.description}</p>
-                      <div className="mt-4">
-                        <p className="text-5xl sm:text-6xl font-bold text-foreground">${tier.price}</p>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">per week</p>
+                      <div className="text-center mb-6">
+                        <h3 className="text-xl font-bold text-foreground mb-1">{tier.name}</h3>
+                        <p className="text-sm text-muted-foreground min-h-[2.5rem]">{tier.description}</p>
+                        <div className="mt-4">
+                          <p className="text-5xl sm:text-6xl font-bold text-foreground">${price}</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+                            per month{billing === "annual" ? " · billed annually" : ""}
+                          </p>
+                          {billing === "monthly" && (
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+                              or ${tier.annual}/mo billed annually
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <ul className="space-y-3 mb-8 flex-1">
-                      {tier.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm text-foreground">
-                          <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
+                      <ul className="space-y-3 mb-8 flex-1">
+                        {tier.features.map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-sm text-foreground">
+                            <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
 
-                    <Button
-                      size="lg"
-                      variant={tier.highlight ? "default" : "outline"}
-                      className="w-full"
-                      onClick={() => onChoose(tier.id)}
-                    >
-                      {isActive ? "Manage subscription" : `Start ${tier.name}`}
-                    </Button>
-                  </Card>
-                ))}
+                      <Button
+                        size="lg"
+                        variant={isCtaPrimary ? "default" : "outline"}
+                        className="w-full"
+                        onClick={() => onChoose(priceId)}
+                      >
+                        {isActive ? "Manage subscription" : tier.cta}
+                      </Button>
+                    </Card>
+                  );
+                })}
               </div>
+              <p className="text-center text-xs text-muted-foreground mt-6">
+                All plans include: full Echo Agent, Reply Handler, event & community discovery, and email tracking. Cancel anytime.
+              </p>
             </section>
 
             <section className="mb-16">
@@ -261,10 +302,11 @@ export default function Pricing() {
             <Card className="p-6 md:p-8 mb-16 max-w-3xl mx-auto border-primary/30 bg-primary/5 text-center">
               <Sparkles className="w-6 h-6 text-primary mx-auto mb-3" />
               <p className="text-foreground text-base sm:text-lg leading-relaxed">
-                Most users start with the <span className="font-bold">$19 Starter Weekly</span> to test safely. Once replies and booked calls come in, they upgrade to <span className="font-bold">Growth or Power</span>.
+                Most users start with <span className="font-bold">Starter at $19/month</span> to test their niche. Once replies come in, they upgrade to <span className="font-bold">Growth or Pro</span>.
               </p>
             </Card>
           </TabsContent>
+
 
           <TabsContent value="a2a">
             <section className="mb-12">
