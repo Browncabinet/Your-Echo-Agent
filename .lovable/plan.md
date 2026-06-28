@@ -1,68 +1,75 @@
 
-# Update descriptions sitewide
+# Repositioning: Event Discovery + AI Outreach
 
-Positioning: **All-in-one outreach + discovery** — AI emails, event/community finder, and reply handling in one app.
+The site currently sends every visitor at `/` to `/for-agents`, which is a developer/A2A page. The new positioning needs a **real consumer homepage** that leads with event & community discovery, while keeping `/for-agents` as the sharp A2A landing for Glama.ai traffic.
 
-## Master copy (used everywhere, trimmed per slot)
+I'll ship this in **two passes**. Pass 1 (this turn, after you approve) covers Homepage + Discover positioning + SEO. Pass 2 (next turn) covers For Agents sharpening, trust/social proof scaffolding, and CTAs.
 
-- **Tagline (≤60 chars):** Your Echo Agent — outreach + discovery, on autopilot.
-- **Short meta (≤155 chars):** AI outreach agent that finds leads, drafts personalized emails, discovers events and communities in your niche, and handles replies. 50 free emails.
-- **Long blurb (~280 chars):** Your Echo Agent is an all-in-one AI outreach platform. Find verified leads, draft hyper-personalized emails, discover conferences, webinars, and groups in your niche, and let AI triage every reply — all from one dashboard. Start free with 50 emails.
+---
 
-## 1. SEO meta (`index.html`)
+## Pass 1 — Homepage + Discover focus + SEO
 
-- `<title>`: Your Echo Agent — AI outreach + event discovery
-- `<meta name="description">`: short meta above
-- `og:title` / `og:description` / `twitter:*`: mirror the above
-- Organization JSON-LD `description`: long blurb
+### 1. New `src/pages/Home.tsx` (consumer landing)
 
-## 2. Per-page titles & descriptions (react-helmet-async)
+Sections, top to bottom:
 
-Helmet is already wired. Update `<Helmet>` blocks (or add where missing) on:
+- **Hero** — H1: *"Find where your audience gathers. Turn it into pipeline."* Sub: *"AI-powered event & community discovery + personalized outreach. Discover conferences, webinars, podcasts, and groups in your niche — then send hyper-personalized emails. No LinkedIn scraping."* CTAs: **Start free — 50 emails** / **See how it works**.
+- **"Why we changed" banner** — Three-up: *Relationship-first · Higher-quality leads · Sustainable & TOS-safe*. One short paragraph explaining the pivot away from LinkedIn scraping.
+- **Hero feature: Events & Communities Discovery** — Visual mock of the Discover flow with 4 labelled steps: *Niche → Discover (Groups, Conferences, Webinars, Podcasts) → AI fit score → One-click actions (Draft comment, Email, Add to calendar, Save to Radar)*. Built with Tailwind + lucide icons + framer-motion fades. CTA: **Try Discover →** (deep-links signed-in users to `/for-agents/discover`, others to signup).
+- **Supporting features grid** — *AI Email Builder · Reply Handler · MCP / A2A for agents*. Each card 2-3 lines + link.
+- **Example niches strip** — Chip row: *Fractional CFOs · DTC founders · Climate-tech · Indie SaaS · B2B agencies · Real-estate investors · Podcasters · Local services*. Sets expectations.
+- **Trust / Social-proof placeholders** — Three testimonial cards with placeholder quotes + "Add your story" CTA, plus two mini case-study cards (*"Booked 11 podcast guests in 30 days"*, *"3 enterprise demos from one conference"*).
+- **Pricing teaser** — Reuse existing `HomePricingSection` if importable; otherwise a 3-card row linking to `/pricing`.
+- **FAQ** — Reuse `FaqSection` with 2 new questions: *"Why no LinkedIn scraping?"* and *"How does event discovery work?"*.
+- **Bottom CTA** — *"Start free — 50 emails. No credit card."*
 
-| Route | Title | Description |
-|---|---|---|
-| `/` | Your Echo Agent — AI outreach + event discovery | short meta |
-| `/pricing` | Pricing — Your Echo Agent | Weekly plans from $19. Top-ups never expire. 50 free emails to start. |
-| `/for-agents` | For AI Agents & MCP — Your Echo Agent | Hosted MCP server + A2A endpoints so agents can run outreach, discovery, and reply handling on behalf of users. |
-| `/discover` | Discover events & communities — Your Echo Agent | Find conferences, webinars, podcasts, and groups in your niche. Save to Radar, draft comments, extract contacts. |
-| `/my-radar` | My Radar — Your Echo Agent | Your saved events, webinars, and communities with one-click calendar add. |
-| `/about` | About — Your Echo Agent | Built by a solo founder to replace LinkedIn-only outreach with smarter discovery + AI email. |
-| `/privacy`, `/terms`, `/acceptable-use` | Legal — Your Echo Agent | Standard legal short descriptions. |
+### 2. Routing change in `src/App.tsx`
 
-Each Helmet block also sets self-referencing `canonical` and `og:url`.
+`HomeRoute` currently does `<Navigate to={user ? "/for-agents/dashboard" : "/for-agents"} />`. Change to:
+- Signed-out → render `<Home />` (new public landing).
+- Signed-in → keep redirect to `/for-agents/dashboard`.
 
-## 3. Home hero & section copy (`src/pages/Home.tsx` or equivalent)
+### 3. SEO updates in `index.html`
 
-- **Hero H1:** Outreach + discovery, on autopilot.
-- **Hero sub:** Find leads, draft personalized emails, discover conferences and communities in your niche, and let AI handle replies — all in one place.
-- **Primary CTA:** Start free — 50 emails
-- **Three-up feature blurbs:**
-  - *Smart outreach* — AI drafts that sound like you, sent at safe deliverability limits.
-  - *Discover* — Surface conferences, webinars, podcasts, and groups matched to your niche.
-  - *Reply handler* — Every reply classified, prioritized, and pre-drafted.
-- **Comparison-table intro:** Why settle for a LinkedIn-only tool? Echo does outreach, discovery, and replies together.
+- `<title>`: *Your Echo Agent — AI event discovery + outreach for conferences, webinars & communities*
+- `<meta name="description">`: *Discover conferences, webinars, podcasts, and communities in your niche. AI drafts personalized outreach and triages replies. No LinkedIn scraping. 50 free emails.*
+- Mirror in `og:*` and `twitter:*`.
+- Rewrite the `SoftwareApplication` JSON-LD `description` + `featureList` to lead with event discovery (drop the LinkedIn mention).
 
-## 4. Registry / marketplace blurbs
+### 4. Discover page polish (`src/pages/Discover.tsx`)
 
-Same long blurb (trimmed per limit) in:
+- Add a one-line "How it works" strip above the Search card (4 numbered steps).
+- Update `SeoHead` title to *"AI event & community discovery for your niche — Your Echo Agent"*.
 
-- `glama.json` — `description`
-- `smithery.yaml` — `description`
-- `public/.well-known/mcp/server-card.json` — `description`
-- `public/agent.json` — `description`
-- `docs/glama-submission-card.md` — short + long blurbs refreshed
-- `README.md` — top-of-file tagline + intro paragraph
+### 5. Mobile
 
-## Technical notes
+All new components built mobile-first with Tailwind (`grid-cols-1 md:grid-cols-3`, stacked CTAs, no horizontal scroll). Verified visually via the preview.
 
-- All edits are presentation-layer (HTML, JSX strings, JSON metadata). No schema, routing, or business-logic changes.
-- Helmet provider already mounted; no new deps.
-- After publish, link previews on LinkedIn/Slack/X stay cached until those platforms re-scrape — use their debuggers to force refresh.
-- Will mark related SEO findings fixed via `seo_chat--update_findings` after edits.
+---
 
-## Out of scope
+## Pass 2 (next turn, after you approve Pass 1)
 
-- New og:image (ask separately if you want one generated).
-- Content/blog pages.
-- Visual redesign — copy only.
+- **For Agents page** — Replace hero copy with *"Hire Echo Agents to run event-driven outreach campaigns"*; add an "Event-driven campaign" API example (`hire` payload with `campaign_type: "event_discovery"`); add a "Discovered on Glama.ai" badge row.
+- **Campaign Wizard toggle** — Currently there is no `CampaignWizard` component in the repo (Discover is its own page). I will either (a) add a "Mode" toggle on Discover (*Event-driven* default · *Smart Search* · *Paste URL*) that swaps the search form, or (b) skip if you confirm the existing 3 entry points are enough. **Question for you below.**
+- **CTA wiring** — Add subtle "Upgrade to discover 5× more events" CTAs in Discover when cap is hit, linking to `/pricing`.
+- **Testimonial collection** — Convert the placeholder cards into a `testimonials` table + admin form so you can add real ones without code edits. Defer if you want HTML-only for now.
+
+---
+
+## Out of scope (flagging, not building unless you ask)
+
+- Animated/Lottie demo video — I'll use static stepped visuals + framer-motion fades; a real animated demo needs a Loom/GIF asset from you.
+- Real screenshots of the Discover UI — I'll style mocks that match the actual UI; if you want real screenshots, capture them and I'll swap.
+- New blog/resources section on event marketing — good next step, but a separate build.
+- Custom OG image — current one stays; ask if you want a new one generated.
+
+---
+
+## One question before I start Pass 1
+
+Campaign Wizard: there's no wizard component today — Discover is its own page and the legacy "Smart Search / Paste URL" flows live elsewhere in the dashboard. Do you want me to:
+
+1. **Add a mode toggle on Discover** (*Event-driven* default, *Smart Search*, *Paste URL*) so all three lead-gen modes are reachable from one page, OR
+2. **Leave navigation as-is** (Discover, Smart Search, Paste URL as separate items) and just make Discover the most prominent?
+
+If you don't answer, I'll go with **#2** (less churn, ships faster).
