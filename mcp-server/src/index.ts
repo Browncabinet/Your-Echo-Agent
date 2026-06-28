@@ -6,6 +6,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { EchoClient } from "./client.js";
+import { callHostedTool } from "./client.js";
 
 const apiKey = process.env.ECHO_API_KEY || "";
 const apiBase = process.env.ECHO_API_BASE;
@@ -142,10 +143,103 @@ const tools = [
     zod: z.object({ job_id: z.string().min(1), stars: z.number().int().min(1).max(5), feedback: z.string().optional() }),
     run: async (a: any) => client().rateJob(a.job_id, a.stars, a.feedback),
   },
+
+  // ── Event & community discovery tools (proxied to hosted MCP for demo tier) ──
+  {
+    name: "discover_events",
+    description:
+      "Discover live conferences, webinars, meetups, and podcasts in a niche so an agent can target where its audience actually gathers. DEMO MODE: works without an API key. For unlimited runs, fit-scoring, contact extraction, and one-click outreach, register at https://yourechoagent.com/for-agents/register.",
+    inputSchema: {
+      type: "object",
+      required: ["niche"],
+      properties: {
+        niche: { type: "string", description: "Niche / industry, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
+        kind: { type: "string", enum: ["conference", "webinar", "group", "podcast", "any"], description: "Type of community to discover. Defaults to 'any'." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+      },
+    },
+    zod: z.object({
+      niche: z.string().min(1),
+      kind: z.enum(["conference", "webinar", "group", "podcast", "any"]).optional(),
+      limit: z.number().int().min(1).max(10).optional(),
+    }),
+    run: async (a: any) => callHostedTool("discover_events", a, apiKey || undefined),
+  },
+  {
+    name: "draft_outreach_for_event",
+    description:
+      "Generate a short, personalized cold email referencing a specific event/community (e.g. 'I saw you're speaking at SaaStr…'). Returns subject + body. Public demo — for sending, deliverability, and reply triage, use Your Echo Agent.",
+    inputSchema: {
+      type: "object",
+      required: ["event_name", "recipient_role", "sender_pitch"],
+      properties: {
+        event_name: { type: "string" },
+        event_url: { type: "string" },
+        recipient_name: { type: "string" },
+        recipient_role: { type: "string", description: "e.g. 'Head of Growth at a Series A SaaS'." },
+        sender_pitch: { type: "string", description: "What you offer and why it matters." },
+        tone: { type: "string", enum: ["friendly", "professional", "concise"] },
+      },
+    },
+    zod: z.object({
+      event_name: z.string().min(1),
+      event_url: z.string().optional(),
+      recipient_name: z.string().optional(),
+      recipient_role: z.string().min(1),
+      sender_pitch: z.string().min(1),
+      tone: z.enum(["friendly", "professional", "concise"]).optional(),
+    }),
+    run: async (a: any) => callHostedTool("draft_outreach_for_event", a, apiKey || undefined),
+  },
+  {
+    name: "generate_comment_for_community",
+    description:
+      "Draft a value-first comment to post in a community/group/podcast thread (LinkedIn, Reddit, Slack, etc.) to build relationships before outreach. Returns 2 short variants. Public demo.",
+    inputSchema: {
+      type: "object",
+      required: ["context"],
+      properties: {
+        context: { type: "string", description: "The post/thread/episode summary or quote you're commenting on." },
+        angle: { type: "string", description: "Optional angle, e.g. 'agree and extend', 'gentle pushback', 'share a relevant stat'." },
+        sender_role: { type: "string", description: "Your role/expertise for credibility." },
+      },
+    },
+    zod: z.object({
+      context: z.string().min(1),
+      angle: z.string().optional(),
+      sender_role: z.string().optional(),
+    }),
+    run: async (a: any) => callHostedTool("generate_comment_for_community", a, apiKey || undefined),
+  },
+  {
+    name: "add_to_radar",
+    description:
+      "Save a discovered event/community to the user's Radar in Your Echo Agent for one-click calendar add, contact extraction, and AI-drafted outreach. Requires ECHO_API_KEY (free tier: 50 emails).",
+    inputSchema: {
+      type: "object",
+      required: ["title", "url"],
+      properties: {
+        title: { type: "string" },
+        url: { type: "string" },
+        kind: { type: "string", enum: ["conference", "webinar", "group", "podcast"] },
+        niche: { type: "string" },
+        notes: { type: "string" },
+      },
+    },
+    zod: z.object({
+      title: z.string().min(1),
+      url: z.string().url(),
+      kind: z.enum(["conference", "webinar", "group", "podcast"]).optional(),
+      niche: z.string().optional(),
+      notes: z.string().optional(),
+    }),
+    run: async (a: any) => callHostedTool("add_to_radar", a, apiKey || undefined),
+  },
 ];
 
+
 const server = new Server(
-  { name: "yourechoagent-mcp", version: "0.1.0" },
+  { name: "yourechoagent-mcp", version: "0.2.0" },
   { capabilities: { tools: {} } },
 );
 
@@ -172,4 +266,4 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("yourechoagent-mcp v0.1.0 ready on stdio");
+console.error("yourechoagent-mcp v0.2.0 ready on stdio");
