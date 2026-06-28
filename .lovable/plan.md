@@ -1,89 +1,68 @@
-# Events & Communities Discovery — Final Plan
 
-New default **Lead Acquisition** mode that finds the *places* the audience gathers (groups, conferences, webinars, podcasts), scores fit, and turns each into an Attend / Comment / Email action. LinkedIn Assist, Smart Search, and Scrape-a-Page remain as secondary options.
+# Update descriptions sitewide
 
-## Flow
+Positioning: **All-in-one outreach + discovery** — AI emails, event/community finder, and reply handling in one app.
 
-```text
-{ niche, audience, region|virtual_only, timeframe (default 90d) }
-        │
-        ▼
-[discover-communities]  (edge fn)
-  ├─ Firecrawl searches across: Eventbrite, lu.ma (Luma), Meetup,
-  │   Zoom events, Hopin, Sessionize, Cvent, ti.to,
-  │   Reddit, Slack/Discord directories, LinkedIn Events, YouTube Live,
-  │   Podchaser/Listen Notes, industry association sites
-  ├─ Gemini classifies → Group | Conference | Webinar | Podcast
-  ├─ Extracts: title, date(s), URL, host org, organizer/speaker hints, location/virtual
-  ├─ Fit score 0–100 + 1-sentence "why it fits" (Gemini, audience-aware)
-  └─ Dedup by normalized URL + (title+date) hash
-        │
-        ▼
-[discover-extract-contacts] (on demand, per opportunity)
-  Scrape page → pull organizer/speaker names + public emails/contact URLs
-        │
-        ▼
-Per-card actions
-  • Attend  → ICS download + in-app reminder (Google Cal OAuth = phase 2)
-  • Comment → context-aware draft (platform auto-detected from URL)
-  • Email   → reuses generate-emails, drops into existing sender
-  • Save    → adds to "My Radar"
-```
+## Master copy (used everywhere, trimmed per slot)
 
-## UI
+- **Tagline (≤60 chars):** Your Echo Agent — outreach + discovery, on autopilot.
+- **Short meta (≤155 chars):** AI outreach agent that finds leads, drafts personalized emails, discovers events and communities in your niche, and handles replies. 50 free emails.
+- **Long blurb (~280 chars):** Your Echo Agent is an all-in-one AI outreach platform. Find verified leads, draft hyper-personalized emails, discover conferences, webinars, and groups in your niche, and let AI triage every reply — all from one dashboard. Start free with 50 emails.
 
-- **Campaign Wizard → Step 2 (Lead Acquisition)**: mode toggle with **Events & Communities** as new default for relationship-led niches.
-  - Inputs: region picker (Global default) + "Virtual only" switch, timeframe (Next 90 days default; quick: Next 30 / Custom range), sort by soonest.
-- **Campaign dashboard → new "Discover" page**, 4 tabs: Groups · Conferences · Webinars · Podcasts.
-  - Cards show: title, date, location/virtual badge, **prominent Fit Score** with hover explanation, primary action button, secondary "Draft email/comment".
-  - Small compliance footnote: "You are responsible for CAN-SPAM / GDPR compliance on any outreach you send."
-- **My Radar** (saved items): calendar view + table view, status (Planned / Attended / Followed up / Dismissed), notes.
-- **Comment composer** detects platform from URL and adapts tone:
-  - LinkedIn → professional, insight-led
-  - Reddit → community, helpful, no pitch
-  - YouTube / event pages → enthusiastic, on-topic
-  - Twitter/X → concise, conversational
-  - Generic fallback for unknown hosts.
+## 1. SEO meta (`index.html`)
 
-## Backend
+- `<title>`: Your Echo Agent — AI outreach + event discovery
+- `<meta name="description">`: short meta above
+- `og:title` / `og:description` / `twitter:*`: mirror the above
+- Organization JSON-LD `description`: long blurb
 
-### Edge functions (new)
-- `discover-communities` — input `{ niche, audience, region, virtual_only, timeframe, kinds[] }`. Runs 4–6 targeted Firecrawl searches per requested kind (site:eventbrite.com, site:lu.ma, site:meetup.com, etc.), pipes results through Gemini for classify + fit-score + dedup, inserts into `discovered_opportunities`. Returns paginated results.
-- `discover-extract-contacts` — input `{ opportunity_id }`. Scrapes the URL via `firecrawl-scrape`, extracts contacts with the `extract-leads` pattern, stores into `discovered_opportunities.contacts` jsonb.
-- `discover-draft-comment` — input `{ opportunity_id, platform_hint? }`. Detects platform from URL, calls Gemini with platform-specific system prompt, returns draft.
-- `discover-ics` — input `{ opportunity_id }`. Returns a downloadable `.ics` (also stored so reminders can fire).
+## 2. Per-page titles & descriptions (react-helmet-async)
 
-### Reused (no changes)
-- `generate-emails` for outreach drafts
-- `firecrawl-search` / `firecrawl-scrape`
-- `send-campaign-emails`, tracking, deliverability, unsubscribe
-- Weekly caps via `weekly_usage` + `current_week_caps`
+Helmet is already wired. Update `<Helmet>` blocks (or add where missing) on:
 
-### Database (new tables, full GRANTs + RLS)
-- `discovered_opportunities`
-  - `id, user_id, campaign_id (nullable), kind (group|conference|webinar|podcast), title, url (unique per user), host_org, location, is_virtual, event_start, event_end, timezone, source, contacts jsonb, fit_score int, fit_reason text, dedup_hash, status (new|saved|dismissed), created_at, updated_at`
-- `radar_items`
-  - `id, user_id, opportunity_id (fk), action (attend|comment|email|other), due_date, reminder_at, notes, status (planned|done|skipped), created_at, updated_at`
-- Add column `weekly_usage.discoveries_used int default 0` for cap tracking. Caps mirror LinkedIn (50 / 150 / 400) and are enforced in `discover-communities` via `current_week_caps`.
+| Route | Title | Description |
+|---|---|---|
+| `/` | Your Echo Agent — AI outreach + event discovery | short meta |
+| `/pricing` | Pricing — Your Echo Agent | Weekly plans from $19. Top-ups never expire. 50 free emails to start. |
+| `/for-agents` | For AI Agents & MCP — Your Echo Agent | Hosted MCP server + A2A endpoints so agents can run outreach, discovery, and reply handling on behalf of users. |
+| `/discover` | Discover events & communities — Your Echo Agent | Find conferences, webinars, podcasts, and groups in your niche. Save to Radar, draft comments, extract contacts. |
+| `/my-radar` | My Radar — Your Echo Agent | Your saved events, webinars, and communities with one-click calendar add. |
+| `/about` | About — Your Echo Agent | Built by a solo founder to replace LinkedIn-only outreach with smarter discovery + AI email. |
+| `/privacy`, `/terms`, `/acceptable-use` | Legal — Your Echo Agent | Standard legal short descriptions. |
 
-RLS: all rows scoped to `auth.uid() = user_id`. GRANT `SELECT, INSERT, UPDATE, DELETE` to `authenticated`; `ALL` to `service_role`. No `anon`.
+Each Helmet block also sets self-referencing `canonical` and `og:url`.
 
-## Build order
+## 3. Home hero & section copy (`src/pages/Home.tsx` or equivalent)
 
-1. Migration: new tables + `weekly_usage.discoveries_used` column + RLS + GRANTs.
-2. Edge functions: `discover-communities`, `discover-extract-contacts`, `discover-draft-comment`, `discover-ics`.
-3. Update `current_week_caps` returning `discoveries_cap` / `discoveries_used`.
-4. Wizard toggle + Discover page (4 tabs, cards, fit score, actions, compliance note).
-5. My Radar (table + calendar).
-6. QA: caps enforcement, dedup, platform detection on comment drafts, ICS validity.
+- **Hero H1:** Outreach + discovery, on autopilot.
+- **Hero sub:** Find leads, draft personalized emails, discover conferences and communities in your niche, and let AI handle replies — all in one place.
+- **Primary CTA:** Start free — 50 emails
+- **Three-up feature blurbs:**
+  - *Smart outreach* — AI drafts that sound like you, sent at safe deliverability limits.
+  - *Discover* — Surface conferences, webinars, podcasts, and groups matched to your niche.
+  - *Reply handler* — Every reply classified, prioritized, and pre-drafted.
+- **Comparison-table intro:** Why settle for a LinkedIn-only tool? Echo does outreach, discovery, and replies together.
 
-## Deferred to phase 2
+## 4. Registry / marketplace blurbs
 
-- Google Calendar OAuth integration for "Attend" (ICS first).
-- Auto-suggested follow-up sequence after an attended event.
-- Per-platform comment quality A/B testing.
+Same long blurb (trimmed per limit) in:
 
-## Open questions (non-blocking, can default if no reply)
+- `glama.json` — `description`
+- `smithery.yaml` — `description`
+- `public/.well-known/mcp/server-card.json` — `description`
+- `public/agent.json` — `description`
+- `docs/glama-submission-card.md` — short + long blurbs refreshed
+- `README.md` — top-of-file tagline + intro paragraph
 
-1. Should `discoveries_used` share the LinkedIn cap bucket or be a separate counter? Defaulting to **separate counter** (same numeric caps).
-2. For "Virtual only" — include podcasts (always virtual) and exclude in-person conferences, or treat podcasts as their own tab regardless? Defaulting to **podcasts always shown in their tab**, "Virtual only" filters Conferences tab.
+## Technical notes
+
+- All edits are presentation-layer (HTML, JSX strings, JSON metadata). No schema, routing, or business-logic changes.
+- Helmet provider already mounted; no new deps.
+- After publish, link previews on LinkedIn/Slack/X stay cached until those platforms re-scrape — use their debuggers to force refresh.
+- Will mark related SEO findings fixed via `seo_chat--update_findings` after edits.
+
+## Out of scope
+
+- New og:image (ask separately if you want one generated).
+- Content/blog pages.
+- Visual redesign — copy only.
