@@ -137,8 +137,8 @@ export default function Discover() {
   return (
     <PartnerShell width="wide">
       <SeoHead
-        title="Discover events & communities — Your Echo Agent"
-        description="Find conferences, webinars, podcasts, and groups in your niche. Save to Radar, draft comments, extract contacts."
+        title="AI event & community discovery for your niche — Your Echo Agent"
+        description="Find conferences, webinars, podcasts, and groups in your niche. AI fit-scores each one, drafts comments, and extracts contacts."
         path="/for-agents/discover"
       />
       <div className="container mx-auto py-8 space-y-6">
