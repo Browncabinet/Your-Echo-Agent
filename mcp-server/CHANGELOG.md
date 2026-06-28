@@ -12,7 +12,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
   - `add_to_radar` — save a discovered event to your Echo Agent Radar (requires `ECHO_API_KEY`).
 - Stdio tools now transparently proxy demo-tier capabilities to the hosted Streamable HTTP endpoint so local users don't need their own Firecrawl / AI keys.
 
-
+## [0.1.0] - 2026-06-19
 
 ### Added
 - Initial release.
