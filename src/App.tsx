@@ -24,6 +24,8 @@ import PartnerRegisterAgent from "./pages/PartnerRegisterAgent.tsx";
 import PartnerSignup from "./pages/PartnerSignup.tsx";
 import PartnerLogin from "./pages/PartnerLogin.tsx";
 import A2ASimulator from "./pages/A2ASimulator.tsx";
+import Discover from "./pages/Discover.tsx";
+import MyRadar from "./pages/MyRadar.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
