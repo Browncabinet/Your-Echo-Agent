@@ -9,6 +9,30 @@ const responseHeaders = {
   },
 };
 
+// Allowlist of Stripe Price lookup_keys this checkout supports.
+// Create matching Prices in Stripe (Dashboard → Products → Add price → "Lookup key")
+// with these exact strings. Recurring keys are subscriptions; one-time keys are payments.
+const ALLOWED_LOOKUP_KEYS = new Set<string>([
+  // Monthly subscriptions
+  "starter_monthly",
+  "growth_monthly",
+  "pro_monthly",
+  // Annual subscriptions (billed yearly, ~20% discount)
+  "starter_annual",
+  "growth_annual",
+  "pro_annual",
+  // 5-day Growth trial (one-time $9, no auto-renew)
+  "trial_growth_5day",
+  // Legacy weekly tiers (kept for backward compatibility)
+  "starter_weekly",
+  "growth_weekly",
+  "power_weekly",
+  // One-time top-ups
+  "topup_500",
+  "topup_1000",
+  "topup_2500",
+]);
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, responseHeaders);
@@ -19,6 +43,9 @@ serve(async (req) => {
     if (!priceId || typeof priceId !== "string" || !/^[a-zA-Z0-9_-]+$/.test(priceId)) {
       return new Response(JSON.stringify({ error: "Invalid priceId" }), { status: 400, ...responseHeaders });
     }
+    if (!ALLOWED_LOOKUP_KEYS.has(priceId)) {
+      return new Response(JSON.stringify({ error: `Unknown priceId: ${priceId}` }), { status: 400, ...responseHeaders });
+    }
 
     if (environment !== "sandbox" && environment !== "live") {
       return new Response(JSON.stringify({ error: "Invalid environment" }), { status: 400, ...responseHeaders });
@@ -26,9 +53,12 @@ serve(async (req) => {
     const env: StripeEnv = environment;
     const stripe = createStripeClient(env);
 
-    const prices = await stripe.prices.list({ lookup_keys: [priceId] });
+    const prices = await stripe.prices.list({ lookup_keys: [priceId], active: true, limit: 1 });
     if (!prices.data.length) {
-      return new Response(JSON.stringify({ error: "Price not found" }), { status: 404, ...responseHeaders });
+      return new Response(
+        JSON.stringify({ error: `No active Stripe Price found with lookup_key "${priceId}". Create one in Stripe with this exact lookup key.` }),
+        { status: 404, ...responseHeaders },
+      );
     }
 
     const stripePrice = prices.data[0];
