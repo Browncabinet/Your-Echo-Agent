@@ -1,49 +1,58 @@
-Problem: You're stuck on the manual file-copy step (Finder → GitHub Desktop). You want a simpler path to get your `mcp-server/` code into the new public `yourechoagent-mcp` repo.
+## Goal
+Populate the empty `yourechoagent-mcp` GitHub repo with your MCP server code (no terminal, no GitHub Desktop), then update Glama.ai to point at the new repo.
 
-Proposed alternative: Skip GitHub Desktop entirely and upload directly through GitHub.com in your browser.
+---
 
-# Plan
+## Part 1 — Upload files to the empty repo (browser only)
 
-## Step 1 — Upload via GitHub.com (no Desktop app needed)
+1. **Get the files ready on your computer**
+   - You already have the `mcp-server` folder on your Desktop (from the Lovable codebase download).
+   - Open that folder. You should see: `src/`, `package.json`, `README.md`, `LICENSE`, `tsconfig.json`, `CHANGELOG.md`, `Dockerfile` (if present), etc.
 
-1. In your browser, go to `github.com/Browncabinet/yourechoagent-mcp`
-2. You should see the empty repo page with a message like "...or upload existing files"
-3. Click **"uploading an existing file"**
-4. Open Finder (Mac) or File Explorer (Windows)
-5. Navigate to the `mcp-server` folder you saved on your Desktop
-6. **Select ALL files inside that folder** (not the folder itself — open it first, then select everything inside)
-7. Drag those files directly into the browser window onto the GitHub upload area
-8. Scroll down, write a commit message like: `Initial MCP server release v0.2.0`
-9. Click **"Commit changes"**
+2. **Open the direct upload page**
+   - Go to this exact URL in your browser:
+     `https://github.com/Browncabinet/yourechoagent-mcp/upload/main`
+   - This is GitHub's drag-and-drop upload screen for your empty repo.
 
-That's it — no GitHub Desktop, no terminal, no "paste into Desktop" confusion. The files go straight from your computer into the repo through the browser.
+3. **Upload in two passes** (GitHub's web uploader needs folders dragged separately)
+   - **Pass A — root files:** In your `mcp-server` folder, select only the loose files (`package.json`, `README.md`, `LICENSE`, `tsconfig.json`, `CHANGELOG.md`, `Dockerfile`, `.gitignore` if present). Drag them into the upload zone.
+   - Scroll down, commit message: `Initial MCP server release v0.2.0`
+   - Click **Commit changes**.
+   - **Pass B — the `src/` folder:** Go back to `https://github.com/Browncabinet/yourechoagent-mcp/upload/main`, drag the entire `src` folder in. Commit with message: `Add src/`.
 
-## Step 2 — Make the main repo private
+4. **Verify**
+   - Visit `https://github.com/Browncabinet/yourechoagent-mcp`
+   - Confirm you see `package.json`, `README.md`, `LICENSE`, and the `src/` folder with `index.ts` and `client.ts` inside.
 
-After the upload succeeds:
-1. Go to `github.com/Browncabinet/Your-Echo-Agent/settings`
-2. Scroll to **Danger Zone**
-3. Click **Change repository visibility** → **Make private**
+---
 
-## Step 3 — Update Glama with the new repo URL
+## Part 2 — Tag a release so npm + Glama can install it
 
-1. Go to `glama.ai/mcp/servers/Browncabinet/yourechoagent-mcp`
-2. If it shows the old repo or errors, re-submit at `glama.ai/mcp/servers/new`
-3. Use repo URL: `https://github.com/Browncabinet/yourechoagent-mcp`
+1. On your new repo page, click **Releases** (right sidebar) → **Create a new release**.
+2. **Choose a tag** → type `v0.2.0` → **Create new tag on publish**.
+3. Title: `v0.2.0 — Event & community discovery tools`
+4. Description: paste the top entry from `CHANGELOG.md`.
+5. Click **Publish release**. (If you've set up the npm publish workflow secret, this also publishes to npm.)
 
-## Step 4 — (Optional) Future sync without re-uploading
+---
 
-Every time you update the MCP server in Lovable, you'll need to sync the changes to the public repo. Two options:
+## Part 3 — Update Glama.ai
 
-- **Option A — Re-upload (easiest)**: Download the updated `mcp-server/` folder from Lovable again, go to the GitHub repo, click "Add file → Upload files", and upload the updated files. GitHub will show you a diff before committing.
-- **Option B — Auto-sync via GitHub Actions** (one-time setup, then hands-off): I can add a workflow to your main private repo that automatically mirrors the `mcp-server/` folder to the public repo every time you push changes. This requires adding a GitHub Personal Access Token as a secret.
+1. Go to `https://glama.ai/mcp/servers` → find **Your Echo Agent** → **Edit** (or re-submit if it was removed).
+2. Update these fields:
+   - **Repository URL:** `https://github.com/Browncabinet/yourechoagent-mcp`
+   - **Install command:** `npx -y @browncabinet/yourechoagent-mcp`
+   - **Runtime:** Remote (hosted) — URL: `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`
+   - Keep description + keywords as currently in `glama.json`.
+3. Save → Glama will re-scan. The LICENSE file is at the repo root, so the "license not found" error will clear.
 
-## Technical notes
+---
 
-- GitHub's web upload accepts multiple files and nested folders. You can drag the entire contents of `mcp-server/` at once.
-- Do NOT upload the `EXPORT-TO-PUBLIC-REPO.md` file — it's only for reference inside the private repo.
-- The `glama.json`, `README.md`, `CHANGELOG.md`, and `LICENSE` are all already configured for the new public repo URL.
+## Part 4 — (Optional) make main repo private
+Once Part 1 is verified: `github.com/Browncabinet/Your-Echo-Agent` → Settings → Danger Zone → **Change visibility → Private**.
 
-# Decision needed
+---
 
-Do you want me to add the auto-sync GitHub Action (Option B) now, or is the manual web upload (Option A) sufficient for now?
+## Notes
+- No code changes are needed in this Lovable project — `glama.json`, `README.md`, and `mcp-server/package.json` already reference the new repo URL.
+- If the upload page shows "main branch not found", click **Add file → Create new file**, name it `README.md`, paste one line, commit — then retry the `/upload/main` URL.
