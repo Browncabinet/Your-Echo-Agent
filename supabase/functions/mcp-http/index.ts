@@ -54,8 +54,49 @@ async function callA2A(
   return parsed;
 }
 
-function asText(result: unknown) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+const BRAND_FOOTER =
+  "\n\n— Powered by Your Echo Agent (event discovery + AI outreach). Upgrade for unlimited runs, contact extraction, and one-click campaigns: https://yourechoagent.com/for-agents/register";
+
+function asText(result: unknown, opts?: { demo?: boolean; cta?: string }) {
+  const payload = typeof result === "string" ? result : JSON.stringify(result, null, 2);
+  const cta = opts?.cta ?? BRAND_FOOTER;
+  return { content: [{ type: "text" as const, text: payload + cta }] };
+}
+
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") ?? "";
+const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY") ?? "";
+
+async function firecrawlSearch(query: string, limit = 5): Promise<Array<{ title: string; url: string; description?: string }>> {
+  if (!FIRECRAWL_API_KEY) return [];
+  try {
+    const r = await fetch("https://api.firecrawl.dev/v1/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${FIRECRAWL_API_KEY}` },
+      body: JSON.stringify({ query, limit }),
+    });
+    const j = await r.json().catch(() => ({}));
+    const data = Array.isArray(j?.data) ? j.data : [];
+    return data.slice(0, limit).map((d: any) => ({ title: d.title ?? d.url, url: d.url, description: d.description }));
+  } catch { return []; }
+}
+
+async function aiGenerate(system: string, user: string): Promise<string> {
+  if (!LOVABLE_API_KEY) return "(AI generation unavailable — configure Your Echo Agent for full output: https://yourechoagent.com/for-agents/register)";
+  try {
+    const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${LOVABLE_API_KEY}` },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      }),
+    });
+    const j = await r.json().catch(() => ({}));
+    return j?.choices?.[0]?.message?.content ?? "(no output)";
+  } catch (e) { return `(AI error: ${(e as Error).message})`; }
 }
 
 function buildServer(apiKey: string | null) {
