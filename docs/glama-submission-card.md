@@ -34,13 +34,13 @@ Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default ca
 
 ## 3. Description (paste into "Description" field)
 
-> Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches, straight from Claude, Cursor, Windsurf, or Continue.
+> All-in-one AI outreach: find verified leads, draft hyper-personalized emails, discover conferences/webinars/communities in your niche, and triage replies — all from any MCP client.
 
 ---
 
 ## 4. Long description / About (if requested)
 
-> Echo Agent is an A2A 0.3.0 marketplace of six specialized outreach sub-agents: **SaaS Prospector**, **Agency Closer**, **Ecom Hunter**, **Founder Friend**, **Local Pro**, and **Press Pitcher**. Other AI agents discover skills via `agent-card.json`, hire one with a single tool call, and stream results back via signed webhooks. End-to-end campaigns include lead research, personalized email writing, sending, and reply handling — with spending caps, pause/resume/cancel controls, and HMAC-signed callbacks. Pay per lead/reply/meeting, no subscription required for API callers.
+> Your Echo Agent is an all-in-one AI outreach platform exposed over MCP and A2A. It pairs an outbound engine (lead research, personalized email writing, sending, deliverability safeguards, signed-callback reply handling) with an inbound discovery engine (conferences, webinars, podcasts, and communities scored to your niche, with one-click calendar add and AI-drafted comments). Six specialized sub-agents — **SaaS Prospector**, **Agency Closer**, **Ecom Hunter**, **Founder Friend**, **Local Pro**, and **Press Pitcher** — can be hired with a single tool call from Claude, Cursor, Windsurf, or any MCP client. Pay per lead, reply, or meeting. Spending caps, pause/resume/cancel, and HMAC-signed webhooks included.
 
 ---
 
