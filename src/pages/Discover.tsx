@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "@/hooks/use-toast";
 import { downloadICS, type DiscoverOpportunity } from "@/lib/ics";
 import { CalendarPlus, MessageSquare, Users, Mail, Bookmark, Loader2, ExternalLink, Sparkles, Info } from "lucide-react";
+import { SeoHead } from "@/components/SeoHead";
 
 type Kind = "group" | "conference" | "webinar" | "podcast";
 const KIND_LABEL: Record<Kind, string> = { group: "Groups", conference: "Conferences", webinar: "Webinars", podcast: "Podcasts" };
