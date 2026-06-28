@@ -790,6 +790,72 @@ export type Database = {
         }
         Relationships: []
       }
+      discovered_opportunities: {
+        Row: {
+          campaign_id: string | null
+          contacts: Json
+          created_at: string
+          dedup_hash: string
+          event_end: string | null
+          event_start: string | null
+          fit_reason: string | null
+          fit_score: number
+          host_org: string | null
+          id: string
+          is_virtual: boolean
+          kind: string
+          location: string | null
+          source: string | null
+          status: string
+          title: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          contacts?: Json
+          created_at?: string
+          dedup_hash: string
+          event_end?: string | null
+          event_start?: string | null
+          fit_reason?: string | null
+          fit_score?: number
+          host_org?: string | null
+          id?: string
+          is_virtual?: boolean
+          kind: string
+          location?: string | null
+          source?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          contacts?: Json
+          created_at?: string
+          dedup_hash?: string
+          event_end?: string | null
+          event_start?: string | null
+          fit_reason?: string | null
+          fit_score?: number
+          host_org?: string | null
+          id?: string
+          is_virtual?: boolean
+          kind?: string
+          location?: string | null
+          source?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       domain_throttle: {
         Row: {
           daily_cap: number
@@ -951,6 +1017,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      radar_items: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          opportunity_id: string
+          remind_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          opportunity_id: string
+          remind_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          opportunity_id?: string
+          remind_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_items_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "discovered_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reply_actions_log: {
         Row: {
@@ -1168,6 +1275,7 @@ export type Database = {
       weekly_usage: {
         Row: {
           created_at: string
+          discoveries_used: number
           emails_sent: number
           id: string
           linkedin_actions: number
@@ -1177,6 +1285,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          discoveries_used?: number
           emails_sent?: number
           id?: string
           linkedin_actions?: number
@@ -1186,6 +1295,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          discoveries_used?: number
           emails_sent?: number
           id?: string
           linkedin_actions?: number
@@ -1207,6 +1317,8 @@ export type Database = {
       current_week_caps: {
         Args: { _user_id: string }
         Returns: {
+          discoveries_cap: number
+          discoveries_used: number
           email_cap: number
           emails_used: number
           linkedin_cap: number
