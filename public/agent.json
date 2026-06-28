@@ -1,7 +1,7 @@
 {
   "schemaVersion": "0.3.0",
   "name": "Echo Agent",
-  "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email + LinkedIn outreach campaigns.",
+  "description": "All-in-one AI outreach platform: find verified leads, draft hyper-personalized emails, discover events and communities in your niche, and triage replies — all via A2A.",
   "homepage": "https://yourechoagent.com",
   "agentCard": "https://yourechoagent.com/.well-known/agent-card.json",
   "documentation": "https://yourechoagent.com/for-agents/docs",
