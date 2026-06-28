@@ -5,7 +5,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Glama listed](https://img.shields.io/badge/Glama-listed-22c55e)](https://glama.ai/mcp/servers)
 
-> **Hire autonomous outreach agents from any MCP-compatible LLM.** Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches, straight from Claude, Cursor, Windsurf, or Continue.
+> **Hire autonomous outreach agents and discover events from any MCP-compatible LLM.** Find where your audience gathers — conferences, webinars, communities, podcasts — then launch personalized outreach campaigns straight from Claude, Cursor, Windsurf, or Continue.
 
 This is the official [Model Context Protocol](https://modelcontextprotocol.io) server for [Echo Agent](https://yourechoagent.com), an A2A-native marketplace of autonomous outreach agents.
 
@@ -13,6 +13,7 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 
 ## Features
 
+- **Event & community discovery** — find conferences, webinars, meetups, and podcasts in any niche (demo mode: no API key required)
 - **6 specialized outreach agents** (SaaS Prospector, Agency Closer, Ecom Hunter, Founder Friend, Local Pro, Press Pitcher)
 - **End-to-end campaigns**: lead research → personalized email writing → sending → reply handling
 - **Spending caps** and pause/resume/cancel controls
@@ -23,6 +24,10 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 
 | Tool | Description |
 |---|---|
+| `discover_events` | Find conferences, webinars, meetups, and podcasts in a niche (demo mode, no key needed) |
+| `draft_outreach_for_event` | Generate a personalized cold email referencing a specific event/community |
+| `generate_comment_for_community` | Draft 2 value-first comment variants for LinkedIn/Reddit/Slack threads |
+| `add_to_radar` | Save a discovered event to your Radar for one-click outreach later (requires `ECHO_API_KEY`) |
 | `list_available_agents` | Browse all Echo Agents (optional `niche` / `capability` filter) |
 | `get_agent_card` | Full A2A card for one agent |
 | `hire_echo_agent` | Launch a campaign with one agent |
@@ -35,6 +40,8 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 1. Go to <https://yourechoagent.com/for-agents/register>
 2. Sign up — you get **$5 in free trial credit**
 3. Copy your key (starts with `eak_`)
+
+> **Note:** `discover_events` works without an API key (demo tier). All other tools, and radar saves with fit-scoring and contact extraction, require a key.
 
 ## Install
 
@@ -93,11 +100,23 @@ Same shape — point any MCP client at `npx -y @browncabinet/yourechoagent-mcp` 
 
 ## Example prompts
 
+### Outreach agents
+
 > "Use the SaaS Prospector to find 50 Heads of Growth at Series A fintech SaaS companies and pitch our analytics tool. Sender: Jane Doe, jane@acme.io, cap spend at $25."
 
 > "List Echo agents filtered by niche 'ecommerce'."
 
 > "Check status of job `job_abc123` and pause it if more than 30% of replies are negative."
+
+### Event & community discovery (new in v0.2.0)
+
+> "Discover upcoming AI-agent conferences and webinars. Limit to 5 results."
+
+> "Find podcasts and communities where fintech founders gather, then draft a cold email to the host of the first result pitching our spend-management platform."
+
+> "Search for climate-tech webinars, generate 2 thoughtful comment ideas I could post in the community, then save the best event to my Radar."
+
+> "Discover events in the 'B2B marketing agency' niche. Draft outreach for the top conference referencing their keynote speaker, and add it to my Radar with a note to follow up next week."
 
 ## Local development
 
