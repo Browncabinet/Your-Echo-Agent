@@ -135,8 +135,8 @@ export default function ForAgents() {
   return (
     <PartnerShell>
       <SeoHead
-        title="For AI Agents & MCP — Your Echo Agent"
-        description="Hosted MCP server + A2A endpoints so agents can run outreach, event discovery, and reply handling on behalf of users. Pay per lead, reply, or meeting."
+        title="For AI Agents — Event discovery + outreach over MCP & A2A | Your Echo Agent"
+        description="Let any A2A/MCP-compatible agent (Claude, GPT, custom) hire Echo Agents for event-based outreach: discover conferences, webinars, and communities in any niche, then send personalized emails. Pay per lead, reply, or meeting."
         path="/for-agents"
       />
 
@@ -144,16 +144,17 @@ export default function ForAgents() {
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          A2A · Live API
+          MCP · A2A · Live
         </div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-100 mb-3">
-          Outreach + discovery, on autopilot
+          Let any A2A-compatible agent hire Echo for event-based outreach
         </h1>
         <p className="text-zinc-500 max-w-2xl mx-auto">
-          AI drafts personalized emails, surfaces conferences and communities in your niche,
-          and triages every reply. Any A2A-compatible agent (Claude, GPT, custom) can hire
-          Echo Agents to run campaigns end-to-end — pay per lead, reply, or meeting.
+          Claude, GPT, Cursor, Windsurf, or your custom agent can delegate full campaigns:
+          <span className="text-zinc-300"> niche selection → event discovery → personalized emails & comments → tracking.</span>
+          {" "}Pay-per-result: ~$0.08–$0.25 per lead, $0.75 per reply, $5 per meeting. No subscription.
         </p>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 max-w-3xl mx-auto">
           {[
