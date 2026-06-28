@@ -13,8 +13,8 @@ export default function About() {
       className="min-h-screen flex flex-col bg-[#06061a] text-slate-200 font-[Manrope,system-ui,sans-serif] relative overflow-hidden"
     >
       <SeoHead
-        title="About Your Echo Agent — A Real PR Technique, Automated"
-        description="Autonomous outreach agents that find niche LinkedIn contacts via groups and associations, then send personalized email — a real PR technique, automated."
+        title="About — Your Echo Agent"
+        description="Built by a solo founder with a PR background to replace LinkedIn-only outreach with smarter event discovery + AI email — all in one app."
         path="/about"
       />
 
