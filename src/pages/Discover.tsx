@@ -137,8 +137,8 @@ export default function Discover() {
   return (
     <PartnerShell width="wide">
       <SeoHead
-        title="Discover events & communities — Your Echo Agent"
-        description="Find conferences, webinars, podcasts, and groups in your niche. Save to Radar, draft comments, extract contacts."
+        title="AI event & community discovery for your niche — Your Echo Agent"
+        description="Find conferences, webinars, podcasts, and groups in your niche. AI fit-scores each one, drafts comments, and extracts contacts."
         path="/for-agents/discover"
       />
       <div className="container mx-auto py-8 space-y-6">
@@ -154,6 +154,20 @@ export default function Discover() {
           <Badge variant="secondary" className="text-sm">
             Discoveries remaining this week: {remaining}
           </Badge>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+          {[
+            { n: "1", t: "Set niche" },
+            { n: "2", t: "AI discovers" },
+            { n: "3", t: "Fit-scored" },
+            { n: "4", t: "Email / comment / save" },
+          ].map((s) => (
+            <div key={s.n} className="rounded-md border bg-muted/30 px-3 py-2 flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-primary/15 text-primary flex items-center justify-center font-mono text-[10px]">{s.n}</span>
+              <span className="text-muted-foreground">{s.t}</span>
+            </div>
+          ))}
         </div>
 
         <Card>

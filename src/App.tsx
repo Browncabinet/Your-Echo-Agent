@@ -26,6 +26,7 @@ import PartnerLogin from "./pages/PartnerLogin.tsx";
 import A2ASimulator from "./pages/A2ASimulator.tsx";
 import Discover from "./pages/Discover.tsx";
 import MyRadar from "./pages/MyRadar.tsx";
+import Home from "./pages/Home.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
@@ -39,7 +40,8 @@ function HomeRoute() {
       </div>
     );
   }
-  return <Navigate to={user ? "/for-agents/dashboard" : "/for-agents"} replace />;
+  if (user) return <Navigate to="/for-agents/dashboard" replace />;
+  return <Home />;
 }
 
 const queryClient = new QueryClient();
