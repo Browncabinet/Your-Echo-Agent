@@ -101,6 +101,7 @@ export default function Pricing() {
   const { openPortal, isActive } = useSubscription();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
   const [topupPriceId, setTopupPriceId] = useState<TopupPack["priceId"] | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   // Auto-resume top-up flow after sign-in
   useEffect(() => {
