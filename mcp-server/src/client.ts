@@ -1,4 +1,44 @@
 const DEFAULT_BASE = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1";
+const HOSTED_MCP_URL = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http";
+
+/**
+ * Proxy a tool call to the hosted Streamable HTTP MCP endpoint.
+ * Used by stdio-only tools (event discovery, comment drafts, etc.) so local
+ * Claude Desktop / Cursor users get the same demo-tier capabilities without
+ * needing their own Firecrawl / Lovable AI keys.
+ */
+export async function callHostedTool(name: string, args: unknown, apiKey?: string): Promise<unknown> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json, text/event-stream",
+  };
+  if (apiKey) headers["x-echo-api-key"] = apiKey;
+  const res = await fetch(HOSTED_MCP_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: Date.now(),
+      method: "tools/call",
+      params: { name, arguments: args ?? {} },
+    }),
+  });
+  const text = await res.text();
+  // The hosted endpoint may stream SSE — extract the last `data:` JSON line if so.
+  let payload: any = null;
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("text/event-stream")) {
+    const lines = text.split("\n").filter((l) => l.startsWith("data:"));
+    const last = lines[lines.length - 1]?.slice(5).trim();
+    try { payload = last ? JSON.parse(last) : null; } catch { payload = null; }
+  } else {
+    try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+  }
+  if (!res.ok) throw new Error(`Hosted MCP ${res.status}: ${text.slice(0, 200)}`);
+  if (payload?.error) throw new Error(payload.error.message || "Hosted MCP error");
+  // Return the tool's content array (array of {type,text}) or the raw result.
+  return payload?.result ?? payload;
+}
 
 export class EchoClient {
   private base: string;
