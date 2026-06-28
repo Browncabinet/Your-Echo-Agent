@@ -1,7 +1,7 @@
 {
   "name": "@browncabinet/yourechoagent-mcp",
-  "version": "0.1.0",
-  "description": "Hire autonomous outreach agents from any MCP-compatible LLM. Designed by a PR tech publicist lending her expertise to a truly personalized approach — launch cold email and LinkedIn campaigns across SaaS, agencies, ecommerce, founders, local services, and PR niches.",
+  "version": "0.2.0",
+  "description": "Hire autonomous outreach agents and discover events, webinars, conferences, and communities for AI-driven outreach — from any MCP-compatible LLM (Claude, Cursor, Windsurf, Continue).",
   "license": "MIT",
   "author": "Browncabinet",
   "homepage": "https://yourechoagent.com",
