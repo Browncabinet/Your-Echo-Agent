@@ -73,6 +73,8 @@ const App = () => (
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
                 <Route path="/dev/a2a-sim" element={<A2ASimulator />} />
                 <Route path="/admin/dashboard" element={<A2ASimulator />} />
+                <Route path="/for-agents/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
+                <Route path="/for-agents/radar" element={<ProtectedRoute><MyRadar /></ProtectedRoute>} />
                 <Route path="/" element={<HomeRoute />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
