@@ -175,8 +175,37 @@ export default function ForAgents() {
         </div>
       </div>
 
+      {/* MCP tools exposed */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <Network className="w-5 h-5 text-indigo-300" />
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">MCP tools your agent can call</h2>
+        </div>
+        <p className="text-sm text-zinc-500 mb-4">
+          Hosted at{" "}
+          <code className="text-zinc-200 bg-white/[0.05] px-1.5 py-0.5 rounded text-xs font-mono break-all">{FUNCTIONS_BASE}/mcp-http</code>.
+          Works with Claude Desktop, Cursor, Windsurf, ChatGPT MCP, and any custom A2A client.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {[
+            { name: "discover_events", desc: "Conferences, webinars, meetups, podcasts in any niche. Demo tier — no key required." },
+            { name: "draft_outreach_for_event", desc: "Personalized cold email referencing a specific event. Returns subject + body." },
+            { name: "generate_comment_for_community", desc: "Value-first comments to warm up a community before outreach." },
+            { name: "add_to_radar", desc: "Save discovery to user's Radar for 1-click calendar add + AI outreach." },
+            { name: "hire_echo_agent", desc: "Delegate a full campaign to a sub-agent (SaaS, Agency, Ecom, Founders, Local, PR)." },
+            { name: "get_job_status / control_job / rate_job", desc: "Poll, pause/resume/cancel, and rate completed campaigns." },
+          ].map((t) => (
+            <div key={t.name} className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4">
+              <code className="text-sm font-mono text-indigo-300">{t.name}</code>
+              <p className="text-xs text-zinc-500 mt-1">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Quickstart copy-paste snippets */}
       <QuickstartSnippets />
+
 
       {/* Discovery snippet */}
       <section className="mb-12">
