@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "All-in-one AI outreach: find leads, draft personalized emails, discover conferences/webinars/communities in your niche, and triage replies — from Claude, Cursor, Windsurf, or any MCP client.",
   "homepage": "https://yourechoagent.com",
-  "repository": "https://github.com/Browncabinet/Your-Echo-Agent",
+  "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
   "license": "MIT",
   "iconUrl": "https://yourechoagent.com/echo-agent-logo.png",
   "transport": "streamable-http",

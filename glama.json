@@ -4,7 +4,7 @@
   "name": "yourechoagent-mcp",
   "description": "Event discovery + AI outreach for AI agents. Find conferences, webinars, meetups, podcasts, and communities in any niche, then draft personalized emails and comments — all from MCP. Tools: discover_events, draft_outreach_for_event, generate_comment_for_community, add_to_radar, hire_echo_agent. Keywords: event discovery, conference leads, webinar outreach, community engagement, A2A outreach, cold email, lead generation.",
   "homepage": "https://yourechoagent.com",
-  "repository": "https://github.com/Browncabinet/Your-Echo-Agent",
+  "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
   "license": "MIT",
   "transports": ["stdio"],
   "runtime": "docker",

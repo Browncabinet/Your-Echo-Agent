@@ -82,7 +82,7 @@ Glama periodically crawls public GitHub repos for a valid root-level `glama.json
 ### Path B — Manual submission (faster, recommended)
 1. Go to <https://glama.ai/mcp/servers>
 2. Click **Add server** (top right) → sign in with GitHub
-3. Paste repo URL: `https://github.com/Browncabinet/Your-Echo-Agent`
+3. Paste repo URL: `https://github.com/Browncabinet/yourechoagent-mcp`
 4. Glama reads `glama.json` and pre-fills the listing
 5. Confirm fields before submit:
    - **Name:** `yourechoagent-mcp`
@@ -92,7 +92,7 @@ Glama periodically crawls public GitHub repos for a valid root-level `glama.json
 6. Submit — approval is usually 24–48h.
 
 ### Glama release / Dockerfile admin
-1. Open the server's Dockerfile admin page: `https://glama.ai/mcp/servers/Browncabinet/Your-Echo-Agent/admin/dockerfile`
+1. Open the server's Dockerfile admin page: `https://glama.ai/mcp/servers/Browncabinet/yourechoagent-mcp/admin/dockerfile`
 2. Use the repo root `Dockerfile` as the build source.
 3. Add required environment variable `ECHO_API_KEY` with a placeholder/default like `eak_your_key_here`.
 4. Deploy the build test. Glama should build the MCP server from `mcp-server/package.json` using the public npm registry, then start `node dist/index.js` for stdio tool inspection.
