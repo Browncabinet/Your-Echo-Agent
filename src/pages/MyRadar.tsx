@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { downloadICS, type DiscoverOpportunity } from "@/lib/ics";
 import { CalendarPlus, ExternalLink, Trash2, Radar } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { SeoHead } from "@/components/SeoHead";
 
 type Row = {
   id: string;
