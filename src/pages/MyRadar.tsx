@@ -44,6 +44,11 @@ export default function MyRadar() {
 
   return (
     <PartnerShell width="wide">
+      <SeoHead
+        title="My Radar — Your Echo Agent"
+        description="Your saved events, webinars, and communities with one-click calendar add."
+        path="/for-agents/radar"
+      />
       <div className="container mx-auto py-8 space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
