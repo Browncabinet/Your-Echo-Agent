@@ -1,75 +1,76 @@
+# Keep main repo private, publish only the MCP server
 
-# Repositioning: Event Discovery + AI Outreach
+## The problem
+GitHub visibility is set at the **repository** level, not per-folder. A repo is either fully public or fully private — you cannot make `mcp-server/` public while the rest of `Your-Echo-Agent` stays private. Registries like Glama, Smithery, and npm also need a public URL they can crawl, so the MCP code has to live somewhere public.
 
-The site currently sends every visitor at `/` to `/for-agents`, which is a developer/A2A page. The new positioning needs a **real consumer homepage** that leads with event & community discovery, while keeping `/for-agents` as the sharp A2A landing for Glama.ai traffic.
+## Recommended approach: two repos
+1. **`Your-Echo-Agent`** (existing) → flip to **Private**. Holds the app, edge functions, IP, business logic.
+2. **`yourechoagent-mcp`** (new) → **Public**. Holds only `mcp-server/` contents + LICENSE + README + `glama.json` + the publish workflow.
 
-I'll ship this in **two passes**. Pass 1 (this turn, after you approve) covers Homepage + Discover positioning + SEO. Pass 2 (next turn) covers For Agents sharpening, trust/social proof scaffolding, and CTAs.
+The hosted MCP endpoint (`mcp-http` Supabase edge function) stays in the private repo — that is fine because registries only need the *stdio package* source to be public; the HTTP server just needs a reachable URL.
 
----
+Why not a submodule or subtree? Both work but add friction (you would have to remember to push the subtree on every MCP change, and Lovable's GitHub sync only manages the main repo). A standalone repo is simpler and is what npm/Glama expect anyway.
 
-## Pass 1 — Homepage + Discover focus + SEO
+## What I will do in build mode
+1. Generate a clean export of the current `mcp-server/` folder ready to drop into a new repo (with adjusted paths, root-level `package.json`, `LICENSE`, `README`, `glama.json`, `.github/workflows/publish.yml`).
+2. Update the **private** repo: remove the `mcp-server/` subfolder, replace it with a short `mcp-server/README.md` pointer that links to the new public repo and npm package.
+3. Update `glama.json`, `smithery.yaml`, `docs/registry-submissions.md`, and `docs/glama-submission-card.md` in the private repo to point to the new public repo URL.
+4. Confirm the hosted Supabase function URL (used by Smithery) is unchanged.
 
-### 1. New `src/pages/Home.tsx` (consumer landing)
+## What you need to do (manual steps — GitHub side)
+Lovable's GitHub integration only manages the connected repo, so the new public repo must be created by you.
 
-Sections, top to bottom:
+```text
+1. Make the main repo private
+   GitHub → Browncabinet/Your-Echo-Agent → Settings → General
+   → scroll to "Danger Zone" → Change repository visibility → Make private
 
-- **Hero** — H1: *"Find where your audience gathers. Turn it into pipeline."* Sub: *"AI-powered event & community discovery + personalized outreach. Discover conferences, webinars, podcasts, and groups in your niche — then send hyper-personalized emails. No LinkedIn scraping."* CTAs: **Start free — 50 emails** / **See how it works**.
-- **"Why we changed" banner** — Three-up: *Relationship-first · Higher-quality leads · Sustainable & TOS-safe*. One short paragraph explaining the pivot away from LinkedIn scraping.
-- **Hero feature: Events & Communities Discovery** — Visual mock of the Discover flow with 4 labelled steps: *Niche → Discover (Groups, Conferences, Webinars, Podcasts) → AI fit score → One-click actions (Draft comment, Email, Add to calendar, Save to Radar)*. Built with Tailwind + lucide icons + framer-motion fades. CTA: **Try Discover →** (deep-links signed-in users to `/for-agents/discover`, others to signup).
-- **Supporting features grid** — *AI Email Builder · Reply Handler · MCP / A2A for agents*. Each card 2-3 lines + link.
-- **Example niches strip** — Chip row: *Fractional CFOs · DTC founders · Climate-tech · Indie SaaS · B2B agencies · Real-estate investors · Podcasters · Local services*. Sets expectations.
-- **Trust / Social-proof placeholders** — Three testimonial cards with placeholder quotes + "Add your story" CTA, plus two mini case-study cards (*"Booked 11 podcast guests in 30 days"*, *"3 enterprise demos from one conference"*).
-- **Pricing teaser** — Reuse existing `HomePricingSection` if importable; otherwise a 3-card row linking to `/pricing`.
-- **FAQ** — Reuse `FaqSection` with 2 new questions: *"Why no LinkedIn scraping?"* and *"How does event discovery work?"*.
-- **Bottom CTA** — *"Start free — 50 emails. No credit card."*
+2. Create the new public repo (empty, no README)
+   GitHub → New repository
+     Owner:        Browncabinet
+     Name:         yourechoagent-mcp
+     Visibility:   Public
+     Initialize:   leave everything unchecked
 
-### 2. Routing change in `src/App.tsx`
+3. Push the exported mcp-server folder I prepared
+   On your machine:
+     mkdir yourechoagent-mcp && cd yourechoagent-mcp
+     # copy the contents of mcp-server/ from the private repo into here
+     git init
+     git add .
+     git commit -m "Initial public MCP server"
+     git branch -M main
+     git remote add origin https://github.com/Browncabinet/yourechoagent-mcp.git
+     git push -u origin main
 
-`HomeRoute` currently does `<Navigate to={user ? "/for-agents/dashboard" : "/for-agents"} />`. Change to:
-- Signed-out → render `<Home />` (new public landing).
-- Signed-in → keep redirect to `/for-agents/dashboard`.
+4. (Optional) Add an npm publish token
+   GitHub → yourechoagent-mcp → Settings → Secrets and variables → Actions
+   → New repository secret → Name: NPM_TOKEN, Value: <token from npmjs.com>
+```
 
-### 3. SEO updates in `index.html`
+## After the split — what is public vs private
 
-- `<title>`: *Your Echo Agent — AI event discovery + outreach for conferences, webinars & communities*
-- `<meta name="description">`: *Discover conferences, webinars, podcasts, and communities in your niche. AI drafts personalized outreach and triages replies. No LinkedIn scraping. 50 free emails.*
-- Mirror in `og:*` and `twitter:*`.
-- Rewrite the `SoftwareApplication` JSON-LD `description` + `featureList` to lead with event discovery (drop the LinkedIn mention).
+```text
+PUBLIC  github.com/Browncabinet/yourechoagent-mcp
+        ├── src/             (stdio MCP client — proxies to hosted endpoint)
+        ├── package.json     (published as @browncabinet/yourechoagent-mcp)
+        ├── glama.json
+        ├── LICENSE (MIT)
+        └── README.md
 
-### 4. Discover page polish (`src/pages/Discover.tsx`)
+PUBLIC  yourechoagent.com + Supabase edge function /mcp-http
+        (the hosted server Smithery talks to — URL only, no source visible)
 
-- Add a one-line "How it works" strip above the Search card (4 numbered steps).
-- Update `SeoHead` title to *"AI event & community discovery for your niche — Your Echo Agent"*.
+PRIVATE github.com/Browncabinet/Your-Echo-Agent
+        ├── src/             (React app, business logic)
+        ├── supabase/        (all edge functions including mcp-http source)
+        └── docs/            (internal docs)
+```
 
-### 5. Mobile
+## Trade-offs to be aware of
+- **Two sync points.** Changes to MCP tool definitions must be made in both repos (private `mcp-http` edge function + public stdio client). I will keep them in lockstep when you ask for tool changes.
+- **Glama re-submission.** The Glama listing currently points at `Your-Echo-Agent`. Once that goes private, Glama will fail its next re-scan ("repository not found"). You will need to edit the listing's repo URL to the new public repo — I will include the exact steps after the new repo exists.
+- **Smithery is unaffected** — it points at the hosted Supabase URL, not GitHub.
 
-All new components built mobile-first with Tailwind (`grid-cols-1 md:grid-cols-3`, stacked CTAs, no horizontal scroll). Verified visually via the preview.
-
----
-
-## Pass 2 (next turn, after you approve Pass 1)
-
-- **For Agents page** — Replace hero copy with *"Hire Echo Agents to run event-driven outreach campaigns"*; add an "Event-driven campaign" API example (`hire` payload with `campaign_type: "event_discovery"`); add a "Discovered on Glama.ai" badge row.
-- **Campaign Wizard toggle** — Currently there is no `CampaignWizard` component in the repo (Discover is its own page). I will either (a) add a "Mode" toggle on Discover (*Event-driven* default · *Smart Search* · *Paste URL*) that swaps the search form, or (b) skip if you confirm the existing 3 entry points are enough. **Question for you below.**
-- **CTA wiring** — Add subtle "Upgrade to discover 5× more events" CTAs in Discover when cap is hit, linking to `/pricing`.
-- **Testimonial collection** — Convert the placeholder cards into a `testimonials` table + admin form so you can add real ones without code edits. Defer if you want HTML-only for now.
-
----
-
-## Out of scope (flagging, not building unless you ask)
-
-- Animated/Lottie demo video — I'll use static stepped visuals + framer-motion fades; a real animated demo needs a Loom/GIF asset from you.
-- Real screenshots of the Discover UI — I'll style mocks that match the actual UI; if you want real screenshots, capture them and I'll swap.
-- New blog/resources section on event marketing — good next step, but a separate build.
-- Custom OG image — current one stays; ask if you want a new one generated.
-
----
-
-## One question before I start Pass 1
-
-Campaign Wizard: there's no wizard component today — Discover is its own page and the legacy "Smart Search / Paste URL" flows live elsewhere in the dashboard. Do you want me to:
-
-1. **Add a mode toggle on Discover** (*Event-driven* default, *Smart Search*, *Paste URL*) so all three lead-gen modes are reachable from one page, OR
-2. **Leave navigation as-is** (Discover, Smart Search, Paste URL as separate items) and just make Discover the most prominent?
-
-If you don't answer, I'll go with **#2** (less churn, ships faster).
+## Alternative (only if you want one repo)
+Keep `Your-Echo-Agent` **public** and rely on the fact that secrets, API keys, and customer data already live in Supabase (not in the repo). This is how most SaaS-on-Lovable projects ship. Your actual "IP" is the prompts, the discovery pipeline, and your customer base — not the React code. Say the word if you want to go this route instead and skip the split.
