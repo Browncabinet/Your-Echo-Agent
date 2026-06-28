@@ -82,7 +82,7 @@ Glama periodically crawls public GitHub repos for a valid root-level `glama.json
 ### Path B — Manual submission (faster, recommended)
 1. Go to <https://glama.ai/mcp/servers>
 2. Click **Add server** (top right) → sign in with GitHub
-3. Paste repo URL: `https://github.com/Browncabinet/Your-Echo-Agent`
+3. Paste repo URL: `https://github.com/Browncabinet/yourechoagent-mcp`
 4. Glama reads `glama.json` and pre-fills the listing
 5. Confirm fields before submit:
    - **Name:** `yourechoagent-mcp`

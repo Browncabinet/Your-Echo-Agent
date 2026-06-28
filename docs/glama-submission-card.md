@@ -7,7 +7,7 @@ Everything below is ready to copy/paste into the Glama "Add server" form at <htt
 ## 1. Repository
 
 ```
-https://github.com/Browncabinet/Your-Echo-Agent
+https://github.com/Browncabinet/yourechoagent-mcp
 ```
 
 Dockerfile: use the repo root `Dockerfile`. It builds the stdio MCP server from `mcp-server/` and starts `node dist/index.js` for Glama inspection.

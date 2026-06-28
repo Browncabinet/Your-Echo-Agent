@@ -121,8 +121,8 @@ Same shape — point any MCP client at `npx -y @browncabinet/yourechoagent-mcp` 
 ## Local development
 
 ```bash
-git clone https://github.com/Browncabinet/Your-Echo-Agent.git
-cd Your-Echo-Agent/mcp-server
+git clone https://github.com/Browncabinet/yourechoagent-mcp.git
+cd yourechoagent-mcp
 npm install
 npm run build
 ECHO_API_KEY=eak_... npm run inspect   # opens MCP Inspector

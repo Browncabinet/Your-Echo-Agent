@@ -7,10 +7,10 @@
   "homepage": "https://yourechoagent.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Browncabinet/Your-Echo-Agent.git"
+    "url": "https://github.com/Browncabinet/yourechoagent-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/Browncabinet/Your-Echo-Agent/issues"
+    "url": "https://github.com/Browncabinet/yourechoagent-mcp/issues"
   },
   "keywords": [
     "mcp",
