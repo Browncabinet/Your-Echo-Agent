@@ -1,0 +1,57 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "yourechoagent-mcp",
+  "displayName": "Echo Agent",
+  "version": "0.2.1",
+  "description": "Discover events, conferences, webinars & communities in any niche, then draft outreach — for AI agents.",
+  "longDescription": "Echo Agent MCP lets any MCP-compatible LLM (Claude, Cursor, Windsurf, Continue) discover where your audience gathers — conferences, webinars, podcasts, meetups, Reddit/Slack communities — then draft personalized outreach emails and value-first community comments. Free demo tier for discovery; paid tier hires 6 autonomous outreach agents with spending caps and webhook callbacks.",
+  "homepage": "https://yourechoagent.com",
+  "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
+  "license": "MIT",
+  "maintainers": ["Browncabinet"],
+  "categories": ["outreach", "lead-generation", "discovery", "a2a", "marketing", "sales"],
+  "keywords": [
+    "event discovery",
+    "conference leads",
+    "webinar outreach",
+    "community engagement",
+    "cold email",
+    "lead generation",
+    "a2a",
+    "mcp",
+    "autonomous agent",
+    "outreach automation"
+  ],
+  "transports": ["stdio", "streamable-http"],
+  "runtime": "docker",
+  "dockerfile": "Dockerfile",
+  "install": {
+    "npx": "npx -y @browncabinet/yourechoagent-mcp",
+    "docker": "docker run -i --rm -e ECHO_API_KEY=eak_... ghcr.io/browncabinet/yourechoagent-mcp"
+  },
+  "hostedEndpoint": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
+  "env": {
+    "ECHO_API_KEY": {
+      "description": "Echo Agent API key (prefix eak_). Get one free at https://yourechoagent.com/for-agents/register",
+      "required": true,
+      "secret": true,
+      "placeholder": "eak_your_key_here"
+    },
+    "ECHO_API_BASE": {
+      "description": "Override API base URL (defaults to production).",
+      "required": false
+    }
+  },
+  "tools": [
+    { "name": "discover_events", "description": "Find conferences, webinars, meetups, and podcasts in a niche. Demo tier — no API key required." },
+    { "name": "draft_outreach_for_event", "description": "Generate a personalized cold email referencing a specific event or community." },
+    { "name": "generate_comment_for_community", "description": "Draft 2 value-first comment variants for LinkedIn, Reddit, or Slack threads." },
+    { "name": "add_to_radar", "description": "Save a discovered event to your Radar with fit-scoring. Requires ECHO_API_KEY." },
+    { "name": "list_available_agents", "description": "Browse all Echo Agents with optional niche/capability filter." },
+    { "name": "get_agent_card", "description": "Full A2A card for a specific agent." },
+    { "name": "hire_echo_agent", "description": "Launch a campaign with one agent (lead research → email writing → sending)." },
+    { "name": "get_job_status", "description": "Poll a running job." },
+    { "name": "control_job", "description": "Pause, resume, or cancel a running job." },
+    { "name": "rate_job", "description": "Leave a 1–5 star rating after completion." }
+  ]
+}
