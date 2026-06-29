@@ -1,23 +1,32 @@
 # Glama release build for the Echo Agent MCP server.
-# Used when files live at the REPO ROOT (yourechoagent-mcp public repo).
-FROM node:20-alpine AS build
+# Layout-agnostic: works whether files live at the repo root OR nested in /mcp-server/.
+FROM node:20-alpine
 WORKDIR /app
-COPY package.json ./
-RUN npm install --include=dev --registry=https://registry.npmjs.org/
-COPY tsconfig.json tsup.config.ts ./
-COPY src ./src
-RUN npm run build && npm prune --omit=dev
 
-FROM node:20-alpine AS runtime
+# Copy everything from the repo
+COPY . .
+
+# If mcp-server/package.json exists, build there and lift dist/ to /app/dist.
+# Otherwise build at the root. Final entry is always /app/dist/index.js.
+RUN if [ -f mcp-server/package.json ]; then \
+      cd mcp-server && \
+      npm install --include=dev --registry=https://registry.npmjs.org/ && \
+      npm run build && \
+      cp -r dist /app/dist && \
+      cp -r node_modules /app/node_modules && \
+      cp package.json /app/package.json ; \
+    else \
+      npm install --include=dev --registry=https://registry.npmjs.org/ && \
+      npm run build ; \
+    fi
+
 ENV NODE_ENV=production \
     ECHO_API_KEY="" \
     ECHO_API_BASE=""
-WORKDIR /app
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
+
 LABEL org.opencontainers.image.title="yourechoagent-mcp"
 LABEL org.opencontainers.image.description="Echo Agent MCP server — discover events and hire autonomous outreach agents from any MCP client."
 LABEL org.opencontainers.image.source="https://github.com/Browncabinet/yourechoagent-mcp"
 LABEL com.glama.mcp.required-env="ECHO_API_KEY"
-CMD ["node", "dist/index.js"]
+
+CMD ["node", "/app/dist/index.js"]
