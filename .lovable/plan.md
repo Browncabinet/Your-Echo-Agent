@@ -1,35 +1,174 @@
-# Get yourechoagent-mcp live on Glama — shortest path
+## Diagnosis
 
-Glama's Docker builder keeps timing out. We skip Docker entirely by committing a **prebuilt** `dist/index.js` to the public repo. Glama then just runs `node dist/index.js`.
+Glama is not using your `Dockerfile` and it is not building the MCP source code.
 
-Everything you need is already generated in this project at `docs/public-repo-root-files/`.
+Your Build Spec says:
 
-## What you do (3 GitHub edits, ~5 min)
+```json
+"buildSteps": [],
+"cmdArguments": ["mcp-proxy", "--", "node", "dist/index.js"]
+```
 
-All edits happen at https://github.com/Browncabinet/yourechoagent-mcp — no terminal.
+That means Glama clones your repo, then immediately tries to run:
 
-### 1. Replace `glama.json` at the repo root
-- Open `glama.json` → ✏️ Edit
-- Delete everything, paste the contents of this project's `docs/public-repo-root-files/glama.json` (no `runtime: docker`, no `dockerfile`)
-- Commit: `Switch Glama to prebuilt stdio runner`
+```bash
+node dist/index.js
+```
 
-### 2. Add the prebuilt file `dist/index.js` at the repo root
-- Repo home → **Add file → Create new file**
-- Filename: `dist/index.js` (GitHub auto-creates the `dist/` folder)
-- Paste the full contents of this project's `docs/public-repo-root-files/dist-index.js`
-- Commit: `Add prebuilt MCP bundle`
+So the public repo must contain this exact file at the repo root:
 
-### 3. Delete the broken `Dockerfile` (optional but clean)
-- Open `Dockerfile` → ✏️ → 🗑️ trash icon → Commit
+```text
+dist/index.js
+```
 
-### 4. Rebuild on Glama
-- Go to your Glama server page → **Rebuild**
-- Logs should show `node dist/index.js` starting and listing 10 tools — no Docker pull, no `npm install`, no timeouts
+Right now the GitHub repo is still nested like this:
 
-## Why this works
-- The bundled `dist/index.js` is fully self-contained (zod + MCP SDK inlined via `tsup --bundle --noExternal`)
-- Glama's default Node runner just executes `node dist/index.js` — no build, no Docker base image pull, no timeout
-- Repo nesting (`/mcp-server/` vs root) no longer matters because `glama.json` + `dist/index.js` at the root is all Glama needs
+```text
+README.md
+mcp-server/
+```
 
-## If it still fails
-Send me the new Glama build log and I'll patch the exact line — but with no install and no Docker pull, there's almost nothing left that can break.
+So Glama cannot reliably find the runnable server.
+
+## Plan: shortest path to get accepted on Glama
+
+### 1. Keep the source folder as-is for now
+
+Do not worry about flattening everything today. The fastest fix is only to add the files Glama needs at the repo root.
+
+Required root files:
+
+```text
+glama.json
+dist/index.js
+README.md
+LICENSE
+```
+
+### 2. Add root `glama.json`
+
+On GitHub:
+
+1. Open `https://github.com/Browncabinet/yourechoagent-mcp`
+2. Click **Add file → Create new file**
+3. Name the file exactly:
+
+```text
+glama.json
+```
+
+4. Paste the Glama config from this Lovable project:
+
+```text
+docs/public-repo-root-files/glama.json
+```
+
+5. Commit with message:
+
+```text
+Add Glama manifest
+```
+
+Important: this file must not include `runtime: docker` or `dockerfile`.
+
+### 3. Add root `dist/index.js`
+
+On GitHub:
+
+1. Click **Add file → Create new file**
+2. Name the file exactly:
+
+```text
+dist/index.js
+```
+
+3. Paste the full contents from this Lovable project:
+
+```text
+docs/public-repo-root-files/dist-index.js
+```
+
+4. Commit with message:
+
+```text
+Add prebuilt MCP bundle
+```
+
+This directly satisfies Glama’s command:
+
+```bash
+node dist/index.js
+```
+
+### 4. Add root `LICENSE` if missing
+
+Glama previously complained that the license was not found. If the public repo does not show `LICENSE` at the top level:
+
+1. Click **Add file → Create new file**
+2. Name it:
+
+```text
+LICENSE
+```
+
+3. Paste the MIT license from:
+
+```text
+mcp-server/LICENSE
+```
+
+4. Commit with message:
+
+```text
+Add MIT license
+```
+
+### 5. Remove Docker from the Glama setup
+
+Do not use Docker for this listing right now. The latest failure:
+
+```text
+read ECONNRESET
+```
+
+is a Glama Docker builder/network failure while building its generated container, not an error in your MCP code.
+
+In Glama, the Build Spec should stay simple:
+
+```json
+{
+  "buildSteps": [],
+  "cmdArguments": ["mcp-proxy", "--", "node", "dist/index.js"]
+}
+```
+
+That is okay once `dist/index.js` exists at the repo root.
+
+### 6. Rebuild on Glama
+
+After the GitHub commits:
+
+1. Go back to your Glama server page
+2. Click **Rebuild** / **Retry build**
+3. If it fails with `ECONNRESET` again, click retry once more because that specific error is infrastructure/network-related
+4. If it fails with `Cannot find module '/app/dist/index.js'`, then `dist/index.js` is still not at the repo root
+
+## Success check
+
+Before rebuilding, the public GitHub repo home page should show at least:
+
+```text
+README.md
+glama.json
+LICENSE
+dist/
+mcp-server/
+```
+
+Inside `dist/`, it must show:
+
+```text
+index.js
+```
+
+Once those are visible, Glama’s current Build Spec is correct.
