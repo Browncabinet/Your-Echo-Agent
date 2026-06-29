@@ -7,8 +7,6 @@
   "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
   "license": "MIT",
   "transports": ["stdio"],
-  "runtime": "docker",
-  "dockerfile": "Dockerfile",
   "env": {
     "ECHO_API_KEY": {
       "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",

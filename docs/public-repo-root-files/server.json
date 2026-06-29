@@ -23,11 +23,8 @@
     "outreach automation"
   ],
   "transports": ["stdio", "streamable-http"],
-  "runtime": "docker",
-  "dockerfile": "Dockerfile",
   "install": {
-    "npx": "npx -y @browncabinet/yourechoagent-mcp",
-    "docker": "docker run -i --rm -e ECHO_API_KEY=eak_... ghcr.io/browncabinet/yourechoagent-mcp"
+    "npx": "npx -y @browncabinet/yourechoagent-mcp"
   },
   "hostedEndpoint": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
   "env": {

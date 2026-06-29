@@ -1,6 +1,6 @@
 # yourechoagent-mcp — Fix-It Checklist (Browser only)
 
-Goal: flatten the repo so `package.json` lives at the **root**, then add `glama.json` + `Dockerfile`, then tag `v0.2.0`.
+Goal: flatten the repo so `package.json` and prebuilt `dist/index.js` live at the **root**, then add `glama.json`, then tag `v0.2.0`.
 
 Repo: https://github.com/Browncabinet/yourechoagent-mcp
 
@@ -36,12 +36,15 @@ Do them one by one in this order:
 3. Paste the contents of `docs/public-repo-root-files/glama.json` (from this Lovable project)
 4. Commit
 
-## Step 3 — Add `Dockerfile` at the root
+## Step 3 — Add prebuilt `dist/index.js` at the root
 
-1. **Add file → Create new file**
-2. Filename: `Dockerfile`  *(no extension)*
-3. Paste the contents of `docs/public-repo-root-files/Dockerfile`
-4. Commit
+1. In this Lovable project, open `docs/public-repo-root-files/dist-index.js`.
+2. In GitHub, click **Add file → Create new file**.
+3. Filename: `dist/index.js`.
+4. Paste the full contents of `docs/public-repo-root-files/dist-index.js`.
+5. Commit with message: `Add prebuilt MCP dist file`.
+
+Do **not** rely on Docker for Glama. The current Glama Docker builder is timing out while pulling its base image. The prebuilt `dist/index.js` lets Glama run `node /app/dist/index.js` directly.
 
 ## Step 4 — Tag release `v0.2.0`
 
@@ -55,7 +58,7 @@ Do them one by one in this order:
 
 1. Go to https://glama.ai/mcp/servers/new
 2. Paste: `https://github.com/Browncabinet/yourechoagent-mcp`
-3. Submit. Install should now succeed (Docker runtime + glama.json + root package.json + tagged release).
+3. Submit. Install should now succeed because Glama can run the committed `dist/index.js` directly.
 
 ---
 
