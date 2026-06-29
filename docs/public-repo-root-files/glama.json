@@ -8,9 +8,7 @@
   "license": "MIT",
   "categories": ["outreach", "lead-generation", "discovery", "marketing"],
   "keywords": ["event discovery", "conference leads", "webinar outreach", "community engagement", "cold email", "lead generation", "a2a", "autonomous agent"],
-  "transports": ["stdio", "streamable-http"],
-  "runtime": "docker",
-  "dockerfile": "Dockerfile",
+  "transports": ["stdio"],
   "install": {
     "npx": "npx -y @browncabinet/yourechoagent-mcp"
   },

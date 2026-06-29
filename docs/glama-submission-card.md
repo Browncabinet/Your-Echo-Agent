@@ -10,9 +10,9 @@ Everything below is ready to copy/paste into the Glama "Add server" form at <htt
 https://github.com/Browncabinet/yourechoagent-mcp
 ```
 
-Dockerfile: use the repo root `Dockerfile`. It builds the stdio MCP server from `mcp-server/` and starts `node dist/index.js` for Glama inspection.
+Glama run file: commit the prebuilt `dist/index.js` at the repo root. Glama can then start `node /app/dist/index.js` without Docker.
 
-Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default can be `eak_your_key_here` in Glama's Dockerfile admin page).
+Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default can be `eak_your_key_here` if Glama asks for one).
 
 ---
 
@@ -46,11 +46,11 @@ Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default ca
 
 ## 5. Install / run command
 
-Glama builds and runs the server from the repo's root `Dockerfile` (declared in `glama.json` as `runtime: docker`). End-users on Claude Desktop / Cursor / Windsurf use `npx` once the npm package is published.
+Glama runs the committed prebuilt file at `dist/index.js`. End-users on Claude Desktop / Cursor / Windsurf use `npx` once the npm package is published.
 
 | Field | Value |
 |---|---|
-| **Glama runtime** | docker (Dockerfile at repo root) |
+| **Glama runtime** | stdio, prebuilt `dist/index.js` committed at repo root |
 | **Client command (stdio)** | `npx -y @browncabinet/yourechoagent-mcp` |
 | **Transport** | stdio |
 | **Runtime** | Node.js ≥ 20 |
