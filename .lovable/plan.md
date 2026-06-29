@@ -1,58 +1,58 @@
-## Goal
-Populate the empty `yourechoagent-mcp` GitHub repo with your MCP server code (no terminal, no GitHub Desktop), then update Glama.ai to point at the new repo.
+## Verification of `Browncabinet/yourechoagent-mcp`
+
+**What's good ✅**
+- Repo is **Public**, MIT licensed (root `README.md` + nested `LICENSE`).
+- All MCP source files uploaded: `src/`, `package.json`, `package-lock.json`, `tsconfig.json`, `tsup.config.ts`, `CHANGELOG.md`, `README.md`.
+- README renders correctly with badges, tools table, install snippets.
+- TypeScript 100% — clean language detection.
+
+**Problems to fix ⚠️**
+
+1. **Everything is nested in `/mcp-server/` instead of at the repo root.** This breaks:
+   - `npm install` from the repo (no root `package.json`)
+   - Glama auto-build (it looks for `package.json` + `Dockerfile` at root)
+   - Smithery's GitHub scanning
+2. **No `glama.json`** at root → Glama install will fail again with the same "server can not be installed" error.
+3. **No `Dockerfile`** at root → Glama's Docker runtime can't build.
+4. **No release / git tag** → npm publish workflow won't trigger; Glama can't pin a version.
+5. **`EXPORT-TO-PUBLIC-REPO.md`** is leftover internal instructions — should be removed from the public repo.
 
 ---
 
-## Part 1 — Upload files to the empty repo (browser only)
+## Plan to fix (browser-only, no terminal)
 
-1. **Get the files ready on your computer**
-   - You already have the `mcp-server` folder on your Desktop (from the Lovable codebase download).
-   - Open that folder. You should see: `src/`, `package.json`, `README.md`, `LICENSE`, `tsconfig.json`, `CHANGELOG.md`, `Dockerfile` (if present), etc.
+### Step 1 — Move all files from `/mcp-server/` to the repo root
+On `github.com/Browncabinet/yourechoagent-mcp`:
+1. Open each file in `mcp-server/` (e.g. `package.json`).
+2. Click the **pencil (Edit)** icon.
+3. In the filename box at the top, **delete the `mcp-server/` prefix** so it becomes just `package.json`.
+4. Click **Commit changes**.
+5. Repeat for: `package.json`, `package-lock.json`, `tsconfig.json`, `tsup.config.ts`, `README.md`, `CHANGELOG.md`, `LICENSE`, and every file inside `src/` (`index.ts`, `client.ts`).
+6. Delete the now-empty `mcp-server/` folder and `EXPORT-TO-PUBLIC-REPO.md`.
 
-2. **Open the direct upload page**
-   - Go to this exact URL in your browser:
-     `https://github.com/Browncabinet/yourechoagent-mcp/upload/main`
-   - This is GitHub's drag-and-drop upload screen for your empty repo.
+GitHub auto-renames are slow but reliable for non-technical users — no terminal needed.
 
-3. **Upload in two passes** (GitHub's web uploader needs folders dragged separately)
-   - **Pass A — root files:** In your `mcp-server` folder, select only the loose files (`package.json`, `README.md`, `LICENSE`, `tsconfig.json`, `CHANGELOG.md`, `Dockerfile`, `.gitignore` if present). Drag them into the upload zone.
-   - Scroll down, commit message: `Initial MCP server release v0.2.0`
-   - Click **Commit changes**.
-   - **Pass B — the `src/` folder:** Go back to `https://github.com/Browncabinet/yourechoagent-mcp/upload/main`, drag the entire `src` folder in. Commit with message: `Add src/`.
+### Step 2 — Add `glama.json` at the root
+Use the **"Add file → Create new file"** button, name it `glama.json`, and paste the content from this Lovable project's root `glama.json` (already configured with Docker runtime + ECHO_API_KEY).
 
-4. **Verify**
-   - Visit `https://github.com/Browncabinet/yourechoagent-mcp`
-   - Confirm you see `package.json`, `README.md`, `LICENSE`, and the `src/` folder with `index.ts` and `client.ts` inside.
+### Step 3 — Add `Dockerfile` at the root
+Same flow — create `Dockerfile`, paste content from this project's root `Dockerfile`, but **remove the `mcp-server/` prefix** from every `COPY` path since files now live at root.
 
----
+### Step 4 — Create a Release `v0.2.0`
+1. On the repo home → right side → **Releases** → **Create a new release**.
+2. Tag: `v0.2.0` · Title: `v0.2.0 — Event discovery tools` · paste the v0.2.0 entry from `CHANGELOG.md`.
+3. Click **Publish release**.
 
-## Part 2 — Tag a release so npm + Glama can install it
-
-1. On your new repo page, click **Releases** (right sidebar) → **Create a new release**.
-2. **Choose a tag** → type `v0.2.0` → **Create new tag on publish**.
-3. Title: `v0.2.0 — Event & community discovery tools`
-4. Description: paste the top entry from `CHANGELOG.md`.
-5. Click **Publish release**. (If you've set up the npm publish workflow secret, this also publishes to npm.)
+### Step 5 — Re-submit to Glama
+On `glama.ai/mcp/servers/new`, paste `https://github.com/Browncabinet/yourechoagent-mcp` again. With root-level `package.json` + `glama.json` + `Dockerfile` + a `v0.2.0` tag, install will succeed.
 
 ---
 
-## Part 3 — Update Glama.ai
+## What I'll prepare for you (after you approve)
+- Generate the **exact root-level `Dockerfile`** (paths adjusted, no `mcp-server/` prefix) so you can copy-paste it into GitHub's "Create new file" UI.
+- Generate the **exact root-level `glama.json`** (also path-adjusted).
+- Provide a **checklist** of which files to rename and in what order so you can do it in ~10 minutes via the browser.
 
-1. Go to `https://glama.ai/mcp/servers` → find **Your Echo Agent** → **Edit** (or re-submit if it was removed).
-2. Update these fields:
-   - **Repository URL:** `https://github.com/Browncabinet/yourechoagent-mcp`
-   - **Install command:** `npx -y @browncabinet/yourechoagent-mcp`
-   - **Runtime:** Remote (hosted) — URL: `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`
-   - Keep description + keywords as currently in `glama.json`.
-3. Save → Glama will re-scan. The LICENSE file is at the repo root, so the "license not found" error will clear.
+I won't touch your Lovable project files unless you want me to keep them in sync too.
 
----
-
-## Part 4 — (Optional) make main repo private
-Once Part 1 is verified: `github.com/Browncabinet/Your-Echo-Agent` → Settings → Danger Zone → **Change visibility → Private**.
-
----
-
-## Notes
-- No code changes are needed in this Lovable project — `glama.json`, `README.md`, and `mcp-server/package.json` already reference the new repo URL.
-- If the upload page shows "main branch not found", click **Add file → Create new file**, name it `README.md`, paste one line, commit — then retry the `/upload/main` URL.
+**Ready to proceed?** Approve the plan and I'll generate the two root-level files (`Dockerfile` + `glama.json`) plus the click-by-click rename checklist.
