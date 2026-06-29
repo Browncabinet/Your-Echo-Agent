@@ -1,0 +1,1 @@
+REVOKE SELECT (webhook_secret, stripe_customer_id, current_invoice_id) ON public.a2a_partners FROM authenticated, anon;
