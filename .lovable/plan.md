@@ -1,20 +1,43 @@
-# Fix: Glama is ignoring your Dockerfile
+## Plan: Stop relying on Docker and make Glama install the MCP server directly
 
-## What the logs prove
+The latest failure is not your code anymore. Glama timed out while pulling its base Docker image:
 
-Glama's build only ran **4 steps** — install node, install `mcp-proxy`, clone your repo, then immediately `node /app/dist/index.js`. It **never ran your Dockerfile** (no `npm install`, no `tsup` build, no Docker build stage in the logs).
+```text
+debian:trixie-slim: failed to resolve source metadata ... context deadline exceeded
+```
 
-That means Glama is using its **default stdio runner** instead of Docker. The default runner does `git clone` → `node dist/index.js` with zero build step — which is why `dist/` doesn't exist.
+That means Docker mode is unstable on Glama’s builder. The clean fix is to stop using Docker for this MCP repo and make the public repo work with Glama’s default runner.
 
-Glama only switches to Docker when the **`glama.json` at the repo root** explicitly says `runtime: docker`. Right now the public repo either has no `glama.json` at the root, or the one there doesn't set `runtime: docker`.
+## What to change in the public `yourechoagent-mcp` repo
 
-## The fix — add one file to the public repo root
+### 1. Add the compiled `dist/` folder to GitHub
+Glama’s non-Docker runner tries to start:
 
-In `https://github.com/Browncabinet/yourechoagent-mcp`:
+```text
+node /app/dist/index.js
+```
 
-1. Click **Add file → Create new file**
-2. Filename: `glama.json` (at the repo root, NOT inside `mcp-server/`)
-3. Paste this exactly:
+So the public repo must contain:
+
+```text
+dist/index.js
+```
+
+If the source is still inside `/mcp-server`, then the public repo should contain either:
+
+```text
+package.json
+src/
+dist/index.js
+glama.json
+README.md
+LICENSE
+```
+
+or, at minimum, Glama must see `dist/index.js` at the repo root.
+
+### 2. Change `glama.json` away from Docker
+Replace the root `glama.json` in the public repo with:
 
 ```json
 {
@@ -26,48 +49,43 @@ In `https://github.com/Browncabinet/yourechoagent-mcp`:
   "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
   "license": "MIT",
   "transports": ["stdio"],
-  "runtime": "docker",
-  "dockerfile": "Dockerfile",
   "env": {
     "ECHO_API_KEY": {
-      "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",
+      "description": "Echo Agent API key. Get one at https://yourechoagent.com/for-agents/register",
       "required": true,
       "secret": true,
       "placeholder": "eak_your_key_here"
     },
     "ECHO_API_BASE": {
-      "description": "Override API base URL (defaults to production).",
+      "description": "Override API base URL. Defaults to production.",
       "required": false
     }
   }
 }
 ```
 
-4. Commit message: `Add glama.json: use Docker runtime`
-5. Commit.
+Important: remove these Docker lines:
 
-## Then verify the Dockerfile is at the root too
-
-Open the repo file list. You should see at the **top level** (not inside a folder):
-
-- `Dockerfile` ✅
-- `glama.json` ✅ (the one you just added)
-
-If `Dockerfile` is still inside `mcp-server/`, click it → pencil → change the path field from `mcp-server/Dockerfile` to just `Dockerfile` → commit.
-
-## Then rebuild on Glama
-
-Glama page → **Rebuild**. New logs should now show:
-
-```
-[x/y] FROM node:20-alpine
-[x/y] COPY . .
-[x/y] RUN ... npm install ...
-[x/y] RUN ... npm run build ...
+```json
+"runtime": "docker",
+"dockerfile": "Dockerfile"
 ```
 
-That confirms Glama picked up Docker mode. If you see those lines and it still fails, send me the new log and I'll patch the Dockerfile.
+### 3. Keep or delete Dockerfile
+Once `dist/index.js` exists at root and `glama.json` no longer says Docker, the Dockerfile is optional. It can stay in the repo, but Glama should not use it.
 
-## Why the previous attempts didn't help
+### 4. Rebuild / resubmit on Glama
+After committing the root `dist/index.js` and updated `glama.json`:
 
-The Dockerfile content was correct — Glama just wasn't reading it because nothing told it to switch off the default Node runner. `runtime: docker` in `glama.json` is the switch.
+1. Go to your Glama server page.
+2. Click **Rebuild** or **Retry**.
+3. The logs should no longer show Docker base image pulls.
+4. It should go straight to cloning the repo and running `node /app/dist/index.js`.
+
+## Technical note
+
+The previous error proves Glama is now reading Docker mode, but the failure is external to the MCP server. A prebuilt stdio package avoids Glama’s Docker image pull timeout and matches what its default runner already expects.
+
+## Manual paste option
+
+If you want the easiest next action, I’ll give you the exact `glama.json` to paste and the exact GitHub website steps to upload the `dist` folder from your project export.
