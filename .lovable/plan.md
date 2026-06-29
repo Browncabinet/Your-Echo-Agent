@@ -1,61 +1,73 @@
-# Fix Glama "Cannot find module '/app/dist/index.js'"
+# Fix: Glama is ignoring your Dockerfile
 
-## Diagnosis
+## What the logs prove
 
-The error means Glama ran `node dist/index.js` but `dist/` was never created. That happens when:
-1. The `Dockerfile` skipped `npm install` + `npm run build`, OR
-2. The build ran in the wrong directory (files are nested in `/mcp-server/` but Dockerfile copied from root), OR
-3. The Dockerfile is still named `Dockfile` (typo) so Glama fell back to a default that just runs CMD.
+Glama's build only ran **4 steps** — install node, install `mcp-proxy`, clone your repo, then immediately `node /app/dist/index.js`. It **never ran your Dockerfile** (no `npm install`, no `tsup` build, no Docker build stage in the logs).
 
-Last time we checked, your public repo `yourechoagent-mcp` had files nested in `/mcp-server/` and a `Dockfile` (typo). We need one Dockerfile that works for that layout, no flattening required.
+That means Glama is using its **default stdio runner** instead of Docker. The default runner does `git clone` → `node dist/index.js` with zero build step — which is why `dist/` doesn't exist.
 
-## The fix — replace your Dockerfile in the public repo
+Glama only switches to Docker when the **`glama.json` at the repo root** explicitly says `runtime: docker`. Right now the public repo either has no `glama.json` at the root, or the one there doesn't set `runtime: docker`.
 
-Step 1. Go to https://github.com/Browncabinet/yourechoagent-mcp
+## The fix — add one file to the public repo root
 
-Step 2. If you see a file called `Dockfile` (no "er"), click it → pencil → rename to `Dockerfile` (filename field at top).
+In `https://github.com/Browncabinet/yourechoagent-mcp`:
 
-Step 3. If there is no `Dockerfile` at the **repo root** yet, click **Add file → Create new file**, name it exactly `Dockerfile` (capital D, no extension).
+1. Click **Add file → Create new file**
+2. Filename: `glama.json` (at the repo root, NOT inside `mcp-server/`)
+3. Paste this exactly:
 
-Step 4. Paste this **entire file** as the contents (works whether your code lives at root OR in `/mcp-server/`):
-
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-
-# Copy everything from the repo
-COPY . .
-
-# Detect layout: if mcp-server/package.json exists, build there; otherwise build at root.
-# Either way, the final dist/index.js ends up at /app/dist/index.js.
-RUN if [ -f mcp-server/package.json ]; then \
-      cd mcp-server && \
-      npm install --include=dev --registry=https://registry.npmjs.org/ && \
-      npm run build && \
-      cp -r dist /app/dist && \
-      cp -r node_modules /app/node_modules && \
-      cp package.json /app/package.json ; \
-    else \
-      npm install --include=dev --registry=https://registry.npmjs.org/ && \
-      npm run build ; \
-    fi
-
-ENV NODE_ENV=production
-CMD ["node", "/app/dist/index.js"]
+```json
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["Browncabinet"],
+  "name": "yourechoagent-mcp",
+  "description": "Discover events, conferences & communities in any niche, then draft outreach — for AI agents.",
+  "homepage": "https://yourechoagent.com",
+  "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
+  "license": "MIT",
+  "transports": ["stdio"],
+  "runtime": "docker",
+  "dockerfile": "Dockerfile",
+  "env": {
+    "ECHO_API_KEY": {
+      "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",
+      "required": true,
+      "secret": true,
+      "placeholder": "eak_your_key_here"
+    },
+    "ECHO_API_BASE": {
+      "description": "Override API base URL (defaults to production).",
+      "required": false
+    }
+  }
+}
 ```
 
-Step 5. Commit message: `Fix Dockerfile: install + build before CMD`. Click **Commit changes**.
+4. Commit message: `Add glama.json: use Docker runtime`
+5. Commit.
 
-Step 6. On Glama.ai → your server page → click **Rebuild** (or **Retry build**). Watch the logs — you should see `npm install`, then `tsup` building, then "Container started".
+## Then verify the Dockerfile is at the root too
 
-## Why this works
+Open the repo file list. You should see at the **top level** (not inside a folder):
 
-- `COPY . .` brings in every file regardless of layout.
-- The `if` block handles both the current nested layout (`/mcp-server/`) and a future flat layout — so flattening the repo is no longer urgent.
-- `npm install --include=dev` is required because `tsup` and `typescript` are devDependencies.
-- The explicit `--registry=https://registry.npmjs.org/` bypasses any private mirror in a stray lockfile.
-- `CMD ["node", "/app/dist/index.js"]` uses an absolute path so it doesn't matter what WORKDIR Glama assumes.
+- `Dockerfile` ✅
+- `glama.json` ✅ (the one you just added)
 
-## After the rebuild succeeds
+If `Dockerfile` is still inside `mcp-server/`, click it → pencil → change the path field from `mcp-server/Dockerfile` to just `Dockerfile` → commit.
 
-Tell me and I'll help you verify the listing shows the 10 tools and bump the version tag if needed.
+## Then rebuild on Glama
+
+Glama page → **Rebuild**. New logs should now show:
+
+```
+[x/y] FROM node:20-alpine
+[x/y] COPY . .
+[x/y] RUN ... npm install ...
+[x/y] RUN ... npm run build ...
+```
+
+That confirms Glama picked up Docker mode. If you see those lines and it still fails, send me the new log and I'll patch the Dockerfile.
+
+## Why the previous attempts didn't help
+
+The Dockerfile content was correct — Glama just wasn't reading it because nothing told it to switch off the default Node runner. `runtime: docker` in `glama.json` is the switch.
