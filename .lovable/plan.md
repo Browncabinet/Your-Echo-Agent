@@ -1,67 +1,78 @@
-# Get straight A's on Glama
+# Fix `yourechoagent-mcp` Repo for Glama
 
-Glama's quality score grades 6 dimensions. Here's the focused plan to push each one to A.
+## Audit Results
 
-## Glama's scoring rubric (and where you stand)
+I checked `https://github.com/Browncabinet/yourechoagent-mcp`. Three problems are blocking Glama:
 
-| Dimension | What it checks | Likely grade now | Target |
-|---|---|---|---|
-| **Utility** | Tools are useful, documented, real | A | A |
-| **Reliability** | Server installs cleanly, no crashes | B | A |
-| **Safety** | License, no telemetry surprises, secret handling | A | A |
-| **Documentation** | README quality, examples, env vars | A- | A+ |
-| **Maintenance** | Recent commits, releases, version tags | C | A |
-| **Adoption** | Installs, GitHub stars, ratings | D | B+ |
+| Issue | Current | Required |
+|---|---|---|
+| Files location | Everything nested in `/mcp-server/` subfolder | Must be at repo **root** |
+| Dockerfile name | `Dockfile` (typo — missing the "er") | Must be exactly `Dockerfile` |
+| `glama.json` location | Inside `/mcp-server/` | Must be at repo **root** |
 
-## Changes to ship (in `yourechoagent-mcp` public repo)
+That's why your Glama build failed with `Cannot find module '/app/dist/index.js'` — Glama never found `package.json` at the root, so it couldn't install or build anything.
 
-### 1. Reliability → A
-- Add a **CI workflow** (`.github/workflows/ci.yml`) that runs `npm install && npm run build` on every push so Glama sees a green check.
-- Add a **smoke test** script (`npm test`) that boots the server, lists tools, and exits 0.
-- Pin Node engine in `package.json` (`"engines": { "node": ">=18" }`).
+## Fix Plan (browser-only, ~10 minutes)
 
-### 2. Documentation → A+
-- Add an **animated terminal demo** GIF/SVG to the top of the README (Glama scrapes the first image).
-- Add a **"Why use this?"** 3-bullet section above Features.
-- Add a **Security** section explaining the HMAC webhook signing and that the demo tier never touches your account.
-- Add a **CONTRIBUTING.md** and **CODE_OF_CONDUCT.md** (Glama checks for both).
-- Add an **examples/** folder with 2–3 ready-to-run prompts as `.md` files.
+### Step 1 — Flatten the repo (move files to root)
 
-### 3. Maintenance → A
-- Push a **v0.2.1** tagged release with a clear changelog entry (Glama rewards recent releases within 30 days).
-- Add a **GitHub Releases** workflow that auto-tags from `package.json` version bumps.
-- Add **`SECURITY.md`** with a vuln disclosure email.
-- Add a **GitHub Actions badge** to the README.
+On GitHub, you can move a file by editing it and changing its path. For each of these 9 files, open it, click the pencil ✏️, and delete `mcp-server/` from the filename field at the top:
 
-### 4. Adoption → B+ (the slow one)
-- Add a **Twitter/X share card** to README ("Tweet about Echo Agent MCP" link).
-- Add a **"Used by"** section (even 1–2 logos helps).
-- Encourage 5 friendly users to rate on Glama (1-click).
-- Add `keywords` array to `package.json` so npm search surfaces it.
+- `mcp-server/README.md` → `README.md` (overwrite the root README)
+- `mcp-server/package.json` → `package.json`
+- `mcp-server/package-lock.json` → `package-lock.json`
+- `mcp-server/tsconfig.json` → `tsconfig.json`
+- `mcp-server/tsup.config.ts` → `tsup.config.ts`
+- `mcp-server/LICENSE` → `LICENSE`
+- `mcp-server/CHANGELOG.md` → `CHANGELOG.md`
+- `mcp-server/glama.json` → `glama.json`
+- `mcp-server/src/index.ts` → `src/index.ts` (and any other files inside `src/`)
 
-### 5. Glama-specific polish
-- Add **`server.json`** at root (Glama's preferred manifest, more detailed than `glama.json`) with full tool schemas inlined.
-- Add a **logo.png** (512×512) at repo root — Glama uses it as the avatar.
-- Make sure the **`glama.json` description** is under 200 chars (current one is too long and gets truncated).
+For each: open file → pencil → in the path field at top, remove the `mcp-server/` prefix → scroll down → "Commit changes".
 
----
+Delete the `mcp-server/EXPORT-TO-PUBLIC-REPO.md` file (internal doc, not needed in public repo).
 
-## What I'll do vs what you do
+### Step 2 — Fix the Dockerfile typo
 
-**I'll prepare (in this repo, then you copy to public repo via GitHub web UI):**
-- `docs/public-repo-root-files/.github/workflows/ci.yml`
-- `docs/public-repo-root-files/CONTRIBUTING.md`
-- `docs/public-repo-root-files/SECURITY.md`
-- `docs/public-repo-root-files/CODE_OF_CONDUCT.md`
-- Updated `docs/public-repo-root-files/README.md` (shorter description, demo GIF placeholder, badges)
-- Updated `docs/public-repo-root-files/glama.json` (trimmed description, added categories)
-- `docs/public-repo-root-files/server.json` (Glama's richer manifest)
-- `docs/public-repo-root-files/CHECKLIST-A-GRADE.md` — your copy-paste upload order
+The file is currently named `mcp-server/Dockfile`. Either:
+- Open it → pencil → rename path to `Dockerfile` (no `mcp-server/`, fix typo) → commit, OR
+- Delete `mcp-server/Dockfile` and create a new file at root named `Dockerfile` with this content:
 
-**You do (browser-only, 15 min total):**
-1. Drag-drop the new files into `github.com/Browncabinet/yourechoagent-mcp` via web UI
-2. Cut a **v0.2.1** release
-3. Wait 24–48 h for Glama to re-scan
-4. Ping 3–5 friendly testers to install + rate
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY tsconfig.json tsup.config.ts ./
+COPY src ./src
+RUN npm run build
+CMD ["node", "dist/index.js"]
+```
 
-## Approve and I'll generate every file ready to paste.
+### Step 3 — Verify root layout
+
+After all moves, `https://github.com/Browncabinet/yourechoagent-mcp` should show at the top level:
+
+```
+Dockerfile
+LICENSE
+README.md
+CHANGELOG.md
+glama.json
+package.json
+package-lock.json
+tsconfig.json
+tsup.config.ts
+src/
+```
+
+The empty `mcp-server/` folder will disappear automatically once it has no files.
+
+### Step 4 — Trigger Glama rebuild
+
+On your Glama listing admin page, click **"Rebuild"** or **"Retry"**. With files at root and Dockerfile correctly named, the build will run `npm install` + `npm run build` and `dist/index.js` will exist when `CMD` runs.
+
+## Notes
+
+- I cannot edit your public repo directly — only you have write access. I'll prep any file contents you need pasted.
+- After this works, tagging `v0.2.0` (Releases → Draft a new release) gives Glama a version to display.
