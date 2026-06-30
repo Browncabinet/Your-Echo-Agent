@@ -1,174 +1,84 @@
-## Diagnosis
 
-Glama is not using your `Dockerfile` and it is not building the MCP source code.
+## What the log proves
 
-Your Build Spec says:
+Glama cloned commit `7641fbf` ("Fix file path in glama.json"). When it ran:
 
-```json
-"buildSteps": [],
-"cmdArguments": ["mcp-proxy", "--", "node", "dist/index.js"]
+```text
+node /app/dist/index.js
 ```
 
-That means Glama clones your repo, then immediately tries to run:
+Node replied:
 
-```bash
-node dist/index.js
+```text
+Error: Cannot find module '/app/dist/index.js'
 ```
 
-So the public repo must contain this exact file at the repo root:
+That means the public repo `Browncabinet/yourechoagent-mcp` still does **not** have `dist/index.js` at the repo root. Editing `glama.json` cannot fix this — Glama needs the actual built file in the repo.
+
+## Fix: add `dist/index.js` to the repo root via GitHub UI
+
+No terminal needed. Three small steps in the browser.
+
+### Step 1 — Open the repo
+
+Go to:
+
+```text
+https://github.com/Browncabinet/yourechoagent-mcp
+```
+
+Confirm at the top level you see `README.md` and `glama.json`. You should NOT see `dist/` yet — that is the problem.
+
+### Step 2 — Create `dist/index.js` at the root
+
+1. Click **Add file → Create new file**.
+2. In the filename box, type exactly:
 
 ```text
 dist/index.js
 ```
 
-Right now the GitHub repo is still nested like this:
-
-```text
-README.md
-mcp-server/
-```
-
-So Glama cannot reliably find the runnable server.
-
-## Plan: shortest path to get accepted on Glama
-
-### 1. Keep the source folder as-is for now
-
-Do not worry about flattening everything today. The fastest fix is only to add the files Glama needs at the repo root.
-
-Required root files:
-
-```text
-glama.json
-dist/index.js
-README.md
-LICENSE
-```
-
-### 2. Add root `glama.json`
-
-On GitHub:
-
-1. Open `https://github.com/Browncabinet/yourechoagent-mcp`
-2. Click **Add file → Create new file**
-3. Name the file exactly:
-
-```text
-glama.json
-```
-
-4. Paste the Glama config from this Lovable project:
-
-```text
-docs/public-repo-root-files/glama.json
-```
-
-5. Commit with message:
-
-```text
-Add Glama manifest
-```
-
-Important: this file must not include `runtime: docker` or `dockerfile`.
-
-### 3. Add root `dist/index.js`
-
-On GitHub:
-
-1. Click **Add file → Create new file**
-2. Name the file exactly:
-
-```text
-dist/index.js
-```
-
-3. Paste the full contents from this Lovable project:
+   The `/` turns `dist` into a folder automatically.
+3. In another browser tab, open this file from Lovable and copy its full contents:
 
 ```text
 docs/public-repo-root-files/dist-index.js
 ```
 
-4. Commit with message:
+4. Paste that full content into the GitHub editor.
+5. Scroll down, set commit message:
 
 ```text
-Add prebuilt MCP bundle
+Add prebuilt MCP bundle at dist/index.js
 ```
 
-This directly satisfies Glama’s command:
+6. Click **Commit changes**.
 
-```bash
-node dist/index.js
-```
+### Step 3 — Verify before rebuilding
 
-### 4. Add root `LICENSE` if missing
-
-Glama previously complained that the license was not found. If the public repo does not show `LICENSE` at the top level:
-
-1. Click **Add file → Create new file**
-2. Name it:
-
-```text
-LICENSE
-```
-
-3. Paste the MIT license from:
-
-```text
-mcp-server/LICENSE
-```
-
-4. Commit with message:
-
-```text
-Add MIT license
-```
-
-### 5. Remove Docker from the Glama setup
-
-Do not use Docker for this listing right now. The latest failure:
-
-```text
-read ECONNRESET
-```
-
-is a Glama Docker builder/network failure while building its generated container, not an error in your MCP code.
-
-In Glama, the Build Spec should stay simple:
-
-```json
-{
-  "buildSteps": [],
-  "cmdArguments": ["mcp-proxy", "--", "node", "dist/index.js"]
-}
-```
-
-That is okay once `dist/index.js` exists at the repo root.
-
-### 6. Rebuild on Glama
-
-After the GitHub commits:
-
-1. Go back to your Glama server page
-2. Click **Rebuild** / **Retry build**
-3. If it fails with `ECONNRESET` again, click retry once more because that specific error is infrastructure/network-related
-4. If it fails with `Cannot find module '/app/dist/index.js'`, then `dist/index.js` is still not at the repo root
-
-## Success check
-
-Before rebuilding, the public GitHub repo home page should show at least:
+On the repo home page you must now see at the root:
 
 ```text
 README.md
 glama.json
 LICENSE
 dist/
-mcp-server/
 ```
 
-Inside `dist/`, it must show:
+Click into `dist/` and confirm `index.js` is there and is not empty (should be a large file, ~100+ KB).
 
-```text
-index.js
-```
+### Step 4 — Rebuild on Glama
 
-Once those are visible, Glama’s current Build Spec is correct.
+1. Go to your Glama server page.
+2. Click **Rebuild** / **Retry build**.
+3. The next log should show the server starting instead of `Cannot find module`.
+
+## Why the previous ZIP upload did not land the file
+
+GitHub's "Upload files" drag-and-drop sometimes silently skips nested folders if you drop the ZIP itself instead of its extracted contents. The "Create new file" path above bypasses that — typing `dist/index.js` in the filename guarantees the folder + file are created at the repo root.
+
+## Do NOT do this time
+
+- Do not add a `Dockerfile`. The current Glama Build Spec ignores it and `ECONNRESET` failures will return.
+- Do not edit `glama.json` again. The current one is correct.
+- Do not move files out of `mcp-server/`. Not required for this fix.
