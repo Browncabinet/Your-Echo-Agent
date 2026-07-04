@@ -352,4 +352,4 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("yourechoagent-mcp v0.2.0 ready on stdio");
+console.error("yourechoagent-mcp v0.3.0 ready on stdio");
