@@ -31,8 +31,6 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 | `find_linkedin_groups` | Discover the most active LinkedIn Groups and professional associations for a niche (assist-only) |
 | `extract_contacts_from_url` | Scrape any public page → structured contacts (name, title, company, email, location, linkedin_url, twitter_url, confidence) |
 | `build_contact_list` | Discovery + extraction + dedupe into a ready-to-use list |
-| `extract_contacts_from_url` | **NEW v0.3.0** — Scrape any public page → structured contacts (name, title, company, email, location, linkedin_url, twitter_url, confidence) |
-| `build_contact_list` | **NEW v0.3.0** — One-shot lead list: discovers communities + extracts contacts + dedupes into a ready-to-use list |
 | `discover_events` | Legacy alias — find conferences, webinars, meetups, and podcasts in a niche |
 | `draft_outreach_for_event` | Generate a personalized cold email referencing a specific event/community |
 | `generate_comment_for_community` | Draft 2 value-first comment variants for LinkedIn/Reddit/Slack threads |
