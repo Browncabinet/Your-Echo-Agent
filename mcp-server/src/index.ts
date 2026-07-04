@@ -321,6 +321,137 @@ const tools = [
     }),
     run: async (a: any) => callHostedTool("build_contact_list", a, apiKey || undefined),
   },
+
+  // ── v0.4.0: Personalized PR outreach loop ──
+  {
+    name: "draft_pr_outreach_for_contacts",
+    description:
+      "Draft personalized PR outreach emails per contact, grouped by source. Each draft includes personalized hook + one-line pitch + why-you reason + 15-min meeting ask (phone/online/in-person) + reply-by-email CTA. Public demo.",
+    inputSchema: {
+      type: "object",
+      required: ["contacts", "sender"],
+      properties: {
+        contacts: { type: "array", items: { type: "object" }, description: "From build_contact_list or user-supplied." },
+        sender: {
+          type: "object",
+          required: ["name", "one_line_pitch", "services_short", "reply_email"],
+          properties: {
+            name: { type: "string" },
+            company: { type: "string" },
+            one_line_pitch: { type: "string" },
+            services_short: { type: "string" },
+            meeting_options: { type: "array", items: { type: "string", enum: ["phone", "in_person", "online"] } },
+            scheduling_link: { type: "string" },
+            reply_email: { type: "string" },
+          },
+        },
+        tone: { type: "string", enum: ["friendly", "professional", "concise"] },
+      },
+    },
+    zod: z.object({
+      contacts: z.array(z.any()).min(1).max(20),
+      sender: z.object({
+        name: z.string().min(1),
+        company: z.string().optional(),
+        one_line_pitch: z.string().min(1),
+        services_short: z.string().min(1),
+        meeting_options: z.array(z.enum(["phone", "in_person", "online"])).optional(),
+        scheduling_link: z.string().url().optional(),
+        reply_email: z.string().email(),
+      }),
+      tone: z.enum(["friendly", "professional", "concise"]).optional(),
+    }),
+    run: async (a: any) => callHostedTool("draft_pr_outreach_for_contacts", a, apiKey || undefined),
+  },
+  {
+    name: "queue_pr_outreach_job",
+    description:
+      "Save PR outreach drafts as a job for review + send. Returns job_id + dashboard URL. Requires ECHO_API_KEY. Every send uses your verified sender identity, respects weekly caps, honors suppression list, routes replies back to reply_email.",
+    inputSchema: {
+      type: "object",
+      required: ["sender_identity", "groups"],
+      properties: {
+        sender_identity: {
+          type: "object",
+          required: ["name", "email"],
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+            company: { type: "string" },
+            scheduling_link: { type: "string" },
+          },
+        },
+        groups: { type: "array", items: { type: "object" }, description: "The `groups` array from draft_pr_outreach_for_contacts." },
+        niche: { type: "string" },
+        category: { type: "string" },
+        spending_cap_cents: { type: "integer" },
+        notes: { type: "string" },
+      },
+    },
+    zod: z.object({
+      sender_identity: z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        company: z.string().optional(),
+        scheduling_link: z.string().url().optional(),
+      }),
+      groups: z.array(z.any()).min(1),
+      niche: z.string().optional(),
+      category: z.string().optional(),
+      spending_cap_cents: z.number().int().positive().optional(),
+      notes: z.string().optional(),
+    }),
+    run: async (a: any) => callHostedTool("queue_pr_outreach_job", a, apiKey || undefined),
+  },
+  {
+    name: "find_and_pitch",
+    description:
+      "One-shot personalized PR outreach: discovers communities in a niche+category, extracts contacts, drafts personalized emails per contact (grouped by source). If queue=true and ECHO_API_KEY is set, also saves the job for review + send. Public demo returns drafts only.",
+    inputSchema: {
+      type: "object",
+      required: ["niche", "category", "sender"],
+      properties: {
+        niche: { type: "string" },
+        category: {
+          type: "string",
+          enum: ["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"],
+        },
+        location: { type: "string" },
+        sources: { type: "integer", minimum: 1, maximum: 3 },
+        sender: {
+          type: "object",
+          required: ["name", "one_line_pitch", "services_short", "reply_email"],
+          properties: {
+            name: { type: "string" },
+            company: { type: "string" },
+            one_line_pitch: { type: "string" },
+            services_short: { type: "string" },
+            meeting_options: { type: "array", items: { type: "string", enum: ["phone", "in_person", "online"] } },
+            scheduling_link: { type: "string" },
+            reply_email: { type: "string" },
+          },
+        },
+        queue: { type: "boolean" },
+      },
+    },
+    zod: z.object({
+      niche: z.string().min(1),
+      category: z.enum(["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"]),
+      location: z.string().optional(),
+      sources: z.number().int().min(1).max(3).optional(),
+      sender: z.object({
+        name: z.string().min(1),
+        company: z.string().optional(),
+        one_line_pitch: z.string().min(1),
+        services_short: z.string().min(1),
+        meeting_options: z.array(z.enum(["phone", "in_person", "online"])).optional(),
+        scheduling_link: z.string().url().optional(),
+        reply_email: z.string().email(),
+      }),
+      queue: z.boolean().optional(),
+    }),
+    run: async (a: any) => callHostedTool("find_and_pitch", a, apiKey || undefined),
+  },
 ];
 
 
