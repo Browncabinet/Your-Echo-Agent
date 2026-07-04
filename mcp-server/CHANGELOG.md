@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] - 2026-07-03
+
+### Added — Personalized PR outreach loop
+- **`draft_pr_outreach_for_contacts`** — draft a personalized email per contact, grouped by source (event / conference / LinkedIn group / association / org). Each draft: personalized hook that references the source, one-line pitch, why-you reason tied to title+company, 15-min meeting ask (phone / online / in-person), reply-by-email CTA. Filters low-confidence + generic mailboxes into a `needs_manual_review` bucket. Public demo, no key required.
+- **`queue_pr_outreach_job`** — save drafts as a reviewable job (persists to `pr_outreach_jobs` under your account) and returns a dashboard URL for approve + send. Every send uses your verified sender identity, respects weekly caps, honors the suppression list, and routes replies to `reply_email`. Requires `ECHO_API_KEY`.
+- **`find_and_pitch`** — one-shot mega-tool: discover → extract contacts → draft grouped emails → (optionally) queue for send. Perfect prompt: "Find AI-agent conferences and draft a personalized pitch to each organizer from Alex at Lensora."
+
+### Compliance
+- LinkedIn contacts stay assist-only (never auto-sent).
+- Skips generic mailboxes (`info@`, `hello@`, `contact@`, …) and contacts with `confidence < 0.6` — surfaced as `needs_manual_review` for the caller to decide.
+
 ## [0.3.0] - 2026-07-03
 
 ### Added
