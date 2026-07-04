@@ -1018,6 +1018,82 @@ export type Database = {
         }
         Relationships: []
       }
+      pr_outreach_jobs: {
+        Row: {
+          a2a_api_key_id: string | null
+          a2a_partner_id: string | null
+          campaign_id: string | null
+          category: string | null
+          created_at: string
+          drafts: Json
+          id: string
+          niche: string | null
+          notes: string | null
+          sender_identity: Json
+          spending_cap_cents: number | null
+          status: string
+          total_drafts: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          a2a_api_key_id?: string | null
+          a2a_partner_id?: string | null
+          campaign_id?: string | null
+          category?: string | null
+          created_at?: string
+          drafts?: Json
+          id?: string
+          niche?: string | null
+          notes?: string | null
+          sender_identity: Json
+          spending_cap_cents?: number | null
+          status?: string
+          total_drafts?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          a2a_api_key_id?: string | null
+          a2a_partner_id?: string | null
+          campaign_id?: string | null
+          category?: string | null
+          created_at?: string
+          drafts?: Json
+          id?: string
+          niche?: string | null
+          notes?: string | null
+          sender_identity?: Json
+          spending_cap_cents?: number | null
+          status?: string
+          total_drafts?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pr_outreach_jobs_a2a_api_key_id_fkey"
+            columns: ["a2a_api_key_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pr_outreach_jobs_a2a_partner_id_fkey"
+            columns: ["a2a_partner_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pr_outreach_jobs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       radar_items: {
         Row: {
           created_at: string
