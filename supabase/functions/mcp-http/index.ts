@@ -100,7 +100,7 @@ async function aiGenerate(system: string, user: string): Promise<string> {
 }
 
 function buildServer(apiKey: string | null) {
-  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.3.0" });
+  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.4.0" });
 
   const needKey = () => {
     if (!apiKey) {
@@ -588,6 +588,240 @@ Tone: ${p.tone ?? "concise"}`;
         contact_count: merged.length,
         contacts: merged,
         upgrade: "Unlimited sources, CSV export, and inbox-ready sequences at https://yourechoagent.com/for-agents/register",
+      });
+    },
+  });
+
+  // ── v0.4.0: Personalized PR outreach loop (draft + queue for review + one-shot) ──
+
+  const senderSchema = z.object({
+    name: z.string().min(1),
+    company: z.string().optional(),
+    one_line_pitch: z.string().min(1),
+    services_short: z.string().min(1),
+    meeting_options: z.array(z.enum(["phone", "in_person", "online"])).optional(),
+    scheduling_link: z.string().url().optional(),
+    reply_email: z.string().email(),
+  });
+
+  mcp.tool("draft_pr_outreach_for_contacts", {
+    description:
+      "Draft personalized PR outreach emails per contact, grouped by source (event / conference / LinkedIn group / association / org). Each draft includes a personalized hook, one-line pitch, why-you reason, a 15-min meeting ask (phone/online/in-person as configured), and a reply-by-email CTA. Public demo — no API key needed. Returns groups + total_drafts + a 'needs_manual_review' bucket for low-confidence / generic mailboxes.",
+    inputSchema: {
+      type: "object",
+      required: ["contacts", "sender"],
+      properties: {
+        contacts: {
+          type: "array",
+          description: "From build_contact_list or user-supplied. Include name, title, company, email, location, source_title, source_url, category, confidence.",
+          items: {
+            type: "object",
+            required: ["email"],
+            properties: {
+              name: { type: "string" },
+              title: { type: "string" },
+              company: { type: "string" },
+              email: { type: "string" },
+              location: { type: "string" },
+              source_title: { type: "string" },
+              source_url: { type: "string" },
+              category: { type: "string" },
+              confidence: { type: "number" },
+            },
+          },
+        },
+        sender: {
+          type: "object",
+          required: ["name", "one_line_pitch", "services_short", "reply_email"],
+          properties: {
+            name: { type: "string" },
+            company: { type: "string" },
+            one_line_pitch: { type: "string", description: "e.g. 'Agent observability for AI-native teams'." },
+            services_short: { type: "string", description: "1–2 sentences describing what you offer." },
+            meeting_options: { type: "array", items: { type: "string", enum: ["phone", "in_person", "online"] } },
+            scheduling_link: { type: "string" },
+            reply_email: { type: "string", description: "Where replies should land." },
+          },
+        },
+        tone: { type: "string", enum: ["friendly", "professional", "concise"], default: "professional" },
+      },
+    },
+    handler: async (args: any) => {
+      const p = z.object({
+        contacts: z.array(z.any()).min(1).max(20),
+        sender: senderSchema,
+        tone: z.enum(["friendly", "professional", "concise"]).optional(),
+      }).parse(args ?? {});
+      const r = await fetch(`${A2A_BASE}/pr-outreach-draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(p),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data?.error || `pr-outreach-draft failed (${r.status})`);
+      return asText({
+        ...data,
+        tip: "Send them: call queue_pr_outreach_job with these `groups` (needs ECHO_API_KEY). Register: https://yourechoagent.com/for-agents/register",
+      });
+    },
+  });
+
+  mcp.tool("queue_pr_outreach_job", {
+    description:
+      "Save a set of PR outreach drafts (from draft_pr_outreach_for_contacts) as a job for review + send. Returns job_id + a dashboard URL where the user approves and sends. Every send uses the verified sender identity, respects weekly caps, honors the suppression list, and routes replies back to reply_email. Requires ECHO_API_KEY.",
+    inputSchema: {
+      type: "object",
+      required: ["sender_identity", "groups"],
+      properties: {
+        sender_identity: {
+          type: "object",
+          required: ["name", "email"],
+          properties: {
+            name: { type: "string" },
+            email: { type: "string", description: "Verified sender email (also used as Reply-To)." },
+            company: { type: "string" },
+            scheduling_link: { type: "string" },
+          },
+        },
+        groups: {
+          type: "array",
+          description: "The `groups` array returned by draft_pr_outreach_for_contacts.",
+          items: { type: "object" },
+        },
+        niche: { type: "string" },
+        category: { type: "string" },
+        spending_cap_cents: { type: "integer" },
+        notes: { type: "string" },
+      },
+    },
+    handler: async (args: any) => {
+      const key = needKey();
+      const p = z.object({
+        sender_identity: z.object({
+          name: z.string().min(1),
+          email: z.string().email(),
+          company: z.string().optional(),
+          scheduling_link: z.string().url().optional(),
+        }),
+        groups: z.array(z.any()).min(1),
+        niche: z.string().optional(),
+        category: z.string().optional(),
+        spending_cap_cents: z.number().int().positive().optional(),
+        notes: z.string().optional(),
+      }).parse(args ?? {});
+      return asText(await callA2A("pr-outreach-create-job", { method: "POST", apiKey: key, body: p }));
+    },
+  });
+
+  mcp.tool("find_and_pitch", {
+    description:
+      "One-shot personalized PR outreach: discover communities in a niche+category, extract contacts, draft a personalized email per contact (with meeting ask + reply CTA), grouped by source. If ECHO_API_KEY is present, also queues the job for review + send. Public demo returns drafts only. Perfect for 'find AI-agent conferences and draft a personalized pitch to each organizer from Alex at Lensora'.",
+    inputSchema: {
+      type: "object",
+      required: ["niche", "category", "sender"],
+      properties: {
+        niche: { type: "string" },
+        category: {
+          type: "string",
+          enum: ["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"],
+        },
+        location: { type: "string" },
+        sources: { type: "integer", minimum: 1, maximum: 3, default: 3 },
+        sender: {
+          type: "object",
+          required: ["name", "one_line_pitch", "services_short", "reply_email"],
+          properties: {
+            name: { type: "string" },
+            company: { type: "string" },
+            one_line_pitch: { type: "string" },
+            services_short: { type: "string" },
+            meeting_options: { type: "array", items: { type: "string", enum: ["phone", "in_person", "online"] } },
+            scheduling_link: { type: "string" },
+            reply_email: { type: "string" },
+          },
+        },
+        queue: { type: "boolean", description: "If true and ECHO_API_KEY is set, saves the job for review + send. Default false (drafts only)." },
+      },
+    },
+    handler: async (args: any) => {
+      const p = z.object({
+        niche: z.string().min(1),
+        category: z.enum(["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"]),
+        location: z.string().optional(),
+        sources: z.number().int().min(1).max(3).optional(),
+        sender: senderSchema,
+        queue: z.boolean().optional(),
+      }).parse(args ?? {});
+
+      // 1. discover
+      const q = `${p.niche} ${CATEGORY_HINTS[p.category] ?? CATEGORY_HINTS.any}${p.location ? ` ${p.location}` : ""}`.trim();
+      const discovered = await firecrawlSearch(q, p.sources ?? 3);
+
+      // 2. extract contacts per source
+      const contactsPerSource = await Promise.all(discovered.map(async (r) => {
+        const md = await firecrawlScrape(r.url);
+        const contacts = await extractContactsFromMarkdown(md, r.url);
+        return contacts.map((c: any) => ({
+          ...c,
+          source_title: r.title,
+          source_url: r.url,
+          category: p.category,
+        }));
+      }));
+      const allContacts = contactsPerSource.flat();
+      if (allContacts.length === 0) {
+        return asText({
+          niche: p.niche,
+          category: p.category,
+          sources: discovered.map((d) => d.url),
+          message: "No contacts extracted from top results. Try a different niche/category or narrow the location.",
+          groups: [],
+        });
+      }
+
+      // 3. draft
+      const draftRes = await fetch(`${A2A_BASE}/pr-outreach-draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contacts: allContacts, sender: p.sender, tone: "professional" }),
+      });
+      const draftData = await draftRes.json().catch(() => ({}));
+      if (!draftRes.ok) throw new Error(draftData?.error || "draft failed");
+
+      // 4. optionally queue
+      let queued: any = null;
+      if (p.queue && apiKey) {
+        try {
+          queued = await callA2A("pr-outreach-create-job", {
+            method: "POST",
+            apiKey,
+            body: {
+              sender_identity: { name: p.sender.name, email: p.sender.reply_email, company: p.sender.company, scheduling_link: p.sender.scheduling_link },
+              groups: draftData.groups ?? [],
+              niche: p.niche,
+              category: p.category,
+            },
+          });
+        } catch (e) {
+          queued = { error: (e as Error).message };
+        }
+      }
+
+      return asText({
+        niche: p.niche,
+        category: p.category,
+        location: p.location ?? null,
+        sources_scraped: discovered.map((d) => d.url),
+        contacts_found: allContacts.length,
+        total_drafts: draftData.total_drafts ?? 0,
+        groups: draftData.groups ?? [],
+        needs_manual_review: draftData.needs_manual_review ?? [],
+        queued,
+        tip: queued
+          ? "Job saved. Approve & send from your Echo Agent dashboard."
+          : (apiKey
+            ? "Drafts ready. Call again with queue=true to save for review + send."
+            : "Drafts ready. Get an ECHO_API_KEY at https://yourechoagent.com/for-agents/register to save + send."),
       });
     },
   });

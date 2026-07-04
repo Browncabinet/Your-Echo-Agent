@@ -24,10 +24,13 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 
 | Tool | Description |
 |---|---|
-| `discover_communities` | **NEW v0.3.0** — Find groups, orgs, events, conferences, networking events, LinkedIn groups, Facebook groups, Slack/Discord communities, subreddits, associations, podcasts, or newsletters — filtered by category + niche + optional location |
-| `find_linkedin_groups` | **NEW v0.3.0** — Discover the most active LinkedIn Groups and professional associations for a niche (assist-only; TOS-safe) |
-| `extract_contacts_from_url` | **NEW v0.3.0** — Scrape any public page → structured contacts (name, title, company, email, location, linkedin_url, twitter_url, confidence) |
-| `build_contact_list` | **NEW v0.3.0** — One-shot lead list: discovers communities + extracts contacts + dedupes into a ready-to-use list |
+| `find_and_pitch` | **NEW v0.4.0** — One-shot: discover communities → extract contacts → draft personalized emails per contact (grouped by source) → optionally queue for send |
+| `draft_pr_outreach_for_contacts` | **NEW v0.4.0** — Personalized email per contact with pitch + why-you + meeting ask (phone/online/in-person) + reply CTA |
+| `queue_pr_outreach_job` | **NEW v0.4.0** — Save drafts as a reviewable job (verified sender, caps, suppression, reply routing) |
+| `discover_communities` | Find groups, orgs, events, conferences, networking events, LinkedIn groups, Facebook groups, Slack/Discord communities, subreddits, associations, podcasts, or newsletters |
+| `find_linkedin_groups` | Discover the most active LinkedIn Groups and professional associations for a niche (assist-only) |
+| `extract_contacts_from_url` | Scrape any public page → structured contacts (name, title, company, email, location, linkedin_url, twitter_url, confidence) |
+| `build_contact_list` | Discovery + extraction + dedupe into a ready-to-use list |
 | `discover_events` | Legacy alias — find conferences, webinars, meetups, and podcasts in a niche |
 | `draft_outreach_for_event` | Generate a personalized cold email referencing a specific event/community |
 | `generate_comment_for_community` | Draft 2 value-first comment variants for LinkedIn/Reddit/Slack threads |
