@@ -1,84 +1,93 @@
+## Goal
 
-## What the log proves
+Make Echo Agent MCP the most useful "where does my audience gather + who do I talk to" tool for AI agents (Claude, Cursor, ChatGPT). Today it discovers events and drafts outreach. This plan adds **category-scoped discovery**, **LinkedIn group inclusion**, **structured contact lists**, and **competitor-audience mining** — plus a handful of features that make agents choose us over raw web search.
 
-Glama cloned commit `7641fbf` ("Fix file path in glama.json"). When it ran:
+---
 
-```text
-node /app/dist/index.js
-```
+## 1. What exists today (audit)
 
-Node replied:
+MCP tools currently shipped (`mcp-server/src/index.ts`):
+- `discover_events` — niche → conferences/webinars/groups/podcasts (Firecrawl + AI, demo tier)
+- `draft_outreach_for_event` — subject + body per event
+- `generate_comment_for_community` — 2 comment variants
+- `add_to_radar` — save to user's Radar (needs API key)
+- 6 hiring tools: `list_available_agents`, `get_agent_card`, `hire_echo_agent`, `get_job_status`, `control_job`, `rate_job`
 
-```text
-Error: Cannot find module '/app/dist/index.js'
-```
+App-side backing (already built): `discover-communities`, `discover-extract-contacts`, `linkedin-groups-research`, `linkedin-generate-actions`, `radar_items`, `discovered_opportunities` (already stores a `contacts` JSON array with name/role/email/linkedin/twitter).
 
-That means the public repo `Browncabinet/yourechoagent-mcp` still does **not** have `dist/index.js` at the repo root. Editing `glama.json` cannot fix this — Glama needs the actual built file in the repo.
+**Gaps vs. what you asked for:**
+| You asked for | Status |
+|---|---|
+| Per-category discovery (groups, orgs, events, conferences, networking) | Partial — `kind` enum exists but "organizations" and "networking events" aren't first-class |
+| LinkedIn groups included in discovery | Exists as separate app feature; not exposed as an MCP tool |
+| Contact list w/ name, title, company, email, location | Extractor exists but returns free-form; no `company` or `location` field, no MCP tool to trigger it |
+| Competitor-audience mining ("where do my competitors' customers hang out") | Missing entirely |
+| Make it attractive to agents | Needs discovery quality + differentiators (see §4) |
 
-## Fix: add `dist/index.js` to the repo root via GitHub UI
+---
 
-No terminal needed. Three small steps in the browser.
+## 2. Category-scoped discovery
 
-### Step 1 — Open the repo
+Expand `discover_events` into a stronger `discover_communities` MCP tool (keep old name as alias so existing clients don't break):
 
-Go to:
+- `category` (required): `conference | webinar | meetup | networking_event | linkedin_group | facebook_group | slack_community | discord_server | subreddit | professional_association | podcast | newsletter | any`
+- `niche` (required): free text
+- `location` (optional): city / region / "remote"
+- `date_range` (optional): `next_30_days | next_90_days | evergreen`
+- `min_relevance` (optional 0–1): AI fit-score threshold
 
-```text
-https://github.com/Browncabinet/yourechoagent-mcp
-```
+Returns per result: title, url, category, description, estimated audience size, fit-score, next date (if event), primary organizer handle.
 
-Confirm at the top level you see `README.md` and `glama.json`. You should NOT see `dist/` yet — that is the problem.
+Backed by the existing `discover-communities` edge function extended with category-specific Firecrawl search patterns.
 
-### Step 2 — Create `dist/index.js` at the root
+## 3. LinkedIn groups + contact lists
 
-1. Click **Add file → Create new file**.
-2. In the filename box, type exactly:
+Two new MCP tools that surface app functionality already built:
 
-```text
-dist/index.js
-```
+**`find_linkedin_groups`** — wraps `linkedin-groups-research`. Input: `niche`, `seniority?`, `region?`. Output: group name, url, member count est., recent activity signal, join criteria, suggested primary group flag. Cached 7 days per existing `linkedin_groups_research` table.
 
-   The `/` turns `dist` into a folder automatically.
-3. In another browser tab, open this file from Lovable and copy its full contents:
+**`extract_contacts_for_opportunity`** — wraps `discover-extract-contacts` (needs API key). Input: `opportunity_url` OR `opportunity_id`. Output: structured contacts array with **name, title, company, email, location, linkedin_url, twitter_url, source_url, confidence**. Requires extending the extractor prompt + `discovered_opportunities.contacts` shape to include `company` and `location` (they're currently absent).
 
-```text
-docs/public-repo-root-files/dist-index.js
-```
+Add a batch convenience tool: **`build_contact_list`** — input: `niche` + `category` + `limit`. Runs discovery → extract → deduped merged CSV/JSON list. This is the "one-shot lead list" flow agents will love.
 
-4. Paste that full content into the GitHub editor.
-5. Scroll down, set commit message:
+## 4. Competitor-audience mining (new)
 
-```text
-Add prebuilt MCP bundle at dist/index.js
-```
+**`find_competitor_audiences`** — input: `competitor_domains: string[]` (+ optional `niche`).
+Pipeline: Firecrawl scrape of each competitor's site (case studies, testimonials, blog author bios, "as seen in", event sponsorships) + LinkedIn public company page snippets → AI aggregates: which events they sponsor/speak at, which groups their team belongs to, which podcasts they appear on, common customer titles/industries.
 
-6. Click **Commit changes**.
+Output: ranked list of communities/events + a "watchlist" of contact archetypes to target. Feeds directly into `discover_communities` and `build_contact_list`.
 
-### Step 3 — Verify before rebuilding
+## 5. Features that make agents pick us over web search
 
-On the repo home page you must now see at the root:
+Add these to round out the agent value prop:
 
-```text
-README.md
-glama.json
-LICENSE
-dist/
-```
+1. **`enrich_contact`** — input: name + company (or LinkedIn URL) → verified email guess (pattern-based, checked against catch-all), title, location, seniority. Uses Firecrawl + AI; no scraping of gated LinkedIn.
+2. **`monitor_niche`** — save a niche + categories as a standing watch. New matches land in Radar weekly. Tool returns the watch id; app UI shows the digest. Uses new `radar_watches` table.
+3. **`score_fit`** — input: `opportunity_url` + `sender_pitch` → 0–100 fit score + 1-line rationale. Cheap, fast, keeps agents from spamming.
+4. **`draft_outreach_sequence`** — 3-touch sequence (initial + 2 follow-ups) instead of single email. Same input shape as `draft_outreach_for_event`.
+5. **`export_list`** — input: `radar_ids[]` or filter → CSV / Google Sheet URL (Sheets via connector when connected, CSV file otherwise).
+6. **`suggest_next_action`** — input: `contact_id` → recommends "comment on their post" vs "connect + note" vs "cold email" vs "warm intro request", grounded in the contact's activity + assist-only LinkedIn rule.
+7. **Assist-only LinkedIn stays enforced** — no auto-connect / auto-post (project core memory). Every LinkedIn tool returns copy-ready text + `open_url` for the human to click.
+8. **Free demo tier stays generous** — discovery + drafts work with no key; only contact extraction, radar save, enrichment, and sequences require `ECHO_API_KEY`. Keeps the "npx and try it" install magical.
 
-Click into `dist/` and confirm `index.js` is there and is not empty (should be a large file, ~100+ KB).
+## 6. Deliverables (implementation phases)
 
-### Step 4 — Rebuild on Glama
+| Phase | Scope | Files |
+|---|---|---|
+| A | Extend `discovered_opportunities.contacts` shape (add company, location); update `discover-extract-contacts` prompt | migration + edge fn |
+| B | Add MCP tools: `discover_communities` (supersedes `discover_events`), `find_linkedin_groups`, `extract_contacts_for_opportunity`, `build_contact_list` | `mcp-server/src/index.ts`, `mcp-http/index.ts` |
+| C | New edge fn `discover-competitor-audiences` + MCP tool `find_competitor_audiences` | new fn + tool |
+| D | New tools: `enrich_contact`, `score_fit`, `draft_outreach_sequence`, `export_list`, `suggest_next_action` | edge fns + tools |
+| E | `monitor_niche` + `radar_watches` table + weekly cron | migration + fn + cron |
+| F | Bump MCP version to 0.3.0, update README tool table, republish npm + resubmit Glama | `mcp-server/README.md`, `CHANGELOG.md`, `package.json` |
 
-1. Go to your Glama server page.
-2. Click **Rebuild** / **Retry build**.
-3. The next log should show the server starting instead of `Cannot find module`.
+## 7. Not doing (explicit exclusions)
 
-## Why the previous ZIP upload did not land the file
+- No LinkedIn scraping behind auth walls — TOS and detection risk.
+- No auto-connect / auto-message on LinkedIn (project constraint).
+- No paid contact-data reseller integrations in v1 (Apollo/ZoomInfo) — revisit once demand proves out.
+- No new UI surfaces in this plan; app tabs (LinkedIn Activity, Radar) already exist and consume the same backend.
 
-GitHub's "Upload files" drag-and-drop sometimes silently skips nested folders if you drop the ZIP itself instead of its extracted contents. The "Create new file" path above bypasses that — typing `dist/index.js` in the filename guarantees the folder + file are created at the repo root.
+---
 
-## Do NOT do this time
-
-- Do not add a `Dockerfile`. The current Glama Build Spec ignores it and `ECONNRESET` failures will return.
-- Do not edit `glama.json` again. The current one is correct.
-- Do not move files out of `mcp-server/`. Not required for this fix.
+Reply "go" to implement, or tell me which phases to drop/reorder.
