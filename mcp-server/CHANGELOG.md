@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-07-03
+
+### Added
+- **`discover_communities`** — category-scoped discovery across 13 categories: conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter, any. Optional `location` for geo-targeting.
+- **`find_linkedin_groups`** — surfaces the most active LinkedIn Groups + professional associations for a niche, with focus, fit reason, and first-action tip. Assist-only (LinkedIn TOS-safe).
+- **`find_linkedin_groups`** results include `activity_signal` and one concrete `first_action` per group.
+- **`extract_contacts_from_url`** — scrape any public page → structured contacts with `name, title, company, email, location, linkedin_url, twitter_url, confidence`. Public demo, no key needed.
+- **`build_contact_list`** — one-shot: `discover_communities` → `extract_contacts_from_url` per top result → deduped merged list. Demo cap: 3 sources per call.
+
+### Notes
+- `discover_events` remains for back-compat; new callers should prefer `discover_communities`.
+- All new tools work without an API key (demo tier). `add_to_radar` and hiring tools still require `ECHO_API_KEY`.
+
 ## [0.2.0] - 2026-06-28
 
 ### Added
