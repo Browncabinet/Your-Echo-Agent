@@ -325,7 +325,7 @@ const tools = [
 
 
 const server = new Server(
-  { name: "yourechoagent-mcp", version: "0.2.0" },
+  { name: "yourechoagent-mcp", version: "0.3.0" },
   { capabilities: { tools: {} } },
 );
 
