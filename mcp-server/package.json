@@ -1,7 +1,7 @@
 {
   "name": "@browncabinet/yourechoagent-mcp",
-  "version": "0.2.0",
-  "description": "Hire autonomous outreach agents and discover events, webinars, conferences, and communities for AI-driven outreach — from any MCP-compatible LLM (Claude, Cursor, Windsurf, Continue).",
+  "version": "0.3.0",
+  "description": "Discover events, conferences, LinkedIn groups, professional associations, and communities by category — then extract structured contact lists (name, title, company, email, location) and hire autonomous outreach agents. Works from any MCP client (Claude, Cursor, Windsurf, Continue).",
   "license": "MIT",
   "author": "Browncabinet",
   "homepage": "https://yourechoagent.com",
