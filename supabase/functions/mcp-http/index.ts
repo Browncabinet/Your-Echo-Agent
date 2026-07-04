@@ -100,7 +100,7 @@ async function aiGenerate(system: string, user: string): Promise<string> {
 }
 
 function buildServer(apiKey: string | null) {
-  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.1.0" });
+  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.3.0" });
 
   const needKey = () => {
     if (!apiKey) {
@@ -388,6 +388,207 @@ Tone: ${p.tone ?? "concise"}`;
       } catch (e) {
         return asText({ saved: false, message: (e as Error).message, manual_save_url: `https://yourechoagent.com/for-agents/radar?add=${encodeURIComponent(p.url)}` });
       }
+    },
+  });
+
+  // ── Category-scoped discovery + LinkedIn groups + structured contacts (v0.3.0) ──
+
+  const CATEGORY_HINTS: Record<string, string> = {
+    conference: "site:lu.ma OR site:eventbrite.com OR site:sessionize.com conference 2026",
+    webinar: "site:lu.ma OR site:zoom.us OR site:hopin.com webinar 2026",
+    meetup: "site:meetup.com",
+    networking_event: "networking event site:lu.ma OR site:eventbrite.com OR site:meetup.com",
+    linkedin_group: "site:linkedin.com/groups",
+    facebook_group: "site:facebook.com/groups",
+    slack_community: "slack community invite",
+    discord_server: "discord community invite",
+    subreddit: "site:reddit.com/r",
+    professional_association: "professional association OR trade organization",
+    podcast: "site:podchaser.com OR site:listennotes.com OR site:open.spotify.com/show podcast",
+    newsletter: "newsletter substack OR beehiiv",
+    any: "conference OR webinar OR meetup OR community OR association OR podcast",
+  };
+
+  async function firecrawlScrape(url: string): Promise<string> {
+    if (!FIRECRAWL_API_KEY) return "";
+    try {
+      const r = await fetch("https://api.firecrawl.dev/v1/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${FIRECRAWL_API_KEY}` },
+        body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: true }),
+      });
+      const j = await r.json().catch(() => ({}));
+      return j?.data?.markdown || j?.markdown || "";
+    } catch { return ""; }
+  }
+
+  async function extractContactsFromMarkdown(md: string, sourceUrl: string) {
+    if (!md) return [];
+    const sys = "Extract real contacts (organizers, speakers, hosts, admins). Return ONLY JSON: {\"contacts\":[{\"name\":\"...\",\"title\":\"...\",\"company\":\"...\",\"email\":\"...\",\"location\":\"...\",\"linkedin_url\":\"...\",\"twitter_url\":\"...\",\"confidence\":0-1}]}. Omit fields you cannot verify from the page. Skip generic 'info@' unless it's the only signal. Max 10.";
+    const raw = await aiGenerate(sys, `Source: ${sourceUrl}\n\nPage (truncated):\n${md.slice(0, 10000)}`);
+    try {
+      const cleaned = raw.replace(/```json\n?|```/g, "").trim();
+      const parsed = JSON.parse(cleaned);
+      const arr = Array.isArray(parsed.contacts) ? parsed.contacts : [];
+      return arr.slice(0, 10).map((c: any) => ({ ...c, source_url: sourceUrl }));
+    } catch { return []; }
+  }
+
+  mcp.tool("discover_communities", {
+    description:
+      "Find where your audience gathers — filtered by category (conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter). Returns ranked results with url and description. Public demo, no API key required.",
+    inputSchema: {
+      type: "object",
+      required: ["niche", "category"],
+      properties: {
+        niche: { type: "string", description: "Industry / audience, e.g. 'fintech founders', 'AI agents'." },
+        category: {
+          type: "string",
+          enum: ["conference", "webinar", "meetup", "networking_event", "linkedin_group", "facebook_group", "slack_community", "discord_server", "subreddit", "professional_association", "podcast", "newsletter", "any"],
+        },
+        location: { type: "string", description: "Optional city/region or 'remote'." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+      },
+    },
+    handler: async (args: any) => {
+      const p = z.object({
+        niche: z.string().min(1),
+        category: z.enum(["conference", "webinar", "meetup", "networking_event", "linkedin_group", "facebook_group", "slack_community", "discord_server", "subreddit", "professional_association", "podcast", "newsletter", "any"]),
+        location: z.string().optional(),
+        limit: z.number().int().min(1).max(10).optional(),
+      }).parse(args ?? {});
+      const q = `${p.niche} ${CATEGORY_HINTS[p.category]}${p.location ? ` ${p.location}` : ""}`.trim();
+      const results = await firecrawlSearch(q, p.limit ?? 5);
+      return asText({
+        niche: p.niche,
+        category: p.category,
+        location: p.location ?? null,
+        count: results.length,
+        results,
+        next_steps: [
+          "Call extract_contacts_from_url on any result to get name/title/company/email/location.",
+          "Call build_contact_list to run discovery + extraction in one shot.",
+          "Call add_to_radar to save the best fits (needs ECHO_API_KEY).",
+        ],
+      });
+    },
+  });
+
+  mcp.tool("find_linkedin_groups", {
+    description:
+      "Discover the most active LinkedIn Groups and professional associations for a niche. Returns group name, url, focus, and why it fits — assist-only (you review + join manually; LinkedIn TOS forbids automation). Public demo.",
+    inputSchema: {
+      type: "object",
+      required: ["niche"],
+      properties: {
+        niche: { type: "string" },
+        seniority: { type: "string", description: "Optional seniority e.g. 'founder', 'director', 'VP+'." },
+        region: { type: "string", description: "Optional region e.g. 'North America', 'EMEA'." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 6 },
+      },
+    },
+    handler: async (args: any) => {
+      const p = z.object({
+        niche: z.string().min(1),
+        seniority: z.string().optional(),
+        region: z.string().optional(),
+        limit: z.number().int().min(1).max(10).optional(),
+      }).parse(args ?? {});
+      const raw = await firecrawlSearch(
+        `site:linkedin.com/groups ${p.niche}${p.seniority ? ` ${p.seniority}` : ""}${p.region ? ` ${p.region}` : ""}`,
+        (p.limit ?? 6) + 4,
+      );
+      const associations = await firecrawlSearch(`professional association ${p.niche}${p.region ? ` ${p.region}` : ""}`, 4);
+      const context = [...raw, ...associations].slice(0, 20)
+        .map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.description ?? ""}`).join("\n\n");
+      const sys = "You are an outreach strategist. Return ONLY JSON: {\"groups\":[{\"name\":\"...\",\"url\":\"...\",\"type\":\"linkedin_group|association\",\"focus\":\"...\",\"why_fit\":\"...\",\"activity_signal\":\"high|medium|low\",\"first_action\":\"one concrete engagement tip\"}]}. Prefer decision-maker-dense, high-activity groups. Skip listicles.";
+      const out = await aiGenerate(sys, `Niche: ${p.niche}\nSeniority: ${p.seniority ?? "any"}\nRegion: ${p.region ?? "any"}\n\nResults:\n${context}`);
+      let parsed: any = { groups: [] };
+      try { parsed = JSON.parse(out.replace(/```json\n?|```/g, "").trim()); } catch { /* keep empty */ }
+      const groups = Array.isArray(parsed.groups) ? parsed.groups.slice(0, p.limit ?? 6) : [];
+      return asText({
+        niche: p.niche,
+        count: groups.length,
+        groups,
+        assist_only_notice: "Assist-only. Open each group in a browser and join manually — LinkedIn automation violates TOS.",
+        upgrade: "Full LinkedIn Activity queue (AI comments + connection notes + follow-ups) at https://yourechoagent.com/for-agents/register",
+      });
+    },
+  });
+
+  mcp.tool("extract_contacts_from_url", {
+    description:
+      "Scrape any public event/community/organization page and extract structured contacts: name, title, company, email, location, linkedin_url, twitter_url, confidence. Public demo (uses Firecrawl + AI, no auth). For enrichment, verification, and one-click outreach use ECHO_API_KEY.",
+    inputSchema: {
+      type: "object",
+      required: ["url"],
+      properties: {
+        url: { type: "string", description: "Any public URL (event page, org 'about us', speaker list, LinkedIn group description page, etc.)." },
+      },
+    },
+    handler: async (args: any) => {
+      const p = z.object({ url: z.string().url() }).parse(args ?? {});
+      const md = await firecrawlScrape(p.url);
+      if (!md) return asText({ url: p.url, error: "Could not scrape page (Firecrawl unavailable or page blocked).", contacts: [] });
+      const contacts = await extractContactsFromMarkdown(md, p.url);
+      return asText({
+        url: p.url,
+        count: contacts.length,
+        contacts,
+        upgrade: "Get email verification, seniority tagging, and 1-click outreach at https://yourechoagent.com/for-agents/register",
+      });
+    },
+  });
+
+  mcp.tool("build_contact_list", {
+    description:
+      "One-shot lead list: discovers communities in a niche+category, then extracts contacts from the top results and returns a deduped list with name, title, company, email, location, source_url. Public demo — limited to 3 sources per call. Use ECHO_API_KEY for larger runs and export.",
+    inputSchema: {
+      type: "object",
+      required: ["niche", "category"],
+      properties: {
+        niche: { type: "string" },
+        category: {
+          type: "string",
+          enum: ["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"],
+        },
+        location: { type: "string" },
+        sources: { type: "integer", minimum: 1, maximum: 3, default: 3, description: "How many discovered pages to scrape (demo cap: 3)." },
+      },
+    },
+    handler: async (args: any) => {
+      const p = z.object({
+        niche: z.string().min(1),
+        category: z.enum(["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"]),
+        location: z.string().optional(),
+        sources: z.number().int().min(1).max(3).optional(),
+      }).parse(args ?? {});
+      const n = p.sources ?? 3;
+      const q = `${p.niche} ${CATEGORY_HINTS[p.category] ?? CATEGORY_HINTS.any}${p.location ? ` ${p.location}` : ""}`.trim();
+      const discovered = await firecrawlSearch(q, n);
+      const perSource = await Promise.all(discovered.map(async (r) => {
+        const md = await firecrawlScrape(r.url);
+        const contacts = await extractContactsFromMarkdown(md, r.url);
+        return { source: r, contacts };
+      }));
+      const seen = new Set<string>();
+      const merged: any[] = [];
+      for (const { contacts } of perSource) {
+        for (const c of contacts) {
+          const k = (c.email || c.linkedin_url || `${c.name}|${c.company}`).toLowerCase();
+          if (!k || seen.has(k)) continue;
+          seen.add(k);
+          merged.push(c);
+        }
+      }
+      return asText({
+        niche: p.niche,
+        category: p.category,
+        sources_scraped: perSource.map((s) => s.source.url),
+        contact_count: merged.length,
+        contacts: merged,
+        upgrade: "Unlimited sources, CSV export, and inbox-ready sequences at https://yourechoagent.com/for-agents/register",
+      });
     },
   });
 
