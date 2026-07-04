@@ -235,6 +235,92 @@ const tools = [
     }),
     run: async (a: any) => callHostedTool("add_to_radar", a, apiKey || undefined),
   },
+
+  // ── v0.3.0: category-scoped discovery + LinkedIn groups + structured contacts ──
+  {
+    name: "discover_communities",
+    description:
+      "Find where your audience gathers — filtered by category (conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter). Public demo, no API key needed.",
+    inputSchema: {
+      type: "object",
+      required: ["niche", "category"],
+      properties: {
+        niche: { type: "string" },
+        category: {
+          type: "string",
+          enum: ["conference", "webinar", "meetup", "networking_event", "linkedin_group", "facebook_group", "slack_community", "discord_server", "subreddit", "professional_association", "podcast", "newsletter", "any"],
+        },
+        location: { type: "string", description: "Optional city/region or 'remote'." },
+        limit: { type: "integer", minimum: 1, maximum: 10 },
+      },
+    },
+    zod: z.object({
+      niche: z.string().min(1),
+      category: z.enum(["conference", "webinar", "meetup", "networking_event", "linkedin_group", "facebook_group", "slack_community", "discord_server", "subreddit", "professional_association", "podcast", "newsletter", "any"]),
+      location: z.string().optional(),
+      limit: z.number().int().min(1).max(10).optional(),
+    }),
+    run: async (a: any) => callHostedTool("discover_communities", a, apiKey || undefined),
+  },
+  {
+    name: "find_linkedin_groups",
+    description:
+      "Discover the most active LinkedIn Groups and professional associations for a niche. Assist-only — you review + join manually (LinkedIn TOS forbids automation). Public demo.",
+    inputSchema: {
+      type: "object",
+      required: ["niche"],
+      properties: {
+        niche: { type: "string" },
+        seniority: { type: "string" },
+        region: { type: "string" },
+        limit: { type: "integer", minimum: 1, maximum: 10 },
+      },
+    },
+    zod: z.object({
+      niche: z.string().min(1),
+      seniority: z.string().optional(),
+      region: z.string().optional(),
+      limit: z.number().int().min(1).max(10).optional(),
+    }),
+    run: async (a: any) => callHostedTool("find_linkedin_groups", a, apiKey || undefined),
+  },
+  {
+    name: "extract_contacts_from_url",
+    description:
+      "Scrape any public event/community/organization page and extract structured contacts: name, title, company, email, location, linkedin_url, twitter_url, confidence. Public demo.",
+    inputSchema: {
+      type: "object",
+      required: ["url"],
+      properties: { url: { type: "string", description: "Any public URL." } },
+    },
+    zod: z.object({ url: z.string().url() }),
+    run: async (a: any) => callHostedTool("extract_contacts_from_url", a, apiKey || undefined),
+  },
+  {
+    name: "build_contact_list",
+    description:
+      "One-shot lead list: discovers communities for a niche+category, extracts contacts from top results, returns deduped list with name, title, company, email, location, source_url. Public demo — max 3 sources.",
+    inputSchema: {
+      type: "object",
+      required: ["niche", "category"],
+      properties: {
+        niche: { type: "string" },
+        category: {
+          type: "string",
+          enum: ["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"],
+        },
+        location: { type: "string" },
+        sources: { type: "integer", minimum: 1, maximum: 3 },
+      },
+    },
+    zod: z.object({
+      niche: z.string().min(1),
+      category: z.enum(["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"]),
+      location: z.string().optional(),
+      sources: z.number().int().min(1).max(3).optional(),
+    }),
+    run: async (a: any) => callHostedTool("build_contact_list", a, apiKey || undefined),
+  },
 ];
 
 
