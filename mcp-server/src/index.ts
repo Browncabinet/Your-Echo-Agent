@@ -456,7 +456,7 @@ const tools = [
 
 
 const server = new Server(
-  { name: "yourechoagent-mcp", version: "0.3.0" },
+  { name: "yourechoagent-mcp", version: "0.4.0" },
   { capabilities: { tools: {} } },
 );
 
@@ -483,4 +483,4 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("yourechoagent-mcp v0.3.0 ready on stdio");
+console.error("yourechoagent-mcp v0.4.0 ready on stdio");
