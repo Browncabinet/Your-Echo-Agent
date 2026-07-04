@@ -1,93 +1,123 @@
-## Goal
+## Goal (revised)
 
-Make Echo Agent MCP the most useful "where does my audience gather + who do I talk to" tool for AI agents (Claude, Cursor, ChatGPT). Today it discovers events and drafts outreach. This plan adds **category-scoped discovery**, **LinkedIn group inclusion**, **structured contact lists**, and **competitor-audience mining** — plus a handful of features that make agents choose us over raw web search.
+Turn Echo Agent MCP into a full **personalized PR outreach loop**: from any MCP client (Claude/Cursor/ChatGPT), an agent should be able to run one prompt and get:
+
+1. A category-scoped list of groups/orgs/events/conferences/LinkedIn groups.
+2. Contacts inside each source (name, title, company, email, location).
+3. A **draft personalized email per contact** — grouped by source — with a short pitch + reason for reaching out + a meeting-scheduling ask (phone / in-person / online) and "reply by email" CTA.
+4. **Send** those emails through the user's sender identity, then track replies.
+
+Phases A+B already shipped (v0.3.0): `discover_communities`, `find_linkedin_groups`, `extract_contacts_from_url`, `build_contact_list`. This plan is the outreach-generation and sending layer on top.
 
 ---
 
-## 1. What exists today (audit)
+## 1. New MCP tool: `draft_pr_outreach_for_contacts`
 
-MCP tools currently shipped (`mcp-server/src/index.ts`):
-- `discover_events` — niche → conferences/webinars/groups/podcasts (Firecrawl + AI, demo tier)
-- `draft_outreach_for_event` — subject + body per event
-- `generate_comment_for_community` — 2 comment variants
-- `add_to_radar` — save to user's Radar (needs API key)
-- 6 hiring tools: `list_available_agents`, `get_agent_card`, `hire_echo_agent`, `get_job_status`, `control_job`, `rate_job`
+Public demo — no send, just drafts. Lets any agent try the full flow instantly.
 
-App-side backing (already built): `discover-communities`, `discover-extract-contacts`, `linkedin-groups-research`, `linkedin-generate-actions`, `radar_items`, `discovered_opportunities` (already stores a `contacts` JSON array with name/role/email/linkedin/twitter).
+**Input:**
+- `contacts` (array, required): from `build_contact_list` or user-supplied. Each: `{ name, title?, company?, email?, source_title, source_url, category }`.
+- `sender` (object, required): `{ name, company, one_line_pitch, services_short, meeting_options?: ["phone","in_person","online"], scheduling_link?, reply_email }`.
+- `tone` (optional): `friendly | professional | concise`. Default `professional`.
 
-**Gaps vs. what you asked for:**
-| You asked for | Status |
+**Output — grouped by source:**
+```json
+{
+  "groups": [
+    {
+      "source_title": "AI Founders Summit 2026",
+      "source_url": "https://…",
+      "category": "conference",
+      "drafts": [
+        {
+          "to": { "name": "…", "title": "…", "company": "…", "email": "…" },
+          "subject": "…",
+          "body": "…",   // includes pitch + reason + meeting ask + reply CTA
+          "meeting_options": ["phone","online"],
+          "reply_to": "founder@example.com"
+        }
+      ]
+    }
+  ],
+  "total_drafts": 12
+}
+```
+
+**Prompt contract for the model** (kept in the tool so drafts are consistent):
+- Under 110 words.
+- Line 1: personalized hook that references the *source* (e.g., "I saw you're organizing the AI Founders Summit…").
+- Line 2: 1-sentence pitch (`services_short`).
+- Line 3: one specific *why you* reason tied to the contact's title/company.
+- Line 4: meeting ask offering the sender's allowed `meeting_options` ("15 min — phone, online, or in-person if you're in {location}") + `scheduling_link` if provided.
+- Line 5: "Reply to this email and I'll send times" / route to `reply_email`.
+- No emojis, no "Hope this finds you well".
+
+## 2. New MCP tool: `run_pr_outreach` (send)
+
+Requires `ECHO_API_KEY`. Wraps the same draft step and then routes each draft into the existing Echo Agent send pipeline (already used by `hire_echo_agent` → `send-campaign-emails` → deliverability, throttling, reply tracking).
+
+**Input:** same as `draft_pr_outreach_for_contacts` **plus** `sender_identity` (name + verified email + optional company + scheduling_link), `spending_cap_cents?`, `review_before_send?: boolean` (default `true`).
+
+**Behavior:**
+- If `review_before_send: true` (default) → returns `{ job_id, drafts, status: "awaiting_approval" }` and stores drafts in a new `pr_outreach_jobs` row. User approves via existing app UI or by calling `approve_pr_outreach_job`.
+- If `review_before_send: false` → creates campaign + queues sends immediately; reuses weekly caps and unsubscribe rules already in place.
+- Every email carries `Reply-To: sender_identity.email`, so replies land in the sender's inbox and also get ingested by `check-replies` for the reply-intelligence tab.
+
+**New helper tools shipped alongside:**
+- `list_pr_outreach_jobs` — status/counts per job.
+- `approve_pr_outreach_job` / `cancel_pr_outreach_job` — flip a queued job.
+- `get_pr_outreach_replies` — replies grouped by contact + source, with AI classification (`positive | neutral | negative | meeting_requested | unsubscribe`).
+
+## 3. Convenience mega-tool: `find_and_pitch`
+
+One call, whole loop. Public demo drafts only; sends require API key.
+
+**Input:** `{ niche, category, location?, sender: {...}, sources?: 1–3, review_before_send?: true }`
+
+**Pipeline:** `discover_communities` → `extract_contacts_from_url` per source → dedupe → `draft_pr_outreach_for_contacts` → if key + `review_before_send=false`, `run_pr_outreach`.
+
+**Returns:** grouped drafts + (if sending) `job_id` for polling with `get_pr_outreach_replies`.
+
+## 4. Backend additions (Lovable Cloud)
+
+- New table `pr_outreach_jobs` (user_id, sender_identity JSONB, drafts JSONB, status: `draft|awaiting_approval|queued|sending|completed|canceled`, campaign_id FK to `campaigns`, spending_cap_cents, created_at, updated_at). RLS: user owns their rows; service_role full.
+- New edge fn `pr-outreach-draft` — takes contacts + sender, runs Lovable AI, returns grouped drafts. Called by both the MCP tool and app UI.
+- New edge fn `pr-outreach-send` — persists job, converts to a `campaigns` + `campaign_sends` batch, invokes existing `send-campaign-emails` pipeline. Enforces the same weekly email cap (`current_week_caps` RPC) so no bypass.
+- Extend `check-replies` classifier to add label `meeting_requested` so agents can filter.
+
+## 5. Deliverability & compliance guardrails (mandatory)
+
+- Every send uses the user's verified sender identity (existing `a2a_byo_smtp` or platform SMTP with confirmed From).
+- Mandatory one-click unsubscribe footer appended by `send-campaign-emails` — never authored by the AI (existing rule).
+- Suppression list (`unsubscribes`, `suppressed_emails`, `bounce_events`) is checked before send — no drafts to suppressed addresses.
+- Weekly caps enforced (`current_week_caps`) — no bypass, no separate quota.
+- Rate-limited per sending domain via `domain_throttle`.
+- LinkedIn contacts get **drafted only, never auto-sent** (LinkedIn assist-only rule stays). LinkedIn drafts are returned as copy-ready comments/DMs alongside email drafts for non-LinkedIn contacts in the same job.
+- Skip any contact where `confidence < 0.6` OR `email` looks generic (`info@`, `hello@`, `contact@`) unless it's the *only* signal for that source — surface those as "needs manual review" in the response instead of sending.
+
+## 6. What the agent experience looks like
+
+Prompt in Claude:
+> "Find AI-agent conferences and LinkedIn groups. Pull the organizers. Draft a personalized email from Alex Chen at Lensora (agent observability) asking each for a 15-min intro — phone, online, or in-person if they're in SF. Send them and let me know when replies come in."
+
+Tool trace: `find_and_pitch` (returns grouped drafts) → user says "looks good, send" → `approve_pr_outreach_job` → `get_pr_outreach_replies` polled by the agent.
+
+## 7. Implementation phases
+
+| Phase | Scope |
 |---|---|
-| Per-category discovery (groups, orgs, events, conferences, networking) | Partial — `kind` enum exists but "organizations" and "networking events" aren't first-class |
-| LinkedIn groups included in discovery | Exists as separate app feature; not exposed as an MCP tool |
-| Contact list w/ name, title, company, email, location | Extractor exists but returns free-form; no `company` or `location` field, no MCP tool to trigger it |
-| Competitor-audience mining ("where do my competitors' customers hang out") | Missing entirely |
-| Make it attractive to agents | Needs discovery quality + differentiators (see §4) |
+| G | `pr-outreach-draft` edge fn + `draft_pr_outreach_for_contacts` MCP tool (demo tier, no key). |
+| H | `pr_outreach_jobs` table + `pr-outreach-send` fn + `run_pr_outreach` / `approve_pr_outreach_job` / `cancel_pr_outreach_job` / `list_pr_outreach_jobs` tools. |
+| I | `find_and_pitch` mega-tool + `get_pr_outreach_replies`. |
+| J | Bump MCP to v0.4.0, update README + CHANGELOG, republish npm. |
+
+## 8. Not doing
+
+- No auto-send to LinkedIn contacts (assist-only stays).
+- No bulk marketing / newsletter sends — one triggering event per recipient.
+- No new UI in this plan; existing Campaign + Replies tabs render the same jobs (a small "PR Outreach" filter chip will be added when we have UI time — not blocking).
+- No paid data enrichment (Apollo/ZoomInfo) — deferred.
 
 ---
 
-## 2. Category-scoped discovery
-
-Expand `discover_events` into a stronger `discover_communities` MCP tool (keep old name as alias so existing clients don't break):
-
-- `category` (required): `conference | webinar | meetup | networking_event | linkedin_group | facebook_group | slack_community | discord_server | subreddit | professional_association | podcast | newsletter | any`
-- `niche` (required): free text
-- `location` (optional): city / region / "remote"
-- `date_range` (optional): `next_30_days | next_90_days | evergreen`
-- `min_relevance` (optional 0–1): AI fit-score threshold
-
-Returns per result: title, url, category, description, estimated audience size, fit-score, next date (if event), primary organizer handle.
-
-Backed by the existing `discover-communities` edge function extended with category-specific Firecrawl search patterns.
-
-## 3. LinkedIn groups + contact lists
-
-Two new MCP tools that surface app functionality already built:
-
-**`find_linkedin_groups`** — wraps `linkedin-groups-research`. Input: `niche`, `seniority?`, `region?`. Output: group name, url, member count est., recent activity signal, join criteria, suggested primary group flag. Cached 7 days per existing `linkedin_groups_research` table.
-
-**`extract_contacts_for_opportunity`** — wraps `discover-extract-contacts` (needs API key). Input: `opportunity_url` OR `opportunity_id`. Output: structured contacts array with **name, title, company, email, location, linkedin_url, twitter_url, source_url, confidence**. Requires extending the extractor prompt + `discovered_opportunities.contacts` shape to include `company` and `location` (they're currently absent).
-
-Add a batch convenience tool: **`build_contact_list`** — input: `niche` + `category` + `limit`. Runs discovery → extract → deduped merged CSV/JSON list. This is the "one-shot lead list" flow agents will love.
-
-## 4. Competitor-audience mining (new)
-
-**`find_competitor_audiences`** — input: `competitor_domains: string[]` (+ optional `niche`).
-Pipeline: Firecrawl scrape of each competitor's site (case studies, testimonials, blog author bios, "as seen in", event sponsorships) + LinkedIn public company page snippets → AI aggregates: which events they sponsor/speak at, which groups their team belongs to, which podcasts they appear on, common customer titles/industries.
-
-Output: ranked list of communities/events + a "watchlist" of contact archetypes to target. Feeds directly into `discover_communities` and `build_contact_list`.
-
-## 5. Features that make agents pick us over web search
-
-Add these to round out the agent value prop:
-
-1. **`enrich_contact`** — input: name + company (or LinkedIn URL) → verified email guess (pattern-based, checked against catch-all), title, location, seniority. Uses Firecrawl + AI; no scraping of gated LinkedIn.
-2. **`monitor_niche`** — save a niche + categories as a standing watch. New matches land in Radar weekly. Tool returns the watch id; app UI shows the digest. Uses new `radar_watches` table.
-3. **`score_fit`** — input: `opportunity_url` + `sender_pitch` → 0–100 fit score + 1-line rationale. Cheap, fast, keeps agents from spamming.
-4. **`draft_outreach_sequence`** — 3-touch sequence (initial + 2 follow-ups) instead of single email. Same input shape as `draft_outreach_for_event`.
-5. **`export_list`** — input: `radar_ids[]` or filter → CSV / Google Sheet URL (Sheets via connector when connected, CSV file otherwise).
-6. **`suggest_next_action`** — input: `contact_id` → recommends "comment on their post" vs "connect + note" vs "cold email" vs "warm intro request", grounded in the contact's activity + assist-only LinkedIn rule.
-7. **Assist-only LinkedIn stays enforced** — no auto-connect / auto-post (project core memory). Every LinkedIn tool returns copy-ready text + `open_url` for the human to click.
-8. **Free demo tier stays generous** — discovery + drafts work with no key; only contact extraction, radar save, enrichment, and sequences require `ECHO_API_KEY`. Keeps the "npx and try it" install magical.
-
-## 6. Deliverables (implementation phases)
-
-| Phase | Scope | Files |
-|---|---|---|
-| A | Extend `discovered_opportunities.contacts` shape (add company, location); update `discover-extract-contacts` prompt | migration + edge fn |
-| B | Add MCP tools: `discover_communities` (supersedes `discover_events`), `find_linkedin_groups`, `extract_contacts_for_opportunity`, `build_contact_list` | `mcp-server/src/index.ts`, `mcp-http/index.ts` |
-| C | New edge fn `discover-competitor-audiences` + MCP tool `find_competitor_audiences` | new fn + tool |
-| D | New tools: `enrich_contact`, `score_fit`, `draft_outreach_sequence`, `export_list`, `suggest_next_action` | edge fns + tools |
-| E | `monitor_niche` + `radar_watches` table + weekly cron | migration + fn + cron |
-| F | Bump MCP version to 0.3.0, update README tool table, republish npm + resubmit Glama | `mcp-server/README.md`, `CHANGELOG.md`, `package.json` |
-
-## 7. Not doing (explicit exclusions)
-
-- No LinkedIn scraping behind auth walls — TOS and detection risk.
-- No auto-connect / auto-message on LinkedIn (project constraint).
-- No paid contact-data reseller integrations in v1 (Apollo/ZoomInfo) — revisit once demand proves out.
-- No new UI surfaces in this plan; app tabs (LinkedIn Activity, Radar) already exist and consume the same backend.
-
----
-
-Reply "go" to implement, or tell me which phases to drop/reorder.
+Reply "go" to build Phase G+H first (draft + send with review), or tell me to reorder.
