@@ -24,7 +24,11 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 
 | Tool | Description |
 |---|---|
-| `discover_events` | Find conferences, webinars, meetups, and podcasts in a niche (demo mode, no key needed) |
+| `discover_communities` | **NEW v0.3.0** — Find groups, orgs, events, conferences, networking events, LinkedIn groups, Facebook groups, Slack/Discord communities, subreddits, associations, podcasts, or newsletters — filtered by category + niche + optional location |
+| `find_linkedin_groups` | **NEW v0.3.0** — Discover the most active LinkedIn Groups and professional associations for a niche (assist-only; TOS-safe) |
+| `extract_contacts_from_url` | **NEW v0.3.0** — Scrape any public page → structured contacts (name, title, company, email, location, linkedin_url, twitter_url, confidence) |
+| `build_contact_list` | **NEW v0.3.0** — One-shot lead list: discovers communities + extracts contacts + dedupes into a ready-to-use list |
+| `discover_events` | Legacy alias — find conferences, webinars, meetups, and podcasts in a niche |
 | `draft_outreach_for_event` | Generate a personalized cold email referencing a specific event/community |
 | `generate_comment_for_community` | Draft 2 value-first comment variants for LinkedIn/Reddit/Slack threads |
 | `add_to_radar` | Save a discovered event to your Radar for one-click outreach later (requires `ECHO_API_KEY`) |
