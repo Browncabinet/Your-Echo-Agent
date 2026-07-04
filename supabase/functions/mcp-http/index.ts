@@ -100,7 +100,7 @@ async function aiGenerate(system: string, user: string): Promise<string> {
 }
 
 function buildServer(apiKey: string | null) {
-  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.1.0" });
+  const mcp = new McpServer({ name: "yourechoagent-mcp", version: "0.3.0" });
 
   const needKey = () => {
     if (!apiKey) {
