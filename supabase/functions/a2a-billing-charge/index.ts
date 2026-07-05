@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       updated_at: new Date().toISOString(),
     }).eq("id", body.job_id);
 
-    emitCallback(job.callback_url, "billing.insufficient_funds", {
+    await emitCallback(job.callback_url, "billing.insufficient_funds", {
       job_id: body.job_id,
       balance_cents: balance,
       needed_cents: total,

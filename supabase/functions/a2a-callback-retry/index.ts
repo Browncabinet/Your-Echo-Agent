@@ -85,6 +85,14 @@ async function processOne(row: Record<string, any>) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // Require service-role auth — this is a cron-only endpoint.
+  const auth = req.headers.get("authorization") || "";
+  const token = auth.replace(/^Bearer\s+/i, "").trim();
+  if (token !== Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
+    return json({ error: "unauthorized" }, 401);
+  }
+
   const sb = admin();
   const { data, error } = await sb
     .from("a2a_callback_queue")

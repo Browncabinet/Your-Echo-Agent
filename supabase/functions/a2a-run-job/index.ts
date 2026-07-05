@@ -364,19 +364,17 @@ async function processJob(jobId: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  // Auth: service-role (direct kick from hire/control) OR anon-key (cron tick).
-  // For explicit job_id calls, we require service-role.
+  // Auth: service-role only. The anon key ships in the browser bundle, so it
+  // must NOT be accepted here — the cron worker and hire kick both use service-role.
   const auth = req.headers.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "").trim();
   const isServiceRole = token === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const isAnon = token === Deno.env.get("SUPABASE_ANON_KEY");
-  if (!isServiceRole && !isAnon) return json({ error: "unauthorized" }, 401);
+  if (!isServiceRole) return json({ error: "unauthorized" }, 401);
 
   let body: { job_id?: string; tick?: boolean } = {};
   try { body = await req.json(); } catch {}
 
   if (body.job_id) {
-    if (!isServiceRole) return json({ error: "service_role_required_for_job_id" }, 403);
     const result = await processJob(body.job_id);
     return json({ ok: true, job_id: body.job_id, result });
   }

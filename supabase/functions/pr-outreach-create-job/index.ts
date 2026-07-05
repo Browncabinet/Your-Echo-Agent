@@ -97,6 +97,7 @@ serve(async (req) => {
       message: `Saved ${flatDrafts.length} drafts. Approve & send them from ${dashboardUrl}. Every send uses your verified sender identity, respects weekly caps, and honors the suppression list.`,
     });
   } catch (e) {
-    return errorJson("server_error", (e as Error).message, 500);
+    console.error("pr-outreach-create-job error:", (e as Error).message);
+    return errorJson("server_error", "Failed to create job", 500);
   }
 });

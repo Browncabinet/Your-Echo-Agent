@@ -71,6 +71,18 @@ serve(async (req) => {
   }
 
   if (type === "c" && redirect) {
+    // Validate redirect: only http(s), block javascript:/data:/etc. to prevent open-redirect XSS.
+    let safeRedirect: string | null = null;
+    try {
+      const u = new URL(redirect);
+      if (u.protocol === "http:" || u.protocol === "https:") {
+        safeRedirect = u.toString();
+      }
+    } catch {
+      // fall through
+    }
+    if (!safeRedirect) return new Response("Invalid redirect", { status: 400 });
+
     const { data: updated } = await supabase
       .from("campaign_sends")
       .update({ clicked_at: new Date().toISOString() })
@@ -85,7 +97,7 @@ serve(async (req) => {
     if (updated && updated.length > 0) {
       await maybeEmitA2A(supabase, sendId, "email.clicked");
     }
-    return Response.redirect(redirect, 302);
+    return Response.redirect(safeRedirect, 302);
   }
 
   return new Response("Invalid request", { status: 400 });
