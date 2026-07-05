@@ -179,6 +179,7 @@ serve(async (req) => {
       next_step: "Call queue_pr_outreach_job (requires ECHO_API_KEY) to save these drafts for review + send from https://yourechoagent.com/for-agents/dashboard",
     });
   } catch (e) {
-    return json({ error: (e as Error).message }, 500);
+    console.error("pr-outreach-draft error:", (e as Error).message);
+    return json({ error: "Draft generation failed" }, 500);
   }
 });

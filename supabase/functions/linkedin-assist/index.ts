@@ -33,8 +33,8 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
     const token = authHeader.replace("Bearer ", "");
-    const { data: claims } = await userClient.auth.getClaims(token);
-    const userId = claims?.claims?.sub;
+    const { data: userData } = await userClient.auth.getUser(token);
+    const userId = userData?.user?.id;
     if (!userId) return json({ error: "Unauthorized" }, 401);
 
     const { niche, leadContext, audience } = await req.json();

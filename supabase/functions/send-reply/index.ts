@@ -160,7 +160,8 @@ serve(async (req) => {
         ai_draft_reply: reply_body,
         sent_at: new Date().toISOString(),
       })
-      .eq("id", reply_id);
+      .eq("id", reply_id)
+      .eq("user_id", userId);
 
     return new Response(
       JSON.stringify({ success: true, message: "Reply sent successfully" }),

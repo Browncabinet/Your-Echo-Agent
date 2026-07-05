@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       }).eq("id", job.campaign_id);
     }
 
-    emitCallback(job.callback_url, "job.cancelled", { job_id: jobId, status: "cancelled" });
+    await emitCallback(job.callback_url, "job.cancelled", { job_id: jobId, status: "cancelled" });
     return json({ ok: true, job_id: jobId, status: "cancelled" });
   }
 
@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
     }).eq("id", job.campaign_id);
   }
 
-  emitCallback(job.callback_url, `job.${action}d`, { job_id: jobId, status: newStatus });
+  await emitCallback(job.callback_url, `job.${action}d`, { job_id: jobId, status: newStatus });
 
   // If resuming, kick the worker immediately
   if (action === "resume") {

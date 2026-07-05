@@ -95,7 +95,9 @@ Deno.serve(async (req) => {
   const targetAudience = (ta as string[]).map((s) => String(s).slice(0, 200)).slice(0, 10);
   const websiteUrl = (camp.website_url || "").toString().slice(0, 500);
 
-  const estimatedCost = volume * (agent.pricing_per_lead_cents as number);
+  // Clamp per-lead pricing so a rogue agent can't inflate estimatedCost past the 100k cap.
+  const perLeadCents = Math.min(Math.max(Number(agent.pricing_per_lead_cents) || 0, 0), 500);
+  const estimatedCost = volume * perLeadCents;
   // Resolve per-partner default spending cap when caller omits it
   let defaultCap = 2500;
   if (apiKeyId) {
@@ -113,11 +115,17 @@ Deno.serve(async (req) => {
   // Strategy: create or reuse a system user keyed by the API key owner email.
   let campaignOwnerId = userId;
   if (!campaignOwnerId && apiKey) {
-    // Look for an auth user by email
-    const { data: list } = await sb.auth.admin.listUsers();
-    const existing = list?.users?.find((u) => (u.email || "").toLowerCase() === apiKey.owner_email.toLowerCase());
-    if (existing) {
-      campaignOwnerId = existing.id;
+    // Look for an auth user by email — paginate to avoid the 50-row default.
+    const targetEmail = (apiKey.owner_email || "").toLowerCase();
+    let existingId: string | null = null;
+    for (let page = 1; page <= 20 && !existingId; page++) {
+      const { data: list } = await sb.auth.admin.listUsers({ page, perPage: 200 });
+      const found = list?.users?.find((u) => (u.email || "").toLowerCase() === targetEmail);
+      if (found) existingId = found.id;
+      if (!list?.users?.length || list.users.length < 200) break;
+    }
+    if (existingId) {
+      campaignOwnerId = existingId;
     } else {
       const { data: created, error: cErr } = await sb.auth.admin.createUser({
         email: apiKey.owner_email,

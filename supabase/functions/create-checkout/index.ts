@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient, resolveOrCreateCustomer } from "../_shared/stripe.ts";
 
 const responseHeaders = {
@@ -39,7 +40,20 @@ serve(async (req) => {
   }
 
   try {
-    const { priceId, quantity, customerEmail, userId, returnUrl, environment, metadata: extraMetadata } = await req.json();
+    const { priceId, quantity, customerEmail, returnUrl, environment, metadata: extraMetadata } = await req.json();
+
+    // Auth: resolve userId from the caller's JWT — never trust a body-supplied userId.
+    let userId: string | undefined;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const sb = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+      );
+      const { data } = await sb.auth.getUser(authHeader.replace("Bearer ", ""));
+      userId = data?.user?.id;
+    }
+
     if (!priceId || typeof priceId !== "string" || !/^[a-zA-Z0-9_-]+$/.test(priceId)) {
       return new Response(JSON.stringify({ error: "Invalid priceId" }), { status: 400, ...responseHeaders });
     }
