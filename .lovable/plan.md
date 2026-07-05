@@ -1,123 +1,72 @@
-## Goal (revised)
 
-Turn Echo Agent MCP into a full **personalized PR outreach loop**: from any MCP client (Claude/Cursor/ChatGPT), an agent should be able to run one prompt and get:
+# Site-wide bug fix pass
 
-1. A category-scoped list of groups/orgs/events/conferences/LinkedIn groups.
-2. Contacts inside each source (name, title, company, email, location).
-3. A **draft personalized email per contact** — grouped by source — with a short pitch + reason for reaching out + a meeting-scheduling ask (phone / in-person / online) and "reply by email" CTA.
-4. **Send** those emails through the user's sender identity, then track replies.
+Three parallel audits (frontend pages, edge functions, live route smoke-test) found the issues below. I've cross-checked and dropped false positives (e.g. "missing" partner routes actually live at `/for-agents/login|signup|discover`).
 
-Phases A+B already shipped (v0.3.0): `discover_communities`, `find_linkedin_groups`, `extract_contacts_from_url`, `build_contact_list`. This plan is the outreach-generation and sending layer on top.
+## Critical — security & broken auth
 
----
+1. **`create-checkout` subscription forgery** (`supabase/functions/create-checkout/index.ts:42`) — `userId` is read from the request body with no auth, then written into Stripe metadata. Anyone can POST a victim's UUID and receive Pro access on that account after paying (or via a replayed webhook). Fix: require the caller's JWT, resolve `userId` from `auth.getUser(token)`, ignore any body-supplied `userId`.
 
-## 1. New MCP tool: `draft_pr_outreach_for_contacts`
+2. **Four functions crash on every call** — `check-replies`, `send-campaign-emails`, `linkedin-assist`, `discover-communities` all call `supabase.auth.getClaims(token)`, which doesn't exist in `@supabase/supabase-js` v2 → always 500. Replace with `supabase.auth.getUser(token)`.
 
-Public demo — no send, just drafts. Lets any agent try the full flow instantly.
+3. **A2A external partners get 401 at the gateway.** `supabase/config.toml` doesn't set `verify_jwt = false` for the public/API-key A2A functions. Add `verify_jwt = false` for: `a2a-agent-get`, `a2a-agents-list`, `a2a-agent-hire`, `a2a-job-get`, `a2a-job-control`, `a2a-job-rate`, `a2a-openapi`, `well-known-agent`, `a2a-run-job`, `a2a-callback-retry`, `mcp-http`, `pr-outreach-create-job`, `unsubscribe`.
 
-**Input:**
-- `contacts` (array, required): from `build_contact_list` or user-supplied. Each: `{ name, title?, company?, email?, source_title, source_url, category }`.
-- `sender` (object, required): `{ name, company, one_line_pitch, services_short, meeting_options?: ["phone","in_person","online"], scheduling_link?, reply_email }`.
-- `tone` (optional): `friendly | professional | concise`. Default `professional`.
+4. **`/admin/dashboard` is publicly reachable** and renders the A2A simulator (`src/App.tsx:77`). Wrap in `ProtectedRoute` (and ideally an admin role check) or delete the alias — `/dev/a2a-sim` already exists.
 
-**Output — grouped by source:**
-```json
-{
-  "groups": [
-    {
-      "source_title": "AI Founders Summit 2026",
-      "source_url": "https://…",
-      "category": "conference",
-      "drafts": [
-        {
-          "to": { "name": "…", "title": "…", "company": "…", "email": "…" },
-          "subject": "…",
-          "body": "…",   // includes pitch + reason + meeting ask + reply CTA
-          "meeting_options": ["phone","online"],
-          "reply_to": "founder@example.com"
-        }
-      ]
-    }
-  ],
-  "total_drafts": 12
-}
-```
+5. **XSS in A2A simulator** (`src/pages/A2ASimulator.tsx:208`) — `dangerouslySetInnerHTML` receives raw HTML from the `charts-render` edge function. Sanitize with DOMPurify before rendering.
 
-**Prompt contract for the model** (kept in the tool so drafts are consistent):
-- Under 110 words.
-- Line 1: personalized hook that references the *source* (e.g., "I saw you're organizing the AI Founders Summit…").
-- Line 2: 1-sentence pitch (`services_short`).
-- Line 3: one specific *why you* reason tied to the contact's title/company.
-- Line 4: meeting ask offering the sender's allowed `meeting_options` ("15 min — phone, online, or in-person if you're in {location}") + `scheduling_link` if provided.
-- Line 5: "Reply to this email and I'll send times" / route to `reply_email`.
-- No emojis, no "Hope this finds you well".
+6. **Open redirect on tracking endpoint** (`supabase/functions/track/index.ts:88`) — `?url=` is followed with no allowlist. Validate that `redirect` is one of the campaign's known outbound domains, or at least an absolute URL whose host matches a persisted `campaign_sends.allowed_hosts` entry.
 
-## 2. New MCP tool: `run_pr_outreach` (send)
+7. **`a2a-callback-retry` has zero auth** (`supabase/functions/a2a-callback-retry/index.ts:86`) — anyone can trigger the retry sweep. Require service-role bearer.
 
-Requires `ECHO_API_KEY`. Wraps the same draft step and then routes each draft into the existing Echo Agent send pipeline (already used by `hire_echo_agent` → `send-campaign-emails` → deliverability, throttling, reply tracking).
+8. **`a2a-run-job` accepts the public anon key** (`supabase/functions/a2a-run-job/index.ts:372`). The anon key ships in every browser bundle. Drop the `isAnon` branch; the cron worker already uses service-role.
 
-**Input:** same as `draft_pr_outreach_for_contacts` **plus** `sender_identity` (name + verified email + optional company + scheduling_link), `spending_cap_cents?`, `review_before_send?: boolean` (default `true`).
+9. **Payments webhook double-credit race** (`supabase/functions/payments-webhook/index.ts:190-208`) — read/increment/write on `user_credits.balance` with no idempotency key on the ledger row. Move to an atomic RPC that upserts a `credit_ledger` row keyed by `stripe_event_id` and applies the delta in a single statement.
 
-**Behavior:**
-- If `review_before_send: true` (default) → returns `{ job_id, drafts, status: "awaiting_approval" }` and stores drafts in a new `pr_outreach_jobs` row. User approves via existing app UI or by calling `approve_pr_outreach_job`.
-- If `review_before_send: false` → creates campaign + queues sends immediately; reuses weekly caps and unsubscribe rules already in place.
-- Every email carries `Reply-To: sender_identity.email`, so replies land in the sender's inbox and also get ingested by `check-replies` for the reply-intelligence tab.
+10. **PartnerDashboard leaks callbacks across tenants** (`src/pages/PartnerDashboard.tsx:77`) — `a2a_callbacks_log` query has no `.eq()`. Move it inside the `if (p?.id)` block and filter `.eq("partner_id", p.id)`.
 
-**New helper tools shipped alongside:**
-- `list_pr_outreach_jobs` — status/counts per job.
-- `approve_pr_outreach_job` / `cancel_pr_outreach_job` — flip a queued job.
-- `get_pr_outreach_replies` — replies grouped by contact + source, with AI classification (`positive | neutral | negative | meeting_requested | unsubscribe`).
+11. **`send-reply` service-role update misses ownership check** (`supabase/functions/send-reply/index.ts:156`) — add `.eq("user_id", userId)` on the update.
 
-## 3. Convenience mega-tool: `find_and_pitch`
+## High — reliability, cost, correctness
 
-One call, whole loop. Public demo drafts only; sends require API key.
+12. **Unauthenticated paid-API drains** — `extract-leads`, `firecrawl-scrape`, `firecrawl-search`, `generate-emails`, `extract-selling-points`, `campaign-summary` accept any JWT with no per-user rate limit. Add an authenticated-user check plus a per-user daily cap (reuse `weekly_usage`).
 
-**Input:** `{ niche, category, location?, sender: {...}, sources?: 1–3, review_before_send?: true }`
+13. **`a2a-agent-hire` duplicate-user bug** (`supabase/functions/a2a-agent-hire/index.ts:117`) — `listUsers()` returns only 50 rows; users beyond that get a fresh auth account on every hire. Replace with `supabase.auth.admin.getUserByEmail`-style lookup via the `profiles` table (or paginate).
 
-**Pipeline:** `discover_communities` → `extract_contacts_from_url` per source → dedupe → `draft_pr_outreach_for_contacts` → if key + `review_before_send=false`, `run_pr_outreach`.
+14. **`a2a-agent-hire` spend cap bypass** (`:98`) — `pricing_per_lead_cents` from the DB is unclamped; a rogue agent can set it huge to push `Math.max(estimatedCost, cap)` past the 100k cap. Clamp `pricing_per_lead_cents` at read time (e.g. `Math.min(500, ...)`).
 
-**Returns:** grouped drafts + (if sending) `job_id` for polling with `get_pr_outreach_replies`.
+15. **Un-awaited `emitCallback`** in `a2a-billing-charge/index.ts:54` and `a2a-job-control/index.ts:54,75` — isolate teardown drops the callback writes. Add `await`.
 
-## 4. Backend additions (Lovable Cloud)
+16. **`track-event` missing CORS** — every response lacks `Access-Control-Allow-*`. Add the shared `corsHeaders` and OPTIONS handler.
 
-- New table `pr_outreach_jobs` (user_id, sender_identity JSONB, drafts JSONB, status: `draft|awaiting_approval|queued|sending|completed|canceled`, campaign_id FK to `campaigns`, spending_cap_cents, created_at, updated_at). RLS: user owns their rows; service_role full.
-- New edge fn `pr-outreach-draft` — takes contacts + sender, runs Lovable AI, returns grouped drafts. Called by both the MCP tool and app UI.
-- New edge fn `pr-outreach-send` — persists job, converts to a `campaigns` + `campaign_sends` batch, invokes existing `send-campaign-emails` pipeline. Enforces the same weekly email cap (`current_week_caps` RPC) so no bypass.
-- Extend `check-replies` classifier to add label `meeting_requested` so agents can filter.
+## Medium — UX bugs
 
-## 5. Deliverability & compliance guardrails (mandatory)
+17. **Discover cap always reads 0** (`src/pages/Discover.tsx:135`) — reads `discoveries_cap` / `discoveries_used` from `WeeklyCaps`, but those keys don't exist. Wire to the real cap fields (or add them to `current_week_caps`).
 
-- Every send uses the user's verified sender identity (existing `a2a_byo_smtp` or platform SMTP with confirmed From).
-- Mandatory one-click unsubscribe footer appended by `send-campaign-emails` — never authored by the AI (existing rule).
-- Suppression list (`unsubscribes`, `suppressed_emails`, `bounce_events`) is checked before send — no drafts to suppressed addresses.
-- Weekly caps enforced (`current_week_caps`) — no bypass, no separate quota.
-- Rate-limited per sending domain via `domain_throttle`.
-- LinkedIn contacts get **drafted only, never auto-sent** (LinkedIn assist-only rule stays). LinkedIn drafts are returned as copy-ready comments/DMs alongside email drafts for non-LinkedIn contacts in the same job.
-- Skip any contact where `confidence < 0.6` OR `email` looks generic (`info@`, `hello@`, `contact@`) unless it's the *only* signal for that source — surface those as "needs manual review" in the response instead of sending.
+18. **Silent Supabase errors** in `PartnerDashboard.tsx:70-95`, `PartnerBilling.tsx:71-84`, `MyRadar.tsx:25-33` — capture `error` and surface via toast + empty-state message.
 
-## 6. What the agent experience looks like
+19. **`get-stripe-price` returns 500 with stack trace** — wrap `req.json()` in try/catch, return 400 on parse failure.
 
-Prompt in Claude:
-> "Find AI-agent conferences and LinkedIn groups. Pull the organizers. Draft a personalized email from Alex Chen at Lensora (agent observability) asking each for a 15-min intro — phone, online, or in-person if they're in SF. Send them and let me know when replies come in."
+20. **`pr-outreach-draft` / `pr-outreach-create-job` leak raw error messages** in 500 responses. Return a generic message and log the detail server-side.
 
-Tool trace: `find_and_pitch` (returns grouped drafts) → user says "looks good, send" → `approve_pr_outreach_job` → `get_pr_outreach_replies` polled by the agent.
+21. **Redirect polish** — `ProtectedRoute` sends to `/auth` (which is fine, `/auth` is a real route), but `CheckoutReturn.tsx:43` and `Auth.tsx:337` both `navigate("/")`, causing a double-hop through `HomeRoute`. Send them directly to `/for-agents/dashboard`.
 
-## 7. Implementation phases
+## Out of scope for this pass
 
-| Phase | Scope |
-|---|---|
-| G | `pr-outreach-draft` edge fn + `draft_pr_outreach_for_contacts` MCP tool (demo tier, no key). |
-| H | `pr_outreach_jobs` table + `pr-outreach-send` fn + `run_pr_outreach` / `approve_pr_outreach_job` / `cancel_pr_outreach_job` / `list_pr_outreach_jobs` tools. |
-| I | `find_and_pitch` mega-tool + `get_pr_outreach_replies`. |
-| J | Bump MCP to v0.4.0, update README + CHANGELOG, republish npm. |
+- Dark-mode token mismatches inside `PartnerShell` (cosmetic).
+- Low-contrast `text-slate-500` in `Auth.tsx` LiveTerminal (cosmetic).
 
-## 8. Not doing
+## Technical notes
 
-- No auto-send to LinkedIn contacts (assist-only stays).
-- No bulk marketing / newsletter sends — one triggering event per recipient.
-- No new UI in this plan; existing Campaign + Replies tabs render the same jobs (a small "PR Outreach" filter chip will be added when we have UI time — not blocking).
-- No paid data enrichment (Apollo/ZoomInfo) — deferred.
+- Order of edits: `config.toml` first (unblocks all A2A callers), then the four `getClaims` fixes (unblocks reply/send/discover flows), then `create-checkout` auth, then the rest.
+- After changes, verify with:
+  - `curl` the affected edge functions via the `supabase--curl_edge_functions` tool (unauth + auth cases).
+  - Re-run the Playwright smoke on `/for-agents/dashboard`, `/for-agents/billing`, `/for-agents/discover` while logged in.
+  - `supabase--linter` for any migration-adjacent changes.
+- No DB schema changes required except optionally a `credit_ledger(stripe_event_id unique)` table for the webhook idempotency fix (step 9). Confirm before I add that migration.
 
----
+## What I will NOT change
 
-Reply "go" to build Phase G+H first (draft + send with review), or tell me to reorder.
+- Route table itself (Playwright's "missing" routes actually exist under `/for-agents/*`).
+- MCP server / Glama / npm publish work.
+- Design system, brand copy, or pricing.
