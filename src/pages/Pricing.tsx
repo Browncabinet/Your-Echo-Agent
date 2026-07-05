@@ -382,7 +382,13 @@ export default function Pricing() {
               {/* EMAIL PACKS */}
               <section id="packs" className="mb-16 scroll-mt-24">
                 <div className="text-center mb-8">
+                  <Badge variant="secondary" className="mb-3">
+                    <Zap className="w-3 h-3 mr-1" /> Pay-as-you-go — per promotion
+                  </Badge>
                   <h2 className="text-2xl sm:text-3xl font-bold text-foreground">One-time email packs</h2>
+                  <p className="text-sm text-muted-foreground mt-2 max-w-xl mx-auto">
+                    Only running one launch, event push, or PR wave? Buy exactly what you need for that promotion — no subscription, no recurring charge.
+                  </p>
                   <p className="text-sm text-muted-foreground mt-2 flex items-center justify-center gap-1.5">
                     <InfinityIcon className="w-4 h-4" /> Pay once. Never expire. Roll over week to week.
                   </p>
