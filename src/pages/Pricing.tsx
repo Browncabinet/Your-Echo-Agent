@@ -24,7 +24,7 @@ import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
-import { TopupPacks, type TopupPack } from "@/components/TopupPacks";
+
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 import {
   Table,
