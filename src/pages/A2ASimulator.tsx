@@ -205,7 +205,13 @@ export default function A2ASimulator() {
         {chartHtml && (
           <Card className="p-4">
             <h2 className="text-sm font-semibold mb-2">Sample rendered chart (from agent #1)</h2>
-            <div dangerouslySetInnerHTML={{ __html: chartHtml }} />
+            {/* Sandboxed iframe: raw HTML from charts-render is untrusted, so we isolate it. */}
+            <iframe
+              title="Sample rendered chart"
+              sandbox=""
+              srcDoc={chartHtml}
+              className="w-full h-96 border-0"
+            />
           </Card>
         )}
       </div>

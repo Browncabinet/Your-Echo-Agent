@@ -73,8 +73,7 @@ const App = () => (
                 <Route path="/for-agents/docs" element={<ForAgentsDocs />} />
                 <Route path="/for-agents/register" element={<ProtectedRoute><PartnerRegisterAgent /></ProtectedRoute>} />
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
-                <Route path="/dev/a2a-sim" element={<A2ASimulator />} />
-                <Route path="/admin/dashboard" element={<A2ASimulator />} />
+                <Route path="/dev/a2a-sim" element={<ProtectedRoute><A2ASimulator /></ProtectedRoute>} />
                 <Route path="/for-agents/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
                 <Route path="/for-agents/radar" element={<ProtectedRoute><MyRadar /></ProtectedRoute>} />
                 <Route path="/" element={<HomeRoute />} />

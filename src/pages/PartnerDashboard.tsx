@@ -70,26 +70,34 @@ export default function PartnerDashboard() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
-    const [{ data: p }, { data: ks }, { data: js }, { data: cbs }] = await Promise.all([
+    const [{ data: p }, { data: ks }, { data: js }] = await Promise.all([
       supabase.from("a2a_partners").select("id, balance_cents, total_spent_cents, billing_email, api_key_id").eq("owner_user_id", user.id).maybeSingle(),
       supabase.from("a2a_api_keys").select("id, key_prefix, status, rate_limit_per_min, last_used_at").eq("owner_user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("a2a_jobs").select("id, agent_id, status, spend_cents, leads_sent, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(15),
-      supabase.from("a2a_callbacks_log").select("id, event_type, response_status, delivered, created_at, callback_url").order("created_at", { ascending: false }).limit(20),
     ]);
     setPartner(p as Partner | null);
     setKeys((ks || []) as ApiKey[]);
     setJobs((js || []) as Job[]);
-    setCallbacks((cbs || []) as Callback[]);
 
     if (p?.id) {
-      const { data: rq } = await supabase
-        .from("a2a_callback_queue")
-        .select("id, event_type, callback_url, attempt, max_attempts, status, next_attempt_at, last_error")
-        .eq("partner_id", p.id)
-        .order("updated_at", { ascending: false })
-        .limit(15);
+      const [{ data: cbs }, { data: rq }] = await Promise.all([
+        supabase
+          .from("a2a_callbacks_log")
+          .select("id, event_type, response_status, delivered, created_at, callback_url")
+          .eq("partner_id", p.id)
+          .order("created_at", { ascending: false })
+          .limit(20),
+        supabase
+          .from("a2a_callback_queue")
+          .select("id, event_type, callback_url, attempt, max_attempts, status, next_attempt_at, last_error")
+          .eq("partner_id", p.id)
+          .order("updated_at", { ascending: false })
+          .limit(15),
+      ]);
+      setCallbacks((cbs || []) as Callback[]);
       setRetries((rq || []) as RetryRow[]);
     } else {
+      setCallbacks([]);
       setRetries([]);
     }
     setLoading(false);
