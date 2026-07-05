@@ -1,54 +1,35 @@
+Migrate the existing bring-your-own-key Stripe integration to Lovable's built-in Stripe payments (seamless). This replaces manual edge-function checkout/portal/webhook plumbing with Lovable-managed infrastructure.
 
-# Site health check & fix pass
+## Phase 1 — Enable built-in payments & discover API
+1. Call `payments--enable_stripe_payments` to activate the integration.
+2. Inspect what the built-in system exposes (e.g. product/price IDs, checkout session API, portal session API, webhook endpoint).
+3. Determine if the built-in webhooks automatically update `subscriptions`/`user_credits` or if custom webhook logic must be preserved.
 
-Goal: verify every public and authenticated route on yourechoagent.com actually works end-to-end, then fix anything broken. This is a verification-first pass — no speculative rewrites.
+## Phase 2 — Recreate products
+1. Create the 6 products in the built-in Stripe system:
+   - Starter Weekly — $19/week (recurring)
+   - Growth Weekly — $39/week (recurring)
+   - Power Weekly — $79/week (recurring)
+   - 500 Email Pack — $12 one-time
+   - 1,000 Email Pack — $22 one-time
+   - 2,500 Email Pack — $45 one-time
+2. Map new built-in price IDs to the app's internal lookup keys (`starter_weekly`, `growth_weekly`, `power_weekly`, `topup_500`, `topup_1000`, `topup_2500`).
 
-## Scope
+## Phase 3 — Update checkout flow
+1. Replace `StripeEmbeddedCheckout.tsx` and `create-checkout` edge function with the built-in checkout pattern (likely a simpler Supabase function call or direct SDK usage).
+2. Update `Pricing.tsx` to reference the new built-in price identifiers.
+3. Replace `create-portal-session` edge function with the built-in portal/billing management API.
+4. Update `src/lib/stripe.ts` to use the built-in publishable token instead of `VITE_PAYMENTS_CLIENT_TOKEN`.
 
-**Public routes**
-`/`, `/pricing`, `/about`, `/privacy`, `/terms`, `/acceptable-use`, `/for-agents`, `/for-agents/signup`, `/for-agents/login`, `/for-agents/docs`, `/auth`
+## Phase 4 — Update webhook & data layer
+1. Decide if `payments-webhook` edge function can be deleted (if built-in webhooks handle subscription state) or if it must be kept for custom logic (credit top-ups, A2A partner credits).
+2. If kept: refactor `payments-webhook` to use the built-in Stripe client instead of BYOK keys.
+3. Ensure `current_week_caps` SQL function continues to work with the new price identifiers.
 
-**Authenticated routes** (via injected Supabase session)
-`/for-agents/dashboard`, `/for-agents/billing`, `/for-agents/discover`, `/for-agents/radar`, `/for-agents/register`, `/checkout/return`, `/dev/a2a-sim`
-
-**Payments**
-- New weekly checkout: `starter_weekly`, `growth_weekly`, `power_weekly`
-- One-time packs: `topup_500`, `topup_1000`, `topup_2500`
-- Verify each Stripe Price exists with matching `lookup_key` (call `get-stripe-price` for all 6)
-- Confirm `create-checkout` returns a `clientSecret` for one weekly + one topup
-- Confirm removed keys (`starter_monthly`, etc.) now 400 as expected
-
-**Edge functions — quick health ping**
-`create-checkout`, `get-stripe-price`, `create-portal-session`, `payments-webhook` (OPTIONS), `track`, `track-event`, `check-replies`, `send-campaign-emails`, `discover-communities`, `linkedin-assist`, `a2a-agents-list`, `a2a-agent-get`, `well-known-agent`, `a2a-openapi`, `unsubscribe`.
-
-## Method
-
-1. Playwright headless run against `http://localhost:8080` with the injected Supabase session:
-   - Load each route, capture screenshot, capture console errors + failed network requests.
-   - On `/pricing`: click Starter weekly → assert Stripe embedded checkout iframe mounts.
-   - On `/for-agents/dashboard`: assert no red toasts, main widgets render.
-   - On `/for-agents/discover`: assert cap displays a real number (regression check on the "always 0" bug).
-2. `supabase--curl_edge_functions` for the payments + A2A functions above (unauth + auth cases).
-3. `code--read_console_logs` + `code--read_network_requests` snapshot after the Playwright pass.
-4. Compile a defect list grouped by severity.
-
-## Fix pass
-
-Only fixes that are (a) reproduced in step 1–3 and (b) small/isolated. For each fix:
-- Cite the failing signal (screenshot, curl status, console error).
-- Patch the smallest surface area.
-- Re-run just that check to confirm green.
-
-Anything larger than a single-file fix, or anything touching schema, gets flagged back to you before I touch it — I will NOT silently expand scope into a redesign or new feature.
-
-## Explicit non-goals
-
-- No design changes.
-- No new features.
-- No schema migrations.
-- No MCP / npm / Glama work.
-- No changes to `Pricing.tsx` copy (just verifying it works).
-
-## Deliverable
-
-A short report per route: **PASS** / **FAIL + fix applied** / **FAIL + needs your call**, plus the list of edited files.
+## Phase 5 — Cleanup & testing
+1. Remove unused BYOK secrets (`STRIPE_LIVE_SECRET_KEY`, `PAYMENTS_LIVE_WEBHOOK_SECRET`, etc.) after confirming built-in flow works.
+2. Delete unused edge functions (`create-checkout`, `create-portal-session`, `get-stripe-price` if superseded).
+3. Smoke-test:
+   - Trial → subscription checkout → portal management → cancel
+   - Top-up pack purchase → credit balance update
+   - Weekly cap enforcement still correct
