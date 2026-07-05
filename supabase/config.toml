@@ -20,3 +20,46 @@ verify_jwt = false
 
 [functions.charts-render]
 verify_jwt = false
+
+# A2A public / API-key protected endpoints (auth is handled in-function via eak_ key)
+[functions.a2a-agent-get]
+verify_jwt = false
+
+[functions.a2a-agents-list]
+verify_jwt = false
+
+[functions.a2a-agent-hire]
+verify_jwt = false
+
+[functions.a2a-job-get]
+verify_jwt = false
+
+[functions.a2a-job-control]
+verify_jwt = false
+
+[functions.a2a-job-rate]
+verify_jwt = false
+
+[functions.a2a-openapi]
+verify_jwt = false
+
+[functions.well-known-agent]
+verify_jwt = false
+
+[functions.a2a-run-job]
+verify_jwt = false
+
+[functions.a2a-callback-retry]
+verify_jwt = false
+
+[functions.mcp-http]
+verify_jwt = false
+
+[functions.pr-outreach-create-job]
+verify_jwt = false
+
+[functions.pr-outreach-draft]
+verify_jwt = false
+
+[functions.unsubscribe]
+verify_jwt = false
