@@ -14,21 +14,11 @@ const responseHeaders = {
 // Create matching Prices in Stripe (Dashboard → Products → Add price → "Lookup key")
 // with these exact strings. Recurring keys are subscriptions; one-time keys are payments.
 const ALLOWED_LOOKUP_KEYS = new Set<string>([
-  // Monthly subscriptions
-  "starter_monthly",
-  "growth_monthly",
-  "pro_monthly",
-  // Annual subscriptions (billed yearly, ~20% discount)
-  "starter_annual",
-  "growth_annual",
-  "pro_annual",
-  // 5-day Growth trial (one-time $9, no auto-renew)
-  "trial_growth_5day",
-  // Legacy weekly tiers (kept for backward compatibility)
+  // Weekly subscriptions (current pricing model)
   "starter_weekly",
   "growth_weekly",
   "power_weekly",
-  // One-time top-ups
+  // One-time top-ups — pay-as-you-go per promotion
   "topup_500",
   "topup_1000",
   "topup_2500",
