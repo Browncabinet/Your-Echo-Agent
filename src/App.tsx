@@ -79,7 +79,9 @@ const App = () => (
                 <Route path="/dev/a2a-sim" element={<ProtectedRoute><A2ASimulator /></ProtectedRoute>} />
                 <Route path="/for-agents/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
                 <Route path="/for-agents/radar" element={<ProtectedRoute><MyRadar /></ProtectedRoute>} />
+                <Route path="/settings/mcp" element={<ProtectedRoute><SettingsMcp /></ProtectedRoute>} />
                 <Route path="/" element={<HomeRoute />} />
+
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
