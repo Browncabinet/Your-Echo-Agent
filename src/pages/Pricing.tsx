@@ -23,7 +23,8 @@ import { Footer } from "@/components/Footer";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
-import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { toast } from "sonner";
 
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 import {
@@ -203,6 +204,7 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { openPortal, isActive } = useSubscription();
+  const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
   const [topupPriceId, setTopupPriceId] = useState<PackId | null>(null);
   const [showStickyCta, setShowStickyCta] = useState(false);
@@ -234,7 +236,7 @@ export default function Pricing() {
     }
   };
 
-  const onChoose = (priceId: string) => {
+  const onChoose = async (priceId: string) => {
     if (!user) {
       navigate("/auth");
       return;
@@ -244,6 +246,19 @@ export default function Pricing() {
       return;
     }
     setSelectedPriceId(priceId);
+    try {
+      await openCheckout({
+        priceId,
+        customerEmail: user.email || undefined,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/?checkout=success`,
+      });
+    } catch (e) {
+      console.error("Paddle checkout failed", e);
+      toast.error("Could not open checkout. Please try again.");
+    } finally {
+      setSelectedPriceId(null);
+    }
   };
 
   const onChoosePack = (priceId: PackId) => {
@@ -641,23 +656,14 @@ export default function Pricing() {
         </Button>
       </div>
 
-      <Dialog open={!!selectedPriceId} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Start your plan</DialogTitle>
-            <DialogDescription>Secure checkout — cancel anytime from your dashboard.</DialogDescription>
-          </DialogHeader>
-          {selectedPriceId && user && (
-            <StripeEmbeddedCheckout
-              priceId={selectedPriceId}
-              customerEmail={user.email || undefined}
-              userId={user.id}
-              returnUrl={`${window.location.origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`}
-            />
-          )}
-          {!selectedPriceId && <Loader2 className="w-6 h-6 animate-spin mx-auto my-8 text-primary" />}
-        </DialogContent>
-      </Dialog>
+      {(selectedPriceId || checkoutLoading) && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 pointer-events-none">
+          <div className="bg-background border rounded-lg shadow-xl px-6 py-4 flex items-center gap-3 pointer-events-auto">
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            <span className="text-sm">Opening secure checkout…</span>
+          </div>
+        </div>
+      )}
       <TopupCheckoutDialog
         priceId={topupPriceId}
         onClose={() => setTopupPriceId(null)}
