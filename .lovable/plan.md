@@ -1,29 +1,26 @@
 ## Goal
+Add a **Test connection** button on `/settings/mcp` that pings the entered MCP endpoint URL and reports whether it's reachable.
 
-Keep the MCP server source private (don't publish to npm) and update the "For Agents" setup instructions so AI assistants connect using the direct hosted endpoint instead of npm/registry discovery.
+## How the check works
+Send a standard MCP `initialize` JSON-RPC request over Streamable HTTP directly from the browser to the URL currently in the input (no need to save first). Report one of:
 
-The MCP server is already live at:
-`https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`
+- **Reachable** — HTTP 200 and a valid JSON-RPC response with a `result` (shows server name + protocol version if present, plus latency in ms).
+- **Reachable, but not an MCP server** — HTTP 200 with a non-MCP body, or a JSON-RPC error.
+- **Unreachable** — network error, CORS block, non-2xx status, or timeout. Show the status code / error message.
 
-## Changes
+Request shape:
+- `POST <url>`
+- Headers: `Content-Type: application/json`, `Accept: application/json, text/event-stream` (required by the MCP Streamable HTTP spec — servers reject requests without both).
+- Body: `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"echo-settings-test","version":"1.0.0"}}}`
+- 8-second `AbortController` timeout.
+- Handle both `application/json` and `text/event-stream` responses (parse first SSE `data:` frame for the latter).
 
-### 1. Keep source private
-- No code change needed in `mcp-server/` — package is unpublished. Leave `publishConfig` alone (harmless while unpublished) and simply don't run `npm publish`.
-- Do NOT delete the `mcp-server/` folder — it's still the source of the deployed function.
-
-### 2. `src/pages/ForAgents.tsx`
-- Remove the "Listed on MCP registries" section (Glama / Smithery / npm cards, lines ~178–215).
-- Replace it with a single **"Connect your assistant"** card that shows the direct MCP endpoint URL with a copy button and short per-client steps:
-  - **Claude Desktop / Cursor / Windsurf**: add a `mcpServers` entry pointing to the URL via `streamable-http` transport.
-  - **ChatGPT (Developer mode)**: paste the URL as a custom connector.
-  - Each block: one sentence + a copy-paste config snippet using the direct URL. No npm, no npx, no registry links.
-
-### 3. `src/components/Footer.tsx`
-- Remove the Glama.ai and Smithery links (lines 16 & 18). Leave the rest of the footer intact.
-
-### 4. `src/components/QuickstartSnippets.tsx`
-- No changes — snippets already use the direct Supabase functions endpoint.
+## UI changes in `src/pages/SettingsMcp.tsx`
+- Add a **Test connection** secondary button next to **Save endpoint**. Disabled while empty or already testing.
+- Validate the URL with the existing `urlSchema` before firing; show inline error on invalid input.
+- Show a status row under the input while/after testing: spinner → colored dot + one-line result (green reachable, amber reachable-but-not-MCP, red unreachable) with latency and, if available, the server's `name`/`version`.
+- Testing is independent of Save — user can test before saving.
 
 ## Out of scope
-- No changes to the MCP server code, tools, deployment, or database.
-- No changes to `/for-agents/docs`, `/for-agents/register`, or `.well-known/*` manifests.
+- No new database columns, no backend edge function, no auth changes.
+- No changes to the MCP server itself.
