@@ -767,7 +767,7 @@ export type Database = {
           credits_added: number
           environment: string
           id: string
-          stripe_session_id: string
+          paddle_transaction_id: string
           user_id: string
         }
         Insert: {
@@ -776,7 +776,7 @@ export type Database = {
           credits_added: number
           environment?: string
           id?: string
-          stripe_session_id: string
+          paddle_transaction_id: string
           user_id: string
         }
         Update: {
@@ -785,7 +785,7 @@ export type Database = {
           credits_added?: number
           environment?: string
           id?: string
-          stripe_session_id?: string
+          paddle_transaction_id?: string
           user_id?: string
         }
         Relationships: []
@@ -1227,11 +1227,11 @@ export type Database = {
           current_period_start: string | null
           environment: string
           id: string
+          paddle_customer_id: string
+          paddle_subscription_id: string
           price_id: string
           product_id: string
           status: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
           updated_at: string
           user_id: string
         }
@@ -1242,11 +1242,11 @@ export type Database = {
           current_period_start?: string | null
           environment?: string
           id?: string
+          paddle_customer_id: string
+          paddle_subscription_id: string
           price_id: string
           product_id: string
           status?: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
           updated_at?: string
           user_id: string
         }
@@ -1257,11 +1257,11 @@ export type Database = {
           current_period_start?: string | null
           environment?: string
           id?: string
+          paddle_customer_id?: string
+          paddle_subscription_id?: string
           price_id?: string
           product_id?: string
           status?: string
-          stripe_customer_id?: string
-          stripe_subscription_id?: string
           updated_at?: string
           user_id?: string
         }
