@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { Loader2, Save, Check, Copy, Network } from "lucide-react";
+import { Loader2, Save, Check, Copy, Network, Zap } from "lucide-react";
 import { toast as sonner } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PartnerShell } from "@/components/PartnerShell";
