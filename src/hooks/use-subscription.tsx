@@ -80,10 +80,9 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, [user, refresh]);
 
   const openPortal = useCallback(async () => {
-    const { data, error } = await supabase.functions.invoke("create-portal-session", {
+    const { data, error } = await supabase.functions.invoke("paddle-customer-portal", {
       body: {
-        environment: getStripeEnvironment(),
-        returnUrl: window.location.origin,
+        environment: getPaddleEnvironment(),
       },
     });
     if (error || !data?.url) {
