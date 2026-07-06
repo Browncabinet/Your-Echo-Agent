@@ -436,6 +436,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <TestimonialsMarquee />
+
       {/* FAQ */}
       <section className="border-t border-border/60 bg-card/30">
         <div className="container max-w-3xl mx-auto px-4 py-16">
