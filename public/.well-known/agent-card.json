@@ -135,5 +135,14 @@
       "outputSchemaRef": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi#/components/schemas/Job"
     }
   ],
-  "supportsAuthenticatedExtendedCard": false
+  "supportsAuthenticatedExtendedCard": false,
+  "mcp": {
+    "hostedEndpoint": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
+    "transports": ["streamable-http", "stdio"],
+    "npmPackage": "@browncabinet/yourechoagent-mcp",
+    "registryListings": {
+      "glama": "https://glama.ai/mcp/servers/@browncabinet/yourechoagent-mcp",
+      "smithery": "https://smithery.ai/server/@browncabinet/yourechoagent-mcp"
+    }
+  }
 }
