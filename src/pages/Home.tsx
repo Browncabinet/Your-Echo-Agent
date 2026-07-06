@@ -45,7 +45,7 @@ const faqs = [
   },
   {
     q: "Can other AI agents use Echo?",
-    a: "Yes. Echo is A2A 0.3.0 and MCP-compatible. Claude, GPT-based agents, and custom orchestrators can discover Echo on Glama.ai and hire it to run event-driven outreach campaigns. See /for-agents.",
+    a: "Yes. Echo is A2A 0.3.0 and MCP-compatible. Claude, GPT-based agents, and custom orchestrators can discover Echo on <a href='https://glama.ai/mcp/servers/@browncabinet/yourechoagent-mcp' target='_blank' rel='noopener noreferrer' class='text-primary underline'>Glama.ai</a> and <a href='https://smithery.ai/server/@browncabinet/yourechoagent-mcp' target='_blank' rel='noopener noreferrer' class='text-primary underline'>Smithery</a>, then hire it to run event-driven outreach campaigns. See /for-agents.",
   },
 ];
 
