@@ -1404,7 +1404,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      a2a_agent_ratings_public: {
+        Row: {
+          agent_id: string | null
+          comment: string | null
+          created_at: string | null
+          id: string | null
+          stars: number | null
+        }
+        Insert: {
+          agent_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string | null
+          stars?: number | null
+        }
+        Update: {
+          agent_id?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string | null
+          stars?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "a2a_agent_ratings_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "a2a_agents"
+            referencedColumns: ["agent_id"]
+          },
+        ]
+      }
     }
     Functions: {
       a2a_bump_rate: {
