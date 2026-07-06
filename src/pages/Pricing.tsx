@@ -656,23 +656,14 @@ export default function Pricing() {
         </Button>
       </div>
 
-      <Dialog open={!!selectedPriceId} onOpenChange={(o) => { if (!o) setSelectedPriceId(null); }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Start your plan</DialogTitle>
-            <DialogDescription>Secure checkout — cancel anytime from your dashboard.</DialogDescription>
-          </DialogHeader>
-          {selectedPriceId && user && (
-            <StripeEmbeddedCheckout
-              priceId={selectedPriceId}
-              customerEmail={user.email || undefined}
-              userId={user.id}
-              returnUrl={`${window.location.origin}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`}
-            />
-          )}
-          {!selectedPriceId && <Loader2 className="w-6 h-6 animate-spin mx-auto my-8 text-primary" />}
-        </DialogContent>
-      </Dialog>
+      {(selectedPriceId || checkoutLoading) && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 pointer-events-none">
+          <div className="bg-background border rounded-lg shadow-xl px-6 py-4 flex items-center gap-3 pointer-events-auto">
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            <span className="text-sm">Opening secure checkout…</span>
+          </div>
+        </div>
+      )}
       <TopupCheckoutDialog
         priceId={topupPriceId}
         onClose={() => setTopupPriceId(null)}
