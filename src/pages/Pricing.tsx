@@ -236,7 +236,7 @@ export default function Pricing() {
     }
   };
 
-  const onChoose = (priceId: string) => {
+  const onChoose = async (priceId: string) => {
     if (!user) {
       navigate("/auth");
       return;
@@ -246,6 +246,19 @@ export default function Pricing() {
       return;
     }
     setSelectedPriceId(priceId);
+    try {
+      await openCheckout({
+        priceId,
+        customerEmail: user.email || undefined,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/?checkout=success`,
+      });
+    } catch (e) {
+      console.error("Paddle checkout failed", e);
+      toast.error("Could not open checkout. Please try again.");
+    } finally {
+      setSelectedPriceId(null);
+    }
   };
 
   const onChoosePack = (priceId: PackId) => {
