@@ -1,9 +1,8 @@
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getStripe, getStripeEnvironment } from "@/lib/stripe";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -207,20 +206,13 @@ export default function PartnerBilling() {
         </div>
       )}
 
-      <Dialog open={!!checkoutPriceId} onOpenChange={(o) => !o && setCheckoutPriceId(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add credit</DialogTitle>
-          </DialogHeader>
-          {checkoutPriceId && partner && (
-            <PartnerCheckout
-              priceId={checkoutPriceId}
-              partnerId={partner.id}
-              customerEmail={partner.billing_email || user?.email || undefined}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* A2A credit checkout — opens Paddle overlay directly (no dialog UI) */}
+      <PartnerCheckoutTrigger
+        priceId={checkoutPriceId}
+        partnerId={partner?.id}
+        customerEmail={partner?.billing_email || user?.email || undefined}
+        onDone={() => setCheckoutPriceId(null)}
+      />
       <TopupCheckoutDialog
         priceId={emailTopupPriceId}
         onClose={() => setEmailTopupPriceId(null)}
@@ -233,27 +225,33 @@ export default function PartnerBilling() {
   );
 }
 
-function PartnerCheckout({ priceId, partnerId, customerEmail }: { priceId: string; partnerId: string; customerEmail?: string }) {
-  const fetchClientSecret = async (): Promise<string> => {
-    const { data, error } = await supabase.functions.invoke("create-checkout", {
-      body: {
-        priceId,
-        customerEmail,
-        returnUrl: `${window.location.origin}/for-agents/billing?topup=success`,
-        environment: getStripeEnvironment(),
-        metadata: { a2a_partner_id: partnerId },
-      },
+function PartnerCheckoutTrigger({
+  priceId,
+  partnerId,
+  customerEmail,
+  onDone,
+}: {
+  priceId: string | null;
+  partnerId?: string;
+  customerEmail?: string;
+  onDone: () => void;
+}) {
+  const { openCheckout } = usePaddleCheckout();
+  useEffect(() => {
+    if (!priceId || !partnerId) return;
+    openCheckout({
+      priceId,
+      customerEmail,
+      customData: { a2aPartnerId: partnerId },
+      successUrl: `${window.location.origin}/for-agents/billing?topup=success`,
+    }).catch((e) => {
+      console.error("Paddle checkout failed", e);
+      toast.error("Failed to open checkout");
     });
-    if (error || !data?.clientSecret) throw new Error(error?.message || "Failed to create checkout");
-    return data.clientSecret;
-  };
-  return (
-    <div id="checkout" className="min-h-[500px]">
-      <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
-    </div>
-  );
+    onDone();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceId, partnerId]);
+  return null;
 }
 
 function SpendingControls({ partner, onSaved }: { partner: Partner; onSaved: (p: Partner) => void }) {

@@ -24,6 +24,10 @@ const A2A_CREDIT_MAP: Record<string, number> = {
   topup_500: 1200,
   topup_1000: 2200,
   topup_2500: 4500,
+  a2a_credit_test_1_once: 100,
+  a2a_credit_25_once: 2500,
+  a2a_credit_100_once: 10000,
+  a2a_credit_500_once: 50000,
 };
 
 async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
