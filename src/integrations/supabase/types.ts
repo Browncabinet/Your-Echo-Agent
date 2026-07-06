@@ -1018,6 +1018,27 @@ export type Database = {
         }
         Relationships: []
       }
+      mcp_settings: {
+        Row: {
+          created_at: string
+          endpoint_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint_url?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pr_outreach_jobs: {
         Row: {
           a2a_api_key_id: string | null
