@@ -236,22 +236,24 @@ function PartnerCheckoutTrigger({
   customerEmail?: string;
   onDone: () => void;
 }) {
-  const { openCheckout } = usePaddleCheckout();
+  const { openCheckout, checkoutElement } = useStripeCheckout();
   useEffect(() => {
     if (!priceId || !partnerId) return;
-    openCheckout({
-      priceId,
-      customerEmail,
-      customData: { a2aPartnerId: partnerId },
-      successUrl: `${window.location.origin}/for-agents/billing?topup=success`,
-    }).catch((e) => {
-      console.error("Paddle checkout failed", e);
+    try {
+      openCheckout({
+        priceId,
+        customerEmail,
+        a2aPartnerId: partnerId,
+        returnUrl: `${window.location.origin}/for-agents/billing?topup=success`,
+      });
+    } catch (e) {
+      console.error("Stripe checkout failed", e);
       toast.error("Failed to open checkout");
-    });
+    }
     onDone();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceId, partnerId]);
-  return null;
+  return <>{checkoutElement}</>;
 }
 
 function SpendingControls({ partner, onSaved }: { partner: Partner; onSaved: (p: Partner) => void }) {
