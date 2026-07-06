@@ -28,6 +28,7 @@ import A2ASimulator from "./pages/A2ASimulator.tsx";
 import Discover from "./pages/Discover.tsx";
 import MyRadar from "./pages/MyRadar.tsx";
 import Home from "./pages/Home.tsx";
+import SettingsMcp from "./pages/SettingsMcp.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
