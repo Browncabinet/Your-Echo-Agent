@@ -11,7 +11,7 @@ export function PaymentTestModeBanner() {
   if (clientToken.startsWith("pk_test_")) {
     return (
       <div className="w-full bg-orange-100 border-b border-orange-300 px-4 py-2 text-center text-sm text-orange-800">
-        All payments made in the preview are in test mode.{" "}
+        Preview checkout is in test mode, so real bank cards will be declined. Use test card 4242 4242 4242 4242 with any future expiry and CVC.{" "}
         <a
           href="https://docs.lovable.dev/features/payments#test-and-live-environments"
           target="_blank"
