@@ -204,6 +204,7 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { openPortal, isActive } = useSubscription();
+  const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
   const [topupPriceId, setTopupPriceId] = useState<PackId | null>(null);
   const [showStickyCta, setShowStickyCta] = useState(false);
