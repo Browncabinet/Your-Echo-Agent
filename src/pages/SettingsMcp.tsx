@@ -262,22 +262,72 @@ export default function SettingsMcp() {
                 )}
               </div>
 
+              {testResult && (
+                <div className="mt-4 flex items-start gap-2 rounded-lg border border-white/[0.06] bg-black/30 p-3 text-xs">
+                  <span
+                    className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
+                      testResult.kind === "ok"
+                        ? "bg-emerald-400"
+                        : testResult.kind === "warn"
+                        ? "bg-amber-400"
+                        : "bg-red-400"
+                    }`}
+                  />
+                  <div className="text-zinc-300">
+                    {testResult.kind === "ok" && (
+                      <>
+                        Reachable · {testResult.latencyMs}ms
+                        {testResult.serverName ? ` · ${testResult.serverName}` : ""}
+                        {testResult.protocolVersion
+                          ? ` · MCP ${testResult.protocolVersion}`
+                          : ""}
+                      </>
+                    )}
+                    {testResult.kind === "warn" && (
+                      <>
+                        {testResult.detail} · {testResult.latencyMs}ms
+                      </>
+                    )}
+                    {testResult.kind === "fail" && <>Unreachable · {testResult.detail}</>}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-5 flex items-center justify-between gap-3">
                 <p className="text-[11px] text-zinc-500 font-mono">
                   {savedUrl ? "Saved" : "Not saved yet"}
                 </p>
-                <Button onClick={save} disabled={saving}>
-                  {saving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                      Saving…
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-1.5" /> Save endpoint
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={testConnection}
+                    disabled={testing || !url.trim()}
+                  >
+                    {testing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                        Testing…
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-1.5" /> Test connection
+                      </>
+                    )}
+                  </Button>
+                  <Button onClick={save} disabled={saving}>
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                        Saving…
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-1.5" /> Save endpoint
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </>
           )}
