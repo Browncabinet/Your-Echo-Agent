@@ -23,7 +23,8 @@ import { Footer } from "@/components/Footer";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
-import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { toast } from "sonner";
 
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
 import {
