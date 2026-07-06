@@ -14,6 +14,7 @@ import Pricing from "./pages/Pricing.tsx";
 import About from "./pages/About.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import Terms from "./pages/Terms.tsx";
+import Refund from "./pages/Refund.tsx";
 import AcceptableUse from "./pages/AcceptableUse.tsx";
 import ForAgents from "./pages/ForAgents.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/refund" element={<Refund />} />
                 <Route path="/acceptable-use" element={<AcceptableUse />} />
                 <Route path="/for-agents" element={<ForAgents />} />
                 <Route path="/for-agents/signup" element={<PartnerSignup />} />
