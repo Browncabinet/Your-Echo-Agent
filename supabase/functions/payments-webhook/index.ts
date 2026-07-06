@@ -1,209 +1,192 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { type StripeEnv, verifyWebhook, createStripeClient } from "../_shared/stripe.ts";
+import { createClient } from 'npm:@supabase/supabase-js@2';
+import { verifyWebhook, EventName, type PaddleEnv } from '../_shared/paddle.ts';
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-);
+let _supabase: ReturnType<typeof createClient> | null = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
+  }
+  return _supabase;
+}
 
-// One-time email top-up packs and legacy credit packs.
-// Maps Stripe price lookup_key -> number of emails to grant.
-const CREDIT_MAP: Record<string, number> = {
-  // Current top-up packs (shown on Landing)
+// One-time email top-up packs: price_id -> emails granted
+const TOPUP_MAP: Record<string, number> = {
   topup_500: 500,
   topup_1000: 1000,
   topup_2500: 2500,
-  // Legacy one-time credit packs (kept so prior purchases still resolve)
-  credits_250_onetime: 250,
-  credits_500_onetime: 500,
-  credits_600_onetime: 600,
-  credits_1500_onetime: 1500,
-  credits_1800_onetime: 1800,
-  credits_4000_onetime: 4000,
-  credits_9000_onetime: 9000,
 };
 
-serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
+// A2A partner credit map: price_id -> cents added to partner balance
+const A2A_CREDIT_MAP: Record<string, number> = {
+  topup_500: 1200,
+  topup_1000: 2200,
+  topup_2500: 4500,
+};
 
-  const url = new URL(req.url);
-  const rawEnv = url.searchParams.get("env");
-  if (rawEnv !== "sandbox" && rawEnv !== "live") {
-    return new Response(JSON.stringify({ received: true, ignored: "invalid env" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  const env: StripeEnv = rawEnv;
-
-  try {
-    const event = await verifyWebhook(req, env);
-    console.log("Received event:", event.type, "env:", env);
-
-    switch (event.type) {
-      case "customer.subscription.created": {
-        const sub = event.data.object;
-        await upsertSubscription(sub, env);
-        const userId = sub.metadata?.userId;
-        if (userId && sub.status === "active") {
-          await supabase.from("analytics_events").insert({
-            user_id: userId,
-            event_name: "subscription_started",
-            properties: { price_id: sub.items?.data?.[0]?.price?.id, environment: env },
-          });
-        }
-        break;
-      }
-      case "customer.subscription.updated":
-        await upsertSubscription(event.data.object, env);
-        break;
-      case "customer.subscription.deleted":
-        await markCanceled(event.data.object, env);
-        break;
-      case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object, env);
-        break;
-      default:
-        console.log("Unhandled event:", event.type);
-    }
-
-    return new Response(JSON.stringify({ received: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (e) {
-    console.error("Webhook error:", e);
-    return new Response("Webhook error", { status: 400 });
-  }
-});
-
-async function upsertSubscription(subscription: any, env: StripeEnv) {
-  const userId = subscription.metadata?.userId;
+async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
+  const { id, customerId, items, status, currentBillingPeriod, customData } = data;
+  const userId = customData?.userId;
   if (!userId) {
-    console.error("No userId in subscription metadata");
+    console.error('subscription.created: missing customData.userId');
     return;
   }
-  const item = subscription.items?.data?.[0];
-  const priceId = item?.price?.lookup_key
-    || item?.price?.metadata?.lovable_external_id
-    || item?.price?.id;
-  const productId = item?.price?.product;
-  const periodStart = item?.current_period_start ?? subscription.current_period_start;
-  const periodEnd = item?.current_period_end ?? subscription.current_period_end;
+  const item = items?.[0];
+  const priceId = item?.price?.importMeta?.externalId;
+  const productId = item?.product?.importMeta?.externalId;
+  if (!priceId || !productId) {
+    console.warn('Skipping subscription: missing importMeta.externalId', { rawPriceId: item?.price?.id });
+    return;
+  }
+  await getSupabase().from('subscriptions').upsert({
+    user_id: userId,
+    paddle_subscription_id: id,
+    paddle_customer_id: customerId,
+    product_id: productId,
+    price_id: priceId,
+    status,
+    current_period_start: currentBillingPeriod?.startsAt,
+    current_period_end: currentBillingPeriod?.endsAt,
+    environment: env,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'paddle_subscription_id' });
 
-  await supabase.from("subscriptions").upsert(
-    {
+  if (status === 'active' || status === 'trialing') {
+    await getSupabase().from('analytics_events').insert({
       user_id: userId,
-      stripe_subscription_id: subscription.id,
-      stripe_customer_id: subscription.customer,
-      product_id: typeof productId === "string" ? productId : productId?.id || "",
-      price_id: priceId,
-      status: subscription.status,
-      current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
-      current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
-      cancel_at_period_end: subscription.cancel_at_period_end || false,
-      environment: env,
+      event_name: 'subscription_started',
+      properties: { price_id: priceId, environment: env },
+    });
+  }
+}
+
+async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
+  const { id, status, currentBillingPeriod, scheduledChange } = data;
+  await getSupabase().from('subscriptions')
+    .update({
+      status,
+      current_period_start: currentBillingPeriod?.startsAt,
+      current_period_end: currentBillingPeriod?.endsAt,
+      cancel_at_period_end: scheduledChange?.action === 'cancel',
       updated_at: new Date().toISOString(),
-    },
-    { onConflict: "stripe_subscription_id" }
-  );
+    })
+    .eq('paddle_subscription_id', id)
+    .eq('environment', env);
 }
 
-async function markCanceled(subscription: any, env: StripeEnv) {
-  await supabase
-    .from("subscriptions")
-    .update({ status: "canceled", updated_at: new Date().toISOString() })
-    .eq("stripe_subscription_id", subscription.id)
-    .eq("environment", env);
+async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
+  await getSupabase().from('subscriptions')
+    .update({ status: 'canceled', updated_at: new Date().toISOString() })
+    .eq('paddle_subscription_id', data.id)
+    .eq('environment', env);
 }
 
-// Maps a2a credit price lookup_keys to amounts in cents
-const A2A_CREDIT_MAP: Record<string, number> = {
-  a2a_credit_test_1_once: 100,
-  a2a_credit_25_once: 2500,
-  a2a_credit_100_once: 10000,
-  a2a_credit_500_once: 50000,
-  // Email top-up SKUs are dual-purpose: when purchased with a2a_partner_id metadata,
-  // they credit the partner's balance_cents at the pack's dollar price.
-  topup_500: 1200,   // $12
-  topup_1000: 2200,  // $22
-  topup_2500: 4500,  // $45
-};
+async function handleTransactionCompleted(data: any, env: PaddleEnv) {
+  // Only handle one-time purchases (no subscription attached).
+  if (data.subscriptionId) return;
 
-async function handleCheckoutCompleted(session: any, env: StripeEnv) {
-  // Subscriptions are handled by customer.subscription.* events.
-  if (session.mode !== "payment") return;
+  const customData = data.customData || {};
+  const userId = customData.userId;
+  const a2aPartnerId = customData.a2aPartnerId;
+  const supabase = getSupabase();
+  const items: any[] = data.items || [];
 
-  const stripe = createStripeClient(env);
-  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price'] });
-
-  // A2A partner credit purchase
-  const partnerId = session.metadata?.a2a_partner_id;
-  if (partnerId) {
+  // A2A partner top-up
+  if (a2aPartnerId) {
     let creditCents = 0;
-    for (const item of lineItems.data) {
-      const lookupKey = (item.price as any)?.lookup_key;
-      if (lookupKey && A2A_CREDIT_MAP[lookupKey]) {
-        creditCents += A2A_CREDIT_MAP[lookupKey] * (item.quantity || 1);
+    for (const item of items) {
+      const priceId = item.price?.importMeta?.externalId;
+      if (priceId && A2A_CREDIT_MAP[priceId]) {
+        creditCents += A2A_CREDIT_MAP[priceId] * (item.quantity || 1);
       }
     }
     if (creditCents === 0) return;
-
     const { data: partner } = await supabase
-      .from("a2a_partners").select("balance_cents").eq("id", partnerId).maybeSingle();
+      .from('a2a_partners').select('balance_cents').eq('id', a2aPartnerId).maybeSingle();
     if (!partner) return;
-    await supabase.from("a2a_partners").update({
+    await supabase.from('a2a_partners').update({
       balance_cents: (partner.balance_cents || 0) + creditCents,
       updated_at: new Date().toISOString(),
-    }).eq("id", partnerId);
-    console.log("A2A partner credited", partnerId, creditCents);
+    }).eq('id', a2aPartnerId);
     return;
   }
 
-  // Legacy app credit purchase
-  const userId = session.metadata?.userId;
+  // User top-up
   if (!userId) return;
-
-  let creditsToAdd = 0;
-  for (const item of lineItems.data) {
-    const lookupKey = (item.price as any)?.lookup_key;
-    if (lookupKey && CREDIT_MAP[lookupKey]) {
-      creditsToAdd += CREDIT_MAP[lookupKey] * (item.quantity || 1);
+  let emailsToAdd = 0;
+  for (const item of items) {
+    const priceId = item.price?.importMeta?.externalId;
+    if (priceId && TOPUP_MAP[priceId]) {
+      emailsToAdd += TOPUP_MAP[priceId] * (item.quantity || 1);
     }
   }
-  if (creditsToAdd === 0) return;
+  if (emailsToAdd === 0) return;
 
-  await supabase.from("credit_purchases").upsert(
-    {
-      user_id: userId,
-      stripe_session_id: session.id,
-      credits_added: creditsToAdd,
-      amount_cents: session.amount_total || 0,
-      environment: env,
-    },
-    { onConflict: "stripe_session_id" }
-  );
+  const totalCents = Number(data.details?.totals?.total || 0);
+  await supabase.from('credit_purchases').upsert({
+    user_id: userId,
+    paddle_transaction_id: data.id,
+    credits_added: emailsToAdd,
+    amount_cents: totalCents,
+    environment: env,
+  }, { onConflict: 'paddle_transaction_id' });
 
   const { data: existing } = await supabase
-    .from("user_credits")
-    .select("balance, total_purchased")
-    .eq("user_id", userId)
+    .from('user_credits')
+    .select('balance, total_purchased')
+    .eq('user_id', userId)
     .maybeSingle();
 
   if (existing) {
-    await supabase.from("user_credits").update({
-      balance: existing.balance + creditsToAdd,
-      total_purchased: existing.total_purchased + creditsToAdd,
+    await supabase.from('user_credits').update({
+      balance: (existing.balance || 0) + emailsToAdd,
+      total_purchased: (existing.total_purchased || 0) + emailsToAdd,
       updated_at: new Date().toISOString(),
-    }).eq("user_id", userId);
+    }).eq('user_id', userId);
   } else {
-    await supabase.from("user_credits").insert({
+    await supabase.from('user_credits').insert({
       user_id: userId,
-      balance: creditsToAdd,
-      total_purchased: creditsToAdd,
+      balance: emailsToAdd,
+      total_purchased: emailsToAdd,
     });
   }
 }
+
+async function handleWebhook(req: Request, env: PaddleEnv) {
+  const event = await verifyWebhook(req, env);
+  console.log('Paddle event:', event.eventType, 'env:', env);
+  switch (event.eventType) {
+    case EventName.SubscriptionCreated:
+      await handleSubscriptionCreated(event.data, env);
+      break;
+    case EventName.SubscriptionUpdated:
+      await handleSubscriptionUpdated(event.data, env);
+      break;
+    case EventName.SubscriptionCanceled:
+      await handleSubscriptionCanceled(event.data, env);
+      break;
+    case EventName.TransactionCompleted:
+      await handleTransactionCompleted(event.data, env);
+      break;
+    default:
+      console.log('Unhandled event:', event.eventType);
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+  const url = new URL(req.url);
+  const env = (url.searchParams.get('env') || 'sandbox') as PaddleEnv;
+  try {
+    await handleWebhook(req, env);
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    console.error('Webhook error:', e);
+    return new Response('Webhook error', { status: 400 });
+  }
+});
