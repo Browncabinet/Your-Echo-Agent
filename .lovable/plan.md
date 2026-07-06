@@ -1,21 +1,20 @@
-## Plan
+## Why real cards are declined
 
-1. **Fix the checkout session setup**
-   - Update the checkout function so card payments are explicitly enabled for every embedded Stripe checkout session.
-   - Keep the existing embedded checkout flow, price lookup keys, return URL behavior, and user/partner metadata intact.
+The Lovable preview always runs Stripe's **test environment** — real bank cards are declined by design. Your live keys and go-live are already complete, so real cards will work on your published site (`yourechoagent.com`), just not in the preview.
 
-2. **Make card declines easier to diagnose**
-   - Add safe server-side logging around checkout session creation: environment, price lookup key, mode, and payment method setup status.
-   - Do not log card details, secrets, tokens, or customer-sensitive payment data.
+## What to do in preview
 
-3. **Verify the payment path**
-   - Test session creation for the current A2A top-up price on the billing page.
-   - Confirm the returned embedded checkout session is created successfully in sandbox.
-   - If a real card is still declined after this, the next likely cause is payment-provider risk/compliance blocking rather than app code, but this change ensures the app is creating sessions with card support correctly.
+Use any Stripe test card at checkout:
 
-## Technical details
+- **Success**: `4242 4242 4242 4242`
+- **Decline (to test failure UX)**: `4000 0000 0000 0002`
+- **3D Secure**: `4000 0025 0000 3155`
+- Any future expiry (e.g. `12/34`), any 3-digit CVC, any ZIP.
 
-- Change `supabase/functions/create-checkout/index.ts` only.
-- Add `payment_method_types: ["card"]` to `stripe.checkout.sessions.create(...)`.
-- Preserve `ui_mode: "embedded_page"` and `payment_intent_data.description` for one-time payments.
-- Re-deploy/test the `create-checkout` function after the code change.
+## Small UI change
+
+Update the orange preview banner to make this obvious so you (and any teammate) don't try a real card again:
+
+> "Preview checkout is in test mode, so real bank cards will be declined. Use test card `4242 4242 4242 4242`, any future expiry and CVC."
+
+No changes to checkout logic, keys, or edge functions — only the banner copy.
