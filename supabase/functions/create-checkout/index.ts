@@ -88,6 +88,7 @@ Deno.serve(async (req) => {
       line_items: [{ price: stripePrice.id, quantity: quantity || 1 }],
       mode: isRecurring ? "subscription" : "payment",
       ui_mode: "embedded_page",
+      payment_method_types: ["card"],
       return_url: returnUrl || `${new URL(req.url).origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       ...(customerId && { customer: customerId }),
       ...(!isRecurring && productDescription && { payment_intent_data: { description: productDescription } }),
@@ -95,6 +96,13 @@ Deno.serve(async (req) => {
         metadata,
         ...(isRecurring && { subscription_data: { metadata } }),
       }),
+    });
+
+    console.log("create-checkout session created", {
+      env,
+      priceId,
+      mode: isRecurring ? "subscription" : "payment",
+      paymentMethodTypes: ["card"],
     });
 
     return new Response(JSON.stringify({ clientSecret: session.client_secret }), { headers: corsHeaders });
