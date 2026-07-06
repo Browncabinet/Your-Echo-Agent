@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 
 interface TopupCheckoutDialogProps {
   priceId: string | null;
@@ -13,8 +13,8 @@ interface TopupCheckoutDialogProps {
 }
 
 /**
- * Opens Paddle overlay checkout. Renders no dialog UI of its own — Paddle
- * shows the checkout as an overlay. Calls onClose after firing checkout.
+ * Opens Stripe embedded checkout in a modal. Renders the checkout element
+ * itself. Calls onClose after firing checkout so parent state can reset.
  */
 export function TopupCheckoutDialog({
   priceId,
@@ -25,38 +25,31 @@ export function TopupCheckoutDialog({
   returnPath,
 }: TopupCheckoutDialogProps) {
   const { user } = useAuth();
-  const { openCheckout } = usePaddleCheckout();
-  const openedFor = useRef<string | null>(null);
+  const { openCheckout, isOpen, closeCheckout, checkoutElement } = useStripeCheckout();
 
   useEffect(() => {
-    if (!priceId) {
-      openedFor.current = null;
-      return;
-    }
-    if (openedFor.current === priceId) return;
-    openedFor.current = priceId;
-
-    const customData: Record<string, string> = {};
-    if (mode === "user" && user?.id) customData.userId = user.id;
-    if (mode === "a2a_partner" && a2aPartnerId) customData.a2aPartnerId = a2aPartnerId;
-    if (user?.id) customData.userId = user.id;
-
-    const successUrl = returnPath
-      ? `${window.location.origin}${returnPath.replace(/\{CHECKOUT_SESSION_ID\}/g, "")}`
-      : `${window.location.origin}/?topup=success`;
+    if (!priceId) return;
+    const returnUrl = returnPath
+      ? `${window.location.origin}${returnPath}`
+      : `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`;
 
     openCheckout({
       priceId,
       customerEmail: customerEmail || user?.email || undefined,
-      customData,
-      successUrl,
-    }).catch((e) => {
-      console.error("Paddle checkout failed", e);
+      userId: mode === "user" ? user?.id : undefined,
+      a2aPartnerId: mode === "a2a_partner" ? a2aPartnerId : undefined,
+      returnUrl,
     });
-    // Notify parent so its local state can reset — Paddle owns the UI now.
     onClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceId]);
 
-  return null;
+  // Close side-effect: when checkout dialog closes, ensure parent resets.
+  useEffect(() => {
+    if (!isOpen && priceId) {
+      // no-op — parent already cleared via onClose above
+    }
+  }, [isOpen, priceId]);
+
+  return <>{checkoutElement}</>;
 }

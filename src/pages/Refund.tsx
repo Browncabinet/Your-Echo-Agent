@@ -10,7 +10,7 @@ export default function Refund() {
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Refund Policy — Your Echo Agent"
-        description="30-day money-back guarantee. Refunds are processed by our Merchant of Record, Paddle, via paddle.net."
+        description="30-day money-back guarantee on subscriptions and one-time email top-up packs."
         path="/refund"
       />
 
@@ -40,28 +40,24 @@ export default function Refund() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">How to Request a Refund</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Refunds are processed by our reseller and Merchant of Record, <strong className="text-foreground">Paddle</strong>. To request a refund:
+              Email us at <a href="mailto:support@yourechoagent.com" className="text-primary hover:underline">support@yourechoagent.com</a> with your order confirmation or the email address you used at checkout. We typically respond within 1–2 business days.
             </p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Visit <a href="https://paddle.net" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">paddle.net</a> and enter the email you used at checkout, or</li>
-              <li>Email us at <a href="mailto:support@yourechoagent.com" className="text-primary hover:underline">support@yourechoagent.com</a> with your order ID and we'll help you through the process.</li>
-            </ul>
             <p className="text-muted-foreground leading-relaxed">
-              Approved refunds are returned to the original payment method. Timing depends on your bank or card issuer — typically 5–10 business days.
+              Approved refunds are returned to the original payment method via our payment processor, Stripe. Timing depends on your bank or card issuer — typically 5–10 business days.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Cancellations</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You can cancel a subscription at any time via the customer portal linked from your account, or via paddle.net. When you cancel, your subscription will remain active until the end of the current billing period and then stop renewing.
+              You can cancel a subscription at any time from your account's billing page. When you cancel, your subscription remains active until the end of the current billing period and then stops renewing. You will not be charged again.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">After the 30-Day Window</h2>
             <p className="text-muted-foreground leading-relaxed">
-              After 30 days, refunds are handled at Paddle's discretion in line with <a href="https://www.paddle.com/legal/refund-policy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Paddle's Refund Policy</a>. If you experience a billing error or a technical issue that prevented you from using the service, contact us — we'll do our best to make it right.
+              After 30 days, refunds are considered on a case-by-case basis. If you experience a billing error or a technical issue that prevented you from using the service, contact us — we'll do our best to make it right.
             </p>
           </section>
 

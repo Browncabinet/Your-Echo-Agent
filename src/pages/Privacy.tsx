@@ -42,7 +42,7 @@ export default function Privacy() {
             <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Account information:</strong> Name, email address, profile photo, and Google account identifier when you sign in with Google.</p>
             <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Campaign data:</strong> Websites you scrape, leads you discover, emails you write and send, and campaign performance metrics (opens, clicks, replies).</p>
             <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Email settings:</strong> If you connect Gmail via SMTP, we store your sending address, SMTP credentials (encrypted), and sending preferences.</p>
-            <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Order & billing data:</strong> Payments are processed by our reseller Paddle (see "Data Sharing" below). We receive and store transaction records — order ID, plan or top-up purchased, amount, currency, subscription status, and the Paddle customer ID — but we do <strong className="text-foreground">not</strong> receive or store your full card number, CVC, or bank details. Those are collected and held by Paddle.</p>
+            <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Order & billing data:</strong> Payments are processed by Stripe (see "Data Sharing" below). We receive and store transaction records — order ID, plan or top-up purchased, amount, currency, subscription status, and a Stripe customer ID — but we do <strong className="text-foreground">not</strong> receive or store your full card number, CVC, or bank details. Those are collected and held by Stripe.</p>
             <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Support communications:</strong> Any messages you send us and our responses.</p>
             <p className="text-muted-foreground leading-relaxed"><strong className="text-foreground">Usage & device data:</strong> IP address, device/browser type, pages visited, and feature usage, collected via essential cookies and server logs.</p>
           </section>
@@ -66,7 +66,7 @@ export default function Privacy() {
               We do <strong className="text-foreground">not</strong> sell your personal data. We share information only with the following categories of recipients:
             </p>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li><strong className="text-foreground">Paddle.com Market Ltd. (Merchant of Record)</strong> — processes all payments, subscriptions, invoicing, sales-tax compliance, chargebacks, and refunds. Paddle appears as the merchant on your card statement. See <a href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Paddle's Privacy Notice</a>.</li>
+              <li><strong className="text-foreground">Stripe Payments Europe, Ltd. / Stripe, Inc.</strong> — processes card payments, subscription billing, invoicing, and refunds on our behalf. See <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Stripe's Privacy Policy</a>.</li>
               <li><strong className="text-foreground">Hosting and infrastructure providers</strong> — for application hosting, database, edge functions, and storage.</li>
               <li><strong className="text-foreground">Google</strong> — for authentication when you choose Google sign-in.</li>
               <li><strong className="text-foreground">AI model providers</strong> — to generate personalized email drafts. Prompts may include lead context you provide; we do not send full contact lists for model training.</li>
@@ -78,7 +78,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">International Transfers</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Some of our service providers (including Paddle and our hosting/AI providers) may process data outside your country of residence, including in the United States. Where personal data is transferred out of the UK or EEA, we rely on appropriate safeguards such as the European Commission's Standard Contractual Clauses or adequacy decisions.
+              Some of our service providers (including Stripe and our hosting/AI providers) may process data outside your country of residence, including in the United States. Where personal data is transferred out of the UK or EEA, we rely on appropriate safeguards such as the European Commission's Standard Contractual Clauses or adequacy decisions.
             </p>
           </section>
 

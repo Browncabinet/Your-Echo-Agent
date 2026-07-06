@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, createContext, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { getPaddleEnvironment } from "@/lib/paddle";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 export type WeeklyCaps = {
   tier: "none" | "starter" | "growth" | "power";
@@ -80,9 +80,10 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, [user, refresh]);
 
   const openPortal = useCallback(async () => {
-    const { data, error } = await supabase.functions.invoke("paddle-customer-portal", {
+    const { data, error } = await supabase.functions.invoke("create-portal-session", {
       body: {
-        environment: getPaddleEnvironment(),
+        environment: getStripeEnvironment(),
+        returnUrl: `${window.location.origin}/for-agents/billing`,
       },
     });
     if (error || !data?.url) {
