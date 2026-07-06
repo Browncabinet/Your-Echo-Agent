@@ -55,9 +55,18 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
-        title="Your Echo Agent — AI event discovery + outreach for conferences, webinars & communities"
-        description="Discover conferences, webinars, podcasts, and communities in your niche. AI drafts personalized outreach and triages every reply. No LinkedIn scraping. 50 free emails."
+        title="Echo Agent — AI event discovery & outreach"
+        description="Find conferences, webinars, podcasts and communities in your niche. AI drafts outreach and triages replies. 50 free emails."
         path="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }}
       />
 
       {/* Top nav */}

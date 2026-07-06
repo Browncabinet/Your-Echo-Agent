@@ -31,6 +31,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://yourechoagent.com/for-agents/signup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://yourechoagent.com/for-agents/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://yourechoagent.com/for-agents/register</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -42,6 +52,11 @@
   </url>
   <url>
     <loc>https://yourechoagent.com/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://yourechoagent.com/refund</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

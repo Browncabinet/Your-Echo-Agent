@@ -280,7 +280,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Pricing — Your Echo Agent | 3-day free trial, no credit card"
-        description="Start a 3-day full trial of Your Echo Agent — no credit card required. Then choose a weekly plan from $19 or a one-time email pack from $12. Cancel anytime."
+        description="Start a 3-day free trial of Echo Agent — no card required. Weekly plans from $19 or one-time email packs from $12. Cancel anytime."
         path="/pricing"
         jsonLd={faqJsonLd}
       />
