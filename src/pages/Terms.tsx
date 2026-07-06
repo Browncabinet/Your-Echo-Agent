@@ -10,7 +10,7 @@ export default function Terms() {
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Terms of Service — Your Echo Agent"
-        description="Terms governing the use of Your Echo Agent, operated by Natasha Ulrich. Covers acceptable use, subscriptions, and Paddle as Merchant of Record."
+        description="Terms governing the use of Your Echo Agent, operated by Natasha Ulrich. Covers acceptable use, subscriptions, and billing."
         path="/terms"
       />
 
@@ -55,15 +55,15 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground">Payments, Subscriptions & Merchant of Record</h2>
+            <h2 className="text-xl font-semibold text-foreground">Payments, Subscriptions & Billing</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Our order process is conducted by our online reseller <strong className="text-foreground">Paddle.com</strong>. <strong className="text-foreground">Paddle.com is the Merchant of Record</strong> for all our orders. Paddle provides all customer service inquiries and handles returns. Paddle will appear as the seller on your invoice and bank statement.
+              Payments are processed on our behalf by <strong className="text-foreground">Stripe</strong>, a PCI-DSS Level 1 payment processor. Natasha Ulrich, trading as Your Echo Agent, remains the seller of record for your purchase. Card details are collected and stored by Stripe; we never see or store your full card number.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              Subscription plans (currently weekly) renew automatically at the end of each billing period until you cancel. One-time top-up packs are billed once and add non-expiring email credits to your balance. Applicable taxes are calculated and collected by Paddle based on your billing location.
+              Subscription plans (currently weekly) renew automatically at the end of each billing period until you cancel. One-time top-up packs are billed once and add non-expiring email credits to your balance. Prices are in US dollars unless otherwise stated. You are responsible for any applicable taxes based on your jurisdiction, except where we are required to collect them.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              Full payment, billing, tax, cancellation and refund mechanics are governed by <a href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Paddle's Checkout Buyer Terms</a>. See our <Link to="/refund" className="text-primary hover:underline">Refund Policy</Link> for our money-back guarantee.
+              You can update payment methods, download invoices, and cancel subscriptions from the billing page inside your account. See our <Link to="/refund" className="text-primary hover:underline">Refund Policy</Link> for our 30-day money-back guarantee.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function Terms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground">Suspension & Termination</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We may suspend or terminate your access if you materially breach these Terms or the Acceptable Use Policy, fail to pay, pose a security or fraud risk, or repeatedly or seriously violate policy. You may cancel your subscription at any time via the customer portal or by contacting Paddle at <a href="https://paddle.net" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">paddle.net</a>. On termination, your right to use the service ends; you may request an export of your data within 30 days, after which it may be deleted.
+              We may suspend or terminate your access if you materially breach these Terms or the Acceptable Use Policy, fail to pay, pose a security or fraud risk, or repeatedly or seriously violate policy. You may cancel your subscription at any time from the billing page in your account. On termination, your right to use the service ends; you may request an export of your data within 30 days, after which it may be deleted.
             </p>
           </section>
 
