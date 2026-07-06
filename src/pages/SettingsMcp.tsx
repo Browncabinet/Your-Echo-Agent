@@ -28,6 +28,105 @@ export default function SettingsMcp() {
   const [savedUrl, setSavedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [testing, setTesting] = useState(false);
+  type TestResult =
+    | { kind: "ok"; latencyMs: number; serverName?: string; protocolVersion?: string }
+    | { kind: "warn"; latencyMs: number; detail: string }
+    | { kind: "fail"; detail: string };
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
+
+  const parseMaybeSse = async (res: Response): Promise<any> => {
+    const ct = res.headers.get("content-type") ?? "";
+    const text = await res.text();
+    if (ct.includes("text/event-stream")) {
+      const line = text.split("\n").find((l) => l.startsWith("data:"));
+      if (!line) throw new Error("empty SSE stream");
+      return JSON.parse(line.slice(5).trim());
+    }
+    return JSON.parse(text);
+  };
+
+  const testConnection = async () => {
+    setError(null);
+    const parsed = urlSchema.safeParse(url);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Invalid URL");
+      return;
+    }
+    setTesting(true);
+    setTestResult(null);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const start = performance.now();
+    try {
+      const res = await fetch(parsed.data, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json, text/event-stream",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "initialize",
+          params: {
+            protocolVersion: "2025-06-18",
+            capabilities: {},
+            clientInfo: { name: "echo-settings-test", version: "1.0.0" },
+          },
+        }),
+      });
+      const latencyMs = Math.round(performance.now() - start);
+      if (!res.ok) {
+        setTestResult({ kind: "fail", detail: `HTTP ${res.status} ${res.statusText}` });
+        return;
+      }
+      let body: any;
+      try {
+        body = await parseMaybeSse(res);
+      } catch (e) {
+        setTestResult({
+          kind: "warn",
+          latencyMs,
+          detail: "Reachable, but response is not valid MCP JSON-RPC",
+        });
+        return;
+      }
+      if (body?.error) {
+        setTestResult({
+          kind: "warn",
+          latencyMs,
+          detail: `JSON-RPC error: ${body.error.message ?? "unknown"}`,
+        });
+        return;
+      }
+      if (body?.result) {
+        setTestResult({
+          kind: "ok",
+          latencyMs,
+          serverName: body.result?.serverInfo?.name,
+          protocolVersion: body.result?.protocolVersion,
+        });
+        return;
+      }
+      setTestResult({
+        kind: "warn",
+        latencyMs,
+        detail: "Reachable, but not an MCP initialize response",
+      });
+    } catch (e) {
+      const err = e as Error;
+      const detail =
+        err.name === "AbortError"
+          ? "Timed out after 8s"
+          : `Network error: ${err.message}`;
+      setTestResult({ kind: "fail", detail });
+    } finally {
+      clearTimeout(timer);
+      setTesting(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
