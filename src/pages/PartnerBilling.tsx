@@ -206,7 +206,7 @@ export default function PartnerBilling() {
         </div>
       )}
 
-      {/* A2A credit checkout — opens Paddle overlay directly (no dialog UI) */}
+      {/* A2A credit checkout — opens Stripe embedded checkout modal */}
       <PartnerCheckoutTrigger
         priceId={checkoutPriceId}
         partnerId={partner?.id}
