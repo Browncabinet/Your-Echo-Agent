@@ -1,40 +1,37 @@
 import { encode } from "https://deno.land/std@0.168.0/encoding/hex.ts";
+import Stripe from "https://esm.sh/stripe@22.0.2";
 
 export type StripeEnv = 'sandbox' | 'live';
 
-export function getConnectionApiKey(env: StripeEnv): string {
-  const key = env === 'sandbox'
-    ? Deno.env.get('STRIPE_SANDBOX_API_KEY')
-    : (Deno.env.get('STRIPE_LIVE_SECRET_KEY') ?? Deno.env.get('STRIPE_LIVE_API_KEY'));
-  if (!key) throw new Error(`STRIPE_${env.toUpperCase()}_API_KEY is not configured`);
-  return key;
-}
-
-import Stripe from "https://esm.sh/stripe@18.5.0";
+const getEnv = (key: string): string => {
+  const value = Deno.env.get(key);
+  if (!value) throw new Error(`${key} is not configured`);
+  return value;
+};
 
 const GATEWAY_STRIPE_BASE = 'https://connector-gateway.lovable.dev/stripe';
 
-export function createStripeClient(env: StripeEnv): Stripe {
-  // BYOK live: use the user's own Stripe secret key directly when present.
-  if (env === 'live') {
-    const liveKey = Deno.env.get('STRIPE_LIVE_SECRET_KEY');
-    if (liveKey && liveKey.startsWith('sk_')) {
-      return new Stripe(liveKey, { apiVersion: '2024-06-20' as any });
-    }
-  }
+export function getConnectionApiKey(env: StripeEnv): string {
+  return env === 'sandbox'
+    ? getEnv('STRIPE_SANDBOX_API_KEY')
+    : getEnv('STRIPE_LIVE_API_KEY');
+}
 
-  // Sandbox (and live fallback): route via Lovable connector gateway.
+export function createStripeClient(env: StripeEnv): Stripe {
   const connectionApiKey = getConnectionApiKey(env);
-  const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-  if (!lovableApiKey) throw new Error('LOVABLE_API_KEY is not configured');
+  const lovableApiKey = getEnv('LOVABLE_API_KEY');
 
   return new Stripe(connectionApiKey, {
-    httpClient: Stripe.createFetchHttpClient((url: string | URL, init?: RequestInit) => {
-      const gatewayUrl = url.toString().replace('https://api.stripe.com', GATEWAY_STRIPE_BASE);
+    apiVersion: '2026-03-25.dahlia',
+    httpClient: Stripe.createFetchHttpClient((input, init) => {
+      const stripeUrl = input instanceof Request ? input.url : input.toString();
+      const gatewayUrl = stripeUrl.replace('https://api.stripe.com', GATEWAY_STRIPE_BASE);
       return fetch(gatewayUrl, {
         ...init,
         headers: {
-          ...Object.fromEntries(new Headers(init?.headers).entries()),
+          ...Object.fromEntries(
+            new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined)).entries(),
+          ),
           'X-Connection-Api-Key': connectionApiKey,
           'Lovable-API-Key': lovableApiKey,
         },

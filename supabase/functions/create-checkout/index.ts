@@ -94,7 +94,7 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: quantity || 1 }],
       mode: isRecurring ? "subscription" : "payment",
-      ui_mode: "embedded",
+      ui_mode: "embedded_page",
       return_url: returnUrl || `${req.headers.get("origin")}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       ...(customerId && { customer: customerId }),
       ...(!isRecurring && productDescription && { payment_intent_data: { description: productDescription } }),
