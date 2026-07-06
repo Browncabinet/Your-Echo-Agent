@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CreditsProvider } from "@/hooks/use-credits";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Footer } from "@/components/Footer";
 import Auth from "./pages/Auth.tsx";
 import Pricing from "./pages/Pricing.tsx";
