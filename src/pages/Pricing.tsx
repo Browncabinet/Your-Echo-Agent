@@ -23,7 +23,7 @@ import { Footer } from "@/components/Footer";
 import { SeoHead } from "@/components/SeoHead";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useStripeCheckout } from "@/hooks/useStripeCheckout";
 import { toast } from "sonner";
 
 import { TopupCheckoutDialog } from "@/components/TopupCheckoutDialog";
@@ -204,8 +204,7 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { openPortal, isActive } = useSubscription();
-  const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
-  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+  const { openCheckout, checkoutElement } = useStripeCheckout();
   const [topupPriceId, setTopupPriceId] = useState<PackId | null>(null);
   const [showStickyCta, setShowStickyCta] = useState(false);
 
@@ -236,7 +235,7 @@ export default function Pricing() {
     }
   };
 
-  const onChoose = async (priceId: string) => {
+  const onChoose = (priceId: string) => {
     if (!user) {
       navigate("/auth");
       return;
@@ -245,19 +244,16 @@ export default function Pricing() {
       openPortal();
       return;
     }
-    setSelectedPriceId(priceId);
     try {
-      await openCheckout({
+      openCheckout({
         priceId,
         customerEmail: user.email || undefined,
-        customData: { userId: user.id },
-        successUrl: `${window.location.origin}/?checkout=success`,
+        userId: user.id,
+        returnUrl: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       });
     } catch (e) {
-      console.error("Paddle checkout failed", e);
+      console.error("Stripe checkout failed", e);
       toast.error("Could not open checkout. Please try again.");
-    } finally {
-      setSelectedPriceId(null);
     }
   };
 
@@ -656,18 +652,11 @@ export default function Pricing() {
         </Button>
       </div>
 
-      {(selectedPriceId || checkoutLoading) && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 pointer-events-none">
-          <div className="bg-background border rounded-lg shadow-xl px-6 py-4 flex items-center gap-3 pointer-events-auto">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            <span className="text-sm">Opening secure checkout…</span>
-          </div>
-        </div>
-      )}
+      {checkoutElement}
       <TopupCheckoutDialog
         priceId={topupPriceId}
         onClose={() => setTopupPriceId(null)}
-        returnPath="/pricing?topup=success&session_id={CHECKOUT_SESSION_ID}"
+        returnPath="/checkout/return?session_id={CHECKOUT_SESSION_ID}"
       />
       <Footer />
     </div>
