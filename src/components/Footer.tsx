@@ -11,12 +11,6 @@ export function Footer() {
           <a href="mailto:support@yourechoagent.com" className="hover:text-primary transition-colors">Support</a>
           <Link to="/privacy" className="hover:text-primary transition-colors">Privacy & Terms</Link>
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span>Listed on</span>
-          <a href="https://glama.ai/mcp/servers/@browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors underline underline-offset-2">Glama.ai</a>
-          <span aria-hidden>·</span>
-          <a href="https://smithery.ai/server/@browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors underline underline-offset-2">Smithery</a>
-        </div>
         <p className="mt-2 text-xs text-muted-foreground">
           © 2026 Echo Agent
         </p>

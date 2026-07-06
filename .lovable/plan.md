@@ -1,39 +1,29 @@
+## Goal
 
-## Review results
+Keep the MCP server source private (don't publish to npm) and update the "For Agents" setup instructions so AI assistants connect using the direct hosted endpoint instead of npm/registry discovery.
 
-The A2A/MCP discovery surface is healthy — nothing critical is missing:
+The MCP server is already live at:
+`https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`
 
-- `https://yourechoagent.com/.well-known/agent-card.json` → 200, valid A2A 0.3.0 card with 6 skills, pricing, security schemes, contact, ToS/Privacy, OpenAPI ref
-- `/.well-known/agent.json`, `/.well-known/ai-plugin.json`, `/.well-known/mcp/server-card.json` → all 200
-- `index.html` already advertises the card via `<link rel="agent">` and JSON-LD `SoftwareApplication` entries per sub-agent
-- `glama.json` / `server.json` / `smithery.yaml` exist at repo root with correct manifest, tool list, env vars
-- Hosted MCP endpoint `supabase/functions/mcp-http` is live and referenced in `smithery.yaml` + `server.json`
-- `docs/glama-submission-card.md` has the ready-to-paste Glama form values
+## Changes
 
-## What's actually missing (site → Glama linkage)
+### 1. Keep source private
+- No code change needed in `mcp-server/` — package is unpublished. Leave `publishConfig` alone (harmless while unpublished) and simply don't run `npm publish`.
+- Do NOT delete the `mcp-server/` folder — it's still the source of the deployed function.
 
-The site *mentions* Glama.ai in Home.tsx copy and FAQ, but there is **no clickable link to the Glama listing**, and no "install on Claude/Cursor/Windsurf" quick-copy referencing the published MCP server. For the connection to feel real to visitors and to Glama's crawler (backlinks help ranking), we should:
+### 2. `src/pages/ForAgents.tsx`
+- Remove the "Listed on MCP registries" section (Glama / Smithery / npm cards, lines ~178–215).
+- Replace it with a single **"Connect your assistant"** card that shows the direct MCP endpoint URL with a copy button and short per-client steps:
+  - **Claude Desktop / Cursor / Windsurf**: add a `mcpServers` entry pointing to the URL via `streamable-http` transport.
+  - **ChatGPT (Developer mode)**: paste the URL as a custom connector.
+  - Each block: one sentence + a copy-paste config snippet using the direct URL. No npm, no npx, no registry links.
 
-1. **Add a Glama.ai listing link + badge** in two spots:
-   - `src/pages/ForAgents.tsx` — new "Available on" row alongside the existing discovery cards, with Glama.ai badge + link to `https://glama.ai/mcp/servers/@browncabinet/yourechoagent-mcp` (also link to Smithery: `https://smithery.ai/server/@browncabinet/yourechoagent-mcp`).
-   - `src/components/Footer.tsx` — small "Listed on Glama · Smithery" links under the For Agents column.
-2. **Make the Home.tsx "Glama.ai" mentions clickable** (currently plain text in the FAQ answer and feature card body).
-3. **Serve `glama.json` publicly** — currently only at repo root, not at `https://yourechoagent.com/glama.json` (404 confirmed). Copy `glama.json` to `public/glama.json` so Glama's crawler and anyone auditing can fetch it from the site domain.
-4. **Add `hostedEndpoint` to `public/.well-known/agent.json`** — the repo `server.json` has it but the public discovery manifest doesn't expose the streamable-http MCP URL (`https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http`). Adding it lets remote MCP clients (and Glama's remote-server variant) discover the hosted transport straight from the site.
-5. **Add `mcp` block to `public/.well-known/agent-card.json`** with the same `hostedEndpoint` + `transports: ["streamable-http", "stdio"]` so the A2A card advertises the MCP twin.
+### 3. `src/components/Footer.tsx`
+- Remove the Glama.ai and Smithery links (lines 16 & 18). Leave the rest of the footer intact.
 
-## Technical details
+### 4. `src/components/QuickstartSnippets.tsx`
+- No changes — snippets already use the direct Supabase functions endpoint.
 
-Files to change:
-- `public/glama.json` — new file, copy of root `glama.json`
-- `public/.well-known/agent.json` — add `hostedEndpoint` and `transports` fields matching `server.json`
-- `public/.well-known/agent-card.json` — add top-level `mcp: { hostedEndpoint, transports, registryListings: [glama, smithery] }`
-- `src/pages/ForAgents.tsx` — add a "Listed on" section with Glama + Smithery badges (SVG or text pill), links open in new tab
-- `src/components/Footer.tsx` — add Glama + Smithery links
-- `src/pages/Home.tsx` — wrap the two "Glama.ai" strings in `<a>` tags to the listing URL
-
-No backend changes, no schema changes. Purely static/presentation edits.
-
-## Out of scope (mention only)
-
-Publishing the npm package `@browncabinet/yourechoagent-mcp` and pushing the GitHub repo tag are user actions on npm/GitHub — not something I can do from the app codebase. The `docs/glama-submission-card.md` already walks through those steps.
+## Out of scope
+- No changes to the MCP server code, tools, deployment, or database.
+- No changes to `/for-agents/docs`, `/for-agents/register`, or `.well-known/*` manifests.

@@ -175,44 +175,49 @@ export default function ForAgents() {
         </div>
       </div>
 
-      {/* Registry listings */}
+      {/* Connect your assistant — direct MCP endpoint */}
       <section className="mb-12">
         <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3">Listed on MCP registries</div>
-          <div className="flex flex-wrap gap-2">
-            <a
-              href="https://glama.ai/mcp/servers/@browncabinet/yourechoagent-mcp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 hover:border-indigo-500/40 hover:bg-white/[0.06] transition"
+          <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3">Connect your assistant</div>
+          <p className="text-sm text-zinc-400 mb-3">
+            Point any MCP-compatible client at Echo's hosted endpoint. No install, no npm, no registry required.
+          </p>
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-black/40 p-3 mb-4">
+            <code className="flex-1 text-xs sm:text-sm font-mono text-emerald-300 break-all">{FUNCTIONS_BASE}/mcp-http</code>
+            <button
+              onClick={async () => {
+                await navigator.clipboard.writeText(`${FUNCTIONS_BASE}/mcp-http`);
+                sonner.success("Endpoint copied");
+              }}
+              className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.05] font-mono"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              Glama.ai
-              <span className="text-[10px] font-mono text-zinc-500">@browncabinet/yourechoagent-mcp</span>
-            </a>
-            <a
-              href="https://smithery.ai/server/@browncabinet/yourechoagent-mcp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 hover:border-indigo-500/40 hover:bg-white/[0.06] transition"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              Smithery
-              <span className="text-[10px] font-mono text-zinc-500">streamable-http</span>
-            </a>
-            <a
-              href="https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 hover:border-indigo-500/40 hover:bg-white/[0.06] transition"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              npm
-              <span className="text-[10px] font-mono text-zinc-500">npx -y @browncabinet/yourechoagent-mcp</span>
-            </a>
+              <Copy className="w-3 h-3" /> copy
+            </button>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="rounded-lg border border-white/[0.06] bg-black/30 p-3">
+              <p className="text-xs font-medium text-zinc-200 mb-1">Claude Desktop · Cursor · Windsurf</p>
+              <p className="text-[11px] text-zinc-500 mb-2">Add to your MCP config file:</p>
+              <pre className="text-[11px] leading-relaxed p-2 rounded bg-black/50 text-zinc-300 font-mono overflow-x-auto">{`{
+  "mcpServers": {
+    "echo": {
+      "transport": "streamable-http",
+      "url": "${FUNCTIONS_BASE}/mcp-http"
+    }
+  }
+}`}</pre>
+            </div>
+            <div className="rounded-lg border border-white/[0.06] bg-black/30 p-3">
+              <p className="text-xs font-medium text-zinc-200 mb-1">ChatGPT (Developer mode)</p>
+              <p className="text-[11px] text-zinc-500 mb-2">
+                Settings → Connectors → Advanced → enable Developer mode. In a chat, open the "+" menu → Developer mode → Add sources → Connect more, then paste the URL above.
+              </p>
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* MCP tools exposed */}
       <section className="mb-12">
