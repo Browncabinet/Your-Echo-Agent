@@ -1,7 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
-import { getStripe, getStripeEnvironment } from "@/lib/stripe";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useRef } from "react";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface TopupCheckoutDialogProps {
@@ -9,50 +7,15 @@ interface TopupCheckoutDialogProps {
   onClose: () => void;
   /** "user" credits user_credits.balance; "a2a_partner" credits a2a_partners.balance_cents. */
   mode?: "user" | "a2a_partner";
-  /** Required when mode === "a2a_partner". */
   a2aPartnerId?: string;
-  /** Customer email override (used for A2A flows where billing_email != auth email). */
   customerEmail?: string;
-  /** Return path to come back to after Stripe success. */
   returnPath?: string;
 }
 
-function Checkout({ priceId, mode, a2aPartnerId, customerEmail, userId, returnPath }: {
-  priceId: string;
-  mode: "user" | "a2a_partner";
-  a2aPartnerId?: string;
-  customerEmail?: string;
-  userId?: string;
-  returnPath: string;
-}) {
-  const fetchClientSecret = async (): Promise<string> => {
-    const { data, error } = await supabase.functions.invoke("create-checkout", {
-      body: {
-        priceId,
-        customerEmail,
-        ...(mode === "user" && userId ? { userId } : {}),
-        returnUrl: `${window.location.origin}${returnPath}`,
-        environment: getStripeEnvironment(),
-        ...(mode === "a2a_partner" && a2aPartnerId
-          ? { metadata: { a2a_partner_id: a2aPartnerId } }
-          : {}),
-      },
-    });
-    if (error || !data?.clientSecret) {
-      throw new Error(error?.message || "Failed to create checkout session");
-    }
-    return data.clientSecret;
-  };
-
-  return (
-    <div id="checkout" className="min-h-[500px]">
-      <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
-    </div>
-  );
-}
-
+/**
+ * Opens Paddle overlay checkout. Renders no dialog UI of its own — Paddle
+ * shows the checkout as an overlay. Calls onClose after firing checkout.
+ */
 export function TopupCheckoutDialog({
   priceId,
   onClose,
@@ -62,35 +25,38 @@ export function TopupCheckoutDialog({
   returnPath,
 }: TopupCheckoutDialogProps) {
   const { user } = useAuth();
-  const resolvedReturnPath =
-    returnPath || `/?topup=success&session_id={CHECKOUT_SESSION_ID}`;
-  const resolvedEmail = customerEmail || user?.email || undefined;
+  const { openCheckout } = usePaddleCheckout();
+  const openedFor = useRef<string | null>(null);
 
-  return (
-    <Dialog open={!!priceId} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === "a2a_partner" ? "Add credit to your A2A balance" : "Complete your top-up"}
-          </DialogTitle>
-          <DialogDescription>
-            Secure checkout powered by Stripe.{" "}
-            {mode === "a2a_partner"
-              ? "Funds are added to your partner balance and drawn down per delivered result."
-              : "Emails are added instantly and never expire."}
-          </DialogDescription>
-        </DialogHeader>
-        {priceId && (
-          <Checkout
-            priceId={priceId}
-            mode={mode}
-            a2aPartnerId={a2aPartnerId}
-            customerEmail={resolvedEmail}
-            userId={user?.id}
-            returnPath={resolvedReturnPath}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  );
+  useEffect(() => {
+    if (!priceId) {
+      openedFor.current = null;
+      return;
+    }
+    if (openedFor.current === priceId) return;
+    openedFor.current = priceId;
+
+    const customData: Record<string, string> = {};
+    if (mode === "user" && user?.id) customData.userId = user.id;
+    if (mode === "a2a_partner" && a2aPartnerId) customData.a2aPartnerId = a2aPartnerId;
+    if (user?.id) customData.userId = user.id;
+
+    const successUrl = returnPath
+      ? `${window.location.origin}${returnPath.replace(/\{CHECKOUT_SESSION_ID\}/g, "")}`
+      : `${window.location.origin}/?topup=success`;
+
+    openCheckout({
+      priceId,
+      customerEmail: customerEmail || user?.email || undefined,
+      customData,
+      successUrl,
+    }).catch((e) => {
+      console.error("Paddle checkout failed", e);
+    });
+    // Notify parent so its local state can reset — Paddle owns the UI now.
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceId]);
+
+  return null;
 }
