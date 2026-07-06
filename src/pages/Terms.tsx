@@ -10,7 +10,7 @@ export default function Terms() {
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Terms of Service — Your Echo Agent"
-        description="Terms governing the use of Your Echo Agent's outreach platform, subscriptions, refunds, and acceptable use."
+        description="Terms governing the use of Your Echo Agent, operated by Natasha Ulrich. Covers acceptable use, subscriptions, and Paddle as Merchant of Record."
         path="/terms"
       />
 
@@ -27,102 +27,118 @@ export default function Terms() {
 
       <main className="flex-1 container max-w-3xl mx-auto px-4 py-10">
         <h1 className="text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: April 4, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: July 6, 2026</p>
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground/90">
           <section>
-            <h2 className="text-xl font-semibold text-foreground">Agreement to Terms</h2>
+            <h2 className="text-xl font-semibold text-foreground">Who You're Contracting With</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By using Your Echo Agent, you agree to these terms. If you don't agree, please don't use the service. We've tried to keep these terms clear and fair — no gotchas.
+              These Terms of Service ("Terms") are a binding agreement between you and <strong className="text-foreground">Natasha Ulrich</strong>, sole proprietor, trading as <strong className="text-foreground">Your Echo Agent</strong> ("we," "us," or "our"). By creating an account or using the service you agree to these Terms; if you don't agree, please don't use the service.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">What We Provide</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Your Echo Agent is an AI-powered outreach platform that helps you find leads, write personalized cold emails, send campaigns, and track results. We provide the tool — you're responsible for how you use it.
+              Your Echo Agent is an AI-powered outreach platform that helps you find leads, draft personalized cold emails, send campaigns, and track results. We provide the tool — you're responsible for how you use it.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Your Account</h2>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>You must provide accurate information when signing up</li>
-              <li>You're responsible for all activity under your account</li>
-              <li>Keep your account credentials secure</li>
-              <li>You must be at least 18 years old to use the service</li>
+              <li>You must provide accurate information and keep it up to date.</li>
+              <li>You're responsible for all activity under your account and for keeping your credentials confidential.</li>
+              <li>If you sign up on behalf of an organization, you confirm you have authority to bind it.</li>
+              <li>You must be at least 18 years old to use the service.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground">Email Packs & Payments</h2>
+            <h2 className="text-xl font-semibold text-foreground">Payments, Subscriptions & Merchant of Record</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Your Echo Agent uses a pay-as-you-go system. Email packs are purchased through Stripe and never expire. Each email sent uses one from your balance.
+              Our order process is conducted by our online reseller <strong className="text-foreground">Paddle.com</strong>. <strong className="text-foreground">Paddle.com is the Merchant of Record</strong> for all our orders. Paddle provides all customer service inquiries and handles returns. Paddle will appear as the seller on your invoice and bank statement.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              All purchases are final. Email packs are non-refundable and non-transferable. If you believe there was a billing error, contact us and we'll look into it.
+              Subscription plans (currently weekly) renew automatically at the end of each billing period until you cancel. One-time top-up packs are billed once and add non-expiring email credits to your balance. Applicable taxes are calculated and collected by Paddle based on your billing location.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Full payment, billing, tax, cancellation and refund mechanics are governed by <a href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Paddle's Checkout Buyer Terms</a>. See our <Link to="/refund" className="text-primary hover:underline">Refund Policy</Link> for our money-back guarantee.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Acceptable Use</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You agree to use Your Echo Agent responsibly and in compliance with all applicable laws, including CAN-SPAM, GDPR, and other anti-spam regulations. See our{" "}
+              You agree to use Your Echo Agent lawfully and in compliance with anti-spam laws including CAN-SPAM, CASL, and GDPR. You must not:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>Use the service for unlawful, harassing, deceptive, or fraudulent purposes.</li>
+              <li>Send spam, phishing, malware, or content infringing third-party rights.</li>
+              <li>Attempt to probe, scan, reverse-engineer, or otherwise interfere with the security of the service.</li>
+              <li>Resell, redistribute, or scrape the service, or circumvent technical limits or rate limits.</li>
+            </ul>
+            <p className="text-muted-foreground leading-relaxed">
+              See our{" "}
               <Link to="/acceptable-use" className="text-primary hover:underline">Acceptable Use & Anti-Spam Policy</Link>{" "}
               for detailed guidelines.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground">Your Content & Data</h2>
+            <h2 className="text-xl font-semibold text-foreground">Intellectual Property</h2>
             <p className="text-muted-foreground leading-relaxed">
-              You own the content you create on the platform — your campaigns, email copy, and lead lists. We don't claim any ownership over your data. We may use anonymized, aggregated usage data to improve the service.
+              The service, including all software, documentation, and branding, is owned by Natasha Ulrich and protected by intellectual-property laws. We grant you a limited, non-exclusive, non-transferable right to use the service within your chosen plan. You own the content you create — your campaigns, email copy, and lead lists — and you grant us a limited licence to host and process that content solely to provide the service.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">AI-Generated Content</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              You are responsible for your prompts, the outputs you choose to send, verifying accuracy, and having the rights to any content you provide as input. AI outputs may be inaccurate and are not a substitute for professional advice. We may filter, refuse, or remove outputs that violate these Terms or the Acceptable Use Policy.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Service Availability</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We aim for high uptime but can't guarantee the service will always be available. We may perform maintenance, updates, or experience outages. We'll do our best to communicate any planned downtime in advance.
+              We aim for high uptime but do not guarantee the service will always be available, uninterrupted, or error-free. We may perform maintenance, updates, or experience outages, and will make reasonable efforts to communicate planned downtime.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">Warranty Disclaimer</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              The service is provided "as is" and "as available." To the fullest extent permitted by law, we disclaim all implied warranties, including merchantability, fitness for a particular purpose, and non-infringement.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Your Echo Agent is provided "as is." We do our best to deliver a reliable product, but we're not liable for:
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Emails that don't get delivered or end up in spam folders</li>
-              <li>The accuracy of AI-generated email content</li>
-              <li>Leads that turn out to be incorrect or outdated</li>
-              <li>Any consequences of how you use the outreach tool</li>
-              <li>Lost revenue or business opportunities</li>
-            </ul>
-            <p className="text-muted-foreground leading-relaxed mt-2">
-              Our total liability is limited to the amount you've paid us in the last 12 months.
+              To the maximum extent permitted by law, we are not liable for indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or goodwill. Our aggregate liability for any claim arising out of or relating to the service is limited to the fees you paid us in the 12 months before the event giving rise to the claim. Nothing in these Terms limits liability that cannot be excluded by law (including for fraud or death/personal injury caused by negligence).
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground">Account Termination</h2>
+            <h2 className="text-xl font-semibold text-foreground">Suspension & Termination</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We reserve the right to suspend or terminate accounts that violate these terms or our Acceptable Use Policy. If we terminate your account, any remaining emails will be forfeited. You can delete your account at any time.
+              We may suspend or terminate your access if you materially breach these Terms or the Acceptable Use Policy, fail to pay, pose a security or fraud risk, or repeatedly or seriously violate policy. You may cancel your subscription at any time via the customer portal or by contacting Paddle at <a href="https://paddle.net" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">paddle.net</a>. On termination, your right to use the service ends; you may request an export of your data within 30 days, after which it may be deleted.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Changes to These Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We may update these terms as the product evolves. We'll notify you of material changes via email or in-app notice. Continued use after changes constitutes acceptance of the updated terms.
+              We may update these Terms as the product evolves. We'll notify you of material changes by email or in-app notice. Continued use after changes constitutes acceptance.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground">Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Questions about these terms? Reach out at{" "}
-              <a href="https://x.com/Ladysoleil" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@Ladysoleil on X</a>.
+              Natasha Ulrich, operator of Your Echo Agent —{" "}
+              <a href="mailto:support@yourechoagent.com" className="text-primary hover:underline">support@yourechoagent.com</a>.
             </p>
           </section>
         </div>

@@ -9,7 +9,9 @@ export function Footer() {
           <Link to="/about" className="hover:text-primary transition-colors">About</Link>
           <a href="https://x.com/ladysoleil33" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@ladysoleil33</a>
           <a href="mailto:support@yourechoagent.com" className="hover:text-primary transition-colors">Support</a>
-          <Link to="/privacy" className="hover:text-primary transition-colors">Privacy & Terms</Link>
+          <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+          <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+          <Link to="/refund" className="hover:text-primary transition-colors">Refunds</Link>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           © 2026 Echo Agent
