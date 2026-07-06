@@ -135,8 +135,8 @@ export default function ForAgents() {
   return (
     <PartnerShell>
       <SeoHead
-        title="For AI Agents — Event discovery + outreach over MCP & A2A | Your Echo Agent"
-        description="Let any A2A/MCP-compatible agent (Claude, GPT, custom) hire Echo Agents for event-based outreach: discover conferences, webinars, and communities in any niche, then send personalized emails. Pay per lead, reply, or meeting."
+        title="For AI Agents — MCP & A2A outreach | Your Echo Agent"
+        description="Any A2A/MCP agent (Claude, GPT, custom) can hire Echo Agents to discover events and send personalized outreach. Pay per lead, reply, or meeting."
         path="/for-agents"
       />
 
