@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/components/Footer";
+import { TestimonialsMarquee } from "@/components/TestimonialsMarquee";
 import { Logo } from "@/components/Logo";
 import { SeoHead } from "@/components/SeoHead";
 import {
@@ -434,6 +435,9 @@ export default function Home() {
           </Button>
         </div>
       </section>
+
+      {/* Testimonials */}
+      <TestimonialsMarquee />
 
       {/* FAQ */}
       <section className="border-t border-border/60 bg-card/30">
