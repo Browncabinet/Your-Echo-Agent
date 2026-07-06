@@ -1,23 +1,28 @@
-## Clean up duplicate Stripe products
+## Verify credit-card checkout end-to-end
 
-The 6 price IDs your app actually uses are:
-- **Weekly subscriptions:** `starter_weekly`, `growth_weekly`, `power_weekly`
-- **Top-up packs:** `topup_500`, `topup_1000`, `topup_2500`
+Your checkout stack is already wired up (create-checkout edge function, embedded checkout dialog, webhook handler). This plan verifies it actually works with a credit card in the running preview and confirms the webhook grants access.
 
-Any product/price in your Payments panel outside this list is unused and safe to remove.
+### What I'll verify
 
-### How the cleanup happens
+1. **Sandbox price resolution** — call `create-checkout` for each of the 6 live price IDs (`starter_weekly`, `growth_weekly`, `power_weekly`, `topup_500`, `topup_1000`, `topup_2500`) and confirm each returns a `clientSecret` (proves lookup_keys resolve after the duplicate cleanup).
+2. **Card checkout flow (Playwright)** — sign in to the preview, open pricing, click **Growth Weekly**, and pay with Stripe's test card `4242 4242 4242 4242` inside the embedded checkout iframe. Screenshot before, during, and on the return page.
+3. **Webhook side-effects** — after the return page renders, query the DB to confirm:
+   - `subscriptions` row exists for the user with `status='active'`, `price_id='growth_weekly'`, `environment='sandbox'`.
+   - `current_week_caps(user_id)` returns tier=`growth`, email_cap=1500.
+4. **One-time top-up path** — repeat with `topup_1000` and confirm `user_credits.balance` increases by 1000 and a `credit_purchases` row is inserted (idempotent on `stripe_session_id`).
+5. **Failure card** — quick run with `4000 0000 0000 0002` (generic decline) to confirm the embedded form surfaces the error and no `subscriptions` row is created.
 
-The Payments tool surface I have (`create_product`, `batch_create_product`, `create_price`, `get_go_live_status`) does **not** expose delete or archive. Product deletion has to happen in the Payments panel directly — I can't do it from code.
+### What I'll report back
 
-### What I'll do
-1. Query the sandbox to list every product/price currently registered and identify which are duplicates (same `price_id` created more than once, or old IDs like `starter_monthly`, `trial_growth_5day`, etc.).
-2. Give you the exact list of items to archive, grouped by "keep" vs "archive", so you can click through the Payments panel confidently.
-3. Confirm the 6 canonical price IDs above resolve correctly after cleanup by re-running the go-live status check.
+- Screenshots of the checkout dialog, card entry, success return, and failure state.
+- DB query results proving the webhook granted access (subscription row + caps).
+- Any console errors, network failures, or edge-function log entries surfaced during the run.
 
-### What you'll do
-Archive the flagged duplicates in the Payments panel (More → Payments → each product → Archive). Archiving is safe — it doesn't affect existing subscriptions, only prevents new checkouts against that price.
+### If something fails
+
+I'll diagnose from edge-function logs (`create-checkout`, `payments-webhook`), the network tab, and the DB state — then come back with a fix plan for the specific broken step rather than guessing.
 
 ### Notes
-- I will **not** create new products or prices during this cleanup — the 6 canonical ones already exist and are wired to the app.
-- Live-mode products are auto-synced from sandbox on publish, so cleaning sandbox is what matters.
+
+- All test runs happen in **sandbox** (preview uses `pk_test_`), so no real money moves.
+- No code changes in this pass — verification only. If a bug shows up, I'll propose a follow-up plan.
