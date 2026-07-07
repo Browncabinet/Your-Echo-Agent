@@ -4,6 +4,19 @@ All steps are **browser-only** in the GitHub web UI for `Browncabinet/yourechoag
 
 ---
 
+## Fastest path to Maintenance = A (fixes "No stable releases" + "CI status not available")
+
+Do these 3 things and Glama flips maintenance from B → A within 24–48h:
+
+1. **Upload `.github/workflows/ci.yml`** (from this folder) to the public repo. First push to `main` produces a green CI status check that Glama reads.
+2. **Upload `.github/workflows/release.yml`** (from this folder). This publishes on any `v*` tag AND creates a GitHub Release Glama counts as a "stable release".
+3. **Cut a SemVer release** on GitHub: **Releases → Draft new release → Tag `v0.4.0` → Publish**. (Not `mcp-v0.4.0` — Glama only scores plain `vX.Y.Z` as stable.)
+
+Requires `NPM_TOKEN` repo secret (see Step 4 below). If you don't want to re-publish to npm right now, publish the release with an empty tag first and remove `release.yml` — the release alone still satisfies Glama's "stable release" check.
+
+---
+
+
 ## Step 1 — Upload new files (5 min)
 
 Go to: **github.com/Browncabinet/yourechoagent-mcp**

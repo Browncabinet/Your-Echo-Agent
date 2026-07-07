@@ -12,6 +12,9 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
+    defaults:
+      run:
+        working-directory: mcp-server
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -19,6 +22,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
       - run: npm ci
       - run: npm run build
       - run: npm test --if-present
