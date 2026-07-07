@@ -1,54 +1,46 @@
-# Fix Glama Maintenance Grade (B → A)
+## Problem
 
-Glama's maintenance scorecard shows two gaps on the public repo `Browncabinet/yourechoagent-mcp`:
+Your $25 payment succeeded on Stripe's side (checkout logs confirm `create-checkout session created … env: "live", priceId: "a2a_credit_25_once"`), but your partner balance never went up.
 
-1. **No stable releases found** — Glama looks for SemVer GitHub Releases (e.g. `v0.4.0`) on the public repo. Your current tag scheme is `mcp-v*` (from `.github/workflows/publish-mcp.yml`), which Glama does not recognize as a stable release. The npm package is at `0.4.0` but no matching GitHub Release exists on the public repo.
-2. **CI status not available** — the public repo has no CI workflow producing a visible status badge/check. The `ci.yml` file exists only under `docs/public-repo-root-files/.github/workflows/ci.yml` in this project and has never been pushed to the public MCP repo.
+Root cause is in the payments webhook logs:
 
-Everything else in the maintenance section is already green (commits, vulns, code scanning).
+```
+Webhook error: Error: Invalid webhook signature
+  at verifyWebhook (_shared/stripe.ts:54)
+  at handleWebhook (payments-webhook/index.ts:139)
+```
 
-## What to change
+Stripe is delivering the `checkout.session.completed` event to `payments-webhook?env=live`, but the function is rejecting it because the signature doesn't match. That means `handleCheckoutCompleted` never runs, so `a2a_partners.balance_cents` is never incremented. This is why the UI still shows $0.
 
-All changes happen in **this** repo, then get copied/pushed to the public MCP repo `Browncabinet/yourechoagent-mcp`. No app/UI code changes.
+The signature mismatch is almost always one of:
+1. `PAYMENTS_LIVE_WEBHOOK_SECRET` in this project doesn't match the signing secret shown on the live Stripe webhook endpoint (e.g. secret was rotated in Stripe, or the wrong endpoint's secret is stored).
+2. The Stripe webhook endpoint is pointing at a URL that strips/rewrites the body (must be the raw edge function URL with `?env=live`).
 
-### 1. Add a real CI workflow to the public repo
-Publish a `.github/workflows/ci.yml` at the **root of the public MCP repo** that:
-- Runs on push + PR to `main`
-- Sets up Node 20, `npm ci` inside `mcp-server/`, `npm run build`, `npm test --if-present`
-- Uploads a status check GitHub (and Glama) can read
+## Plan
 
-The file already exists as a template at `docs/public-repo-root-files/.github/workflows/ci.yml`. We'll refine it to `cd mcp-server` so it actually builds the server, and add it to the checklist for upload.
+### 1. Credit your $25 manually (one-time fix)
+Look up your `a2a_partners` row and add `2500` cents to `balance_cents` so your live balance reflects the payment you already made. Verify via the /for-agents/billing page.
 
-### 2. Cut a SemVer GitHub Release on the public repo
-Glama wants `v<major>.<minor>.<patch>` releases. Two options — pick one in the plan:
+### 2. Fix the webhook so future top-ups auto-credit
+- Confirm the live Stripe webhook endpoint URL is:
+  `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/payments-webhook?env=live`
+  and is subscribed to at least `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
+- Copy the **Signing secret** from that exact endpoint in Stripe (starts with `whsec_…`).
+- Update the `PAYMENTS_LIVE_WEBHOOK_SECRET` secret in this project to that value.
+- Trigger a redelivery of the failed event from the Stripe dashboard (Webhooks → endpoint → recent event → "Resend") and confirm the function returns 200 and the balance updates.
 
-- **Option A (recommended):** Add a second workflow trigger so `v*` tags also publish. Then tag `v0.4.0` on the public repo → GitHub Release is created → Glama sees a stable release.
-- **Option B:** Keep `mcp-v*` for npm publishing but manually create a `v0.4.0` GitHub Release (no npm re-publish) purely for Glama's scorecard.
+### 3. Add a small safety net on `/checkout/return`
+Right now `CheckoutReturn.tsx` just calls `refresh()` once after 2s. For A2A top-ups the credited balance lives on `a2a_partners`, not `user_credits`, so `refresh()` doesn't even reflect it — and if the webhook is delayed you see $0.
 
-I'll go with **Option A** — one workflow, one tag scheme going forward, matches the `release.yml` template already drafted in `docs/public-repo-root-files/.github/workflows/release.yml`.
+Add short polling on the A2A billing page (or on the return page when the session was an A2A pack) that re-fetches `a2a_partners.balance_cents` every ~2s for up to ~20s after return, with a friendly "Finalizing your top-up…" state and a fallback message if it hasn't landed. This matches the pattern we already use elsewhere for post-checkout balance sync.
 
-### 3. Update the upload checklist
-Amend `docs/public-repo-root-files/CHECKLIST-A-GRADE.md` so the user knows exactly which files to drop into the public repo and which tag to cut to flip maintenance to A.
+## Technical notes
 
-## Files to change (this repo)
+- Files touched (build phase): `src/pages/PartnerBilling.tsx` (or `CheckoutReturn.tsx`) — add polling hook against `a2a_partners` for the signed-in partner. No schema changes.
+- Manual credit uses an `UPDATE public.a2a_partners SET balance_cents = balance_cents + 2500, updated_at = now() WHERE id = '<your partner id>';` migration (I'll confirm the partner id before running).
+- No changes to `payments-webhook/index.ts` logic itself — the A2A branch in `handleCheckoutCompleted` is correct; it just never runs today because of the signature failure.
 
-- `docs/public-repo-root-files/.github/workflows/ci.yml` — add `working-directory: mcp-server` and `npm test --if-present`, keep matrix Node 18/20/22.
-- `docs/public-repo-root-files/.github/workflows/release.yml` — already exists and correct; confirm it uses `mcp-server/` working dir.
-- `docs/public-repo-root-files/CHECKLIST-A-GRADE.md` — add a short "Maintenance A" section with the 3 upload steps + tag command.
+## What I need from you before I build
 
-## What the user does after (one-time, ~5 min in GitHub web UI)
-
-1. Upload `ci.yml` and `release.yml` to `.github/workflows/` on `Browncabinet/yourechoagent-mcp`.
-2. Ensure `NPM_TOKEN` repo secret exists (already documented in the checklist).
-3. Create release: **Releases → Draft new release → Tag `v0.4.0` → Publish**. This triggers `release.yml` and gives Glama both a stable release and a visible CI run.
-4. Wait 24–48h for Glama re-scan (or click Re-scan in the Glama admin).
-
-## Expected result
-
-| Signal | Before | After |
-|---|---|---|
-| Stable releases | ❌ none | ✅ `v0.4.0` |
-| CI status | ❌ unavailable | ✅ green check on `main` |
-| Maintenance grade | B | **A** |
-
-No changes to app code, UI, pricing, backend, or SEO.
+1. Confirm you want me to (a) manually credit the $25 now AND (b) walk you through updating `PAYMENTS_LIVE_WEBHOOK_SECRET`, or just one of those.
+2. Confirm the email on the Stripe account that made the purchase so I can find the right `a2a_partners` row.
