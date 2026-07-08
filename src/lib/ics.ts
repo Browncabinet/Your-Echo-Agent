@@ -8,7 +8,7 @@ export type DiscoverOpportunity = {
   is_virtual: boolean;
   event_start: string | null;
   source: string | null;
-  contacts: Array<{ name?: string; role?: string; email?: string; linkedin?: string; twitter?: string }>;
+  contacts: Array<{ name?: string; role?: string; email?: string; linkedin?: string; twitter?: string; score?: number; verification?: string; enriched_at?: string }>;
   fit_score: number;
   fit_reason: string | null;
   status: string;

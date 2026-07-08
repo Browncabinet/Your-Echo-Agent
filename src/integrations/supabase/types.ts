@@ -760,6 +760,54 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_enrichments: {
+        Row: {
+          charged_units: number
+          created_at: string
+          domain: string
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          opportunity_id: string | null
+          raw: Json | null
+          score: number | null
+          sources: Json
+          user_id: string
+          verification: string | null
+        }
+        Insert: {
+          charged_units?: number
+          created_at?: string
+          domain: string
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          opportunity_id?: string | null
+          raw?: Json | null
+          score?: number | null
+          sources?: Json
+          user_id: string
+          verification?: string | null
+        }
+        Update: {
+          charged_units?: number
+          created_at?: string
+          domain?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          opportunity_id?: string | null
+          raw?: Json | null
+          score?: number | null
+          sources?: Json
+          user_id?: string
+          verification?: string | null
+        }
+        Relationships: []
+      }
       credit_purchases: {
         Row: {
           amount_cents: number
