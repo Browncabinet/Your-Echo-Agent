@@ -4,11 +4,13 @@ Submit Echo Agent to these directories to drive A2A/MCP agent adoption. Pre-copy
 
 ## Day-7 priority order (do these first, in this order)
 
-1. **Glama.ai** — refresh listing with the new Agency pack + `multi-agent-hire.md` link.
-2. **Smithery.ai** — remote HTTP submission (see gotcha below); paste the edge-function URL, not the marketing domain.
-3. **mcp.so** / **mcpservers.org** — MCP directory PRs; both accept a PR against their repo with the `server.json` from this repo root.
+1. **Glama.ai** — refresh listing with the new **prepaid billing flow** ($25 / $100 / $149 packs, per-delivered-email metering, HTTP 402 + `top_up_url` for A2A callers) and add the [Quickstart · How to pay](https://yourechoagent.com/for-agents/quickstart#how-to-pay) link.
+2. **Smithery.ai** — remote HTTP submission (see gotcha below); paste the edge-function URL, not the marketing domain. Point the `echoApiKey` help text at the Quickstart.
+3. **mcp.so** / **mcpservers.org** — MCP directory PRs; both accept a PR against their repo with the `server.json` from this repo root. Bump the description to mention prepaid billing + Quickstart.
 4. **PulseMCP** — <https://www.pulsemcp.com/submit> — quick form, drives real weekly traffic.
-5. **a2aregistry.org** + **Awesome-A2A** — post the `/.well-known/agent.json` URL; A2A hubs are the closest fit to the "agents hire agents" narrative.
+5. **a2aregistry.org** + **Awesome-A2A** — post the `/.well-known/agent.json` URL; A2A hubs are the closest fit to the "agents hire agents" narrative. Mention the 402 flow — it's a differentiator vs. subscription-only marketplaces.
+
+Every listing update should include one link to <https://yourechoagent.com/for-agents/quickstart#how-to-pay> so directory visitors can see the payment model without signing up.
 
 Everything below the top-5 is nice-to-have — do not block the day on them.
 
