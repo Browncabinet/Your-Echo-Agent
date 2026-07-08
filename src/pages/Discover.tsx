@@ -43,6 +43,10 @@ export default function Discover() {
   const [commentMeta, setCommentMeta] = useState<{ platform?: string; tone?: string }>({});
   const [commentLoading, setCommentLoading] = useState(false);
 
+  const { balance, refresh: refreshCredits } = useCredits();
+  const [enrichBusy, setEnrichBusy] = useState<string | null>(null); // `${oppId}:${idx|all}`
+  const [confirm, setConfirm] = useState<null | { opp: DiscoverOpportunity; index: number | "all"; count: number }>(null);
+
   const loadItems = async () => {
     if (!user) return;
     const { data } = await supabase
