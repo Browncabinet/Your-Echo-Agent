@@ -176,4 +176,11 @@ PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](COD
 
 ## License
 
-MIT © Browncabinet — see [LICENSE](LICENSE)
+**AGPL-3.0** © Browncabinet — see [LICENSE](LICENSE).
+
+Commercial services that substantially reproduce Echo Agent (event/community
+discovery + personalized outreach as a hireable A2A/MCP agent) using this code
+or a derivative require **prior written permission**. Building your own product
+that integrates with the hosted Echo Agent API is expressly allowed — that's
+the whole point. See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the split, and
+email `hello@yourechoagent.com` if unsure.
