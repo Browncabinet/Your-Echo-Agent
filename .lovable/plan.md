@@ -1,39 +1,61 @@
-# Keeping your repo private on Glama
+# Phase 2 GitHub Registry Submission Pack
 
-Glama's builder cloned your repo over anonymous HTTPS and failed:
-`fatal: could not read Username for 'https://github.com'`
-That means it has no GitHub credentials — it can only clone public repos unless you give it access. You have three realistic options.
+Create a single new doc, `docs/phase-2-github-submissions.md`, containing everything you can copy-paste. No app code changes.
 
-## Option A — Grant Glama access to the private repo (recommended)
+## What the doc will contain
 
-In Glama's server settings, look for a **"Connect GitHub"** / **"Install GitHub App"** / **"Add deploy key"** button. One of these will be offered:
+### 1. Reusable "Your Echo" copy blocks (form-safe, no smart quotes, em dashes replaced with `-`)
 
-1. **GitHub App install** — install Glama's app on your GitHub account and grant it access to *only* `Browncabinet/Your-Echo-Agent`. Nothing else is exposed.
-2. **Deploy key** — Glama shows a public SSH key; you add it as a read-only deploy key under `Settings → Deploy keys` on the repo. Change the repo URL in Glama to the SSH form: `git@github.com:Browncabinet/Your-Echo-Agent.git`.
-3. **Personal Access Token (fine-grained)** — create a fine-grained PAT scoped to just that one repo with `Contents: Read`, and paste it into Glama. Use the URL form `https://<token>@github.com/Browncabinet/Your-Echo-Agent.git`.
+- **Name:** `Your Echo`
+- **Slug / ID:** `your-echo-agent`
+- **Short description (140 chars):**
+  `Your Echo - A2A + MCP outbound agent that finds events, warm leads, drafts PR + hyper-personalized emails. Prepaid, pay-per-delivered-email.`
+- **Medium description (~500 chars):**
+  Focused on: event discovery (conferences, webinars, podcasts, communities), verified warm lead gen, hyper-personalized email + PR pitches, deliverability safeguards, reply triage. Prepaid billing: 50 free emails on signup, packs $25 - $149 (Agency = 10k emails), no subscription, credits never expire.
+- **Long description (~1200 chars):** Same themes expanded, includes A2A + MCP interop, hire-me-from-another-agent flow, JSON-RPC endpoints, and billing summary.
+- **Tags:** `a2a, mcp, outreach, cold-email, lead-generation, event-discovery, conferences, webinars, podcasts, pr, b2b, sales-automation, agent-to-agent, prepaid, pay-per-result`
+- **Capabilities/Skills list** (5 skills): `discover_events`, `find_warm_leads`, `draft_personalized_email`, `send_with_safeguards`, `triage_replies` - each with 1-line description + example input/output.
 
-Your source stays private on GitHub; only Glama's build sandbox can pull it.
+### 2. Full Agent Card JSON snippet
+Trimmed, registry-safe version of `public/.well-known/agent-card.json` with:
+- `name: "Your Echo"`
+- `provider.organization: "Your Echo"`
+- `url: https://yourechoagent.com/a2a`
+- `documentationUrl`, `iconUrl`, `capabilities`, `skills[]`, `pricing` block (prepaid + $149 Agency pack), `authentication`, `interfaces` (A2A + MCP).
 
-## Option B — Publish only a compiled/minified artifact
+Ready to drop into a registry PR as `agents/your-echo.json` or inline in markdown.
 
-Create a second public repo (e.g. `yourechoagent-mcp-dist`) that contains only:
+### 3. itinai.com A2A Hub submission
+- Repo: `https://github.com/itinai/a2a-hub` (confirm exact path in PR step)
+- File to add: `agents/your-echo-agent.json` (full Agent Card above)
+- PR title: `Add Your Echo - A2A outbound outreach agent`
+- PR description template (form-safe, markdown): summary, links (homepage, docs, agent-card.json, manifest, GitHub, npm), skills bullet list, billing summary, contact.
+- Reviewer comment template for follow-up.
 
-- `package.json` (runtime deps only)
-- `dist/` (already-built, minified JS)
-- `Dockerfile` that just runs `node dist/index.js`
+### 4. PulseMCP submission
+- Repo: `https://github.com/orgs/pulsemcp` server registry
+- File to add: `servers/your-echo.json` (MCP server manifest variant - name, description, npm package `@browncabinet/yourechoagent-mcp`, install command, tools list, homepage, license, tags)
+- PR title: `Add Your Echo MCP server - outbound outreach + event discovery`
+- PR description template with install snippet:
+  ```
+  npx -y @browncabinet/yourechoagent-mcp
+  ```
+- Tools list matches the 5 skills above.
 
-No TypeScript sources, no prompts, no business logic in readable form. Point Glama at that repo. Developers can see the compiled output but not your source. This is the same pattern npm packages use.
+### 5. Step-by-step PR instructions (per registry)
+For each:
+1. Fork the repo on GitHub
+2. Create branch `add-your-echo`
+3. Add the specified JSON file at the specified path
+4. Commit: `Add Your Echo agent`
+5. Open PR against `main` using the provided title + description
+6. Post the reviewer comment if no response in 7 days
 
-## Option C — Host the MCP server yourself, register only the URL
+### 6. Fix note
+Flag that `public/.well-known/agent-card.json` still contains `"name": "Echo Agent"` in places. Recommend updating to `"Your Echo"` in build mode before submitting so the fetched card matches submitted copy.
 
-If Glama supports "remote MCP server" (HTTP/SSE transport) instead of "build from source", you deploy the server on your own infra (Fly.io, Railway, a VPS) and give Glama just the endpoint URL + auth header. Nothing is ever cloned or built by Glama. Best privacy, requires you to run the server.
+## Files touched
+- **New:** `docs/phase-2-github-submissions.md`
+- **No code changes** in this plan. (Optional follow-up in a separate build step: rename residual "Echo Agent" strings in `public/.well-known/agent-card.json` to "Your Echo".)
 
-## What I recommend
-
-Try **Option A** first — it's what Glama is designed for and takes ~2 minutes. If Glama's UI doesn't expose any GitHub auth field, fall back to **Option B**.
-
-## Note on protection
-
-None of these stop a determined user from reverse-engineering the running server's behavior (prompts can leak through outputs, API responses can be inspected). If prompts/logic are the crown jewels, keep the sensitive parts server-side behind your API (Option C) rather than shipping them inside the MCP server binary.
-
-Reply with which option you want and I'll walk you through the exact steps.
+Approve to switch to build mode and write the doc.
