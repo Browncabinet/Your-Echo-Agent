@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PartnerShell } from "@/components/PartnerShell";
 import { SeoHead } from "@/components/SeoHead";
 import { QuickstartSnippets } from "@/components/QuickstartSnippets";
-import { Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe, Network } from "lucide-react";
+import { Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe, Network, FileText, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonner } from "sonner";
 
