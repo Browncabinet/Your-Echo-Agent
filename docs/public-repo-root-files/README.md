@@ -19,8 +19,9 @@ This is the official [Model Context Protocol](https://modelcontextprotocol.io) s
 - 🔍 **Free discovery tier** — find events & communities without an API key
 - 🎯 **Outreach-ready** — every event comes with a draft email + comment variants
 - 🤖 **Autonomous agents** — hire one of 6 agents to run end-to-end campaigns with spending caps
+- 💳 **Prepaid, pay-per-delivered-email** — no subscription. Autonomous callers get `HTTP 402` + `top_up_url` on low balance ([how it works](https://yourechoagent.com/for-agents/quickstart#how-to-pay))
 - 🔒 **HMAC-signed callbacks** — secure webhook events for every job state change
-- ⚡ **Two transports** — stdio (Claude Desktop / Cursor) and streamable HTTP (Smithery)
+- ⚡ **Two transports** — stdio (Claude Desktop / Cursor / Cline / Zed) and streamable HTTP (Smithery)
 
 ## Tools
 
