@@ -310,6 +310,76 @@ export default function PartnerDashboard() {
         </div>
       </Panel>
 
+      {/* Shareable Integration Link — embed / share Echo in one line */}
+      <Panel className="mb-6">
+        <PanelHeader icon={ExternalLink} title="Shareable integration link" />
+        <div className="p-5 space-y-4">
+          <p className="text-sm text-zinc-500">
+            Send these to any developer, orchestrator, or teammate. They install Echo in one click — no coding required.
+          </p>
+
+          {[
+            {
+              label: "MCP endpoint (Claude / Cursor / Windsurf / ChatGPT)",
+              value: `${FUNCTIONS_BASE}/mcp-http`,
+              hint: "Paste into any MCP client config as transport: streamable-http.",
+            },
+            {
+              label: "Agent discovery URL (.well-known)",
+              value: "https://yourechoagent.com/.well-known/agent-card.json",
+              hint: "A2A 0.3.0 agent card. Registries and orchestrators auto-discover from here.",
+            },
+            {
+              label: "Quickstart share link",
+              value: "https://yourechoagent.com/for-agents/quickstart",
+              hint: "Copy-paste guides for LangGraph, CrewAI, Claude Desktop, and more.",
+            },
+          ].map((item) => (
+            <div key={item.label}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">{item.label}</span>
+                <button onClick={() => copy(item.value)} className="text-[10px] text-zinc-500 hover:text-zinc-200 font-mono flex items-center gap-1">
+                  <Copy className="w-2.5 h-2.5" /> copy
+                </button>
+              </div>
+              <code className="block text-xs bg-black/40 border border-white/[0.06] p-2.5 rounded font-mono break-all text-emerald-300">{item.value}</code>
+              <p className="text-[11px] text-zinc-600 mt-1">{item.hint}</p>
+            </div>
+          ))}
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">Embed snippet (drop-in MCP config)</span>
+              <button
+                onClick={() => copy(`{
+  "mcpServers": {
+    "echo": {
+      "transport": "streamable-http",
+      "url": "${FUNCTIONS_BASE}/mcp-http",
+      "headers": { "Authorization": "Bearer eak_YOUR_KEY" }
+    }
+  }
+}`)}
+                className="text-[10px] text-zinc-500 hover:text-zinc-200 font-mono flex items-center gap-1"
+              >
+                <Copy className="w-2.5 h-2.5" /> copy
+              </button>
+            </div>
+            <pre className="text-[11px] font-mono text-zinc-300 bg-black/40 border border-white/[0.06] rounded-md p-3 overflow-x-auto">{`{
+  "mcpServers": {
+    "echo": {
+      "transport": "streamable-http",
+      "url": "${FUNCTIONS_BASE}/mcp-http",
+      "headers": { "Authorization": "Bearer eak_YOUR_KEY" }
+    }
+  }
+}`}</pre>
+          </div>
+        </div>
+      </Panel>
+
+
+
       {/* Webhook secret */}
       {partner && (
         <Panel className="mb-6">
