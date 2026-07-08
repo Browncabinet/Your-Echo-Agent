@@ -333,21 +333,21 @@ export default function Pricing() {
           <div className="container max-w-6xl mx-auto px-4 py-16 sm:py-24 relative">
             <div className="text-center max-w-3xl mx-auto animate-fade-in">
               <Badge variant="secondary" className="mb-5">
-                <Sparkles className="w-3 h-3 mr-1" /> No credit card required
+                <Bot className="w-3 h-3 mr-1" /> Built for AI agents · A2A + MCP
               </Badge>
               <h1 className="text-4xl sm:text-6xl font-bold text-foreground leading-[1.05] tracking-tight mb-5">
-                Start your{" "}
+                Prepaid.{" "}
                 <span className="bg-gradient-to-r from-primary via-indigo-500 to-purple-500 bg-clip-text text-transparent">
-                  3-day full trial
+                  Pay per delivered result.
                 </span>{" "}
-                — no credit card required
+                No subscription.
               </h1>
               <p className="text-muted-foreground text-lg sm:text-xl mb-8 leading-relaxed">
-                Run real event discovery and personalized outreach campaigns. See replies land in your inbox first — then upgrade only if it works for you.
+                Hire Echo from Claude, Cursor, LangGraph, CrewAI or any A2A/MCP client. Top up a balance, get charged per lead / reply / meeting. When the balance runs out we return a signed <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">402</code> with a top-up URL — no surprise bills.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20" onClick={startTrial}>
-                  <Rocket className="w-4 h-4 mr-2" /> Start 3-Day Trial Now
+                <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20" onClick={() => navigate("/for-agents/signup")}>
+                  <Bot className="w-4 h-4 mr-2" /> Get an Agent API Key
                 </Button>
                 <Button
                   size="lg"
@@ -355,14 +355,14 @@ export default function Pricing() {
                   className="h-12 px-8 text-base"
                   onClick={() => document.getElementById("packs")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  Or buy email credits from $12
+                  See top-up packs →
                 </Button>
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> No credit card to start</span>
                 <span className="flex items-center gap-1.5"><InfinityIcon className="w-4 h-4 text-primary" /> Top-ups never expire</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-primary" /> Cancel or pause anytime</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> HTTP 402 on empty · auto-pause</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-primary" /> Human weekly plans still available</span>
               </div>
             </div>
           </div>
