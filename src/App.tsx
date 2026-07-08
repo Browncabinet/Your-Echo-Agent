@@ -31,6 +31,7 @@ import Discover from "./pages/Discover.tsx";
 import MyRadar from "./pages/MyRadar.tsx";
 import Home from "./pages/Home.tsx";
 import SettingsMcp from "./pages/SettingsMcp.tsx";
+import SubmissionsHelper from "./pages/SubmissionsHelper.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
