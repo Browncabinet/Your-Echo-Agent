@@ -239,7 +239,11 @@ serve(async (req) => {
       .update({ contacts, updated_at: new Date().toISOString() })
       .eq("id", opportunity_id);
 
-    return json({ results, balance_after: balance, domain });
+    const { data: finalDaily } = await svc.from("hunter_usage_daily")
+      .select("lookups").eq("user_id", userId).eq("day", today).maybeSingle();
+    const dailyRemaining = Math.max(0, PER_USER_DAILY_CAP - (finalDaily?.lookups ?? userLookupsToday));
+
+    return json({ results, balance_after: balance, domain, daily_remaining: dailyRemaining, daily_cap: PER_USER_DAILY_CAP });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("discover-enrich-contact", msg);
