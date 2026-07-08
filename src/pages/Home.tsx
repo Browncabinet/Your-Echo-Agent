@@ -104,7 +104,7 @@ export default function Home() {
         <div className="container max-w-6xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
           <motion.div {...fadeUp}>
             <Badge variant="secondary" className="mb-5 gap-1.5">
-              <Sparkles className="w-3 h-3" /> New: Events & Communities Discovery
+              <Bot className="w-3 h-3" /> A2A + MCP · Prepaid · Pay per result
             </Badge>
           </motion.div>
           <motion.h1
@@ -112,9 +112,9 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.05 }}
             className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] max-w-4xl mx-auto"
           >
-            Find where your audience gathers.{" "}
+            The outreach agent{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              Turn it into pipeline.
+              other agents hire.
             </span>
           </motion.h1>
           <motion.p
@@ -122,9 +122,7 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            AI-powered event & community discovery + personalized outreach. Discover conferences,
-            webinars, podcasts, and groups in your niche — then send hyper-personalized emails.
-            No LinkedIn scraping.
+            Any A2A/MCP client — Claude, Cursor, LangGraph, CrewAI, or your custom orchestrator — can hire Echo to run niche-specific event discovery and personalized email outreach. Prepaid balance, per-result billing, HTTP 402 when funds run low.
           </motion.p>
           <motion.div
             {...fadeUp}
@@ -132,15 +130,56 @@ export default function Home() {
             className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
           >
             <Button size="lg" onClick={() => navigate("/for-agents/signup")} className="gap-2">
-              Start free — 50 emails <ArrowRight className="w-4 h-4" />
+              <Bot className="w-4 h-4" /> Get API Key — Hire Echo Now
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="#how-it-works">See how it works</a>
+              <Link to="/for-agents">See API docs & MCP setup <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
             </Button>
           </motion.div>
           <p className="mt-4 text-xs text-muted-foreground">
-            No credit card. Cancel anytime.
+            Also usable by humans · 50 free emails · No credit card
           </p>
+        </div>
+      </section>
+
+      {/* For AI Agents — prominent */}
+      <section className="border-y border-border/60 bg-gradient-to-br from-indigo-500/5 via-transparent to-emerald-500/5">
+        <div className="container max-w-6xl mx-auto px-4 py-16">
+          <motion.div {...fadeUp} className="text-center mb-10">
+            <Badge className="mb-3 bg-indigo-500/10 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/15">
+              For AI Agents
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+              Delegate outreach in one API call
+            </h2>
+            <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+              Echo speaks A2A 0.3.0 and MCP. Discoverable at <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">/.well-known/agent.json</code>. Six specialized sub-agents. Prepaid packs from $25 (agency pack $149 = 10k emails).
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            {[
+              { Icon: Code2, title: "One-line MCP setup", body: "Point Claude Desktop, Cursor, or Windsurf at our hosted MCP endpoint. No install." },
+              { Icon: Bot, title: "Multi-agent friendly", body: "LangGraph & CrewAI orchestrators can hire Echo as a sub-agent with a per-job spending cap." },
+              { Icon: ShieldCheck, title: "HTTP 402 on empty", body: "Job auto-pauses and returns a signed top_up_url when the prepaid balance runs low." },
+            ].map(({ Icon, title, body }) => (
+              <div key={title} className="rounded-xl border border-border bg-card p-5">
+                <Icon className="w-5 h-5 text-indigo-500 mb-3" />
+                <h3 className="font-medium mb-1">{title}</h3>
+                <p className="text-sm text-muted-foreground">{body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <Button size="lg" onClick={() => navigate("/for-agents/signup")} className="gap-2">
+              <Bot className="w-4 h-4" /> Get API Key
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/for-agents/quickstart">Quickstart & copy-paste examples <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
+            </Button>
+            <Button size="lg" variant="ghost" asChild>
+              <Link to="/pricing">See prepaid packs →</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
