@@ -369,10 +369,10 @@ export default function Pricing() {
         </section>
 
         <div className="container max-w-6xl mx-auto px-4 py-16">
-          <Tabs defaultValue="human" className="w-full">
+          <Tabs defaultValue="a2a" className="w-full">
             <TabsList className="mx-auto grid grid-cols-2 max-w-md mb-10">
+              <TabsTrigger value="a2a"><Bot className="w-3.5 h-3.5 mr-1.5" /> For AI Agents</TabsTrigger>
               <TabsTrigger value="human"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> For Humans</TabsTrigger>
-              <TabsTrigger value="a2a"><Bot className="w-3.5 h-3.5 mr-1.5" /> For Agents (A2A)</TabsTrigger>
             </TabsList>
 
             <TabsContent value="human">
