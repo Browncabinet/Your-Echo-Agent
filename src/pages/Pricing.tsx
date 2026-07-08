@@ -105,7 +105,7 @@ const weeklyTiers: WeeklyTier[] = [
   },
 ];
 
-type PackId = "topup_500" | "topup_1000" | "topup_2500";
+type PackId = "topup_500" | "topup_1000" | "topup_2500" | "topup_10000";
 
 type Pack = {
   priceId: PackId;
@@ -116,7 +116,7 @@ type Pack = {
   description: string;
 };
 
-// Display packs mapped to the three real Stripe top-up prices.
+// Display packs mapped to the four real Stripe top-up prices.
 const emailPacks: Pack[] = [
   {
     priceId: "topup_500",
@@ -140,6 +140,14 @@ const emailPacks: Pack[] = [
     perEmail: "$0.018",
     badge: "Best Value",
     description: "For agencies and multi-audience outreach at scale.",
+  },
+  {
+    priceId: "topup_10000",
+    price: 149,
+    emails: 10000,
+    perEmail: "$0.015",
+    badge: "Agency",
+    description: "10,000 emails for agencies and heavy senders. Never expires.",
   },
 ];
 
