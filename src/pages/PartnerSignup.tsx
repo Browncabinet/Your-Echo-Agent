@@ -142,7 +142,7 @@ export default function PartnerSignup() {
   return (
     <PartnerShell width="narrow" hideNav>
       <SeoHead
-        title="Sign up — Echo Agents A2A Developer Onboarding"
+        title="Sign up — Your Echo A2A Developer Onboarding"
         description="Create your A2A partner account, get an eak_ API key, and hire your first agent in under 60 seconds."
         path="/for-agents/signup"
       />

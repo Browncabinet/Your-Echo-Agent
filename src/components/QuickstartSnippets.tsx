@@ -87,7 +87,7 @@ def hire_echo_agent(payload: dict) -> dict:
 
 echo_tool = Tool(
     name="hire_echo_outreach_agent",
-    description="Hire an autonomous Echo Agent to run a cold-outreach campaign. "
+    description="Hire Your Echo to run a cold-outreach campaign. "
                 "Returns job_id, leads_total, spend_cents.",
     func=hire_echo_agent,
 )

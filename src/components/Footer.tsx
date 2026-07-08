@@ -14,7 +14,7 @@ export function Footer() {
           <Link to="/refund" className="hover:text-primary transition-colors">Refunds</Link>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          © 2026 Echo Agent
+          © 2026 Your Echo
         </p>
       </div>
     </footer>
