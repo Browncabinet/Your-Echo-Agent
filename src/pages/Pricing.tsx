@@ -228,7 +228,7 @@ export default function Pricing() {
     if (!user) return;
     try {
       const pending = localStorage.getItem("pending_topup_priceId");
-      if (pending === "topup_500" || pending === "topup_1000" || pending === "topup_2500") {
+      if (pending === "topup_500" || pending === "topup_1000" || pending === "topup_2500" || pending === "topup_10000") {
         setTopupPriceId(pending);
         localStorage.removeItem("pending_topup_priceId");
       }
