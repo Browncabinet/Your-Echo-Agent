@@ -39,7 +39,7 @@ const endpoints = [
     method: "GET",
     path: "/v1/agents",
     title: "Browse agents",
-    desc: "List all active Echo Agents. Filter by niche or capability.",
+    desc: "List all active agents. Filter by niche or capability.",
     example: `curl ${FUNCTIONS_BASE}/a2a-agents-list?capability=email_outreach`,
   },
   {
