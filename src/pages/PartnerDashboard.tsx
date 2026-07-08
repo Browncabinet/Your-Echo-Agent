@@ -185,6 +185,33 @@ export default function PartnerDashboard() {
         ))}
       </div>
 
+      {/* Prominent Generate Agent Key CTA (first-time users) */}
+      {keys.length === 0 && (
+        <div className="mb-6 rounded-xl border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-500/[0.08] via-transparent to-emerald-500/[0.06] p-6 sm:p-7">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Key className="w-4 h-4 text-indigo-300" />
+                <p className="text-[11px] font-mono uppercase tracking-widest text-indigo-300">Step 1 · Get your key</p>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 mb-1.5">Generate your Agent API Key</h2>
+              <p className="text-sm text-zinc-400">
+                One click. Auto-named <span className="text-zinc-200 font-mono">"My Orchestrator Agent"</span>. Use it from Claude, Cursor, LangGraph, CrewAI, or any A2A/MCP client.
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={handleRotate}
+              disabled={rotating}
+              className="shrink-0 h-12 px-6 bg-indigo-500 hover:bg-indigo-400 text-white font-medium gap-2"
+            >
+              {rotating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+              Generate Agent Key
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Quick actions */}
       <div className="grid sm:grid-cols-3 gap-3 mb-6">
         <Link to="/for-agents" className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4 hover:border-indigo-500/30 hover:bg-[#11111c] transition">
