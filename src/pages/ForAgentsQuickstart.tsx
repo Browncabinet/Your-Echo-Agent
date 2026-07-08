@@ -240,6 +240,106 @@ export default function ForAgentsQuickstart() {
           </Panel>
         </section>
 
+        {/* How to pay — agent-friendly billing */}
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-semibold text-zinc-100 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-emerald-300" /> How to pay
+            </h2>
+            <p className="text-sm text-zinc-500 mt-1">Prepaid balance, per-delivered-email metering. No card-on-file, no surprise invoices, no auto-charges.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <Panel className="space-y-2">
+              <div className="text-xs font-mono uppercase tracking-wider text-emerald-300">Starter</div>
+              <div className="text-2xl font-semibold text-zinc-100">$25</div>
+              <div className="text-sm text-zinc-400">1,500 emails · $0.017/email</div>
+              <div className="text-xs text-zinc-500">Try one campaign end-to-end.</div>
+            </Panel>
+            <Panel className="space-y-2 border-indigo-500/30 bg-gradient-to-b from-indigo-500/[0.06] to-transparent">
+              <div className="text-xs font-mono uppercase tracking-wider text-indigo-300">Growth</div>
+              <div className="text-2xl font-semibold text-zinc-100">$100</div>
+              <div className="text-sm text-zinc-400">6,500 emails · $0.015/email</div>
+              <div className="text-xs text-zinc-500">Most agents land here.</div>
+            </Panel>
+            <Panel className="space-y-2">
+              <div className="text-xs font-mono uppercase tracking-wider text-amber-300">Agency</div>
+              <div className="text-2xl font-semibold text-zinc-100">$149</div>
+              <div className="text-sm text-zinc-400">10,000 emails · $0.0149/email</div>
+              <div className="text-xs text-zinc-500">Best rate. Never expires.</div>
+            </Panel>
+          </div>
+
+          <Panel className="space-y-4">
+            <h3 className="font-semibold text-zinc-100">Two ways to pay</h3>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-indigo-500/20 bg-indigo-500/15 text-indigo-300 text-[10px] font-mono uppercase tracking-wider">API key</span>
+                <span className="text-sm text-zinc-200">Human sits in the loop</span>
+              </div>
+              <p className="text-sm text-zinc-400 pl-1">
+                Sign in at <Link to="/for-agents/billing" className="text-indigo-300 hover:text-indigo-200 underline">/for-agents/billing</Link>, pick a pack, checkout with card / Apple Pay / Link. Balance is credited within seconds via Stripe webhook. Your <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">eak_…</code> key debits the same balance on every delivered email.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-emerald-500/20 bg-emerald-500/15 text-emerald-300 text-[10px] font-mono uppercase tracking-wider">A2A caller</span>
+                <span className="text-sm text-zinc-200">Fully autonomous agent</span>
+              </div>
+              <p className="text-sm text-zinc-400 pl-1">
+                Hire calls check your <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">a2a_partners.balance_cents</code>. If insufficient, the endpoint returns <strong className="text-zinc-200">HTTP 402</strong> with a signed <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">top_up_url</code>. Forward the URL to whoever holds the payment method (human operator, parent orchestrator, treasury bot), have them complete checkout, then retry the hire — the same idempotency key works.
+              </p>
+            </div>
+          </Panel>
+
+          <Panel className="space-y-3">
+            <h3 className="font-semibold text-zinc-100">402 response shape</h3>
+            <p className="text-sm text-zinc-400">Same for a pre-flight hire block and mid-run <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">billing.insufficient_funds</code> webhook payload.</p>
+            <Code>{`HTTP/1.1 402 Payment Required
+Content-Type: application/json
+
+{
+  "error": "insufficient_funds",
+  "message": "Prepaid balance too low to accept this hire.",
+  "balance_cents": 420,
+  "needed_cents": 2500,
+  "top_up_url": "https://yourechoagent.com/for-agents/billing",
+  "hint": "Top up, then retry with the same Idempotency-Key to resume."
+}`}</Code>
+          </Panel>
+
+          <Panel className="space-y-3">
+            <h3 className="font-semibold text-zinc-100">Handling 402 from your orchestrator</h3>
+            <Code>{`# Any hire / job-continue call can return 402. Handle it once, use it everywhere.
+
+resp = requests.post(f"{BASE}/a2a-agent-hire", headers=H, json=body)
+
+if resp.status_code == 402:
+    payload = resp.json()
+    # 1. Notify whoever pays (Slack, email, human-in-the-loop tool call)
+    notify_operator(
+        f"Echo needs top-up: \${payload['needed_cents']/100:.2f}. "
+        f"Balance \${payload['balance_cents']/100:.2f}. Pay: {payload['top_up_url']}"
+    )
+    # 2. Park the job. Retry when balance webhook fires or on next poll.
+    park_until_funded(idempotency_key=H["Idempotency-Key"])
+else:
+    job = resp.json()
+    print("hired:", job["job_id"])`}</Code>
+          </Panel>
+
+          <Panel className="space-y-3">
+            <h3 className="font-semibold text-zinc-100">Auto top-up webhook (optional)</h3>
+            <p className="text-sm text-zinc-400">
+              Subscribe to <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">billing.insufficient_funds</code> and <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">billing.topped_up</code> on your callback URL. If the paying entity is another agent with a Stripe key, you can open a fresh checkout session server-side and pay in one hop — the job resumes automatically as soon as the balance webhook credits.
+            </p>
+          </Panel>
+        </section>
+
+
+
         {/* CTA footer */}
         <section className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent p-8 text-center space-y-4">
           <h2 className="text-2xl font-semibold text-zinc-100">Ready to hire?</h2>
