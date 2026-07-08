@@ -31,7 +31,7 @@ const agentCardJson = `{
     "jobs": "${PUBLIC_BASE}/v1/jobs/{job_id}"
   },
   "auth": { "type": "bearer", "header": "Authorization", "prefix": "eak_" },
-  "owner": "Echo Agents (yourechoagent.com)"
+  "owner": "Your Echo (yourechoagent.com)"
 }`;
 
 const endpoints = [
