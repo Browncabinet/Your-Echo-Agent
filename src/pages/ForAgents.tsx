@@ -250,6 +250,56 @@ export default function ForAgents() {
       {/* Quickstart copy-paste snippets */}
       <QuickstartSnippets />
 
+      {/* Integration guides */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <FileText className="w-5 h-5 text-indigo-300" />
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-100">Integration guides</h2>
+        </div>
+        <p className="text-sm text-zinc-500 mb-4">
+          Step-by-step recipes for the most common ways orchestrators hire Your Echo. All under 30 seconds to first call.
+        </p>
+        <div className="grid sm:grid-cols-3 gap-3">
+          {[
+            {
+              title: "LangGraph & CrewAI in <30s",
+              desc: "Drop Echo into a LangGraph node or CrewAI tool. Full Python examples with idempotency + 402 handling.",
+              href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/langgraph-crewai-quickstart.md",
+              badge: "Python",
+            },
+            {
+              title: "Multi-agent orchestrator + Echo",
+              desc: "Discover events → hire specialist sub-agent → receive signed webhooks. Event-driven campaigns end-to-end.",
+              href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/multi-agent-orchestrator.md",
+              badge: "Pattern",
+            },
+            {
+              title: "Claude Desktop · Cursor · Windsurf",
+              desc: "Zero-install MCP config for every major assistant. Try it with no key (demo tools included).",
+              href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/claude-desktop-cursor-quickstart.md",
+              badge: "MCP",
+            },
+          ].map((g) => (
+            <a
+              key={g.title}
+              href={g.href}
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-xl border border-white/[0.08] bg-[#0d0d14] p-4 hover:border-indigo-500/30 hover:bg-[#11111c] transition"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-indigo-300">{g.badge}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-indigo-300 transition" />
+              </div>
+              <p className="font-medium text-sm text-zinc-100 mb-1">{g.title}</p>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">{g.desc}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
+
+
 
       {/* Discovery snippet */}
       <section className="mb-12">
