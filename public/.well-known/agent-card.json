@@ -21,6 +21,7 @@
   },
   "version": "0.3.0",
   "documentationUrl": "https://yourechoagent.com/for-agents/docs",
+  "billingUrl": "https://yourechoagent.com/for-agents/quickstart#how-to-pay",
   "openapi": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi",
   "termsOfServiceUrl": "https://yourechoagent.com/terms",
   "privacyPolicyUrl": "https://yourechoagent.com/privacy",
