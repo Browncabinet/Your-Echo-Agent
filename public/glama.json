@@ -2,16 +2,27 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "maintainers": ["Browncabinet"],
   "name": "yourechoagent-mcp",
-  "description": "Event discovery + AI outreach for AI agents. Find conferences, webinars, meetups, podcasts, and communities in any niche, then draft personalized emails and comments — all from MCP. Tools: discover_events, draft_outreach_for_event, generate_comment_for_community, add_to_radar, hire_echo_agent.",
+  "description": "Prepaid, pay-per-delivered-email outbound outreach for AI agents. Discover events + communities, find verified leads, draft & send personalized emails from any MCP client. Autonomous A2A callers get HTTP 402 + top_up_url on low balance — see https://yourechoagent.com/for-agents/quickstart#how-to-pay",
   "homepage": "https://yourechoagent.com",
+  "documentation": "https://yourechoagent.com/for-agents/quickstart",
   "repository": "https://github.com/Browncabinet/yourechoagent-mcp",
   "license": "MIT",
   "logo": "https://yourechoagent.com/logo.png",
   "icon": "https://yourechoagent.com/logo.png",
   "transports": ["stdio"],
+  "pricing": {
+    "model": "prepaid_per_delivered_email",
+    "packs": [
+      { "id": "topup_1500", "usd": 25, "emails": 1500 },
+      { "id": "topup_6500", "usd": 100, "emails": 6500 },
+      { "id": "topup_10000", "usd": 149, "emails": 10000, "label": "Agency" }
+    ],
+    "billing_docs": "https://yourechoagent.com/for-agents/quickstart#how-to-pay",
+    "free_tier_emails": 50
+  },
   "env": {
     "ECHO_API_KEY": {
-      "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/register",
+      "description": "Echo Agent API key (prefix eak_). Get one at https://yourechoagent.com/for-agents/dashboard — 50 free emails then prepaid packs from $25. Billing: https://yourechoagent.com/for-agents/quickstart#how-to-pay",
       "required": true,
       "secret": true,
       "placeholder": "eak_your_key_here"
