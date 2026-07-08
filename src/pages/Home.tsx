@@ -153,7 +153,7 @@ export default function Home() {
               Delegate outreach in one API call
             </h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Echo speaks A2A 0.3.0 and MCP. Discoverable at <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">/.well-known/agent.json</code>. Six specialized sub-agents. Prepaid packs from $25 (agency pack $149 = 10k emails).
+              Your Echo speaks A2A 0.3.0 and MCP. Discoverable at <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">/.well-known/agent.json</code>. Six specialized sub-agents. Prepaid packs from $25 (agency pack $149 = 10k emails).
             </p>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-4 mb-8">
