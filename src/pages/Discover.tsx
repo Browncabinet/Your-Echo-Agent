@@ -237,12 +237,19 @@ export default function Discover() {
           </CardContent>
         </Card>
 
-        <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 rounded-md p-3">
-          <Info className="w-4 h-4 mt-0.5 shrink-0" />
-          <span>
-            Outreach compliance is your responsibility. Follow CAN-SPAM, GDPR, and each platform&apos;s rules. Only contact people whose info is publicly listed for outreach, and always include an opt-out.
-          </span>
-        </div>
+        <Collapsible>
+          <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 text-left text-sm bg-muted/40 rounded-md p-3 hover:bg-muted/60 transition-colors">
+            <span className="flex items-center gap-2 font-medium">
+              <Info className="w-4 h-4 text-primary" /> What we can (and can't) get from an event page
+            </span>
+            <ChevronDown className="w-4 h-4 opacity-60" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="text-xs text-muted-foreground bg-muted/30 rounded-b-md p-3 -mt-1 space-y-2">
+            <p><CheckCircle2 className="w-3.5 h-3.5 inline text-emerald-600 mr-1" /> <strong>What we extract:</strong> organizers, speakers, sponsors, and any emails/socials the event publicly lists. <em>Find email</em> then looks up work emails via Hunter.io using name + company domain.</p>
+            <p><AlertCircle className="w-3.5 h-3.5 inline text-amber-600 mr-1" /> <strong>What we can't get:</strong> the attendee list. Zoom, Luma, Eventbrite, and Hopin keep registrant lists private — no legitimate API exposes them and scraping violates ToS + GDPR.</p>
+            <p><Info className="w-3.5 h-3.5 inline mr-1" /> Outreach compliance is your responsibility (CAN-SPAM, GDPR). Only contact people whose info is publicly listed for outreach, and always include an opt-out.</p>
+          </CollapsibleContent>
+        </Collapsible>
 
         <Tabs value={activeKind} onValueChange={(v) => setActiveKind(v as Kind)}>
           <TabsList>
