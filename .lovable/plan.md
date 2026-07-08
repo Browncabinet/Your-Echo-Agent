@@ -1,87 +1,39 @@
-# Fix Glama build failure: GitHub repo access
+# Keeping your repo private on Glama
 
-## What failed now
+Glama's builder cloned your repo over anonymous HTTPS and failed:
+`fatal: could not read Username for 'https://github.com'`
+That means it has no GitHub credentials — it can only clone public repos unless you give it access. You have three realistic options.
 
-The Docker/base image problem is past this time. The build now fails here:
+## Option A — Grant Glama access to the private repo (recommended)
 
-```text
-fatal: could not read Username for 'https://github.com': No such device or address
-```
+In Glama's server settings, look for a **"Connect GitHub"** / **"Install GitHub App"** / **"Add deploy key"** button. One of these will be offered:
 
-That means Glama is trying to clone:
+1. **GitHub App install** — install Glama's app on your GitHub account and grant it access to *only* `Browncabinet/Your-Echo-Agent`. Nothing else is exposed.
+2. **Deploy key** — Glama shows a public SSH key; you add it as a read-only deploy key under `Settings → Deploy keys` on the repo. Change the repo URL in Glama to the SSH form: `git@github.com:Browncabinet/Your-Echo-Agent.git`.
+3. **Personal Access Token (fine-grained)** — create a fine-grained PAT scoped to just that one repo with `Contents: Read`, and paste it into Glama. Use the URL form `https://<token>@github.com/Browncabinet/Your-Echo-Agent.git`.
 
-```text
-https://github.com/Browncabinet/Your-Echo-Agent
-```
+Your source stays private on GitHub; only Glama's build sandbox can pull it.
 
-but the repo is private, renamed, or not accessible to Glama's builder without GitHub credentials.
+## Option B — Publish only a compiled/minified artifact
 
-## Best fix
+Create a second public repo (e.g. `yourechoagent-mcp-dist`) that contains only:
 
-Use a **public MCP-only repo** for Glama instead of the private/full Lovable app repo.
+- `package.json` (runtime deps only)
+- `dist/` (already-built, minified JS)
+- `Dockerfile` that just runs `node dist/index.js`
 
-Your docs already point to the intended public repo:
+No TypeScript sources, no prompts, no business logic in readable form. Point Glama at that repo. Developers can see the compiled output but not your source. This is the same pattern npm packages use.
 
-```text
-https://github.com/Browncabinet/yourechoagent-mcp
-```
+## Option C — Host the MCP server yourself, register only the URL
 
-So in Glama, change the repository/source URL from:
+If Glama supports "remote MCP server" (HTTP/SSE transport) instead of "build from source", you deploy the server on your own infra (Fly.io, Railway, a VPS) and give Glama just the endpoint URL + auth header. Nothing is ever cloned or built by Glama. Best privacy, requires you to run the server.
 
-```text
-https://github.com/Browncabinet/Your-Echo-Agent
-```
+## What I recommend
 
-to:
+Try **Option A** first — it's what Glama is designed for and takes ~2 minutes. If Glama's UI doesn't expose any GitHub auth field, fall back to **Option B**.
 
-```text
-https://github.com/Browncabinet/yourechoagent-mcp
-```
+## Note on protection
 
-Then rebuild.
+None of these stop a determined user from reverse-engineering the running server's behavior (prompts can leak through outputs, API responses can be inspected). If prompts/logic are the crown jewels, keep the sensitive parts server-side behind your API (Option C) rather than shipping them inside the MCP server binary.
 
-## If Glama still uses the old repo
-
-If Glama keeps cloning `Your-Echo-Agent`, it means the server listing is still connected to that old repository. Create a new Glama server submission using the public MCP repo URL, or edit the listing/source repo if Glama allows it.
-
-## Correct Glama config for the public MCP repo
-
-If the public repo has `mcp-server/` inside it, use:
-
-```json
-{
-  "baseImage": "debian:bookworm-slim",
-  "buildSteps": ["cd mcp-server && npm install && npm run build"],
-  "cmdArguments": ["node", "mcp-server/dist/index.js"],
-  "nodeVersion": "20",
-  "pythonVersion": null,
-  "pinnedCommit": null,
-  "placeholderArguments": {
-    "ECHO_API_KEY": "eak_your_key_here"
-  }
-}
-```
-
-If the public repo is MCP-only and `package.json` is at the repo root, use this instead:
-
-```json
-{
-  "baseImage": "debian:bookworm-slim",
-  "buildSteps": ["npm install && npm run build"],
-  "cmdArguments": ["node", "dist/index.js"],
-  "nodeVersion": "20",
-  "pythonVersion": null,
-  "pinnedCommit": null,
-  "placeholderArguments": {
-    "ECHO_API_KEY": "eak_your_key_here"
-  }
-}
-```
-
-## About using the existing Dockerfile
-
-Yes, you can use the existing Dockerfile only if Glama is cloning a repo it can access. Right now it cannot reach `Your-Echo-Agent`, so the Dockerfile choice does not matter until the repo access problem is fixed.
-
-## No code changes needed in Lovable
-
-This is a Glama repository/source configuration issue, not an app code issue.
+Reply with which option you want and I'll walk you through the exact steps.
