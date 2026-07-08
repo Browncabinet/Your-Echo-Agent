@@ -483,7 +483,7 @@ export default function ForAgents() {
             capability manifest, authenticate, and invoke actions safely.
           </p>
           <p>
-            <strong className="text-zinc-100">Your Echo Agent</strong> exposes both the{" "}
+            <strong className="text-zinc-100">Your Echo</strong> exposes both the{" "}
             <a href="https://yourechoagent.com/.well-known/agent-card.json" className="text-indigo-300 hover:text-indigo-200 underline">
               A2A 0.3.0 agent card
             </a>{" "}
