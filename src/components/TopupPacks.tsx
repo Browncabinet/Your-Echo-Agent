@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Infinity as InfinityIcon } from "lucide-react";
 
 export type TopupPack = {
-  priceId: "topup_500" | "topup_1000" | "topup_2500";
+  priceId: "topup_500" | "topup_1000" | "topup_2500" | "topup_10000";
   emails: number;
   price: number;
   perEmail: string;
@@ -14,6 +14,7 @@ export const TOPUP_PACKS: TopupPack[] = [
   { priceId: "topup_500", emails: 500, price: 12, perEmail: "$0.024" },
   { priceId: "topup_1000", emails: 1000, price: 22, perEmail: "$0.022", badge: "Popular" },
   { priceId: "topup_2500", emails: 2500, price: 45, perEmail: "$0.018", badge: "Best Value" },
+  { priceId: "topup_10000", emails: 10000, price: 149, perEmail: "$0.015", badge: "Agency" },
 ];
 
 interface TopupPacksProps {
