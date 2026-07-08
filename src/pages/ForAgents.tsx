@@ -267,6 +267,9 @@ export default function ForAgents() {
       {/* Quickstart copy-paste snippets */}
       <QuickstartSnippets />
 
+      {/* Practical copy-paste examples */}
+      <PracticalExamples />
+
       {/* Integration guides */}
       <section className="mb-12">
         <div className="flex items-center gap-2 mb-4">
