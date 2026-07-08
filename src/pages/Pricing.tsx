@@ -412,7 +412,7 @@ export default function Pricing() {
                     <InfinityIcon className="w-4 h-4" /> Pay once. Never expire. Roll over week to week.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   {emailPacks.map((pack) => (
                     <Card
                       key={pack.priceId}
