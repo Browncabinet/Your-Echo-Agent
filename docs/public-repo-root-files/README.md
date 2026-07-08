@@ -155,7 +155,9 @@ PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](COD
 ## Links
 
 - 🌐 Website: <https://yourechoagent.com>
-- 📚 Docs: <https://yourechoagent.com/for-agents/docs>
+- 🚀 Quickstart (3 min): <https://yourechoagent.com/for-agents/quickstart>
+- 💳 Billing / How to pay: <https://yourechoagent.com/for-agents/quickstart#how-to-pay>
+- 📚 API docs: <https://yourechoagent.com/for-agents/docs>
 - 🤖 A2A manifest: <https://yourechoagent.com/.well-known/agent.json>
 - 🛠️ OpenAPI: <https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi>
 - ⭐ Glama: <https://glama.ai/mcp/servers/Browncabinet/yourechoagent-mcp>
