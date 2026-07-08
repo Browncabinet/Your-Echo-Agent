@@ -130,7 +130,7 @@ export default function Home() {
             className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
           >
             <Button size="lg" onClick={() => navigate("/for-agents/signup")} className="gap-2">
-              <Bot className="w-4 h-4" /> Get API Key — Hire Echo Now
+              <Bot className="w-4 h-4" /> Get API Key — Hire Your Echo Now
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/for-agents">See API docs & MCP setup <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
