@@ -1,46 +1,52 @@
-## Problem
+# Fix Glama build config
 
-Your $25 payment succeeded on Stripe's side (checkout logs confirm `create-checkout session created … env: "live", priceId: "a2a_credit_25_once"`), but your partner balance never went up.
+## Root cause
 
-Root cause is in the payments webhook logs:
+1. **Transient**: Glama's builder timed out pulling `debian:trixie-slim` from Docker Hub ("context deadline exceeded"). Retrying the build should clear this — nothing in your repo caused it.
+2. **Real config bugs** that will fail the next build anyway:
+   - Config uses `pnpm`, but the repo ships `mcp-server/package-lock.json` (npm), no `pnpm-lock.yaml`.
+   - Build/start scripts live in `mcp-server/`, not repo root. `pnpm run build` at `/app` will error with "Missing script: build".
+   - `mcp-proxy` wraps stdio servers to expose them over HTTP. Glama runs stdio natively — wrapping it breaks tool discovery. Your existing `Dockerfile` at repo root already builds correctly without it.
+   - Python 3.14 + `uv` install are unused (the MCP server is pure Node).
 
+## Fix (Glama "Docker configuration" form)
+
+Update these fields on the Glama server edit page:
+
+| Field | New value |
+|---|---|
+| Base image | `node:20-alpine` (matches your committed `Dockerfile`) |
+| Node version | `20` |
+| Python version | *(clear — not needed)* |
+| Build steps | `cd mcp-server && npm install && npm run build` |
+| Cmd arguments | `["node", "mcp-server/dist/index.js"]` |
+| Placeholder args | keep `ECHO_API_KEY=eak_your_key_here` |
+| Pinned commit | leave `null` (use latest `main`) |
+
+Equivalent JSON:
+
+```json
+{
+  "baseImage": "node:20-alpine",
+  "buildSteps": [
+    "cd mcp-server && npm install && npm run build"
+  ],
+  "cmdArguments": ["node", "mcp-server/dist/index.js"],
+  "nodeVersion": "20",
+  "pythonVersion": null,
+  "pinnedCommit": null,
+  "placeholderArguments": { "ECHO_API_KEY": "eak_your_key_here" }
+}
 ```
-Webhook error: Error: Invalid webhook signature
-  at verifyWebhook (_shared/stripe.ts:54)
-  at handleWebhook (payments-webhook/index.ts:139)
-```
 
-Stripe is delivering the `checkout.session.completed` event to `payments-webhook?env=live`, but the function is rejecting it because the signature doesn't match. That means `handleCheckoutCompleted` never runs, so `a2a_partners.balance_cents` is never incremented. This is why the UI still shows $0.
+## Even simpler alternative (recommended)
 
-The signature mismatch is almost always one of:
-1. `PAYMENTS_LIVE_WEBHOOK_SECRET` in this project doesn't match the signing secret shown on the live Stripe webhook endpoint (e.g. secret was rotated in Stripe, or the wrong endpoint's secret is stored).
-2. The Stripe webhook endpoint is pointing at a URL that strips/rewrites the body (must be the raw edge function URL with `?env=live`).
+Delete the custom Docker configuration entirely and let Glama use the **`Dockerfile` already committed at the repo root**. It's already correct: `node:20-alpine`, builds `mcp-server/`, runs `node dist/index.js` over stdio. Custom build steps only exist to override that Dockerfile — you don't need to.
 
-## Plan
+## After saving
 
-### 1. Credit your $25 manually (one-time fix)
-Look up your `a2a_partners` row and add `2500` cents to `balance_cents` so your live balance reflects the payment you already made. Verify via the /for-agents/billing page.
+Click **Rebuild**. If it fails again with the same `debian:trixie-slim` / "context deadline exceeded" error, that's still Glama's Docker Hub outage — wait a few minutes and retry. No repo changes needed for that.
 
-### 2. Fix the webhook so future top-ups auto-credit
-- Confirm the live Stripe webhook endpoint URL is:
-  `https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/payments-webhook?env=live`
-  and is subscribed to at least `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
-- Copy the **Signing secret** from that exact endpoint in Stripe (starts with `whsec_…`).
-- Update the `PAYMENTS_LIVE_WEBHOOK_SECRET` secret in this project to that value.
-- Trigger a redelivery of the failed event from the Stripe dashboard (Webhooks → endpoint → recent event → "Resend") and confirm the function returns 200 and the balance updates.
+## No code changes in this repo
 
-### 3. Add a small safety net on `/checkout/return`
-Right now `CheckoutReturn.tsx` just calls `refresh()` once after 2s. For A2A top-ups the credited balance lives on `a2a_partners`, not `user_credits`, so `refresh()` doesn't even reflect it — and if the webhook is delayed you see $0.
-
-Add short polling on the A2A billing page (or on the return page when the session was an A2A pack) that re-fetches `a2a_partners.balance_cents` every ~2s for up to ~20s after return, with a friendly "Finalizing your top-up…" state and a fallback message if it hasn't landed. This matches the pattern we already use elsewhere for post-checkout balance sync.
-
-## Technical notes
-
-- Files touched (build phase): `src/pages/PartnerBilling.tsx` (or `CheckoutReturn.tsx`) — add polling hook against `a2a_partners` for the signed-in partner. No schema changes.
-- Manual credit uses an `UPDATE public.a2a_partners SET balance_cents = balance_cents + 2500, updated_at = now() WHERE id = '<your partner id>';` migration (I'll confirm the partner id before running).
-- No changes to `payments-webhook/index.ts` logic itself — the A2A branch in `handleCheckoutCompleted` is correct; it just never runs today because of the signature failure.
-
-## What I need from you before I build
-
-1. Confirm you want me to (a) manually credit the $25 now AND (b) walk you through updating `PAYMENTS_LIVE_WEBHOOK_SECRET`, or just one of those.
-2. Confirm the email on the Stripe account that made the purchase so I can find the right `a2a_partners` row.
+This plan is entirely configuration on glama.ai. Nothing in the Lovable project needs to change.
