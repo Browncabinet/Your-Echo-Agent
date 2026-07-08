@@ -573,20 +573,47 @@ export default function Pricing() {
             </TabsContent>
 
             <TabsContent value="a2a">
+              {/* A2A value prop header */}
+              <Card className="relative overflow-hidden p-6 md:p-8 mb-8 border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 via-primary/5 to-emerald-500/10 animate-fade-in">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Bot className="w-24 h-24 text-indigo-400" />
+                </div>
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Bot className="w-5 h-5 text-indigo-500" />
+                    <p className="text-sm font-semibold text-indigo-500 uppercase tracking-wide">For AI Agents · A2A + MCP</p>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                    Prepaid balance. Pay only for delivered results. No weekly subscription.
+                  </h2>
+                  <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-3xl mb-4">
+                    AI agents hire Your Echo over A2A or MCP. You top up a balance once, and Echo debits it only when it actually delivers an email, reply, or meeting. When the balance runs low, Echo returns a signed <code className="font-mono text-xs bg-muted px-1 rounded">HTTP 402</code> with a <code className="font-mono text-xs bg-muted px-1 rounded">top_up_url</code> — the job auto-pauses and resumes after you top up. No surprise bills, no recurring charges, no required weekly plan.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Button size="lg" onClick={() => navigate("/for-agents/signup")}>
+                      <Bot className="w-4 h-4 mr-1.5" /> Get API Key
+                    </Button>
+                    <Button size="lg" variant="outline" onClick={() => navigate("/for-agents/quickstart#how-to-pay")}>
+                      How billing works <ArrowRight className="w-4 h-4 ml-1.5" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+
               {/* Agency $149 hero card */}
               <Card className="relative overflow-hidden p-6 md:p-8 mb-8 border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-indigo-500/5 to-emerald-500/10 animate-fade-in">
                 <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">Best for orchestrators</Badge>
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Bot className="w-5 h-5 text-primary" />
-                      <p className="text-sm font-semibold text-primary uppercase tracking-wide">Agency Credit Pack</p>
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      <p className="text-sm font-semibold text-primary uppercase tracking-wide">Agency Pack</p>
                     </div>
                     <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
                       $149 · 10,000 emails
                     </h3>
                     <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-3">
-                      Prepaid balance for multi-agent orchestrators and heavy A2A callers. Charged per delivered result — <span className="font-mono">$0.015/email</span>. Never expires. Auto-pause + <code className="font-mono text-xs bg-muted px-1 rounded">402</code> callback when the balance runs low.
+                      The best-value pack for multi-agent orchestrators and heavy A2A callers. Charged per delivered result — <span className="font-mono">$0.015/email</span>. Never expires. Auto-pause + <code className="font-mono text-xs bg-muted px-1 rounded">402</code> callback when the balance runs low.
                     </p>
                     <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-primary" /> 10,000 delivered emails</span>
@@ -594,8 +621,8 @@ export default function Pricing() {
                       <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-primary" /> HMAC-signed webhooks</span>
                     </div>
                   </div>
-                  <Button size="lg" className="shrink-0 h-14 px-8 text-base" onClick={() => onChoosePack("topup_10000")}>
-                    Buy $149 pack <ArrowRight className="w-4 h-4 ml-1.5" />
+                  <Button size="lg" className="shrink-0 h-14 px-8 text-base shadow-lg shadow-primary/20" onClick={() => onChoosePack("topup_10000")}>
+                    Buy $149 Agency Pack <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
               </Card>
@@ -624,7 +651,7 @@ export default function Pricing() {
                       <p className="text-sm font-medium text-primary mt-1">
                         +{pack.emails.toLocaleString()} emails
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">{pack.perEmail}/email</p>
+                      <p className="text-xs text-muted-foreground mt-1">{pack.perEmail}/email · never expires</p>
                     </Card>
                   ))}
                 </div>
@@ -632,7 +659,7 @@ export default function Pricing() {
 
               {/* Per-result pricing */}
               <Card className="p-6 mb-8">
-                <h3 className="font-bold mb-4 flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> How the balance is spent</h3>
+                <h3 className="font-bold mb-4 flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> Pay per delivered result</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -654,23 +681,27 @@ export default function Pricing() {
                 </p>
               </Card>
 
-              {/* For AI Agents explainer */}
+              {/* How agents pay - visual timeline */}
               <Card className="p-6 md:p-8 mb-8 bg-gradient-to-br from-indigo-500/5 to-emerald-500/5 border-indigo-500/30">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-5">
                   <Bot className="w-5 h-5 text-indigo-500" />
-                  <h3 className="text-lg font-bold">How agents pay</h3>
+                  <h3 className="text-lg font-bold">How agents pay in 3 steps</h3>
                 </div>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="font-semibold text-foreground mb-1">1 · Top up</p>
-                    <p className="text-muted-foreground">Human operator buys a pack once on <Link to="/for-agents/billing" className="underline">/for-agents/billing</Link>. Balance is credited via Stripe webhook.</p>
+                <div className="grid md:grid-cols-3 gap-4 text-sm relative">
+                  <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-indigo-500/30 via-primary/30 to-emerald-500/30" />
+                  <div className="relative bg-card/50 rounded-lg p-4 border border-white/[0.06]">
+                    <div className="w-8 h-8 rounded-full bg-indigo-500/15 text-indigo-500 flex items-center justify-center text-xs font-bold mb-3">1</div>
+                    <p className="font-semibold text-foreground mb-1">Top up once</p>
+                    <p className="text-muted-foreground">Buy a prepaid pack on <Link to="/for-agents/billing" className="underline">/for-agents/billing</Link>. Balance is credited via Stripe webhook and never expires.</p>
                   </div>
-                  <div>
-                    <p className="font-semibold text-foreground mb-1">2 · Agent hires</p>
+                  <div className="relative bg-card/50 rounded-lg p-4 border border-white/[0.06]">
+                    <div className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-bold mb-3">2</div>
+                    <p className="font-semibold text-foreground mb-1">Agent hires Echo</p>
                     <p className="text-muted-foreground">Any A2A/MCP caller uses the <code className="font-mono text-xs bg-muted px-1 rounded">eak_</code> key. Every delivered result debits the balance.</p>
                   </div>
-                  <div>
-                    <p className="font-semibold text-foreground mb-1">3 · 402 on empty</p>
+                  <div className="relative bg-card/50 rounded-lg p-4 border border-white/[0.06]">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs font-bold mb-3">3</div>
+                    <p className="font-semibold text-foreground mb-1">402 on empty</p>
                     <p className="text-muted-foreground">Job auto-pauses, returns HTTP 402 with <code className="font-mono text-xs bg-muted px-1 rounded">top_up_url</code>. Resumes when balance is refilled.</p>
                   </div>
                 </div>
@@ -684,9 +715,12 @@ export default function Pricing() {
                 </div>
               </Card>
 
-              <p className="text-center text-sm text-muted-foreground">
-                No weekly subscription required for agents. Top-ups never expire.
-              </p>
+              <div className="text-center p-5 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06]">
+                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4" />
+                  No weekly subscription required for agents. Top-ups never expire.
+                </p>
+              </div>
             </TabsContent>
           </Tabs>
 
