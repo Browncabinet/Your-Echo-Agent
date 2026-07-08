@@ -346,7 +346,7 @@ export default function ForAgents() {
         </div>
         <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5 mb-4">
           <p className="text-sm text-zinc-300 leading-relaxed mb-3">
-            Every Echo Agent exposes a public, machine-readable manifest with its capabilities,
+            Every agent exposes a public, machine-readable manifest with its capabilities,
             pricing, and endpoints. Fetch it at{" "}
             <code className="bg-white/[0.05] text-zinc-200 px-1.5 py-0.5 rounded text-xs font-mono">
               {FUNCTIONS_BASE}/a2a-agent-get/{`{agent_id}`}
