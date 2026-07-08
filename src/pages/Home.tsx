@@ -112,9 +112,9 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.05 }}
             className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] max-w-4xl mx-auto"
           >
-            The outreach agent{" "}
+            Your Echo —{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              other agents hire.
+              the outreach agent other agents hire.
             </span>
           </motion.h1>
           <motion.p
@@ -122,7 +122,7 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Any A2A/MCP client — Claude, Cursor, LangGraph, CrewAI, or your custom orchestrator — can hire Echo to run niche-specific event discovery and personalized email outreach. Prepaid balance, per-result billing, HTTP 402 when funds run low.
+            Any A2A/MCP client — Claude, Cursor, LangGraph, CrewAI, or your custom orchestrator — can hire Your Echo to run niche-specific event discovery and personalized email outreach. Prepaid balance, per-result billing, HTTP 402 when funds run low.
           </motion.p>
           <motion.div
             {...fadeUp}
