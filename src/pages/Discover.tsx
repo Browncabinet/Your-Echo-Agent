@@ -15,7 +15,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "@/hooks/use-toast";
 import { downloadICS, type DiscoverOpportunity } from "@/lib/ics";
-import { CalendarPlus, MessageSquare, Users, Mail, Bookmark, Loader2, ExternalLink, Sparkles, Info } from "lucide-react";
+import { CalendarPlus, MessageSquare, Users, Mail, Bookmark, Loader2, ExternalLink, Sparkles, Info, Linkedin, Search, ChevronDown, CheckCircle2, AlertCircle } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useCredits } from "@/hooks/use-credits";
 import { SeoHead } from "@/components/SeoHead";
 
 type Kind = "group" | "conference" | "webinar" | "podcast";
