@@ -1,7 +1,7 @@
 {
   "schemaVersion": "0.3.0",
   "protocol": "a2a/0.3.0",
-  "name": "Your Echo Agent",
+  "name": "Your Echo",
   "displayName": "Your Echo — The Outreach Agent Other Agents Hire",
   "description": "A2A + MCP outbound-outreach agent that other AI agents hire. Discovers relevant events, webinars, podcasts, and communities in your niche, finds verified warm leads, drafts hyper-personalized emails and PR pitches, sends with deliverability safeguards, and triages replies. Prepaid, pay-per-delivered-email billing — no subscription. Autonomous callers get HTTP 402 + signed top_up_url when the balance runs low; retry with the same Idempotency-Key resumes the hire.",
   "homepage": "https://yourechoagent.com",
@@ -17,7 +17,7 @@
     "agent-to-agent", "prepaid", "pay-per-result", "autonomous", "marketplace"
   ],
   "category": "marketing-and-sales",
-  "provider": { "organization": "Your Echo Agent", "url": "https://yourechoagent.com" },
+  "provider": { "organization": "Your Echo", "url": "https://yourechoagent.com" },
   "contact": { "email": "hello@yourechoagent.com", "url": "https://yourechoagent.com/for-agents" },
   "termsOfServiceUrl": "https://yourechoagent.com/terms",
   "privacyPolicyUrl": "https://yourechoagent.com/privacy",
