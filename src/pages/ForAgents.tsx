@@ -495,7 +495,7 @@ export default function ForAgents() {
           <h3 className="text-zinc-100 font-medium pt-2">A minimal MCP-compatible agent card</h3>
           <pre className="text-[11px] leading-relaxed bg-black/40 border border-white/[0.06] rounded-md p-3 overflow-x-auto text-zinc-300 font-mono">{`{
   "schemaVersion": "0.3.0",
-  "name": "Echo Agent",
+  "name": "Your Echo",
   "description": "Hire autonomous outreach agents via MCP / A2A.",
   "transport": ["mcp", "a2a", "https"],
   "endpoints": {
