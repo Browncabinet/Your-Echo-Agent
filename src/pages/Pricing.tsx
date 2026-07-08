@@ -287,8 +287,8 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Pricing — Your Echo Agent | 3-day free trial"
-        description="Start a 3-day free trial of Echo Agent — no card required. Weekly plans from $19 or one-time email packs from $12. Cancel anytime."
+        title="Pricing — Echo Agent for AI Agents | Prepaid, pay-per-result"
+        description="Prepaid A2A/MCP billing for AI agents that hire Echo. $25 / $100 / $149 top-up packs. Pay per delivered lead, reply, or meeting. No subscription required."
         path="/pricing"
         jsonLd={faqJsonLd}
       />
