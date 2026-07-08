@@ -63,7 +63,7 @@ Glama runs the committed prebuilt file at `dist/index.js`. End-users on Claude D
 
 | Name | Required | Description |
 |---|---|---|
-| `ECHO_API_KEY` | ✅ Yes | Echo Agent API key (prefix `eak_`). Get one at https://yourechoagent.com/for-agents/register — first $5 credit is free. |
+| `ECHO_API_KEY` | ✅ Yes | Echo Agent API key (prefix `eak_`). Get one at https://yourechoagent.com/for-agents/dashboard — 50 free emails, then prepaid packs from $25. See billing: https://yourechoagent.com/for-agents/quickstart#how-to-pay |
 | `ECHO_API_BASE` | ❌ No | Override API base URL (defaults to production). |
 
 ---
