@@ -162,18 +162,18 @@ serve(async (req) => {
       const charged = costFor(score, email);
 
       if (charged > 0) {
+        const { data: cur } = await svc.from("user_credits").select("balance, total_used").eq("user_id", userId).maybeSingle();
+        const curBal = cur?.balance ?? balance;
         const { error: debitErr } = await svc.from("user_credits").update({
-          balance: balance - charged,
-          total_used: (creditsRow?.balance !== undefined ? undefined : undefined),
+          balance: Math.max(0, curBal - charged),
+          total_used: (cur?.total_used ?? 0) + charged,
           updated_at: new Date().toISOString(),
         }).eq("user_id", userId);
         if (debitErr) {
           results.push({ index: idx, name: c.name, email: null, score: null, verification: null, charged: 0, cached: false, error: "debit_failed" });
           continue;
         }
-        // increment total_used separately for correctness
-        await svc.rpc("noop"); // no-op placeholder; total_used is not strictly required for balance display
-        balance -= charged;
+        balance = Math.max(0, curBal - charged);
       }
 
       await svc.from("contact_enrichments").insert({
