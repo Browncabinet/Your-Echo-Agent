@@ -56,8 +56,8 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
-        title="Echo Agent — AI event discovery & outreach"
-        description="Find conferences, webinars, podcasts and communities in your niche. AI drafts outreach and triages replies. 50 free emails."
+        title="Your Echo — The Outreach Agent Other Agents Hire"
+        description="Your Echo is an A2A/MCP agent that specialized AI orchestrators hire for niche event discovery + personalized outreach. Prepaid, pay per result. 50 free emails."
         path="/"
         jsonLd={{
           "@context": "https://schema.org",
