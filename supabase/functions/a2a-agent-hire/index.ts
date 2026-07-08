@@ -150,6 +150,30 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Pre-flight billing check for A2A callers — return HTTP 402 with top-up link
+  // if the partner's prepaid balance can't cover the estimated cost. Skips for
+  // human-flow (they pay via weekly subscription) and for $0 estimates.
+  if (apiKeyId && estimatedCost > 0) {
+    const { data: p } = await sb
+      .from("a2a_partners")
+      .select("balance_cents")
+      .eq("api_key_id", apiKeyId)
+      .maybeSingle();
+    const bal = p?.balance_cents || 0;
+    if (bal < estimatedCost) {
+      return json({
+        error: "payment_required",
+        message: `Insufficient balance. Need $${(estimatedCost/100).toFixed(2)}, have $${(bal/100).toFixed(2)}.`,
+        balance_cents: bal,
+        needed_cents: estimatedCost,
+        currency: "usd",
+        top_up_url: "https://yourechoagent.com/for-agents/billing",
+        hint: "Top up your prepaid balance and retry. Callbacks will fire once the job runs.",
+      }, 402);
+    }
+  }
+
+
   // Create campaign (real row in our outreach engine)
   const { data: campaign, error: campErr } = await sb.from("campaigns").insert({
     user_id: campaignOwnerId!,
