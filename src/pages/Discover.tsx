@@ -270,6 +270,8 @@ export default function Discover() {
                   key={opp.id} opp={opp}
                   onSave={() => saveToRadar(opp)} onAttend={() => onAttend(opp)}
                   onComment={() => onComment(opp)} onExtract={() => onExtract(opp)}
+                  onRequestEnrich={(index, count) => setConfirm({ opp, index, count })}
+                  enrichBusy={enrichBusy}
                   inRadar={radarIds.has(opp.id)}
                 />
               ))}
