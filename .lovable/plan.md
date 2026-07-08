@@ -1,61 +1,109 @@
-# Phase 2 GitHub Registry Submission Pack
 
-Create a single new doc, `docs/phase-2-github-submissions.md`, containing everything you can copy-paste. No app code changes.
+# Contact Enrichment with Hunter.io (Two-Step, Pay-Per-Verified-Email)
 
-## What the doc will contain
+Adds real email discovery to the Discover flow while being honest about what event platforms expose. Attendee lists stay off-limits (Zoom/Luma/Eventbrite don't share them); we enrich **organizers, speakers, and sponsors** pulled from the public event page.
 
-### 1. Reusable "Your Echo" copy blocks (form-safe, no smart quotes, em dashes replaced with `-`)
+## User-facing flow
 
-- **Name:** `Your Echo`
-- **Slug / ID:** `your-echo-agent`
-- **Short description (140 chars):**
-  `Your Echo - A2A + MCP outbound agent that finds events, warm leads, drafts PR + hyper-personalized emails. Prepaid, pay-per-delivered-email.`
-- **Medium description (~500 chars):**
-  Focused on: event discovery (conferences, webinars, podcasts, communities), verified warm lead gen, hyper-personalized email + PR pitches, deliverability safeguards, reply triage. Prepaid billing: 50 free emails on signup, packs $25 - $149 (Agency = 10k emails), no subscription, credits never expire.
-- **Long description (~1200 chars):** Same themes expanded, includes A2A + MCP interop, hire-me-from-another-agent flow, JSON-RPC endpoints, and billing summary.
-- **Tags:** `a2a, mcp, outreach, cold-email, lead-generation, event-discovery, conferences, webinars, podcasts, pr, b2b, sales-automation, agent-to-agent, prepaid, pay-per-result`
-- **Capabilities/Skills list** (5 skills): `discover_events`, `find_warm_leads`, `draft_personalized_email`, `send_with_safeguards`, `triage_replies` - each with 1-line description + example input/output.
+On any opportunity card in `/for-agents/discover`:
 
-### 2. Full Agent Card JSON snippet
-Trimmed, registry-safe version of `public/.well-known/agent-card.json` with:
-- `name: "Your Echo"`
-- `provider.organization: "Your Echo"`
-- `url: https://yourechoagent.com/a2a`
-- `documentationUrl`, `iconUrl`, `capabilities`, `skills[]`, `pricing` block (prepaid + $149 Agency pack), `authentication`, `interfaces` (A2A + MCP).
+1. **Find contacts** (existing) — Firecrawl + AI extracts names/roles/companies/socials from the event page. Free-tier action, no email lookup.
+2. Each extracted contact row now shows one of:
+   - `email present` → green check, ready to use
+   - `no email` → new **Find email** button (per contact) + **Find all emails** button (bulk) at the top
+3. Clicking **Find email** shows a confirm popover:
+   > Look up work email for **Jason Lemkin** at saastr.com — **$0.10** from your balance. Only charged if we find a verified email.
+4. On confirm we call Hunter. Result badge:
+   - `Verified 94%` (green) — email + confidence score shown, balance debited
+   - `Guessed 62%` (amber) — email shown, debited at reduced price ($0.05)
+   - `Not found` (grey) — **no charge**, we surface the generic domain email (`hello@saastr.com`) if Hunter's domain-search returns one
+5. Every contact also gets a free **LinkedIn** button that opens `linkedin.com/search/results/people/?keywords=<name>+<company>` in a new tab.
+6. New "What we can/can't get" explainer collapsible at the top of Discover clarifying that attendee lists from Zoom/Luma/Eventbrite aren't accessible — we work from public speaker/organizer/sponsor listings.
 
-Ready to drop into a registry PR as `agents/your-echo.json` or inline in markdown.
+## Billing
 
-### 3. itinai.com A2A Hub submission
-- Repo: `https://github.com/itinai/a2a-hub` (confirm exact path in PR step)
-- File to add: `agents/your-echo-agent.json` (full Agent Card above)
-- PR title: `Add Your Echo - A2A outbound outreach agent`
-- PR description template (form-safe, markdown): summary, links (homepage, docs, agent-card.json, manifest, GitHub, npm), skills bullet list, billing summary, contact.
-- Reviewer comment template for follow-up.
+- User pays from existing prepaid balance (`user_credits.balance`, in cents / "emails" unit already used across the app).
+- Prices (in the same "email" unit used elsewhere so it feels consistent):
+  - Verified match (score ≥ 80): **1 email** debited
+  - Guessed match (score 50–79): **0.5 email** debited (rounded up at row level, or batched)
+  - Not found or score < 50: **free**
+- Insufficient balance → shows top-up dialog (existing `TopupCheckoutDialog`), no Hunter call made.
+- Every debit writes an `a2a_ledger` row with `kind='enrichment'` so agents pulling billing history see it.
+- Results cached forever by `(lower(first_name), lower(last_name), domain)` — re-running Find email on the same contact is free.
 
-### 4. PulseMCP submission
-- Repo: `https://github.com/orgs/pulsemcp` server registry
-- File to add: `servers/your-echo.json` (MCP server manifest variant - name, description, npm package `@browncabinet/yourechoagent-mcp`, install command, tools list, homepage, license, tags)
-- PR title: `Add Your Echo MCP server - outbound outreach + event discovery`
-- PR description template with install snippet:
-  ```
-  npx -y @browncabinet/yourechoagent-mcp
-  ```
-- Tools list matches the 5 skills above.
+## Technical Details
 
-### 5. Step-by-step PR instructions (per registry)
-For each:
-1. Fork the repo on GitHub
-2. Create branch `add-your-echo`
-3. Add the specified JSON file at the specified path
-4. Commit: `Add Your Echo agent`
-5. Open PR against `main` using the provided title + description
-6. Post the reviewer comment if no response in 7 days
+### Connector
 
-### 6. Fix note
-Flag that `public/.well-known/agent-card.json` still contains `"name": "Echo Agent"` in places. Recommend updating to `"Your Echo"` in build mode before submitting so the fetched card matches submitted copy.
+Use the **Hunter.io connector** if available in the workspace connector catalog; otherwise fall back to `add_secret HUNTER_API_KEY` and call `https://api.hunter.io/v2/*` directly. (I'll check `list_app_connectors` at build time.)
 
-## Files touched
-- **New:** `docs/phase-2-github-submissions.md`
-- **No code changes** in this plan. (Optional follow-up in a separate build step: rename residual "Echo Agent" strings in `public/.well-known/agent-card.json` to "Your Echo".)
+### New table: `contact_enrichments` (cache + audit)
 
-Approve to switch to build mode and write the doc.
+```sql
+create table public.contact_enrichments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,                       -- who paid (for audit)
+  opportunity_id uuid,                         -- nullable, links back to discovered_opportunities
+  first_name text not null,
+  last_name text not null,
+  domain text not null,
+  email text,
+  score int,                                   -- Hunter confidence 0-100
+  verification text,                           -- valid | accept_all | webmail | invalid | unknown
+  sources jsonb default '[]'::jsonb,
+  raw jsonb,                                   -- full Hunter payload for debugging
+  charged_units numeric(6,2) not null default 0,
+  created_at timestamptz not null default now(),
+  unique (lower(first_name), lower(last_name), lower(domain))
+);
+grant select, insert on public.contact_enrichments to authenticated;
+grant all on public.contact_enrichments to service_role;
+alter table public.contact_enrichments enable row level security;
+create policy "own_read" on public.contact_enrichments for select to authenticated using (user_id = auth.uid());
+-- writes only via edge function (service_role), no insert policy for authenticated
+```
+
+### New edge function: `discover-enrich-contact`
+
+`supabase/functions/discover-enrich-contact/index.ts`
+
+Input: `{ opportunity_id, contact_index, mode: 'single' | 'bulk' }` (bulk enriches every unresolved contact on the opportunity, capped at 25 per call).
+
+Flow per contact:
+1. Validate JWT, load opportunity + contact.
+2. Derive `domain` — from `host_org` website in the opportunity, or from an existing organizer email, or from the opportunity URL as fallback.
+3. Cache check on `contact_enrichments`. Hit → return cached row, no charge.
+4. Balance check via `user_credits.balance`. If < cost, return `402 insufficient_balance`.
+5. `GET https://api.hunter.io/v2/email-finder?domain=…&first_name=…&last_name=…&api_key=$HUNTER_API_KEY`
+6. Score → cost mapping above. If `not found`, try `GET /v2/domain-search?domain=…&limit=5` and return generic emails without charging.
+7. Debit `user_credits.balance` (atomic RPC), insert `a2a_ledger` row (`kind='enrichment'`, `amount_cents=…`), upsert `contact_enrichments`.
+8. Update `discovered_opportunities.contacts` JSONB to inject the new email + score into the matching contact.
+9. Return `{ email, score, verification, charged, balance_after }`.
+
+### Frontend changes
+
+- `src/pages/Discover.tsx`
+  - Extend `OpportunityCard` contacts list: render per-row `Find email` button when no email, badge when present.
+  - Add `Find all emails` bulk button + cost preview (`~ 8 lookups × 1 email = 8 emails`).
+  - New confirm popover component using existing `AlertDialog` for cost confirmation.
+  - Show balance-low state → open existing `TopupCheckoutDialog`.
+  - New "What we extract" `Collapsible` at the top of the page (organizers/speakers/sponsors ✓, attendee lists ✗, with a one-line rationale).
+- `src/lib/hunter.ts` — thin client-side wrapper that calls `supabase.functions.invoke('discover-enrich-contact', …)` and refreshes the credits hook on success.
+
+### Secret / connector setup
+
+Build-time step (I'll do this in one call):
+1. `list_app_connectors` → check if Hunter is a standard connector.
+2. If yes → guide `standard_connectors--connect` for `hunter` and read `HUNTER_API_KEY` via `get_connection_secrets`.
+3. If no → `add_secret HUNTER_API_KEY` with format hint `pattern: ^[a-f0-9]{40}$`, placeholder `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`, plus a chat message explaining where to grab it from `hunter.io/api-keys`.
+
+### Docs
+
+- Update `docs/public-repo-root-files/examples/discover-and-draft.md` with a new "Find verified emails" example showing the MCP tool call.
+- Add `enrich_contact` tool to `mcp-server/src/index.ts` (and its client) so external agents can call the same flow — same pricing, same cache.
+
+### Out of scope (explicitly)
+
+- Apollo, Clearbit, RocketReach — can be added later as alternate providers behind the same edge function.
+- Scraping Zoom/Luma/Eventbrite attendee lists — never; ToS + GDPR.
+- Automated cold-email sending from enriched addresses — use existing campaigns flow, unchanged.
