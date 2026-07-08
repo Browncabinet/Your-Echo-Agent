@@ -22,6 +22,7 @@ import CheckoutReturn from "./pages/CheckoutReturn.tsx";
 import PartnerBilling from "./pages/PartnerBilling.tsx";
 import PartnerDashboard from "./pages/PartnerDashboard.tsx";
 import ForAgentsDocs from "./pages/ForAgentsDocs.tsx";
+import ForAgentsQuickstart from "./pages/ForAgentsQuickstart.tsx";
 import PartnerRegisterAgent from "./pages/PartnerRegisterAgent.tsx";
 import PartnerSignup from "./pages/PartnerSignup.tsx";
 import PartnerLogin from "./pages/PartnerLogin.tsx";
@@ -76,6 +77,7 @@ const App = () => (
                 <Route path="/for-agents/billing" element={<ProtectedRoute><PartnerBilling /></ProtectedRoute>} />
                 <Route path="/for-agents/dashboard" element={<ProtectedRoute><PartnerDashboard /></ProtectedRoute>} />
                 <Route path="/for-agents/docs" element={<ForAgentsDocs />} />
+                <Route path="/for-agents/quickstart" element={<ForAgentsQuickstart />} />
                 <Route path="/for-agents/register" element={<ProtectedRoute><PartnerRegisterAgent /></ProtectedRoute>} />
                 <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
                 <Route path="/dev/a2a-sim" element={<ProtectedRoute><A2ASimulator /></ProtectedRoute>} />
