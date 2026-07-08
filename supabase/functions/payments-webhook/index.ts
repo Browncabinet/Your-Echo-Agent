@@ -17,6 +17,7 @@ const TOPUP_MAP: Record<string, number> = {
   topup_500: 500,
   topup_1000: 1000,
   topup_2500: 2500,
+  topup_10000: 10000,
 };
 
 // A2A partner credit map: price_id -> cents added to partner balance
@@ -24,6 +25,7 @@ const A2A_CREDIT_MAP: Record<string, number> = {
   topup_500: 1200,
   topup_1000: 2200,
   topup_2500: 4500,
+  topup_10000: 14900,
   a2a_credit_test_1_once: 100,
   a2a_credit_25_once: 2500,
   a2a_credit_100_once: 10000,

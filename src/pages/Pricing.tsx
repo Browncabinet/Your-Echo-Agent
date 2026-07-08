@@ -105,7 +105,7 @@ const weeklyTiers: WeeklyTier[] = [
   },
 ];
 
-type PackId = "topup_500" | "topup_1000" | "topup_2500";
+type PackId = "topup_500" | "topup_1000" | "topup_2500" | "topup_10000";
 
 type Pack = {
   priceId: PackId;
@@ -116,7 +116,7 @@ type Pack = {
   description: string;
 };
 
-// Display packs mapped to the three real Stripe top-up prices.
+// Display packs mapped to the four real Stripe top-up prices.
 const emailPacks: Pack[] = [
   {
     priceId: "topup_500",
@@ -140,6 +140,14 @@ const emailPacks: Pack[] = [
     perEmail: "$0.018",
     badge: "Best Value",
     description: "For agencies and multi-audience outreach at scale.",
+  },
+  {
+    priceId: "topup_10000",
+    price: 149,
+    emails: 10000,
+    perEmail: "$0.015",
+    badge: "Agency",
+    description: "10,000 emails for agencies and heavy senders. Never expires.",
   },
 ];
 
@@ -220,7 +228,7 @@ export default function Pricing() {
     if (!user) return;
     try {
       const pending = localStorage.getItem("pending_topup_priceId");
-      if (pending === "topup_500" || pending === "topup_1000" || pending === "topup_2500") {
+      if (pending === "topup_500" || pending === "topup_1000" || pending === "topup_2500" || pending === "topup_10000") {
         setTopupPriceId(pending);
         localStorage.removeItem("pending_topup_priceId");
       }
@@ -404,7 +412,7 @@ export default function Pricing() {
                     <InfinityIcon className="w-4 h-4" /> Pay once. Never expire. Roll over week to week.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   {emailPacks.map((pack) => (
                     <Card
                       key={pack.priceId}
