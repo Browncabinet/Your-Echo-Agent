@@ -28,7 +28,7 @@ type ComparisonRow = {
 const comparisonRows: ComparisonRow[] = [
   { feature: "Emails / week", starter: "500", growth: "1,500", power: "4,000" },
   { feature: "LinkedIn Assist drafts / week", starter: "50", growth: "150", power: "400" },
-  { feature: "Echo Agent + Reply Handler", starter: true, growth: true, power: true },
+  { feature: "Your Echo + Reply Handler", starter: true, growth: true, power: true },
   { feature: "Niche-first targeting", starter: true, growth: true, power: true },
   { feature: "Smart Reply Handling", starter: true, growth: true, power: true },
   { feature: "Priority sending queue", starter: true, growth: true, power: true },
@@ -68,7 +68,7 @@ const weeklyTiers: WeeklyTier[] = [
     features: [
       "500 emails / week",
       "50 LinkedIn Assist drafts / week",
-      "Full Echo Agent + Reply Handler",
+      "Full Your Echo + Reply Handler",
       "Niche-first targeting",
       "Cancel or pause anytime",
     ],
@@ -82,7 +82,7 @@ const weeklyTiers: WeeklyTier[] = [
     features: [
       "1,500 emails / week",
       "150 LinkedIn Assist drafts / week",
-      "Full Echo Agent + Reply Handler",
+      "Full Your Echo + Reply Handler",
       "Priority sending queue",
       "Cancel or pause anytime",
     ],
@@ -98,7 +98,7 @@ const weeklyTiers: WeeklyTier[] = [
     features: [
       "4,000 emails / week",
       "400 LinkedIn Assist drafts / week",
-      "Full Echo Agent + Reply Handler",
+      "Full Your Echo + Reply Handler",
       "Priority sending queue",
       "Cancel or pause anytime",
     ],

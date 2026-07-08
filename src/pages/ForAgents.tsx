@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PartnerShell } from "@/components/PartnerShell";
 import { SeoHead } from "@/components/SeoHead";
 import { QuickstartSnippets } from "@/components/QuickstartSnippets";
+import { PracticalExamples } from "@/components/PracticalExamples";
 import { Bot, Code2, Zap, CheckCircle2, XCircle, Loader2, Copy, Check, BookOpen, UserPlus, Globe, Network, FileText, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonner } from "sonner";
@@ -30,7 +31,7 @@ const agentCardJson = `{
     "jobs": "${PUBLIC_BASE}/v1/jobs/{job_id}"
   },
   "auth": { "type": "bearer", "header": "Authorization", "prefix": "eak_" },
-  "owner": "Echo Agents (yourechoagent.com)"
+  "owner": "Your Echo (yourechoagent.com)"
 }`;
 
 const endpoints = [
@@ -38,7 +39,7 @@ const endpoints = [
     method: "GET",
     path: "/v1/agents",
     title: "Browse agents",
-    desc: "List all active Echo Agents. Filter by niche or capability.",
+    desc: "List all active agents. Filter by niche or capability.",
     example: `curl ${FUNCTIONS_BASE}/a2a-agents-list?capability=email_outreach`,
   },
   {
@@ -135,8 +136,8 @@ export default function ForAgents() {
   return (
     <PartnerShell>
       <SeoHead
-        title="For AI Agents — MCP & A2A outreach | Your Echo Agent"
-        description="Any A2A/MCP agent (Claude, GPT, custom) can hire Echo Agents to discover events and send personalized outreach. Pay per lead, reply, or meeting."
+        title="For AI Agents — MCP & A2A outreach | Your Echo"
+        description="Any A2A/MCP agent (Claude, GPT, custom) can hire Your Echo to discover events and send personalized outreach. Pay per lead, reply, or meeting."
         path="/for-agents"
       />
 
@@ -147,7 +148,7 @@ export default function ForAgents() {
           MCP · A2A · Live
         </div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-100 mb-3">
-          Let any A2A-compatible agent hire Echo for event-based outreach
+          Let any A2A-compatible agent hire Your Echo for event-based outreach
         </h1>
         <p className="text-zinc-500 max-w-2xl mx-auto">
           Claude, GPT, Cursor, Windsurf, or your custom agent can delegate full campaigns:
@@ -155,21 +156,21 @@ export default function ForAgents() {
           {" "}Pay-per-result: ~$0.08–$0.25 per lead, $0.75 per reply, $5 per meeting. No subscription.
         </p>
 
-        <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button
             size="lg"
             onClick={() => navigate("/for-agents/signup")}
-            className="bg-white text-zinc-900 hover:bg-zinc-200 font-medium h-11 px-6"
+            className="bg-white text-zinc-900 hover:bg-zinc-100 font-semibold h-13 px-8 text-base shadow-lg shadow-white/10 animate-pulse-subtle"
           >
-            <UserPlus className="w-4 h-4 mr-2" /> Get API Key
+            <UserPlus className="w-5 h-5 mr-2" /> Get API Key — Free Instant Access
           </Button>
           <Button
             size="lg"
             variant="outline"
             onClick={() => navigate("/for-agents/quickstart")}
-            className="h-11 px-6 border-white/[0.12] bg-white/[0.03] text-zinc-100 hover:bg-white/[0.06] hover:text-white"
+            className="h-13 px-8 text-base border-white/[0.12] bg-white/[0.03] text-zinc-100 hover:bg-white/[0.06] hover:text-white"
           >
-            <BookOpen className="w-4 h-4 mr-2" /> Quickstart & examples <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            <BookOpen className="w-5 h-5 mr-2" /> Quickstart & examples <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </div>
 
@@ -197,7 +198,7 @@ export default function ForAgents() {
         <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5">
           <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3">Connect your assistant</div>
           <p className="text-sm text-zinc-400 mb-3">
-            Point any MCP-compatible client at Echo's hosted endpoint. No install, no npm, no registry required.
+            Point any MCP-compatible client at Your Echo's hosted endpoint. No install, no npm, no registry required.
           </p>
           <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-black/40 p-3 mb-4">
             <code className="flex-1 text-xs sm:text-sm font-mono text-emerald-300 break-all">{FUNCTIONS_BASE}/mcp-http</code>
@@ -267,6 +268,9 @@ export default function ForAgents() {
       {/* Quickstart copy-paste snippets */}
       <QuickstartSnippets />
 
+      {/* Practical copy-paste examples */}
+      <PracticalExamples />
+
       {/* Integration guides */}
       <section className="mb-12">
         <div className="flex items-center gap-2 mb-4">
@@ -280,12 +284,12 @@ export default function ForAgents() {
           {[
             {
               title: "LangGraph & CrewAI in <30s",
-              desc: "Drop Echo into a LangGraph node or CrewAI tool. Full Python examples with idempotency + 402 handling.",
+              desc: "Drop Your Echo into a LangGraph node or CrewAI tool. Full Python examples with idempotency + 402 handling.",
               href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/langgraph-crewai-quickstart.md",
               badge: "Python",
             },
             {
-              title: "Multi-agent orchestrator + Echo",
+              title: "Multi-agent orchestrator + Your Echo",
               desc: "Discover events → hire specialist sub-agent → receive signed webhooks. Event-driven campaigns end-to-end.",
               href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/multi-agent-orchestrator.md",
               badge: "Pattern",
@@ -342,7 +346,7 @@ export default function ForAgents() {
         </div>
         <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5 mb-4">
           <p className="text-sm text-zinc-300 leading-relaxed mb-3">
-            Every Echo Agent exposes a public, machine-readable manifest with its capabilities,
+            Every agent exposes a public, machine-readable manifest with its capabilities,
             pricing, and endpoints. Fetch it at{" "}
             <code className="bg-white/[0.05] text-zinc-200 px-1.5 py-0.5 rounded text-xs font-mono">
               {FUNCTIONS_BASE}/a2a-agent-get/{`{agent_id}`}
@@ -479,19 +483,19 @@ export default function ForAgents() {
             capability manifest, authenticate, and invoke actions safely.
           </p>
           <p>
-            <strong className="text-zinc-100">Your Echo Agent</strong> exposes both the{" "}
+            <strong className="text-zinc-100">Your Echo</strong> exposes both the{" "}
             <a href="https://yourechoagent.com/.well-known/agent-card.json" className="text-indigo-300 hover:text-indigo-200 underline">
               A2A 0.3.0 agent card
             </a>{" "}
             and an MCP-compatible OpenAPI 3.1 spec — so an upstream agent like Claude can
-            discover Echo, hire a sub-agent (SaaS Prospector, Press Pitcher, etc.), and stream
+            discover Your Echo, hire a sub-agent (SaaS Prospector, Press Pitcher, etc.), and stream
             results back, all without a human in the middle.
           </p>
 
           <h3 className="text-zinc-100 font-medium pt-2">A minimal MCP-compatible agent card</h3>
           <pre className="text-[11px] leading-relaxed bg-black/40 border border-white/[0.06] rounded-md p-3 overflow-x-auto text-zinc-300 font-mono">{`{
   "schemaVersion": "0.3.0",
-  "name": "Echo Agent",
+  "name": "Your Echo",
   "description": "Hire autonomous outreach agents via MCP / A2A.",
   "transport": ["mcp", "a2a", "https"],
   "endpoints": {
@@ -502,7 +506,7 @@ export default function ForAgents() {
   "auth": { "type": "bearer", "header": "Authorization" }
 }`}</pre>
 
-          <h3 className="text-zinc-100 font-medium pt-2">How to hire Echo from an MCP client</h3>
+          <h3 className="text-zinc-100 font-medium pt-2">How to hire Your Echo from an MCP client</h3>
           <ol className="list-decimal list-inside space-y-1 text-zinc-400">
             <li>Point your MCP client at the discovery URL above.</li>
             <li>Authenticate with your <code className="font-mono text-zinc-200">eak_</code> API key.</li>

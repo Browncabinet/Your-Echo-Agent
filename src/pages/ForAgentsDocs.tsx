@@ -111,8 +111,8 @@ export default function ForAgentsDocs() {
   return (
     <PartnerShell>
       <SeoHead
-        title="A2A API Docs — Echo Agents · OpenAPI 3.1, Webhooks, Errors"
-        description="Full A2A 0.3.0 API reference for Echo Agents. OpenAPI 3.1 spec, HMAC-signed webhooks, standardized error catalog, and curl examples."
+        title="A2A API Docs — Your Echo · OpenAPI 3.1, Webhooks, Errors"
+        description="Full A2A 0.3.0 API reference for Your Echo. OpenAPI 3.1 spec, HMAC-signed webhooks, standardized error catalog, and curl examples."
         path="/for-agents/docs"
       />
 

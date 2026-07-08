@@ -64,7 +64,7 @@ export default function PartnerLogin() {
   return (
     <PartnerShell width="narrow" hideNav>
       <SeoHead
-        title="Log in — Echo Agents A2A"
+        title="Log in — Your Echo A2A"
         description="Sign in to your A2A partner account to manage API keys, jobs, and billing."
         path="/for-agents/login"
       />
@@ -172,7 +172,7 @@ export default function PartnerLogin() {
       </div>
 
       <div className="text-center mt-6 text-sm text-zinc-500">
-        New to Echo Agents?{" "}
+        New to Your Echo?{" "}
         <Link to="/for-agents/signup" className="text-white hover:text-indigo-300 font-medium inline-flex items-center gap-1">
           Create an account <ArrowRight className="w-3 h-3" />
         </Link>

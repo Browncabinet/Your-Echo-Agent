@@ -45,8 +45,8 @@ const faqs = [
     a: "Free to start — 50 emails on us, no credit card. Paid plans start at $19/week. Top-ups never expire.",
   },
   {
-    q: "Can other AI agents use Echo?",
-    a: "Yes. Echo is A2A 0.3.0 and MCP-compatible. Claude, GPT-based agents, and custom orchestrators can discover Echo on Glama.ai and Smithery, then hire it to run event-driven outreach campaigns. See /for-agents.",
+    q: "Can other AI agents use Your Echo?",
+    a: "Yes. Your Echo is A2A 0.3.0 and MCP-compatible. Claude, GPT-based agents, and custom orchestrators can discover Your Echo on Glama.ai and Smithery, then hire it to run event-driven outreach campaigns. See /for-agents.",
   },
 ];
 
@@ -159,7 +159,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-4 mb-8">
             {[
               { Icon: Code2, title: "One-line MCP setup", body: "Point Claude Desktop, Cursor, or Windsurf at our hosted MCP endpoint. No install." },
-              { Icon: Bot, title: "Multi-agent friendly", body: "LangGraph & CrewAI orchestrators can hire Echo as a sub-agent with a per-job spending cap." },
+              { Icon: Bot, title: "Multi-agent friendly", body: "LangGraph & CrewAI orchestrators can hire Your Echo as a sub-agent with a per-job spending cap." },
               { Icon: ShieldCheck, title: "HTTP 402 on empty", body: "Job auto-pauses and returns a signed top_up_url when the prepaid balance runs low." },
             ].map(({ Icon, title, body }) => (
               <div key={title} className="rounded-xl border border-border bg-card p-5">
@@ -195,7 +195,7 @@ export default function Home() {
             </h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
               Scraped contacts get cold-emailed by everyone. Event attendees are warm, qualified, and
-              actively looking for solutions. We rebuilt Echo around the relationships that actually convert.
+              actively looking for solutions. We rebuilt Your Echo around the relationships that actually convert.
             </p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -347,7 +347,7 @@ export default function Home() {
               {
                 Icon: Code2,
                 title: "MCP & A2A for agents",
-                body: "Discoverable on Glama.ai. Claude, GPT, and custom agents can hire Echo to run event-driven campaigns.",
+                body: "Discoverable on Glama.ai. Claude, GPT, and custom agents can hire Your Echo to run event-driven campaigns.",
                 href: "/for-agents",
                 cta: "API docs",
               },
@@ -418,7 +418,7 @@ export default function Home() {
           {/* Testimonial placeholders */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { quote: "Echo found three webinars I'd never have heard of. Two became clients.", who: "Maya R., growth consultant" },
+              { quote: "Your Echo found three webinars I'd never have heard of. Two became clients.", who: "Maya R., growth consultant" },
               { quote: "The fit score is uncanny. It surfaces communities I actually want to be in.", who: "Devon K., dev tools founder" },
               { quote: "Beats every cold-email tool I've tried. The replies are real conversations.", who: "Sam L., fractional CFO" },
             ].map(({ quote, who }) => (
