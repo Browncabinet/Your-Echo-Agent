@@ -106,15 +106,23 @@ export default function PartnerDashboard() {
   useEffect(() => { load(); }, [user]);
 
   const handleRotate = async () => {
-    if (!confirm("Rotate API key? Your current key will stop working immediately.")) return;
+    const isFirstKey = keys.length === 0;
+    if (!isFirstKey && !confirm("Rotate API key? Your current key will stop working immediately.")) return;
     setRotating(true);
-    const { data, error } = await supabase.functions.invoke("a2a-rotate-key", { body: {} });
+    // First-time: call onboard (creates partner row + mints first key).
+    // Otherwise: rotate the existing key.
+    const fn = isFirstKey ? "a2a-onboard" : "a2a-rotate-key";
+    const body = isFirstKey
+      ? { display_name: (user?.user_metadata?.full_name as string) || "My Orchestrator Agent", use_case: "agent" }
+      : {};
+    const { data, error } = await supabase.functions.invoke(fn, { body });
     setRotating(false);
-    if (error || !data?.key) { toast.error(error?.message || "Failed to rotate"); return; }
+    if (error || !data?.key) { toast.error(error?.message || "Failed to generate key"); return; }
     setRevealedKey(data.key);
-    toast.success("New key generated — copy it now");
+    toast.success(isFirstKey ? "Agent key generated — copy it now" : "New key generated — copy it now");
     load();
   };
+
 
   const handleRotateSecret = async () => {
     if (!confirm("Rotate webhook secret? Update your verifier before proceeding.")) return;
