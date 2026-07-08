@@ -287,7 +287,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Pricing — Echo Agent for AI Agents | Prepaid, pay-per-result"
+        title="Pricing — Your Echo for AI Agents | Prepaid, pay-per-result"
         description="Prepaid A2A/MCP billing for AI agents that hire Echo. $25 / $100 / $149 top-up packs. Pay per delivered lead, reply, or meeting. No subscription required."
         path="/pricing"
         jsonLd={faqJsonLd}
