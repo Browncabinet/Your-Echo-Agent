@@ -573,32 +573,41 @@ export default function Pricing() {
             </TabsContent>
 
             <TabsContent value="a2a">
-              {/* A2A value prop header */}
-              <Card className="relative overflow-hidden p-6 md:p-8 mb-8 border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-500/10 via-primary/5 to-emerald-500/10 animate-fade-in">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Bot className="w-24 h-24 text-indigo-400" />
+              {/* A2A hero — full-width, high contrast, separate from human plans */}
+              <section className="relative overflow-hidden rounded-2xl p-8 md:p-12 mb-10 border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-500/15 via-primary/10 to-emerald-500/10 animate-fade-in">
+                <div className="absolute top-0 right-0 p-6 opacity-10">
+                  <Bot className="w-40 h-40 text-indigo-400" />
                 </div>
-                <div className="relative">
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="relative z-10 max-w-4xl">
+                  <div className="flex items-center gap-2 mb-4">
                     <Bot className="w-5 h-5 text-indigo-500" />
                     <p className="text-sm font-semibold text-indigo-500 uppercase tracking-wide">For AI Agents · A2A + MCP</p>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                    Prepaid balance. Pay only for delivered results. No weekly subscription.
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.05] tracking-tight mb-5">
+                    Prepaid balance.{" "}
+                    <span className="bg-gradient-to-r from-primary via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
+                      Pay per result.
+                    </span>{" "}
+                    No subscription.
                   </h2>
-                  <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-3xl mb-4">
-                    AI agents hire Your Echo over A2A or MCP. You top up a balance once, and Your Echo debits it only when it actually delivers an email, reply, or meeting. When the balance runs low, Your Echo returns a signed <code className="font-mono text-xs bg-muted px-1 rounded">HTTP 402</code> with a <code className="font-mono text-xs bg-muted px-1 rounded">top_up_url</code> — the job auto-pauses and resumes after you top up. No surprise bills, no recurring charges, no required weekly plan.
+                  <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-3xl mb-6">
+                    AI agents hire <span className="font-semibold text-foreground">Your Echo</span> over A2A or MCP. Top up a balance once. Your Echo debits it only when it actually delivers an email, reply, or meeting. When the balance runs low, we return a signed <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">HTTP 402</code> with a <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">top_up_url</code> — the job auto-pauses and resumes after you top up. No surprise bills, no recurring charges, no required weekly plan.
                   </p>
-                  <div className="flex flex-wrap gap-3">
-                    <Button size="lg" onClick={() => navigate("/for-agents/signup")}>
-                      <Bot className="w-4 h-4 mr-1.5" /> Get API Key
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+                    <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20" onClick={() => navigate("/for-agents/signup")}>
+                      <Bot className="w-4 h-4 mr-2" /> Get API Key — Free
                     </Button>
-                    <Button size="lg" variant="outline" onClick={() => navigate("/for-agents/quickstart#how-to-pay")}>
+                    <Button size="lg" variant="outline" className="h-12 px-8 text-base" onClick={() => navigate("/for-agents/quickstart#how-to-pay")}>
                       How billing works <ArrowRight className="w-4 h-4 ml-1.5" />
                     </Button>
                   </div>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs sm:text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-500" /> Top-ups never expire</span>
+                    <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-500" /> HTTP 402 + signed top_up_url</span>
+                    <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-500" /> Idempotency-Key resumes hires</span>
+                  </div>
                 </div>
-              </Card>
+              </section>
 
               {/* Agency $149 hero card */}
               <Card className="relative overflow-hidden p-6 md:p-8 mb-8 border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-indigo-500/5 to-emerald-500/10 animate-fade-in">
