@@ -832,10 +832,72 @@ Tone: ${p.tone ?? "concise"}`;
 
 const app = new Hono();
 
+// In-memory per-IP token bucket for unauthenticated demo-tier calls.
+// Authenticated (eak_) calls skip this and use the per-key DB rate limit
+// (a2a_bump_rate) applied inside the individual A2A endpoints they invoke.
+// Buckets survive as long as the edge instance does; short outages just
+// reset counters — that's fine for a demo tier.
+const DEMO_RATE_LIMIT = Number(Deno.env.get("MCP_DEMO_RATE_LIMIT") ?? 15); // req / window
+const DEMO_RATE_WINDOW_MS = 60_000; // 1 minute
+const ipBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function clientIp(req: Request): string {
+  const xf = req.headers.get("x-forwarded-for") || "";
+  const first = xf.split(",")[0]?.trim();
+  return first || req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || "unknown";
+}
+
+function checkDemoRateLimit(ip: string): { ok: true } | { ok: false; retryAfter: number } {
+  const now = Date.now();
+  const b = ipBuckets.get(ip);
+  if (!b || b.resetAt <= now) {
+    ipBuckets.set(ip, { count: 1, resetAt: now + DEMO_RATE_WINDOW_MS });
+    // Opportunistic GC — cap map size.
+    if (ipBuckets.size > 5000) {
+      for (const [k, v] of ipBuckets) if (v.resetAt <= now) ipBuckets.delete(k);
+    }
+    return { ok: true };
+  }
+  if (b.count >= DEMO_RATE_LIMIT) {
+    return { ok: false, retryAfter: Math.ceil((b.resetAt - now) / 1000) };
+  }
+  b.count += 1;
+  return { ok: true };
+}
+
 app.options("/*", () => new Response(null, { headers: corsHeaders }));
 
 app.all("/*", async (c) => {
   const apiKey = extractApiKey(c.req.raw);
+
+  // Rate-limit demo-tier (no API key) callers per-IP. Authenticated callers
+  // pass through — their per-key limit is enforced further downstream.
+  if (!apiKey) {
+    const ip = clientIp(c.req.raw);
+    const check = checkDemoRateLimit(ip);
+    if (!check.ok) {
+      return new Response(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: null,
+          error: {
+            code: -32029,
+            message: `Rate limit exceeded on the demo tier (${DEMO_RATE_LIMIT} requests / minute). Retry in ${check.retryAfter}s, or get a free ECHO_API_KEY at https://yourechoagent.com/for-agents/dashboard for higher limits (50 free emails on signup).`,
+            data: { retry_after_seconds: check.retryAfter, upgrade_url: "https://yourechoagent.com/for-agents/dashboard" },
+          },
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(check.retryAfter),
+          },
+        },
+      );
+    }
+  }
+
   const mcp = buildServer(apiKey);
   const transport = new StreamableHttpTransport();
   const handler = transport.bind(mcp);

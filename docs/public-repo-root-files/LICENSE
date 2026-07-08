@@ -5,17 +5,8 @@
  Everyone is permitted to copy and distribute verbatim copies of this
  license document, but changing it is not allowed.
 
-                            Preamble
-
-  The GNU Affero General Public License is a free, copyleft license for
-software and other kinds of works, specifically designed to ensure
-cooperation with the community in the case of network server software.
-
   The full text of the GNU AGPL v3 is available at:
   https://www.gnu.org/licenses/agpl-3.0.txt
-
-  A copy of the license is distributed alongside this software as
-  LICENSE.agpl-3.0.txt (fetch from the URL above if not present locally).
 
   Copyright (C) 2026 Browncabinet / Echo Agent
   <https://yourechoagent.com>
@@ -52,4 +43,3 @@ cooperation with the community in the case of network server software.
     encouraged — that is the point of this repository.
 
   If you're unsure whether your use case needs permission, email us.
-  We're friendly.

@@ -2,12 +2,21 @@
 
 [![smithery badge](https://img.shields.io/badge/MCP-Echo%20Agent-3b82f6)](https://yourechoagent.com/for-agents)
 [![npm version](https://img.shields.io/npm/v/@browncabinet/yourechoagent-mcp.svg)](https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp)
-[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-red.svg)](LICENSE)
 [![Glama listed](https://img.shields.io/badge/Glama-listed-22c55e)](https://glama.ai/mcp/servers)
 
 > **Hire autonomous outreach agents and discover events from any MCP-compatible LLM.** Find where your audience gathers — conferences, webinars, communities, podcasts — then launch personalized outreach campaigns straight from Claude, Cursor, Windsurf, or Continue.
 
 This is the official [Model Context Protocol](https://modelcontextprotocol.io) server for [Echo Agent](https://yourechoagent.com), an A2A-native marketplace of autonomous outreach agents.
+
+> ### ⚠️ Public client — protected backend
+>
+> This repository is the **thin MCP / A2A client layer** for Echo Agent. The core
+> service (event & community discovery pipeline, fit-scoring model, prompt
+> engineering, deliverability rules, reply intelligence, and billing/metering)
+> runs on our **proprietary hosted backend** and is **not included** here.
+> Cloning gives you a working client for our hosted API, not a standalone
+> competing service. See the [License](#license) section below.
 
 ---
 
@@ -144,4 +153,10 @@ ECHO_API_KEY=eak_... npm run inspect   # opens MCP Inspector
 
 ## License
 
-MIT © Browncabinet
+**AGPL-3.0** © Browncabinet — see [LICENSE](LICENSE).
+
+Commercial services that substantially reproduce Echo Agent (event/community
+discovery + personalized outreach as a hireable A2A/MCP agent) using this code
+or a derivative require **prior written permission**. Building your own product
+that integrates with the hosted Echo Agent API is expressly allowed — that's
+the whole point. Email `hello@yourechoagent.com` if unsure.

@@ -3,7 +3,7 @@
 [![CI](https://github.com/Browncabinet/yourechoagent-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Browncabinet/yourechoagent-mcp/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@browncabinet/yourechoagent-mcp.svg)](https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp)
 [![npm downloads](https://img.shields.io/npm/dm/@browncabinet/yourechoagent-mcp.svg)](https://www.npmjs.com/package/@browncabinet/yourechoagent-mcp)
-[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-red.svg)](LICENSE)
 [![Glama listed](https://img.shields.io/badge/Glama-listed-22c55e)](https://glama.ai/mcp/servers/Browncabinet/yourechoagent-mcp)
 [![smithery](https://img.shields.io/badge/Smithery-deploy-3b82f6)](https://smithery.ai)
 
@@ -11,6 +11,18 @@
 > Find conferences, webinars, meetups, podcasts, and communities in any niche, then launch personalized outreach campaigns straight from Claude, Cursor, Windsurf, or Continue.
 
 This is the official [Model Context Protocol](https://modelcontextprotocol.io) server for [Echo Agent](https://yourechoagent.com).
+
+> ### ⚠️ Public client — protected backend
+>
+> This repository is the **thin MCP / A2A client layer** for Echo Agent. The core
+> service (event & community discovery pipeline, fit-scoring model, prompt
+> engineering, deliverability rules, reply intelligence, and billing/metering)
+> runs on our **proprietary hosted backend** and is **not included** in this repo.
+>
+> That means: cloning gives you a working client for our hosted API, not a
+> standalone competing service. Read [`ARCHITECTURE.md`](ARCHITECTURE.md) for
+> what's public vs. protected, and see the [License](#license) section for the
+> AGPL-3.0 + commercial-competing-services notice.
 
 ---
 
@@ -164,4 +176,11 @@ PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](COD
 
 ## License
 
-MIT © Browncabinet — see [LICENSE](LICENSE)
+**AGPL-3.0** © Browncabinet — see [LICENSE](LICENSE).
+
+Commercial services that substantially reproduce Echo Agent (event/community
+discovery + personalized outreach as a hireable A2A/MCP agent) using this code
+or a derivative require **prior written permission**. Building your own product
+that integrates with the hosted Echo Agent API is expressly allowed — that's
+the whole point. See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the split, and
+email `hello@yourechoagent.com` if unsure.

@@ -2,7 +2,7 @@
   "name": "@browncabinet/yourechoagent-mcp",
   "version": "0.4.0",
   "description": "Discover events, conferences, LinkedIn groups, professional associations, and communities by category — then extract structured contact lists (name, title, company, email, location) and hire autonomous outreach agents. Works from any MCP client (Claude, Cursor, Windsurf, Continue).",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "author": "Browncabinet",
   "homepage": "https://yourechoagent.com",
   "repository": {
