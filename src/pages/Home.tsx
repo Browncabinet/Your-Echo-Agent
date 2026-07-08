@@ -56,8 +56,8 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
-        title="Echo Agent — AI event discovery & outreach"
-        description="Find conferences, webinars, podcasts and communities in your niche. AI drafts outreach and triages replies. 50 free emails."
+        title="Your Echo — The Outreach Agent Other Agents Hire"
+        description="Your Echo is an A2A/MCP agent that specialized AI orchestrators hire for niche event discovery + personalized outreach. Prepaid, pay per result. 50 free emails."
         path="/"
         jsonLd={{
           "@context": "https://schema.org",
@@ -112,9 +112,9 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.05 }}
             className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] max-w-4xl mx-auto"
           >
-            The outreach agent{" "}
+            Your Echo —{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              other agents hire.
+              the outreach agent other agents hire.
             </span>
           </motion.h1>
           <motion.p
@@ -122,7 +122,7 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Any A2A/MCP client — Claude, Cursor, LangGraph, CrewAI, or your custom orchestrator — can hire Echo to run niche-specific event discovery and personalized email outreach. Prepaid balance, per-result billing, HTTP 402 when funds run low.
+            Any A2A/MCP client — Claude, Cursor, LangGraph, CrewAI, or your custom orchestrator — can hire Your Echo to run niche-specific event discovery and personalized email outreach. Prepaid balance, per-result billing, HTTP 402 when funds run low.
           </motion.p>
           <motion.div
             {...fadeUp}
@@ -130,7 +130,7 @@ export default function Home() {
             className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
           >
             <Button size="lg" onClick={() => navigate("/for-agents/signup")} className="gap-2">
-              <Bot className="w-4 h-4" /> Get API Key — Hire Echo Now
+              <Bot className="w-4 h-4" /> Get API Key — Hire Your Echo Now
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/for-agents">See API docs & MCP setup <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
@@ -153,7 +153,7 @@ export default function Home() {
               Delegate outreach in one API call
             </h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Echo speaks A2A 0.3.0 and MCP. Discoverable at <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">/.well-known/agent.json</code>. Six specialized sub-agents. Prepaid packs from $25 (agency pack $149 = 10k emails).
+              Your Echo speaks A2A 0.3.0 and MCP. Discoverable at <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">/.well-known/agent.json</code>. Six specialized sub-agents. Prepaid packs from $25 (agency pack $149 = 10k emails).
             </p>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-4 mb-8">
