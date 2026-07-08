@@ -1,52 +1,87 @@
-# Fix Glama build config
+# Fix Glama build failure: GitHub repo access
 
-## Root cause
+## What failed now
 
-1. **Transient**: Glama's builder timed out pulling `debian:trixie-slim` from Docker Hub ("context deadline exceeded"). Retrying the build should clear this — nothing in your repo caused it.
-2. **Real config bugs** that will fail the next build anyway:
-   - Config uses `pnpm`, but the repo ships `mcp-server/package-lock.json` (npm), no `pnpm-lock.yaml`.
-   - Build/start scripts live in `mcp-server/`, not repo root. `pnpm run build` at `/app` will error with "Missing script: build".
-   - `mcp-proxy` wraps stdio servers to expose them over HTTP. Glama runs stdio natively — wrapping it breaks tool discovery. Your existing `Dockerfile` at repo root already builds correctly without it.
-   - Python 3.14 + `uv` install are unused (the MCP server is pure Node).
+The Docker/base image problem is past this time. The build now fails here:
 
-## Fix (Glama "Docker configuration" form)
+```text
+fatal: could not read Username for 'https://github.com': No such device or address
+```
 
-Update these fields on the Glama server edit page:
+That means Glama is trying to clone:
 
-| Field | New value |
-|---|---|
-| Base image | `node:20-alpine` (matches your committed `Dockerfile`) |
-| Node version | `20` |
-| Python version | *(clear — not needed)* |
-| Build steps | `cd mcp-server && npm install && npm run build` |
-| Cmd arguments | `["node", "mcp-server/dist/index.js"]` |
-| Placeholder args | keep `ECHO_API_KEY=eak_your_key_here` |
-| Pinned commit | leave `null` (use latest `main`) |
+```text
+https://github.com/Browncabinet/Your-Echo-Agent
+```
 
-Equivalent JSON:
+but the repo is private, renamed, or not accessible to Glama's builder without GitHub credentials.
+
+## Best fix
+
+Use a **public MCP-only repo** for Glama instead of the private/full Lovable app repo.
+
+Your docs already point to the intended public repo:
+
+```text
+https://github.com/Browncabinet/yourechoagent-mcp
+```
+
+So in Glama, change the repository/source URL from:
+
+```text
+https://github.com/Browncabinet/Your-Echo-Agent
+```
+
+to:
+
+```text
+https://github.com/Browncabinet/yourechoagent-mcp
+```
+
+Then rebuild.
+
+## If Glama still uses the old repo
+
+If Glama keeps cloning `Your-Echo-Agent`, it means the server listing is still connected to that old repository. Create a new Glama server submission using the public MCP repo URL, or edit the listing/source repo if Glama allows it.
+
+## Correct Glama config for the public MCP repo
+
+If the public repo has `mcp-server/` inside it, use:
 
 ```json
 {
-  "baseImage": "node:20-alpine",
-  "buildSteps": [
-    "cd mcp-server && npm install && npm run build"
-  ],
+  "baseImage": "debian:bookworm-slim",
+  "buildSteps": ["cd mcp-server && npm install && npm run build"],
   "cmdArguments": ["node", "mcp-server/dist/index.js"],
   "nodeVersion": "20",
   "pythonVersion": null,
   "pinnedCommit": null,
-  "placeholderArguments": { "ECHO_API_KEY": "eak_your_key_here" }
+  "placeholderArguments": {
+    "ECHO_API_KEY": "eak_your_key_here"
+  }
 }
 ```
 
-## Even simpler alternative (recommended)
+If the public repo is MCP-only and `package.json` is at the repo root, use this instead:
 
-Delete the custom Docker configuration entirely and let Glama use the **`Dockerfile` already committed at the repo root**. It's already correct: `node:20-alpine`, builds `mcp-server/`, runs `node dist/index.js` over stdio. Custom build steps only exist to override that Dockerfile — you don't need to.
+```json
+{
+  "baseImage": "debian:bookworm-slim",
+  "buildSteps": ["npm install && npm run build"],
+  "cmdArguments": ["node", "dist/index.js"],
+  "nodeVersion": "20",
+  "pythonVersion": null,
+  "pinnedCommit": null,
+  "placeholderArguments": {
+    "ECHO_API_KEY": "eak_your_key_here"
+  }
+}
+```
 
-## After saving
+## About using the existing Dockerfile
 
-Click **Rebuild**. If it fails again with the same `debian:trixie-slim` / "context deadline exceeded" error, that's still Glama's Docker Hub outage — wait a few minutes and retry. No repo changes needed for that.
+Yes, you can use the existing Dockerfile only if Glama is cloning a repo it can access. Right now it cannot reach `Your-Echo-Agent`, so the Dockerfile choice does not matter until the repo access problem is fixed.
 
-## No code changes in this repo
+## No code changes needed in Lovable
 
-This plan is entirely configuration on glama.ai. Nothing in the Lovable project needs to change.
+This is a Glama repository/source configuration issue, not an app code issue.
