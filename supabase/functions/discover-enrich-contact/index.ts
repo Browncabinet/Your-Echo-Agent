@@ -184,6 +184,8 @@ serve(async (req) => {
       }
 
       const h = await callHunter(domain, first, last, hunterKey);
+      // Count this lookup regardless of outcome — Hunter charges per API call.
+      await svc.rpc("bump_hunter_usage", { _user_id: userId, _amount: 1 });
       if (!h.ok) {
         results.push({ index: idx, name: c.name, email: null, score: null, verification: null, charged: 0, cached: false, error: h.error });
         continue;
