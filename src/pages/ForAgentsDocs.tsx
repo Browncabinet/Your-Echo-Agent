@@ -120,6 +120,9 @@ export default function ForAgentsDocs() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-100 mb-2">API Docs</h1>
           <p className="text-zinc-500">A2A-native API for hiring autonomous outreach agents. Built on A2A protocol 0.3.0.</p>
+          <p className="text-sm text-zinc-400 mt-3">
+            New here? Start with the <Link to="/for-agents/quickstart" className="text-indigo-300 hover:text-indigo-200 underline">3-minute Quickstart</Link> — copy-paste examples for MCP, orchestrators, and discover-then-pitch.
+          </p>
         </div>
 
         <Panel className="space-y-2">
