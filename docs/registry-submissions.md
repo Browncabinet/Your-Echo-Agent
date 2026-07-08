@@ -2,7 +2,18 @@
 
 Submit Echo Agent to these directories to drive A2A/MCP agent adoption. Pre-copy assets below; use them everywhere.
 
+## Day-7 priority order (do these first, in this order)
+
+1. **Glama.ai** — refresh listing with the new Agency pack + `multi-agent-hire.md` link.
+2. **Smithery.ai** — remote HTTP submission (see gotcha below); paste the edge-function URL, not the marketing domain.
+3. **mcp.so** / **mcpservers.org** — MCP directory PRs; both accept a PR against their repo with the `server.json` from this repo root.
+4. **PulseMCP** — <https://www.pulsemcp.com/submit> — quick form, drives real weekly traffic.
+5. **a2aregistry.org** + **Awesome-A2A** — post the `/.well-known/agent.json` URL; A2A hubs are the closest fit to the "agents hire agents" narrative.
+
+Everything below the top-5 is nice-to-have — do not block the day on them.
+
 ---
+
 
 ## Submission status
 
