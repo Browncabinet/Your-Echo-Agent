@@ -146,10 +146,28 @@ export default function Discover() {
       const { data, error } = await supabase.functions.invoke("discover-enrich-contact", {
         body: { opportunity_id: opp.id, contact_index: index === "all" ? undefined : index, mode: index === "all" ? "bulk" : "single" },
       });
-      if (error) throw error;
+      if (error) {
+        // Try to parse the JSON body for a friendly message (rate_limited, not_warm_lead, etc.)
+        let detail: { error?: string; message?: string } = {};
+        try {
+          const ctx = (error as { context?: { text?: () => Promise<string> } }).context;
+          if (ctx?.text) detail = JSON.parse(await ctx.text());
+        } catch { /* ignore */ }
+        const title = detail.error === "rate_limited" ? "Slow down"
+          : detail.error === "not_warm_lead" ? "Not available"
+          : "Enrichment failed";
+        toast({ title, description: detail.message || (error as Error).message, variant: "destructive" });
+        return;
+      }
       const found = (data?.results || []).filter((r: { email?: string }) => r.email).length;
       const charged = (data?.results || []).reduce((s: number, r: { charged?: number }) => s + (r.charged || 0), 0);
-      toast({ title: `Found ${found} email${found === 1 ? "" : "s"}`, description: charged ? `Charged ${charged} email unit${charged === 1 ? "" : "s"}` : "No charge — nothing verified" });
+      const dailyLine = typeof data?.daily_remaining === "number"
+        ? ` · ${data.daily_remaining}/${data.daily_cap} daily lookups left`
+        : "";
+      toast({
+        title: `Found ${found} email${found === 1 ? "" : "s"}`,
+        description: (charged ? `Charged ${charged} email unit${charged === 1 ? "" : "s"}` : "No charge — nothing verified") + dailyLine,
+      });
       await Promise.all([loadItems(), refreshCredits()]);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Enrichment failed";
