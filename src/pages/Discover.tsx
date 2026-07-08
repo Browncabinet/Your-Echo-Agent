@@ -139,6 +139,27 @@ export default function Discover() {
     await loadItems();
   };
 
+  const runEnrich = async (opp: DiscoverOpportunity, index: number | "all") => {
+    const key = `${opp.id}:${index}`;
+    setEnrichBusy(key);
+    try {
+      const { data, error } = await supabase.functions.invoke("discover-enrich-contact", {
+        body: { opportunity_id: opp.id, contact_index: index === "all" ? undefined : index, mode: index === "all" ? "bulk" : "single" },
+      });
+      if (error) throw error;
+      const found = (data?.results || []).filter((r: { email?: string }) => r.email).length;
+      const charged = (data?.results || []).reduce((s: number, r: { charged?: number }) => s + (r.charged || 0), 0);
+      toast({ title: `Found ${found} email${found === 1 ? "" : "s"}`, description: charged ? `Charged ${charged} email unit${charged === 1 ? "" : "s"}` : "No charge — nothing verified" });
+      await Promise.all([loadItems(), refreshCredits()]);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Enrichment failed";
+      toast({ title: "Enrichment failed", description: msg, variant: "destructive" });
+    } finally {
+      setEnrichBusy(null);
+      setConfirm(null);
+    }
+  };
+
   const remaining = Math.max(0, (caps?.["discoveries_cap" as keyof typeof caps] as number | undefined ?? 0) - (caps?.["discoveries_used" as keyof typeof caps] as number | undefined ?? 0));
 
   return (
