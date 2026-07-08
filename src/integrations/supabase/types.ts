@@ -994,6 +994,27 @@ export type Database = {
         }
         Relationships: []
       }
+      hunter_usage_daily: {
+        Row: {
+          day: string
+          lookups: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          day?: string
+          lookups?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          day?: string
+          lookups?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       linkedin_actions: {
         Row: {
           campaign_id: string | null
@@ -1489,6 +1510,13 @@ export type Database = {
       a2a_bump_rate: {
         Args: { _api_key_id: string; _window_start: string }
         Returns: number
+      }
+      bump_hunter_usage: {
+        Args: { _amount?: number; _user_id: string }
+        Returns: {
+          global_lookups: number
+          user_lookups: number
+        }[]
       }
       current_week_caps: {
         Args: { _user_id: string }

@@ -95,18 +95,57 @@ serve(async (req) => {
 
     const svc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
+    // Warm-lead gate: opportunity must belong to this user in discovered_opportunities
+    // (that table is populated only by the event/PR/podcast discovery pipeline — no cold lists).
     const { data: opp } = await svc.from("discovered_opportunities")
       .select("*").eq("id", opportunity_id).eq("user_id", userId).maybeSingle();
-    if (!opp) return json({ error: "Not found" }, 404);
+    if (!opp) return json({ error: "not_warm_lead", message: "Hunter enrichment is only available for warm event-based leads from Discover." }, 404);
 
     const contacts: Contact[] = (opp.contacts || []) as Contact[];
     const domain = pickDomain(opp);
     if (!domain) return json({ error: "no_domain", message: "Could not determine a company domain for this event." }, 400);
 
+    const BULK_MAX = 10;
     const targetIndexes: number[] = bulk
-      ? contacts.map((c, i) => (!c.email && c.name && splitName(c.name) ? i : -1)).filter((i) => i >= 0).slice(0, 25)
+      ? contacts.map((c, i) => (!c.email && c.name && splitName(c.name) ? i : -1)).filter((i) => i >= 0).slice(0, BULK_MAX)
       : (typeof contact_index === "number" ? [contact_index] : []);
     if (targetIndexes.length === 0) return json({ error: "no_targets" }, 400);
+
+    // === Rate limits & daily caps ===
+    const PER_USER_DAILY_CAP = 50;
+    const GLOBAL_DAILY_CAP = 1000;
+    const BURST_WINDOW_SEC = 60;
+    const BURST_MAX = 10;
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Daily cap check (before spending anything)
+    const { data: dailyRow } = await svc.from("hunter_usage_daily")
+      .select("lookups").eq("user_id", userId).eq("day", today).maybeSingle();
+    const userLookupsToday = dailyRow?.lookups ?? 0;
+    if (userLookupsToday >= PER_USER_DAILY_CAP) {
+      return json({ error: "rate_limited", scope: "daily_user", message: `Daily limit of ${PER_USER_DAILY_CAP} email lookups reached. Try again tomorrow.`, retry_after: 3600 }, 429);
+    }
+
+    const { data: globalRow } = await svc.from("hunter_usage_daily")
+      .select("lookups").eq("user_id", "00000000-0000-0000-0000-000000000000").eq("day", today).maybeSingle();
+    if ((globalRow?.lookups ?? 0) >= GLOBAL_DAILY_CAP) {
+      return json({ error: "rate_limited", scope: "daily_global", message: "System-wide Hunter quota reached for today. Please try again tomorrow.", retry_after: 3600 }, 429);
+    }
+
+    // Burst check: count this user's calls in the last 60s from contact_enrichments (created_at)
+    const burstSince = new Date(Date.now() - BURST_WINDOW_SEC * 1000).toISOString();
+    const { count: recentCalls } = await svc.from("contact_enrichments")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("created_at", burstSince);
+    if ((recentCalls ?? 0) >= BURST_MAX) {
+      return json({ error: "rate_limited", scope: "burst", message: `Please wait a moment — max ${BURST_MAX} lookups per minute.`, retry_after: BURST_WINDOW_SEC }, 429);
+    }
+
+    // Clamp target count to remaining daily budget
+    const remainingDaily = PER_USER_DAILY_CAP - userLookupsToday;
+    if (targetIndexes.length > remainingDaily) targetIndexes.length = remainingDaily;
 
     // Read balance once up-front for a rough cap; each row re-checks.
     const { data: creditsRow } = await svc.from("user_credits").select("balance").eq("user_id", userId).maybeSingle();
@@ -145,6 +184,8 @@ serve(async (req) => {
       }
 
       const h = await callHunter(domain, first, last, hunterKey);
+      // Count this lookup regardless of outcome — Hunter charges per API call.
+      await svc.rpc("bump_hunter_usage", { _user_id: userId, _amount: 1 });
       if (!h.ok) {
         results.push({ index: idx, name: c.name, email: null, score: null, verification: null, charged: 0, cached: false, error: h.error });
         continue;
@@ -198,7 +239,11 @@ serve(async (req) => {
       .update({ contacts, updated_at: new Date().toISOString() })
       .eq("id", opportunity_id);
 
-    return json({ results, balance_after: balance, domain });
+    const { data: finalDaily } = await svc.from("hunter_usage_daily")
+      .select("lookups").eq("user_id", userId).eq("day", today).maybeSingle();
+    const dailyRemaining = Math.max(0, PER_USER_DAILY_CAP - (finalDaily?.lookups ?? userLookupsToday));
+
+    return json({ results, balance_after: balance, domain, daily_remaining: dailyRemaining, daily_cap: PER_USER_DAILY_CAP });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("discover-enrich-contact", msg);

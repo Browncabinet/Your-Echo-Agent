@@ -1,109 +1,64 @@
+## Current state (already in place)
 
-# Contact Enrichment with Hunter.io (Two-Step, Pay-Per-Verified-Email)
+- `HUNTER_API_KEY` is stored in Lovable Cloud secrets (never in client code).
+- Enrichment lives in the `discover-enrich-contact` edge function, gated to authenticated users and scoped to their own `discovered_opportunities` rows (event-based leads only — Discover page).
+- Per-contact cache in `contact_enrichments` prevents duplicate spend.
+- User pays 1 email-unit per found match; nothing if not found.
+- Two-step UX: extract contacts first, "Find emails" on demand (no bulk cold-list enrichment).
 
-Adds real email discovery to the Discover flow while being honest about what event platforms expose. Attendee lists stay off-limits (Zoom/Luma/Eventbrite don't share them); we enrich **organizers, speakers, and sponsors** pulled from the public event page.
+## What's missing (the safety asks)
 
-## User-facing flow
+1. **No rate limiting** — a user could hammer the endpoint and burn Hunter quota.
+2. **No daily caps** — no ceiling on Hunter lookups per user per day or globally.
+3. **Warm-lead gate is implicit** — the function trusts that the opportunity row is event-based; worth an explicit check + block on domains that look like generic cold lists.
 
-On any opportunity card in `/for-agents/discover`:
+## Plan
 
-1. **Find contacts** (existing) — Firecrawl + AI extracts names/roles/companies/socials from the event page. Free-tier action, no email lookup.
-2. Each extracted contact row now shows one of:
-   - `email present` → green check, ready to use
-   - `no email` → new **Find email** button (per contact) + **Find all emails** button (bulk) at the top
-3. Clicking **Find email** shows a confirm popover:
-   > Look up work email for **Jason Lemkin** at saastr.com — **$0.10** from your balance. Only charged if we find a verified email.
-4. On confirm we call Hunter. Result badge:
-   - `Verified 94%` (green) — email + confidence score shown, balance debited
-   - `Guessed 62%` (amber) — email shown, debited at reduced price ($0.05)
-   - `Not found` (grey) — **no charge**, we surface the generic domain email (`hello@saastr.com`) if Hunter's domain-search returns one
-5. Every contact also gets a free **LinkedIn** button that opens `linkedin.com/search/results/people/?keywords=<name>+<company>` in a new tab.
-6. New "What we can/can't get" explainer collapsible at the top of Discover clarifying that attendee lists from Zoom/Luma/Eventbrite aren't accessible — we work from public speaker/organizer/sponsor listings.
+### 1. Add a `hunter_usage_daily` table
+Tracks per-user daily lookup count (calls made, not just charges) so we cap even when Hunter returns "not found" (still consumes provider quota).
 
-## Billing
-
-- User pays from existing prepaid balance (`user_credits.balance`, in cents / "emails" unit already used across the app).
-- Prices (in the same "email" unit used elsewhere so it feels consistent):
-  - Verified match (score ≥ 80): **1 email** debited
-  - Guessed match (score 50–79): **0.5 email** debited (rounded up at row level, or batched)
-  - Not found or score < 50: **free**
-- Insufficient balance → shows top-up dialog (existing `TopupCheckoutDialog`), no Hunter call made.
-- Every debit writes an `a2a_ledger` row with `kind='enrichment'` so agents pulling billing history see it.
-- Results cached forever by `(lower(first_name), lower(last_name), domain)` — re-running Find email on the same contact is free.
-
-## Technical Details
-
-### Connector
-
-Use the **Hunter.io connector** if available in the workspace connector catalog; otherwise fall back to `add_secret HUNTER_API_KEY` and call `https://api.hunter.io/v2/*` directly. (I'll check `list_app_connectors` at build time.)
-
-### New table: `contact_enrichments` (cache + audit)
-
-```sql
-create table public.contact_enrichments (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null,                       -- who paid (for audit)
-  opportunity_id uuid,                         -- nullable, links back to discovered_opportunities
-  first_name text not null,
-  last_name text not null,
-  domain text not null,
-  email text,
-  score int,                                   -- Hunter confidence 0-100
-  verification text,                           -- valid | accept_all | webmail | invalid | unknown
-  sources jsonb default '[]'::jsonb,
-  raw jsonb,                                   -- full Hunter payload for debugging
-  charged_units numeric(6,2) not null default 0,
-  created_at timestamptz not null default now(),
-  unique (lower(first_name), lower(last_name), lower(domain))
-);
-grant select, insert on public.contact_enrichments to authenticated;
-grant all on public.contact_enrichments to service_role;
-alter table public.contact_enrichments enable row level security;
-create policy "own_read" on public.contact_enrichments for select to authenticated using (user_id = auth.uid());
--- writes only via edge function (service_role), no insert policy for authenticated
 ```
+hunter_usage_daily(user_id uuid, day date, lookups int, PRIMARY KEY(user_id, day))
+```
+Plus a global counter row (`user_id = '00000000-...'`) for the workspace-wide daily ceiling.
 
-### New edge function: `discover-enrich-contact`
+Standard grants + RLS (users read own row, service_role writes).
 
-`supabase/functions/discover-enrich-contact/index.ts`
+### 2. Enforce caps + rate limit in `discover-enrich-contact`
 
-Input: `{ opportunity_id, contact_index, mode: 'single' | 'bulk' }` (bulk enriches every unresolved contact on the opportunity, capped at 25 per call).
+Before each Hunter call:
+- **Per-user daily cap:** 50 lookups/day (covers a heavy PR session; blocks runaway loops).
+- **Global daily cap:** 1,000 lookups/day (protects the shared Hunter plan).
+- **Burst limit:** max 10 lookups per user per rolling 60 seconds (in-memory + DB check).
+- Increment counter atomically via an upsert RPC (`bump_hunter_usage`).
 
-Flow per contact:
-1. Validate JWT, load opportunity + contact.
-2. Derive `domain` — from `host_org` website in the opportunity, or from an existing organizer email, or from the opportunity URL as fallback.
-3. Cache check on `contact_enrichments`. Hit → return cached row, no charge.
-4. Balance check via `user_credits.balance`. If < cost, return `402 insufficient_balance`.
-5. `GET https://api.hunter.io/v2/email-finder?domain=…&first_name=…&last_name=…&api_key=$HUNTER_API_KEY`
-6. Score → cost mapping above. If `not found`, try `GET /v2/domain-search?domain=…&limit=5` and return generic emails without charging.
-7. Debit `user_credits.balance` (atomic RPC), insert `a2a_ledger` row (`kind='enrichment'`, `amount_cents=…`), upsert `contact_enrichments`.
-8. Update `discovered_opportunities.contacts` JSONB to inject the new email + score into the matching contact.
-9. Return `{ email, score, verification, charged, balance_after }`.
+Return `429` with `{ error: "rate_limited", retry_after }` when tripped; UI shows a friendly toast.
 
-### Frontend changes
+### 3. Tighten warm-lead gating
+- Explicit check: opportunity must exist in `discovered_opportunities` for this user (already true) **and** have a non-null `source` in the event-based set (`event`, `podcast`, `pr_request`, `speaking`, `radar`). Reject others with `not_warm_lead`.
+- Cap bulk mode at 10 contacts per call (currently 25) — keeps it "warm outreach", not list-building.
 
-- `src/pages/Discover.tsx`
-  - Extend `OpportunityCard` contacts list: render per-row `Find email` button when no email, badge when present.
-  - Add `Find all emails` bulk button + cost preview (`~ 8 lookups × 1 email = 8 emails`).
-  - New confirm popover component using existing `AlertDialog` for cost confirmation.
-  - Show balance-low state → open existing `TopupCheckoutDialog`.
-  - New "What we extract" `Collapsible` at the top of the page (organizers/speakers/sponsors ✓, attendee lists ✗, with a one-line rationale).
-- `src/lib/hunter.ts` — thin client-side wrapper that calls `supabase.functions.invoke('discover-enrich-contact', …)` and refreshes the credits hook on success.
+### 4. Frontend touch-ups (`src/pages/Discover.tsx`)
+- Surface the daily-remaining count next to the balance in the confirm dialog ("You have 47 of 50 daily lookups remaining").
+- Handle `rate_limited` and `not_warm_lead` errors with clear toasts.
 
-### Secret / connector setup
+### 5. Test
+- Deploy the migration + function.
+- Curl the function with a valid session to confirm: (a) single lookup works, (b) 11th rapid call returns 429, (c) non-event opportunity is rejected.
+- Verify a row appears in `hunter_usage_daily` and `contact_enrichments`.
+- Report back with the test results.
 
-Build-time step (I'll do this in one call):
-1. `list_app_connectors` → check if Hunter is a standard connector.
-2. If yes → guide `standard_connectors--connect` for `hunter` and read `HUNTER_API_KEY` via `get_connection_secrets`.
-3. If no → `add_secret HUNTER_API_KEY` with format hint `pattern: ^[a-f0-9]{40}$`, placeholder `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`, plus a chat message explaining where to grab it from `hunter.io/api-keys`.
+## Files touched
 
-### Docs
+- **new migration** — `hunter_usage_daily` table + `bump_hunter_usage` RPC + grants/RLS.
+- **edit** `supabase/functions/discover-enrich-contact/index.ts` — cap checks, burst limit, warm-lead gate, bulk cap of 10.
+- **edit** `src/pages/Discover.tsx` — display daily-remaining, handle new error codes.
 
-- Update `docs/public-repo-root-files/examples/discover-and-draft.md` with a new "Find verified emails" example showing the MCP tool call.
-- Add `enrich_contact` tool to `mcp-server/src/index.ts` (and its client) so external agents can call the same flow — same pricing, same cache.
+## Defaults I'm picking (say the word to change)
 
-### Out of scope (explicitly)
-
-- Apollo, Clearbit, RocketReach — can be added later as alternate providers behind the same edge function.
-- Scraping Zoom/Luma/Eventbrite attendee lists — never; ToS + GDPR.
-- Automated cold-email sending from enriched addresses — use existing campaigns flow, unchanged.
+| Limit | Value |
+|---|---|
+| Per-user daily lookups | 50 |
+| Global daily lookups | 1,000 |
+| Burst | 10 / 60s per user |
+| Bulk mode max | 10 contacts/call |
