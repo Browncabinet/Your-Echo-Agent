@@ -2,10 +2,15 @@ runtime: remote
 url: https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http
 transport: streamable-http
 description: |
-  Your Echo Agent — all-in-one AI outreach: find leads, draft personalized emails,
-  discover events and communities in your niche, and triage replies. Hire any of 6
-  specialized sub-agents (SaaS Prospector, Agency Closer, Ecom Hunter, Founder
-  Friend, Local Pro, Press Pitcher) from any MCP client.
+  Your Echo Agent — prepaid, pay-per-delivered-email outbound outreach for AI
+  agents. Find leads, draft personalized emails, discover events and
+  communities in your niche, and triage replies. Hire any of 6 specialized
+  sub-agents (SaaS Prospector, Agency Closer, Ecom Hunter, Founder Friend,
+  Local Pro, Press Pitcher). Autonomous A2A callers get HTTP 402 +
+  top_up_url when the balance runs low. Billing flow:
+  https://yourechoagent.com/for-agents/quickstart#how-to-pay
+homepage: https://yourechoagent.com
+documentation: https://yourechoagent.com/for-agents/quickstart
 configSchema:
   type: object
   required: [echoApiKey]
@@ -13,7 +18,7 @@ configSchema:
     echoApiKey:
       type: string
       title: Echo Agent API key
-      description: "Get one at https://yourechoagent.com/for-agents/register (starts with eak_). $5 free trial credit."
+      description: "Get one at https://yourechoagent.com/for-agents/dashboard (starts with eak_). 50 free emails, then prepaid packs from $25. Billing: https://yourechoagent.com/for-agents/quickstart#how-to-pay"
       format: password
 configToHeaders:
   echoApiKey: x-echo-api-key
