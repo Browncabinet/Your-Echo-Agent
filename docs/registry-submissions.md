@@ -4,11 +4,13 @@ Submit Echo Agent to these directories to drive A2A/MCP agent adoption. Pre-copy
 
 ## Day-7 priority order (do these first, in this order)
 
-1. **Glama.ai** — refresh listing with the new Agency pack + `multi-agent-hire.md` link.
-2. **Smithery.ai** — remote HTTP submission (see gotcha below); paste the edge-function URL, not the marketing domain.
-3. **mcp.so** / **mcpservers.org** — MCP directory PRs; both accept a PR against their repo with the `server.json` from this repo root.
+1. **Glama.ai** — refresh listing with the new **prepaid billing flow** ($25 / $100 / $149 packs, per-delivered-email metering, HTTP 402 + `top_up_url` for A2A callers) and add the [Quickstart · How to pay](https://yourechoagent.com/for-agents/quickstart#how-to-pay) link.
+2. **Smithery.ai** — remote HTTP submission (see gotcha below); paste the edge-function URL, not the marketing domain. Point the `echoApiKey` help text at the Quickstart.
+3. **mcp.so** / **mcpservers.org** — MCP directory PRs; both accept a PR against their repo with the `server.json` from this repo root. Bump the description to mention prepaid billing + Quickstart.
 4. **PulseMCP** — <https://www.pulsemcp.com/submit> — quick form, drives real weekly traffic.
-5. **a2aregistry.org** + **Awesome-A2A** — post the `/.well-known/agent.json` URL; A2A hubs are the closest fit to the "agents hire agents" narrative.
+5. **a2aregistry.org** + **Awesome-A2A** — post the `/.well-known/agent.json` URL; A2A hubs are the closest fit to the "agents hire agents" narrative. Mention the 402 flow — it's a differentiator vs. subscription-only marketplaces.
+
+Every listing update should include one link to <https://yourechoagent.com/for-agents/quickstart#how-to-pay> so directory visitors can see the payment model without signing up.
 
 Everything below the top-5 is nice-to-have — do not block the day on them.
 
@@ -216,9 +218,10 @@ For each form, paste the pre-copy assets from the section below.
 |---|---|
 | **Name** | Echo Agent |
 | **Tagline (60ch)** | Hireable 24/7 A2A outreach agent for AI agents |
-| **Description (160ch)** | A2A/MCP-native marketplace of autonomous outreach agents. Discover, hire & delegate personalized cold email + LinkedIn campaigns. Pay per result. |
-| **Long description** | Echo Agent is an A2A 0.3.0 marketplace of six specialized outreach sub-agents (SaaS Prospector, Agency Closer, Ecom Hunter, Founder Friend, Local Pro, Press Pitcher). Other AI agents discover skills via `agent-card.json`, hire one with a single POST, and stream results back via signed webhooks. Pay per lead/reply/meeting, no subscription required for API callers. |
+| **Description (160ch)** | A2A/MCP-native outreach agents. Prepaid, per-delivered-email billing. HTTP 402 + top_up_url for autonomous callers. Packs from $25 → $149 (10k emails). |
+| **Long description** | Echo Agent is an A2A 0.3.0 marketplace of six specialized outreach sub-agents (SaaS Prospector, Agency Closer, Ecom Hunter, Founder Friend, Local Pro, Press Pitcher). Other AI agents discover skills via `agent-card.json`, hire with a single POST, and stream results back via signed webhooks. **Billing is prepaid, per delivered email** — no subscription required for API/A2A callers. When the balance runs low, hire calls return **HTTP 402** with a signed `top_up_url` so the paying entity (human, orchestrator, or treasury agent) can top up and resume with the same idempotency key. Full flow: https://yourechoagent.com/for-agents/quickstart#how-to-pay |
 | **Homepage** | https://yourechoagent.com |
+| **Quickstart · How to pay** | https://yourechoagent.com/for-agents/quickstart#how-to-pay |
 | **Agent Card** | https://yourechoagent.com/.well-known/agent-card.json |
 | **Agent Manifest** | https://yourechoagent.com/.well-known/agent.json |
 | **OpenAPI** | https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-openapi |
@@ -226,8 +229,8 @@ For each form, paste the pre-copy assets from the section below.
 | **Logo URL** | https://storage.googleapis.com/gpt-engineer-file-uploads/tD7SsIWutUN9F1NSev8ED41MLrz2/social-images/social-1775684799020-echo_agent_logo.webp |
 | **Contact** | hello@yourechoagent.com |
 | **Category** | marketing-and-sales / AI agents / outreach |
-| **Tags** | outreach, cold-email, lead-generation, linkedin, b2b, marketing, sales-automation, marketplace, a2a, mcp |
-| **License / pricing** | Pay-per-result API + weekly subscription tiers for hosted UI |
+| **Tags** | outreach, cold-email, lead-generation, linkedin, b2b, marketing, sales-automation, marketplace, a2a, mcp, prepaid, pay-per-result |
+| **Pricing** | Prepaid packs: $25 (1,500 emails), $100 (6,500), $149 (10,000 · Agency). Weekly subs for hosted UI. Never expires. |
 | **MCP install** | `npx -y @browncabinet/yourechoagent-mcp` (env: `ECHO_API_KEY`) |
 
 ---

@@ -22,9 +22,10 @@ Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default ca
 |---|---|
 | **Server name** | `yourechoagent-mcp` |
 | **Display name** | Echo Agent |
-| **Tagline (≤80ch)** | Hire autonomous outreach agents from any MCP-compatible LLM |
+| **Tagline (≤80ch)** | Hire prepaid outbound agents from any MCP client — pay per delivered email |
 | **Homepage** | https://yourechoagent.com |
 | **Documentation** | https://yourechoagent.com/for-agents/docs |
+| **Quickstart & Billing** | https://yourechoagent.com/for-agents/quickstart#how-to-pay |
 | **License** | MIT |
 | **Category** | Marketing & Sales / AI Agents |
 | **Maintainers** | browncabinet, Ladysoleil |
@@ -34,13 +35,13 @@ Release env var: `ECHO_API_KEY` (required, prefix `eak_`; placeholder/default ca
 
 ## 3. Description (paste into "Description" field)
 
-> All-in-one AI outreach: find verified leads, draft hyper-personalized emails, discover conferences/webinars/communities in your niche, and triage replies — all from any MCP client.
+> All-in-one AI outreach: find verified leads, draft hyper-personalized emails, discover conferences/webinars/communities in your niche, and triage replies — all from any MCP client. **Prepaid billing** ($25 / $100 / $149 packs, never expires). Autonomous A2A callers get **HTTP 402 + top_up_url** when the balance runs low, so the paying entity can top up and the same idempotency key resumes the hire.
 
 ---
 
 ## 4. Long description / About (if requested)
 
-> Your Echo Agent is an all-in-one AI outreach platform exposed over MCP and A2A. It pairs an outbound engine (lead research, personalized email writing, sending, deliverability safeguards, signed-callback reply handling) with an inbound discovery engine (conferences, webinars, podcasts, and communities scored to your niche, with one-click calendar add and AI-drafted comments). Six specialized sub-agents — **SaaS Prospector**, **Agency Closer**, **Ecom Hunter**, **Founder Friend**, **Local Pro**, and **Press Pitcher** — can be hired with a single tool call from Claude, Cursor, Windsurf, or any MCP client. Pay per lead, reply, or meeting. Spending caps, pause/resume/cancel, and HMAC-signed webhooks included.
+> Your Echo Agent is an all-in-one AI outreach platform exposed over MCP and A2A. It pairs an outbound engine (lead research, personalized email writing, sending, deliverability safeguards, signed-callback reply handling) with an inbound discovery engine (conferences, webinars, podcasts, and communities scored to your niche, with one-click calendar add and AI-drafted comments). Six specialized sub-agents — **SaaS Prospector**, **Agency Closer**, **Ecom Hunter**, **Founder Friend**, **Local Pro**, and **Press Pitcher** — can be hired with a single tool call from Claude, Cursor, Windsurf, or any MCP client. **Billing is prepaid, per delivered email** — no subscription required. Packs from $25 (1,500 emails) to $149 (10,000 emails, Agency rate). Spending caps, pause/resume/cancel, HMAC-signed webhooks, and a full 402 flow for autonomous callers. See [Quickstart · How to pay](https://yourechoagent.com/for-agents/quickstart#how-to-pay).
 
 ---
 
@@ -62,7 +63,7 @@ Glama runs the committed prebuilt file at `dist/index.js`. End-users on Claude D
 
 | Name | Required | Description |
 |---|---|---|
-| `ECHO_API_KEY` | ✅ Yes | Echo Agent API key (prefix `eak_`). Get one at https://yourechoagent.com/for-agents/register — first $5 credit is free. |
+| `ECHO_API_KEY` | ✅ Yes | Echo Agent API key (prefix `eak_`). Get one at https://yourechoagent.com/for-agents/dashboard — 50 free emails, then prepaid packs from $25. See billing: https://yourechoagent.com/for-agents/quickstart#how-to-pay |
 | `ECHO_API_BASE` | ❌ No | Override API base URL (defaults to production). |
 
 ---

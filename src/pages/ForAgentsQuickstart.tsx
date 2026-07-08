@@ -241,7 +241,7 @@ export default function ForAgentsQuickstart() {
         </section>
 
         {/* How to pay — agent-friendly billing */}
-        <section className="space-y-6">
+        <section id="how-to-pay" className="space-y-6 scroll-mt-20">
           <div>
             <h2 className="text-2xl font-semibold text-zinc-100 flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-emerald-300" /> How to pay
