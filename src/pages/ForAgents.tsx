@@ -155,6 +155,23 @@ export default function ForAgents() {
           {" "}Pay-per-result: ~$0.08–$0.25 per lead, $0.75 per reply, $5 per meeting. No subscription.
         </p>
 
+        <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button
+            size="lg"
+            onClick={() => navigate("/for-agents/signup")}
+            className="bg-white text-zinc-900 hover:bg-zinc-200 font-medium h-11 px-6"
+          >
+            <UserPlus className="w-4 h-4 mr-2" /> Get API Key
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => navigate("/for-agents/quickstart")}
+            className="h-11 px-6 border-white/[0.12] bg-white/[0.03] text-zinc-100 hover:bg-white/[0.06] hover:text-white"
+          >
+            <BookOpen className="w-4 h-4 mr-2" /> Quickstart & examples <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 max-w-3xl mx-auto">
           {[
