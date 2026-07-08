@@ -305,21 +305,45 @@ export default function Discover() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Look up {confirm?.index === "all" ? `${confirm?.count} emails` : "email"}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm?.index === "all"
+                ? <>We'll search Hunter.io for work emails on <strong>{confirm?.count}</strong> contact{confirm?.count === 1 ? "" : "s"} without one. Cost is <strong>1 email unit per verified match</strong> — no charge if we don't find it. Your balance: <strong>{balance}</strong> emails.</>
+                : <>We'll search Hunter.io for the work email. Cost is <strong>1 email unit</strong> if found — <strong>no charge</strong> if not. Your balance: <strong>{balance}</strong> emails.</>}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => confirm && runEnrich(confirm.opp, confirm.index)} disabled={balance < 1}>
+              {balance < 1 ? "Balance too low" : "Find email"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PartnerShell>
   );
 }
 
 function OpportunityCard({
-  opp, onSave, onAttend, onComment, onExtract, inRadar,
+  opp, onSave, onAttend, onComment, onExtract, onRequestEnrich, enrichBusy, inRadar,
 }: {
   opp: DiscoverOpportunity;
   onSave: () => void; onAttend: () => void; onComment: () => void; onExtract: () => void;
+  onRequestEnrich: (index: number | "all", count: number) => void;
+  enrichBusy: string | null;
   inRadar: boolean;
 }) {
   const fitColor = opp.fit_score >= 75 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
     : opp.fit_score >= 50 ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
     : "bg-muted text-muted-foreground";
   const date = opp.event_start ? new Date(opp.event_start).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : null;
+  const contacts = opp.contacts || [];
+  const missingEmail = contacts.filter((c) => c.name && !c.email && c.name.trim().split(/\s+/).length >= 2);
+  const bulkBusy = enrichBusy === `${opp.id}:all`;
   return (
     <Card>
       <CardContent className="p-4 flex flex-col md:flex-row gap-4">
@@ -339,20 +363,66 @@ function OpportunityCard({
           </div>
           {opp.host_org && <p className="text-sm text-muted-foreground mt-1">Hosted by {opp.host_org}</p>}
           {opp.fit_reason && <p className="text-sm mt-2 italic text-muted-foreground">"{opp.fit_reason}"</p>}
-          {opp.contacts?.length > 0 && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              {opp.contacts.length} contact{opp.contacts.length === 1 ? "" : "s"} extracted
+
+          {contacts.length > 0 && (
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs font-medium text-muted-foreground">
+                  {contacts.length} contact{contacts.length === 1 ? "" : "s"} · {contacts.filter((c) => c.email).length} with email
+                </div>
+                {missingEmail.length > 0 && (
+                  <Button size="sm" variant="secondary" disabled={bulkBusy} onClick={() => onRequestEnrich("all", missingEmail.length)}>
+                    {bulkBusy ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Search className="w-3.5 h-3.5 mr-1.5" />}
+                    Find all emails ({missingEmail.length})
+                  </Button>
+                )}
+              </div>
+              <div className="rounded-md border divide-y">
+                {contacts.map((c, i) => {
+                  const linkedinUrl = c.linkedin
+                    || (c.name ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${c.name} ${opp.host_org || ""}`.trim())}` : null);
+                  const rowBusy = enrichBusy === `${opp.id}:${i}` || bulkBusy;
+                  const scoreBadge = c.email && typeof c.score === "number"
+                    ? (c.score >= 80
+                        ? <Badge className="text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30" variant="outline">Verified {c.score}%</Badge>
+                        : c.score >= 50
+                          ? <Badge className="text-[10px] bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30" variant="outline">Guessed {c.score}%</Badge>
+                          : <Badge className="text-[10px]" variant="outline">Generic</Badge>)
+                    : null;
+                  return (
+                    <div key={i} className="p-2 flex flex-wrap items-center gap-2 text-sm">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{c.name || "—"}</div>
+                        {c.role && <div className="text-xs text-muted-foreground truncate">{c.role}</div>}
+                        {c.email && <div className="text-xs text-primary truncate">{c.email}</div>}
+                      </div>
+                      {scoreBadge}
+                      {linkedinUrl && (
+                        <Button size="sm" variant="ghost" asChild className="h-7 px-2">
+                          <a href={linkedinUrl} target="_blank" rel="noreferrer" title="Open on LinkedIn"><Linkedin className="w-3.5 h-3.5" /></a>
+                        </Button>
+                      )}
+                      {c.email ? (
+                        <Button size="sm" variant="outline" asChild className="h-7">
+                          <a href={`mailto:${c.email}`}><Mail className="w-3.5 h-3.5 mr-1" /> Email</a>
+                        </Button>
+                      ) : c.name && c.name.trim().split(/\s+/).length >= 2 ? (
+                        <Button size="sm" variant="outline" disabled={rowBusy} onClick={() => onRequestEnrich(i, 1)} className="h-7">
+                          {rowBusy ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Search className="w-3.5 h-3.5 mr-1" />}
+                          Find email
+                        </Button>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
+
           <div className="mt-3 flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={onAttend}><CalendarPlus className="w-3.5 h-3.5 mr-1.5" /> Attend (.ics)</Button>
             <Button size="sm" variant="outline" onClick={onComment}><MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Draft comment</Button>
             <Button size="sm" variant="outline" onClick={onExtract}><Users className="w-3.5 h-3.5 mr-1.5" /> Find contacts</Button>
-            {opp.contacts?.some((c) => c.email) && (
-              <Button size="sm" variant="outline" asChild>
-                <a href={`mailto:${opp.contacts.find((c) => c.email)!.email}`}><Mail className="w-3.5 h-3.5 mr-1.5" /> Email</a>
-              </Button>
-            )}
             <Button size="sm" variant={inRadar ? "secondary" : "ghost"} onClick={onSave}>
               <Bookmark className="w-3.5 h-3.5 mr-1.5" /> {inRadar ? "On radar" : "Save"}
             </Button>
