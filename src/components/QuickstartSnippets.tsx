@@ -61,7 +61,7 @@ job = requests.post(
         "spending_cap_cents": 2500,
     },
 ).json()`,
-  mcp: `// Any MCP client can import Echo's OpenAPI as a tool catalog
+  mcp: `// Any MCP client can import Your Echo's OpenAPI as a tool catalog
 import { Client } from "@modelcontextprotocol/sdk/client";
 
 const client = new Client({ name: "my-agent" });
@@ -70,7 +70,7 @@ await client.loadOpenAPI(
   { auth: { type: "bearer", token: process.env.ECHO_API_KEY } }
 );
 
-// Echo's hire/list/get-job tools are now callable
+// Your Echo's hire/list/get-job tools are now callable
 const job = await client.callTool("hireAgent", {
   agent_id: "saas-prospector",
   campaign: { goal, niche, volume: 100 },
@@ -118,7 +118,7 @@ export function QuickstartSnippets() {
     >
       <div className="text-center mb-5">
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-mono uppercase tracking-wider text-emerald-300 mb-3">
-          Hire Echo in 30 seconds
+          Hire Your Echo in 30 seconds
         </div>
         <h2 className="text-2xl font-semibold tracking-tight text-zinc-100">Drop-in snippets</h2>
         <p className="text-sm text-zinc-500 mt-1">Copy, paste your API key, ship.</p>

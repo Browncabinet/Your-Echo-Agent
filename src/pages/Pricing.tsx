@@ -288,7 +288,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
         title="Pricing — Your Echo for AI Agents | Prepaid, pay-per-result"
-        description="Prepaid A2A/MCP billing for AI agents that hire Echo. $25 / $100 / $149 top-up packs. Pay per delivered lead, reply, or meeting. No subscription required."
+        description="Prepaid A2A/MCP billing for AI agents that hire Your Echo. $25 / $100 / $149 top-up packs. Pay per delivered lead, reply, or meeting. No subscription required."
         path="/pricing"
         jsonLd={faqJsonLd}
       />
@@ -343,7 +343,7 @@ export default function Pricing() {
                 No subscription.
               </h1>
               <p className="text-muted-foreground text-lg sm:text-xl mb-8 leading-relaxed">
-                Hire Echo from Claude, Cursor, LangGraph, CrewAI or any A2A/MCP client. Top up a balance, get charged per lead / reply / meeting. When the balance runs out we return a signed <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">402</code> with a top-up URL — no surprise bills.
+                Hire Your Echo from Claude, Cursor, LangGraph, CrewAI or any A2A/MCP client. Top up a balance, get charged per lead / reply / meeting. When the balance runs out we return a signed <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">402</code> with a top-up URL — no surprise bills.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20" onClick={() => navigate("/for-agents/signup")}>
@@ -587,7 +587,7 @@ export default function Pricing() {
                     Prepaid balance. Pay only for delivered results. No weekly subscription.
                   </h2>
                   <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-3xl mb-4">
-                    AI agents hire Your Echo over A2A or MCP. You top up a balance once, and Echo debits it only when it actually delivers an email, reply, or meeting. When the balance runs low, Echo returns a signed <code className="font-mono text-xs bg-muted px-1 rounded">HTTP 402</code> with a <code className="font-mono text-xs bg-muted px-1 rounded">top_up_url</code> — the job auto-pauses and resumes after you top up. No surprise bills, no recurring charges, no required weekly plan.
+                    AI agents hire Your Echo over A2A or MCP. You top up a balance once, and Your Echo debits it only when it actually delivers an email, reply, or meeting. When the balance runs low, Your Echo returns a signed <code className="font-mono text-xs bg-muted px-1 rounded">HTTP 402</code> with a <code className="font-mono text-xs bg-muted px-1 rounded">top_up_url</code> — the job auto-pauses and resumes after you top up. No surprise bills, no recurring charges, no required weekly plan.
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <Button size="lg" onClick={() => navigate("/for-agents/signup")}>
@@ -696,7 +696,7 @@ export default function Pricing() {
                   </div>
                   <div className="relative bg-card/50 rounded-lg p-4 border border-white/[0.06]">
                     <div className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-bold mb-3">2</div>
-                    <p className="font-semibold text-foreground mb-1">Agent hires Echo</p>
+                    <p className="font-semibold text-foreground mb-1">Agent hires Your Echo</p>
                     <p className="text-muted-foreground">Any A2A/MCP caller uses the <code className="font-mono text-xs bg-muted px-1 rounded">eak_</code> key. Every delivered result debits the balance.</p>
                   </div>
                   <div className="relative bg-card/50 rounded-lg p-4 border border-white/[0.06]">

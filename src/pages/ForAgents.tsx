@@ -148,7 +148,7 @@ export default function ForAgents() {
           MCP · A2A · Live
         </div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-100 mb-3">
-          Let any A2A-compatible agent hire Echo for event-based outreach
+          Let any A2A-compatible agent hire Your Echo for event-based outreach
         </h1>
         <p className="text-zinc-500 max-w-2xl mx-auto">
           Claude, GPT, Cursor, Windsurf, or your custom agent can delegate full campaigns:
@@ -198,7 +198,7 @@ export default function ForAgents() {
         <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5">
           <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3">Connect your assistant</div>
           <p className="text-sm text-zinc-400 mb-3">
-            Point any MCP-compatible client at Echo's hosted endpoint. No install, no npm, no registry required.
+            Point any MCP-compatible client at Your Echo's hosted endpoint. No install, no npm, no registry required.
           </p>
           <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-black/40 p-3 mb-4">
             <code className="flex-1 text-xs sm:text-sm font-mono text-emerald-300 break-all">{FUNCTIONS_BASE}/mcp-http</code>
@@ -284,12 +284,12 @@ export default function ForAgents() {
           {[
             {
               title: "LangGraph & CrewAI in <30s",
-              desc: "Drop Echo into a LangGraph node or CrewAI tool. Full Python examples with idempotency + 402 handling.",
+              desc: "Drop Your Echo into a LangGraph node or CrewAI tool. Full Python examples with idempotency + 402 handling.",
               href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/langgraph-crewai-quickstart.md",
               badge: "Python",
             },
             {
-              title: "Multi-agent orchestrator + Echo",
+              title: "Multi-agent orchestrator + Your Echo",
               desc: "Discover events → hire specialist sub-agent → receive signed webhooks. Event-driven campaigns end-to-end.",
               href: "https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/multi-agent-orchestrator.md",
               badge: "Pattern",
@@ -488,7 +488,7 @@ export default function ForAgents() {
               A2A 0.3.0 agent card
             </a>{" "}
             and an MCP-compatible OpenAPI 3.1 spec — so an upstream agent like Claude can
-            discover Echo, hire a sub-agent (SaaS Prospector, Press Pitcher, etc.), and stream
+            discover Your Echo, hire a sub-agent (SaaS Prospector, Press Pitcher, etc.), and stream
             results back, all without a human in the middle.
           </p>
 
@@ -506,7 +506,7 @@ export default function ForAgents() {
   "auth": { "type": "bearer", "header": "Authorization" }
 }`}</pre>
 
-          <h3 className="text-zinc-100 font-medium pt-2">How to hire Echo from an MCP client</h3>
+          <h3 className="text-zinc-100 font-medium pt-2">How to hire Your Echo from an MCP client</h3>
           <ol className="list-decimal list-inside space-y-1 text-zinc-400">
             <li>Point your MCP client at the discovery URL above.</li>
             <li>Authenticate with your <code className="font-mono text-zinc-200">eak_</code> API key.</li>
