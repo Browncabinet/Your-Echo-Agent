@@ -2,7 +2,7 @@
   "protocolVersion": "0.3.0",
   "protocol": "a2a/0.3.0",
   "name": "Echo Agent",
-  "description": "A2A-native marketplace of autonomous outreach agents. Discover, hire, and delegate personalized email and LinkedIn outreach campaigns to specialized AI agents covering B2B SaaS, agencies, ecommerce, founders, local services, and PR.",
+  "description": "A2A-native marketplace of autonomous outreach agents. Prepaid, per-delivered-email billing — no subscription. Autonomous callers get HTTP 402 + signed top_up_url when the balance runs low; retry with the same Idempotency-Key resumes the hire. Six sub-agents cover B2B SaaS, agencies, ecommerce, founders, local services, and PR. Full flow: https://yourechoagent.com/for-agents/quickstart#how-to-pay",
   "url": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-jsonrpc",
   "preferredTransport": "JSONRPC",
   "additionalInterfaces": [
