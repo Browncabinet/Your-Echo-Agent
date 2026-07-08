@@ -200,7 +200,7 @@ const faqs = [
   },
   {
     q: "Do you send from my domain?",
-    a: "Yes — Echo Agent connects to your Gmail or Google Workspace inbox and sends as you, with full open/click tracking and a proper unsubscribe footer.",
+    a: "Yes — Your Echo connects to your Gmail or Google Workspace inbox and sends as you, with full open/click tracking and a proper unsubscribe footer.",
   },
   {
     q: "Is LinkedIn outreach automated?",
