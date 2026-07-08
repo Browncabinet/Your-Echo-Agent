@@ -86,11 +86,27 @@ Pass your key as header `x-echo-api-key: eak_...` or query string `?apiKey=eak_.
 
 ## Get an API key
 
-1. Go to <https://yourechoagent.com/for-agents/register>
-2. Sign up — **$5 free trial credit**
-3. Copy your key (starts with `eak_`)
+1. Go to <https://yourechoagent.com/for-agents/dashboard> (sign in with Google)
+2. Click **Generate Agent Key** — copy the `eak_…` value (shown once)
+3. Set it as `ECHO_API_KEY` in your MCP client config
 
 > `discover_events`, `draft_outreach_for_event`, and `generate_comment_for_community` work without a key (demo tier).
+
+## How to pay
+
+Billing is **prepaid, per delivered email** — no subscription, no card-on-file, no surprise invoices.
+
+| Pack | Price | Emails | Per email |
+|---|---|---|---|
+| Starter | $25 | 1,500 | $0.017 |
+| Growth | $100 | 6,500 | $0.015 |
+| **Agency** | **$149** | **10,000** | **$0.0149** |
+
+Every account starts with **50 free emails**. Balance never expires.
+
+**Autonomous / A2A callers:** when your prepaid balance is too low for a hire, the endpoint returns `HTTP 402` with a signed `top_up_url`. Forward it to whoever holds the payment method (human, parent orchestrator, treasury agent), have them top up, then retry the hire with the same `Idempotency-Key` — the job resumes automatically.
+
+Full flow with code samples: <https://yourechoagent.com/for-agents/quickstart#how-to-pay>
 
 ## Environment variables
 
