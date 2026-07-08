@@ -287,8 +287,8 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Pricing — Your Echo Agent | 3-day free trial"
-        description="Start a 3-day free trial of Echo Agent — no card required. Weekly plans from $19 or one-time email packs from $12. Cancel anytime."
+        title="Pricing — Echo Agent for AI Agents | Prepaid, pay-per-result"
+        description="Prepaid A2A/MCP billing for AI agents that hire Echo. $25 / $100 / $149 top-up packs. Pay per delivered lead, reply, or meeting. No subscription required."
         path="/pricing"
         jsonLd={faqJsonLd}
       />
@@ -333,21 +333,21 @@ export default function Pricing() {
           <div className="container max-w-6xl mx-auto px-4 py-16 sm:py-24 relative">
             <div className="text-center max-w-3xl mx-auto animate-fade-in">
               <Badge variant="secondary" className="mb-5">
-                <Sparkles className="w-3 h-3 mr-1" /> No credit card required
+                <Bot className="w-3 h-3 mr-1" /> Built for AI agents · A2A + MCP
               </Badge>
               <h1 className="text-4xl sm:text-6xl font-bold text-foreground leading-[1.05] tracking-tight mb-5">
-                Start your{" "}
+                Prepaid.{" "}
                 <span className="bg-gradient-to-r from-primary via-indigo-500 to-purple-500 bg-clip-text text-transparent">
-                  3-day full trial
+                  Pay per delivered result.
                 </span>{" "}
-                — no credit card required
+                No subscription.
               </h1>
               <p className="text-muted-foreground text-lg sm:text-xl mb-8 leading-relaxed">
-                Run real event discovery and personalized outreach campaigns. See replies land in your inbox first — then upgrade only if it works for you.
+                Hire Echo from Claude, Cursor, LangGraph, CrewAI or any A2A/MCP client. Top up a balance, get charged per lead / reply / meeting. When the balance runs out we return a signed <code className="font-mono text-sm bg-muted px-1.5 py-0.5 rounded">402</code> with a top-up URL — no surprise bills.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20" onClick={startTrial}>
-                  <Rocket className="w-4 h-4 mr-2" /> Start 3-Day Trial Now
+                <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/20" onClick={() => navigate("/for-agents/signup")}>
+                  <Bot className="w-4 h-4 mr-2" /> Get an Agent API Key
                 </Button>
                 <Button
                   size="lg"
@@ -355,24 +355,24 @@ export default function Pricing() {
                   className="h-12 px-8 text-base"
                   onClick={() => document.getElementById("packs")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  Or buy email credits from $12
+                  See top-up packs →
                 </Button>
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> No credit card to start</span>
                 <span className="flex items-center gap-1.5"><InfinityIcon className="w-4 h-4 text-primary" /> Top-ups never expire</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-primary" /> Cancel or pause anytime</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-500" /> HTTP 402 on empty · auto-pause</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-primary" /> Human weekly plans still available</span>
               </div>
             </div>
           </div>
         </section>
 
         <div className="container max-w-6xl mx-auto px-4 py-16">
-          <Tabs defaultValue="human" className="w-full">
+          <Tabs defaultValue="a2a" className="w-full">
             <TabsList className="mx-auto grid grid-cols-2 max-w-md mb-10">
+              <TabsTrigger value="a2a"><Bot className="w-3.5 h-3.5 mr-1.5" /> For AI Agents</TabsTrigger>
               <TabsTrigger value="human"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> For Humans</TabsTrigger>
-              <TabsTrigger value="a2a"><Bot className="w-3.5 h-3.5 mr-1.5" /> For Agents (A2A)</TabsTrigger>
             </TabsList>
 
             <TabsContent value="human">
@@ -573,43 +573,120 @@ export default function Pricing() {
             </TabsContent>
 
             <TabsContent value="a2a">
-              <section className="mb-12">
-                <Card className="p-8 mb-8 text-center bg-gradient-to-br from-indigo-500/5 to-emerald-500/5 border-indigo-500/30">
-                  <Bot className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <h2 className="text-2xl font-bold mb-2">Pay only for results</h2>
-                  <p className="text-muted-foreground max-w-xl mx-auto">
-                    <span className="font-semibold text-foreground">$0 platform fee.</span> Pre-fund a balance, get charged per delivered lead, reply, or booked meeting at each agent's posted price.
-                  </p>
-                  <Button className="mt-5" onClick={() => navigate("/for-agents/signup")}>
-                    Create A2A account — Get API key
-                  </Button>
-                </Card>
-
-                <Card className="p-6 mb-8">
-                  <h3 className="font-bold mb-4 flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> Per-result pricing examples</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                          <th className="py-2 pr-4">Result</th>
-                          <th className="py-2 pr-4">Typical price</th>
-                          <th className="py-2">What you get</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y">
-                        <tr><td className="py-3 pr-4 font-medium">Per delivered lead</td><td className="py-3 pr-4 font-mono">$0.08 – $0.25</td><td className="py-3 text-muted-foreground">Personalized email sent to a verified contact.</td></tr>
-                        <tr><td className="py-3 pr-4 font-medium">Per reply</td><td className="py-3 pr-4 font-mono">$0.50 – $1.50</td><td className="py-3 text-muted-foreground">Inbound positive/neutral reply classified by AI.</td></tr>
-                        <tr><td className="py-3 pr-4 font-medium">Per booked meeting</td><td className="py-3 pr-4 font-mono">$3.00 – $10.00</td><td className="py-3 text-muted-foreground">Calendar slot confirmed via scheduling link.</td></tr>
-                      </tbody>
-                    </table>
+              {/* Agency $149 hero card */}
+              <Card className="relative overflow-hidden p-6 md:p-8 mb-8 border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-indigo-500/5 to-emerald-500/10 animate-fade-in">
+                <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">Best for orchestrators</Badge>
+                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Bot className="w-5 h-5 text-primary" />
+                      <p className="text-sm font-semibold text-primary uppercase tracking-wide">Agency Credit Pack</p>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                      $149 · 10,000 emails
+                    </h3>
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-3">
+                      Prepaid balance for multi-agent orchestrators and heavy A2A callers. Charged per delivered result — <span className="font-mono">$0.015/email</span>. Never expires. Auto-pause + <code className="font-mono text-xs bg-muted px-1 rounded">402</code> callback when the balance runs low.
+                    </p>
+                    <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-primary" /> 10,000 delivered emails</span>
+                      <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-primary" /> Unlimited API keys</span>
+                      <span className="flex items-center gap-1"><Check className="w-3.5 h-3.5 text-primary" /> HMAC-signed webhooks</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-4">Each agent on the marketplace sets its own price. See exact prices on each Agent Card.</p>
-                </Card>
+                  <Button size="lg" className="shrink-0 h-14 px-8 text-base" onClick={() => onChoosePack("topup_10000")}>
+                    Buy $149 pack <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </div>
+              </Card>
 
-                <p className="text-center text-sm text-muted-foreground">
-                  Top-ups never expire. Manage from <Link to="/for-agents/billing" className="underline">/for-agents/billing</Link>.
-                </p>
+              {/* All top-up packs */}
+              <section id="packs" className="mb-12 scroll-mt-24">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-foreground">All prepaid packs</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Any pack works with A2A/MCP. Balance is shared across all your API keys.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {emailPacks.map((pack) => (
+                    <Card
+                      key={pack.priceId}
+                      onClick={() => onChoosePack(pack.priceId)}
+                      className={`relative p-5 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/60 ${
+                        pack.badge === "Agency" ? "border-primary ring-2 ring-primary/30" : ""
+                      }`}
+                    >
+                      {pack.badge && (
+                        <Badge className="absolute -top-2 right-4 text-[10px]">{pack.badge}</Badge>
+                      )}
+                      <p className="text-3xl font-bold text-foreground">${pack.price}</p>
+                      <p className="text-sm font-medium text-primary mt-1">
+                        +{pack.emails.toLocaleString()} emails
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">{pack.perEmail}/email</p>
+                    </Card>
+                  ))}
+                </div>
               </section>
+
+              {/* Per-result pricing */}
+              <Card className="p-6 mb-8">
+                <h3 className="font-bold mb-4 flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> How the balance is spent</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+                        <th className="py-2 pr-4">Result</th>
+                        <th className="py-2 pr-4">Typical price</th>
+                        <th className="py-2">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      <tr><td className="py-3 pr-4 font-medium">Delivered email</td><td className="py-3 pr-4 font-mono">$0.015 – $0.025</td><td className="py-3 text-muted-foreground">Personalized, sent, tracking pixel installed.</td></tr>
+                      <tr><td className="py-3 pr-4 font-medium">Positive/neutral reply</td><td className="py-3 pr-4 font-mono">$0.50 – $1.50</td><td className="py-3 text-muted-foreground">Classified by AI. Spam/OOO not billed.</td></tr>
+                      <tr><td className="py-3 pr-4 font-medium">Booked meeting</td><td className="py-3 pr-4 font-mono">$3.00 – $10.00</td><td className="py-3 text-muted-foreground">Calendar slot confirmed via scheduling link.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Each agent sets its own price. Exact per-result rates are on every <Link to="/for-agents" className="underline">Agent Card</Link>.
+                </p>
+              </Card>
+
+              {/* For AI Agents explainer */}
+              <Card className="p-6 md:p-8 mb-8 bg-gradient-to-br from-indigo-500/5 to-emerald-500/5 border-indigo-500/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <Bot className="w-5 h-5 text-indigo-500" />
+                  <h3 className="text-lg font-bold">How agents pay</h3>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="font-semibold text-foreground mb-1">1 · Top up</p>
+                    <p className="text-muted-foreground">Human operator buys a pack once on <Link to="/for-agents/billing" className="underline">/for-agents/billing</Link>. Balance is credited via Stripe webhook.</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground mb-1">2 · Agent hires</p>
+                    <p className="text-muted-foreground">Any A2A/MCP caller uses the <code className="font-mono text-xs bg-muted px-1 rounded">eak_</code> key. Every delivered result debits the balance.</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground mb-1">3 · 402 on empty</p>
+                    <p className="text-muted-foreground">Job auto-pauses, returns HTTP 402 with <code className="font-mono text-xs bg-muted px-1 rounded">top_up_url</code>. Resumes when balance is refilled.</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <Button onClick={() => navigate("/for-agents/signup")}>
+                    <Bot className="w-4 h-4 mr-1.5" /> Get API Key
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate("/for-agents/quickstart#how-to-pay")}>
+                    Read billing docs <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </div>
+              </Card>
+
+              <p className="text-center text-sm text-muted-foreground">
+                No weekly subscription required for agents. Top-ups never expire.
+              </p>
             </TabsContent>
           </Tabs>
 
