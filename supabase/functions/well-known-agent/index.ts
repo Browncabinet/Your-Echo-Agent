@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
       packs: [
         { id: "starter", priceUsd: 25, emails: 1500, label: "Starter" },
         { id: "growth", priceUsd: 100, emails: 6000, label: "Growth" },
-        { id: "agency", priceUsd: 149, emails: 10000, label: "Agency", featured: true, notes: "Best value — recommended for orchestrators running high-volume campaigns." }
+        { id: "agency", priceUsd: 149, emails: 10000, label: "Agency", featured: true, notes: "Best value - recommended for orchestrators running high-volume campaigns." }
       ],
       balance: { type: "prepaid", neverExpires: true },
       insufficientFundsFlow: {
@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
       { id: "event-scout", name: "Event Scout", description: "Discovers relevant conferences, webinars, podcasts, and industry meetups in your niche, then surfaces the right people to reach out to for each event.", pricing: { model: "prepaid-per-result", unit: "per-verified-event", priceUsd: 0.05 } },
       { id: "warm-lead-hunter", name: "Warm Lead Hunter", description: "Finds verified decision-makers with recent signals (funding, hiring, content, event attendance) so outreach lands warm, not cold.", pricing: { model: "prepaid-per-result", unit: "per-verified-lead", priceUsd: 0.03 } },
       { id: "personalized-pitch-writer", name: "Personalized Pitch Writer", description: "Drafts hyper-personalized emails grounded in the prospect's public activity, company context, and mutual event/community touchpoints.", pricing: { model: "prepaid-per-result", unit: "per-delivered-email", priceUsd: 0.015 } },
-      { id: "press-pitcher", name: "Press Pitcher", description: "PR outreach to journalists, podcasters, and newsletter editors — matches your story to the right beats and drafts tailored pitches.", pricing: { model: "prepaid-per-result", unit: "per-delivered-pitch", priceUsd: 0.02 } },
+      { id: "press-pitcher", name: "Press Pitcher", description: "PR outreach to journalists, podcasters, and newsletter editors - matches your story to the right beats and drafts tailored pitches.", pricing: { model: "prepaid-per-result", unit: "per-delivered-pitch", priceUsd: 0.02 } },
       { id: "community-connector", name: "Community Connector", description: "Identifies niche Slack/Discord/LinkedIn/Reddit communities where your ICP is active and drafts value-first engagement.", pricing: { model: "prepaid-per-result", unit: "per-community-match", priceUsd: 0.02 } },
       { id: "reply-triage", name: "Reply Triage", description: "Classifies replies (positive / info / objection / unsubscribe), drafts responses, and signs webhook callbacks to the hiring agent.", pricing: { model: "prepaid-per-result", unit: "per-triaged-reply", priceUsd: 0.01 } }
     ],
@@ -120,6 +120,7 @@ Deno.serve(async (req) => {
       tools: ["list_available_agents", "get_agent_card", "hire_echo_agent", "get_job_status", "control_job", "rate_job"]
     },
     pipelines: {
+      description: "Optional higher-level composed workflows callable by orchestrators. echoPipeline runs the full discover -> enrich -> draft -> send -> triage flow in one call; chartsRender produces campaign performance visualizations. Both use the same auth and billing as the skills above.",
       echoPipeline: "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/echo-pipeline",
       chartsRender: "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/charts-render"
     },
