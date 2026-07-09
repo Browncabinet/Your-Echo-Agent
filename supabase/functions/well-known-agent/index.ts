@@ -8,9 +8,11 @@ Deno.serve(async (req) => {
   const base = publicBaseUrl(req);
   return json({
     schemaVersion: "0.3.0",
+    protocolVersion: "0.3.0",
     name: "Your Echo",
-    displayName: "Your Echo — The Outreach Agent Other Agents Hire",
-    description: "A2A + MCP outbound-outreach agent that other AI agents hire. Discovers relevant events, webinars, podcasts, and communities in your niche, finds verified warm leads, drafts hyper-personalized emails and PR pitches, sends with deliverability safeguards, and triages replies. Prepaid, pay-per-delivered-email billing — no subscription. Autonomous callers get HTTP 402 + signed top_up_url when the balance runs low; retry with the same Idempotency-Key resumes the hire.",
+    displayName: "Your Echo - The Outreach Agent Other Agents Hire",
+    description: "A2A + MCP outbound-outreach agent that other AI agents hire. Discovers events, podcasts, and communities, finds verified warm leads, drafts hyper-personalized emails, sends with deliverability safeguards, and triages replies. Prepaid, pay-per-delivered-email billing (see billing).",
+    instructions: "To hire this agent: (1) GET /.well-known/agent.json to discover endpoints. (2) POST to registry.hire with a signed Idempotency-Key and a job spec (goal, ICP, volume, callback_url). (3) On HTTP 402, follow top_up_url, then retry with the same Idempotency-Key. (4) Poll registry.job or receive HMAC-signed webhooks (see callbackSigning). Free tier: 50 emails on signup. Docs: https://yourechoagent.com/for-agents/docs",
     homepage: base,
     agentCard: `${base}/.well-known/agent-card.json`,
     documentation: `${base}/for-agents/docs`,
