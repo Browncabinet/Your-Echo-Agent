@@ -1,6 +1,6 @@
 export type DiscoverOpportunity = {
   id: string;
-  kind: "group" | "conference" | "webinar" | "podcast";
+  kind: "group" | "conference" | "webinar" | "podcast" | "newsletter" | "forum";
   title: string;
   url: string;
   host_org: string | null;
@@ -11,6 +11,12 @@ export type DiscoverOpportunity = {
   contacts: Array<{ name?: string; role?: string; email?: string; linkedin?: string; twitter?: string; score?: number; verification?: string; enriched_at?: string }>;
   fit_score: number;
   fit_reason: string | null;
+  approach?: string | null;
+  approach_reason?: string | null;
+  engagement_hint?: string | null;
+  draft_subject?: string | null;
+  draft_body?: string | null;
+  draft_generated_at?: string | null;
   status: string;
   created_at: string;
 };
