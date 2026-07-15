@@ -48,6 +48,23 @@ export default function Discover() {
   const [enrichBusy, setEnrichBusy] = useState<string | null>(null); // `${oppId}:${idx|all}`
   const [confirm, setConfirm] = useState<null | { opp: DiscoverOpportunity; index: number | "all"; count: number }>(null);
 
+  // URL onramp
+  const [siteUrl, setSiteUrl] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [siteSummary, setSiteSummary] = useState<string>("");
+
+  // Sender profile (used when drafting outreach emails)
+  const [senderName, setSenderName] = useState("");
+  const [senderCompany, setSenderCompany] = useState("");
+  const [senderPitch, setSenderPitch] = useState("");
+
+  // Outreach draft dialog
+  const [draftOpen, setDraftOpen] = useState(false);
+  const [draftLoading, setDraftLoading] = useState(false);
+  const [draftOpp, setDraftOpp] = useState<DiscoverOpportunity | null>(null);
+  const [draftSubject, setDraftSubject] = useState("");
+  const [draftBody, setDraftBody] = useState("");
+
   const loadItems = async () => {
     if (!user) return;
     const { data } = await supabase
