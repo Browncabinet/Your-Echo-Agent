@@ -592,7 +592,8 @@ function OpportunityCard({
           )}
 
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={onAttend}><CalendarPlus className="w-3.5 h-3.5 mr-1.5" /> Attend (.ics)</Button>
+            <Button size="sm" onClick={onDraftEmail}><Mail className="w-3.5 h-3.5 mr-1.5" /> Draft outreach email</Button>
+            {opp.event_start && <Button size="sm" variant="outline" onClick={onAttend}><CalendarPlus className="w-3.5 h-3.5 mr-1.5" /> Attend (.ics)</Button>}
             <Button size="sm" variant="outline" onClick={onComment}><MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Draft comment</Button>
             <Button size="sm" variant="outline" onClick={onExtract}><Users className="w-3.5 h-3.5 mr-1.5" /> Find contacts</Button>
             <Button size="sm" variant={inRadar ? "secondary" : "ghost"} onClick={onSave}>
