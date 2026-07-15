@@ -415,20 +415,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Testimonial placeholders */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { quote: "Your Echo found three webinars I'd never have heard of. Two became clients.", who: "Maya R., growth consultant" },
-              { quote: "The fit score is uncanny. It surfaces communities I actually want to be in.", who: "Devon K., dev tools founder" },
-              { quote: "Beats every cold-email tool I've tried. The replies are real conversations.", who: "Sam L., fractional CFO" },
-            ].map(({ quote, who }) => (
-              <motion.div key={who} {...fadeUp} className="rounded-xl border border-border bg-card p-5">
-                <Quote className="w-4 h-4 text-primary/60 mb-2" />
-                <p className="text-sm">"{quote}"</p>
-                <p className="text-xs text-muted-foreground mt-3">— {who}</p>
-              </motion.div>
-            ))}
-          </div>
           <p className="text-center text-xs text-muted-foreground mt-6 italic">
             Early-access stories. Want yours featured? <a className="underline" href="mailto:hello@yourechoagent.com">Tell us</a>.
           </p>
