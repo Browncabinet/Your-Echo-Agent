@@ -174,11 +174,13 @@ Region: ${region}${virtualOnly ? " (virtual only)" : ""}
 Timeframe: next ${timeframeDays} days
 
 For each result below, return JSON with this exact shape:
-{ "items": [ { "i": <index>, "keep": true|false, "kind": "group|conference|webinar|podcast", "host_org": "...", "location": "...", "is_virtual": true|false, "event_start": "YYYY-MM-DD" or null, "fit_score": 0-100, "fit_reason": "1 short sentence" } ] }
+{ "items": [ { "i": <index>, "keep": true|false, "kind": "group|conference|webinar|podcast|newsletter|forum", "host_org": "...", "location": "...", "is_virtual": true|false, "event_start": "YYYY-MM-DD" or null, "fit_score": 0-100, "fit_reason": "1 short sentence", "approach": "sponsor|speak|pitch|post|comment|subscribe", "approach_reason": "1 short sentence", "engagement_hint": "e.g. 12k subscribers, 5k members, active daily, or empty" } ] }
 
 Rules:
 - keep=false if result is unrelated, paywalled login, or generic homepage.
 - fit_score reflects audience match.
+- approach: best way for the sender to engage — sponsor (event $$), speak (talk/panel), pitch (guest post/interview/feature), post (contribute to community/forum), comment (join & engage), subscribe (newsletter collab).
+- engagement_hint: extract member/subscriber count or activity signal from title/description if visible, else empty string.
 - Only return JSON. No markdown.
 
 Results:
