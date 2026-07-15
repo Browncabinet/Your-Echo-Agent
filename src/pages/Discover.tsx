@@ -428,6 +428,53 @@ export default function Discover() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>
+              Outreach draft {draftOpp?.approach && <span className="text-xs font-normal text-muted-foreground">· {APPROACH_LABEL[draftOpp.approach] || draftOpp.approach}</span>}
+            </DialogTitle>
+          </DialogHeader>
+          {draftLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-6">
+              <Loader2 className="w-4 h-4 animate-spin" /> Drafting…
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Subject</Label>
+                <Input value={draftSubject} onChange={(e) => setDraftSubject(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Body</Label>
+                <Textarea value={draftBody} onChange={(e) => setDraftBody(e.target.value)} rows={12} />
+              </div>
+              <div className="flex flex-wrap gap-2 justify-end">
+                <Button size="sm" variant="ghost" onClick={() => draftOpp && onDraftEmail(draftOpp, true)}>
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Regenerate
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(`Subject: ${draftSubject}\n\n${draftBody}`); toast({ title: "Copied" }); }}>
+                  Copy
+                </Button>
+                {draftOpp && (
+                  <Button size="sm" asChild>
+                    <a
+                      href={`mailto:${draftOpp.contacts?.[0]?.email || ""}?subject=${encodeURIComponent(draftSubject)}&body=${encodeURIComponent(draftBody)}`}
+                    >
+                      <Mail className="w-3.5 h-3.5 mr-1.5" /> Open in mail
+                    </a>
+                  </Button>
+                )}
+              </div>
+              {!(draftOpp?.contacts?.[0]?.email) && (
+                <p className="text-xs text-muted-foreground">Tip: run <em>Find contacts</em> + <em>Find email</em> first to populate the recipient.</p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+
       <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
