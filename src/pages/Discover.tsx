@@ -498,10 +498,10 @@ export default function Discover() {
 }
 
 function OpportunityCard({
-  opp, onSave, onAttend, onComment, onExtract, onRequestEnrich, enrichBusy, inRadar,
+  opp, onSave, onAttend, onComment, onExtract, onDraftEmail, onRequestEnrich, enrichBusy, inRadar,
 }: {
   opp: DiscoverOpportunity;
-  onSave: () => void; onAttend: () => void; onComment: () => void; onExtract: () => void;
+  onSave: () => void; onAttend: () => void; onComment: () => void; onExtract: () => void; onDraftEmail: () => void;
   onRequestEnrich: (index: number | "all", count: number) => void;
   enrichBusy: string | null;
   inRadar: boolean;
