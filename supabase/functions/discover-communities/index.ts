@@ -114,8 +114,8 @@ serve(async (req) => {
     const virtualOnly: boolean = !!body.virtual_only;
     const timeframeDays: number = Math.max(7, Math.min(365, Number(body.timeframe_days) || 90));
     const kinds: Kind[] = Array.isArray(body.kinds) && body.kinds.length
-      ? body.kinds.filter((k: string): k is Kind => ["group", "conference", "webinar", "podcast"].includes(k))
-      : ["group", "conference", "webinar", "podcast"];
+      ? body.kinds.filter((k: string): k is Kind => ["group", "conference", "webinar", "podcast", "newsletter", "forum"].includes(k))
+      : ["group", "conference", "webinar", "podcast", "newsletter", "forum"];
     const campaignId: string | null = body.campaign_id || null;
     if (!niche) return json({ error: "niche required" }, 400);
 
