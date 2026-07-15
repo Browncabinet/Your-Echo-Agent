@@ -529,9 +529,12 @@ function OpportunityCard({
             {opp.source && <Badge variant="outline" className="text-[10px]">{opp.source}</Badge>}
             {date && <Badge variant="outline" className="text-[10px]">{date}</Badge>}
             {opp.location && !opp.is_virtual && <Badge variant="outline" className="text-[10px]">{opp.location}</Badge>}
+            {opp.approach && <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30" variant="outline">→ {APPROACH_LABEL[opp.approach] || opp.approach}</Badge>}
+            {opp.engagement_hint && <Badge variant="outline" className="text-[10px]"><Users className="w-3 h-3 mr-1 inline" />{opp.engagement_hint}</Badge>}
           </div>
           {opp.host_org && <p className="text-sm text-muted-foreground mt-1">Hosted by {opp.host_org}</p>}
           {opp.fit_reason && <p className="text-sm mt-2 italic text-muted-foreground">"{opp.fit_reason}"</p>}
+          {opp.approach_reason && <p className="text-xs mt-1 text-primary/80"><strong>How to approach:</strong> {opp.approach_reason}</p>}
 
           {contacts.length > 0 && (
             <div className="mt-3 space-y-2">
