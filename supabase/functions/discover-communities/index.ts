@@ -231,6 +231,9 @@ ${trimmed.map((r, i) => `${i}. [${r.kind}] ${r.title}\n${r.url}\n${r.description
         contacts: [],
         fit_score: Math.max(0, Math.min(100, Number(it.fit_score) || 0)),
         fit_reason: String(it.fit_reason || "").slice(0, 240),
+        approach: it.approach ? String(it.approach).slice(0, 24) : null,
+        approach_reason: it.approach_reason ? String(it.approach_reason).slice(0, 240) : null,
+        engagement_hint: it.engagement_hint ? String(it.engagement_hint).slice(0, 120) : null,
         dedup_hash: dedup,
         status: "new",
       });
