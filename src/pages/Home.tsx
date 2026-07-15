@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/components/Footer";
 import { TestimonialsMarquee } from "@/components/TestimonialsMarquee";
+import heroVideo from "../../public/hero-demo.mp4.asset.json";
 import { Logo } from "@/components/Logo";
 import { SeoHead } from "@/components/SeoHead";
 import {
@@ -94,8 +95,25 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
+        {/* Background demo video */}
+        <video
+          className="absolute inset-0 -z-10 w-full h-full object-cover opacity-30"
+          src={heroVideo.url}
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-hidden="true"
+        />
         <div
-          className="absolute inset-0 -z-10 opacity-60"
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(180deg, hsl(var(--background) / 0.4) 0%, hsl(var(--background) / 0.75) 60%, hsl(var(--background)) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 -z-10 opacity-60 pointer-events-none"
           style={{
             background:
               "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--primary) / 0.15), transparent 70%)",
