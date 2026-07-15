@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, BookOpen, Wallet, Store, LogOut, LogIn, Sparkles, Radar } from "lucide-react";
+import { LayoutDashboard, BookOpen, Wallet, Store, LogOut, LogIn, Radar as RadarIcon, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = { to: string; label: string; icon?: typeof Store; external?: boolean };
@@ -13,8 +13,8 @@ type NavItem = { to: string; label: string; icon?: typeof Store; external?: bool
 const NAV: NavItem[] = [
   { to: "/for-agents", label: "Marketplace", icon: Store },
   { to: "/for-agents/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/for-agents/discover", label: "Discover", icon: Sparkles },
-  { to: "/for-agents/radar", label: "My Radar", icon: Radar },
+  { to: "/for-agents/discover", label: "Community Radar", icon: RadarIcon },
+  { to: "/for-agents/radar", label: "My Radar", icon: Bookmark },
   { to: "/for-agents/billing", label: "Billing", icon: Wallet },
   { to: "/for-agents/docs", label: "Docs", icon: BookOpen },
 ];

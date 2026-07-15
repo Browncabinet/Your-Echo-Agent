@@ -840,10 +840,16 @@ export type Database = {
       }
       discovered_opportunities: {
         Row: {
+          approach: string | null
+          approach_reason: string | null
           campaign_id: string | null
           contacts: Json
           created_at: string
           dedup_hash: string
+          draft_body: string | null
+          draft_generated_at: string | null
+          draft_subject: string | null
+          engagement_hint: string | null
           event_end: string | null
           event_start: string | null
           fit_reason: string | null
@@ -861,10 +867,16 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approach?: string | null
+          approach_reason?: string | null
           campaign_id?: string | null
           contacts?: Json
           created_at?: string
           dedup_hash: string
+          draft_body?: string | null
+          draft_generated_at?: string | null
+          draft_subject?: string | null
+          engagement_hint?: string | null
           event_end?: string | null
           event_start?: string | null
           fit_reason?: string | null
@@ -882,10 +894,16 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approach?: string | null
+          approach_reason?: string | null
           campaign_id?: string | null
           contacts?: Json
           created_at?: string
           dedup_hash?: string
+          draft_body?: string | null
+          draft_generated_at?: string | null
+          draft_subject?: string | null
+          engagement_hint?: string | null
           event_end?: string | null
           event_start?: string | null
           fit_reason?: string | null

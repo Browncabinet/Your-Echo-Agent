@@ -15,14 +15,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "@/hooks/use-toast";
 import { downloadICS, type DiscoverOpportunity } from "@/lib/ics";
-import { CalendarPlus, MessageSquare, Users, Mail, Bookmark, Loader2, ExternalLink, Sparkles, Info, Linkedin, Search, ChevronDown, CheckCircle2, AlertCircle } from "lucide-react";
+import { CalendarPlus, MessageSquare, Users, Mail, Bookmark, Loader2, ExternalLink, Sparkles, Info, Linkedin, Search, ChevronDown, CheckCircle2, AlertCircle, Radar, Globe, RefreshCw } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useCredits } from "@/hooks/use-credits";
 import { SeoHead } from "@/components/SeoHead";
 
-type Kind = "group" | "conference" | "webinar" | "podcast";
-const KIND_LABEL: Record<Kind, string> = { group: "Groups", conference: "Conferences", webinar: "Webinars", podcast: "Podcasts" };
+type Kind = "group" | "conference" | "webinar" | "podcast" | "newsletter" | "forum";
+const KIND_LABEL: Record<Kind, string> = { group: "Groups", conference: "Conferences", webinar: "Webinars", podcast: "Podcasts", newsletter: "Newsletters", forum: "Forums" };
+const APPROACH_LABEL: Record<string, string> = { sponsor: "Sponsor", speak: "Speak", pitch: "Pitch", post: "Post", comment: "Comment", subscribe: "Subscribe" };
 
 export default function Discover() {
   const { user } = useAuth();
@@ -47,6 +48,23 @@ export default function Discover() {
   const [enrichBusy, setEnrichBusy] = useState<string | null>(null); // `${oppId}:${idx|all}`
   const [confirm, setConfirm] = useState<null | { opp: DiscoverOpportunity; index: number | "all"; count: number }>(null);
 
+  // URL onramp
+  const [siteUrl, setSiteUrl] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [siteSummary, setSiteSummary] = useState<string>("");
+
+  // Sender profile (used when drafting outreach emails)
+  const [senderName, setSenderName] = useState("");
+  const [senderCompany, setSenderCompany] = useState("");
+  const [senderPitch, setSenderPitch] = useState("");
+
+  // Outreach draft dialog
+  const [draftOpen, setDraftOpen] = useState(false);
+  const [draftLoading, setDraftLoading] = useState(false);
+  const [draftOpp, setDraftOpp] = useState<DiscoverOpportunity | null>(null);
+  const [draftSubject, setDraftSubject] = useState("");
+  const [draftBody, setDraftBody] = useState("");
+
   const loadItems = async () => {
     if (!user) return;
     const { data } = await supabase
@@ -65,8 +83,8 @@ export default function Discover() {
   useEffect(() => { loadItems(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user?.id]);
 
   const grouped = useMemo(() => {
-    const g: Record<Kind, DiscoverOpportunity[]> = { group: [], conference: [], webinar: [], podcast: [] };
-    for (const it of items) g[it.kind]?.push(it);
+    const g: Record<Kind, DiscoverOpportunity[]> = { group: [], conference: [], webinar: [], podcast: [], newsletter: [], forum: [] };
+    for (const it of items) g[it.kind as Kind]?.push(it);
     return g;
   }, [items]);
 
@@ -90,6 +108,58 @@ export default function Discover() {
       const msg = e instanceof Error ? e.message : "Discovery failed";
       toast({ title: "Discovery failed", description: msg, variant: "destructive" });
     } finally { setRunning(false); }
+  };
+
+  const analyzeSite = async () => {
+    if (!siteUrl.trim()) {
+      toast({ title: "URL required", description: "Paste your website URL to auto-detect niche & audience." });
+      return;
+    }
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-site-for-radar", {
+        body: { url: siteUrl.trim() },
+      });
+      if (error) throw error;
+      if (data?.niche) setNiche(data.niche);
+      if (data?.audience) setAudience(data.audience);
+      if (data?.region) setRegion(data.region);
+      if (data?.summary) setSiteSummary(data.summary);
+      if (data?.positioning && !senderPitch) setSenderPitch(data.positioning);
+      try {
+        const host = new URL(siteUrl.trim()).hostname.replace(/^www\./, "");
+        if (!senderCompany) setSenderCompany(host.split(".")[0].replace(/^\w/, (c) => c.toUpperCase()));
+      } catch { /* ignore */ }
+      toast({ title: "Site analyzed", description: "Niche, audience, and region prefilled — edit anything, then hit Find." });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Analysis failed";
+      toast({ title: "Analysis failed", description: msg, variant: "destructive" });
+    } finally { setAnalyzing(false); }
+  };
+
+  const onDraftEmail = async (opp: DiscoverOpportunity, regenerate = false) => {
+    setDraftOpp(opp);
+    setDraftOpen(true);
+    setDraftLoading(true);
+    setDraftSubject("");
+    setDraftBody("");
+    try {
+      const { data, error } = await supabase.functions.invoke("radar-draft-outreach", {
+        body: {
+          opportunity_id: opp.id,
+          sender_name: senderName,
+          sender_company: senderCompany,
+          sender_pitch: senderPitch || siteSummary,
+          regenerate,
+        },
+      });
+      if (error) throw error;
+      setDraftSubject(data?.subject || "");
+      setDraftBody(data?.body || "");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Draft failed";
+      toast({ title: "Draft failed", description: msg, variant: "destructive" });
+    } finally { setDraftLoading(false); }
   };
 
   const saveToRadar = async (opp: DiscoverOpportunity, status: "saved" | "attending" = "saved") => {
@@ -183,18 +253,18 @@ export default function Discover() {
   return (
     <PartnerShell width="wide">
       <SeoHead
-        title="AI event & community discovery — Your Echo Agent"
-        description="Find conferences, webinars, podcasts, and groups in your niche. AI fit-scores each one, drafts comments, and extracts contacts."
+        title="Community Radar — Your Echo Agent"
+        description="Paste your site. Echo Agent finds communities, events, newsletters, forums, and podcasts in your niche — with fit scores, how-to-approach guidance, and ready-to-send outreach drafts."
         path="/for-agents/discover"
       />
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Sparkles className="w-7 h-7 text-primary" /> Discover
+              <Radar className="w-7 h-7 text-primary" /> Community Radar
             </h1>
             <p className="text-muted-foreground mt-1 max-w-2xl">
-              Find groups, conferences, webinars, and podcasts that match your niche — with an AI-scored fit.
+              Paste your site. We scan communities, events, newsletters, forums, and podcasts — score each fit, tell you how to approach, and draft the first message.
             </p>
           </div>
           <Badge variant="secondary" className="text-sm">
@@ -202,19 +272,28 @@ export default function Discover() {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-          {[
-            { n: "1", t: "Set niche" },
-            { n: "2", t: "AI discovers" },
-            { n: "3", t: "Fit-scored" },
-            { n: "4", t: "Email / comment / save" },
-          ].map((s) => (
-            <div key={s.n} className="rounded-md border bg-muted/30 px-3 py-2 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-primary/15 text-primary flex items-center justify-center font-mono text-[10px]">{s.n}</span>
-              <span className="text-muted-foreground">{s.t}</span>
+        <Card className="border-primary/30 bg-primary/[0.03]">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Globe className="w-4 h-4 text-primary" /> Start with your website
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={siteUrl}
+                onChange={(e) => setSiteUrl(e.target.value)}
+                placeholder="https://yoursite.com"
+                onKeyDown={(e) => { if (e.key === "Enter") analyzeSite(); }}
+              />
+              <Button onClick={analyzeSite} disabled={analyzing} className="shrink-0">
+                {analyzing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing…</> : <><Sparkles className="w-4 h-4 mr-2" /> Auto-detect niche</>}
+              </Button>
             </div>
-          ))}
-        </div>
+            {siteSummary && <p className="text-xs text-muted-foreground italic">{siteSummary}</p>}
+            <p className="text-xs text-muted-foreground">Optional — you can also fill the search fields below by hand.</p>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader><CardTitle className="text-base">Search</CardTitle></CardHeader>
@@ -258,6 +337,29 @@ export default function Discover() {
         <Collapsible>
           <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 text-left text-sm bg-muted/40 rounded-md p-3 hover:bg-muted/60 transition-colors">
             <span className="flex items-center gap-2 font-medium">
+              <Info className="w-4 h-4 text-primary" /> Your name & pitch (used for email drafts)
+            </span>
+            <ChevronDown className="w-4 h-4 opacity-60" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="bg-muted/30 rounded-b-md p-3 -mt-1 grid gap-3 md:grid-cols-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Your name</Label>
+              <Input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="Alex Doe" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Company</Label>
+              <Input value={senderCompany} onChange={(e) => setSenderCompany(e.target.value)} placeholder="Acme" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">One-line pitch</Label>
+              <Input value={senderPitch} onChange={(e) => setSenderPitch(e.target.value)} placeholder="We help X do Y" />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible>
+          <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 text-left text-sm bg-muted/40 rounded-md p-3 hover:bg-muted/60 transition-colors">
+            <span className="flex items-center gap-2 font-medium">
               <Info className="w-4 h-4 text-primary" /> What we can (and can't) get from an event page
             </span>
             <ChevronDown className="w-4 h-4 opacity-60" />
@@ -270,14 +372,14 @@ export default function Discover() {
         </Collapsible>
 
         <Tabs value={activeKind} onValueChange={(v) => setActiveKind(v as Kind)}>
-          <TabsList>
-            {(["conference", "webinar", "group", "podcast"] as Kind[]).map((k) => (
+          <TabsList className="flex-wrap h-auto">
+            {(["conference", "webinar", "group", "podcast", "newsletter", "forum"] as Kind[]).map((k) => (
               <TabsTrigger key={k} value={k}>
                 {KIND_LABEL[k]} <span className="ml-1.5 text-xs opacity-70">{grouped[k].length}</span>
               </TabsTrigger>
             ))}
           </TabsList>
-          {(["conference", "webinar", "group", "podcast"] as Kind[]).map((k) => (
+          {(["conference", "webinar", "group", "podcast", "newsletter", "forum"] as Kind[]).map((k) => (
             <TabsContent key={k} value={k} className="space-y-3 mt-4">
               {grouped[k].length === 0 ? (
                 <div className="text-center text-sm text-muted-foreground py-10 border rounded-md">
@@ -288,6 +390,7 @@ export default function Discover() {
                   key={opp.id} opp={opp}
                   onSave={() => saveToRadar(opp)} onAttend={() => onAttend(opp)}
                   onComment={() => onComment(opp)} onExtract={() => onExtract(opp)}
+                  onDraftEmail={() => onDraftEmail(opp)}
                   onRequestEnrich={(index, count) => setConfirm({ opp, index, count })}
                   enrichBusy={enrichBusy}
                   inRadar={radarIds.has(opp.id)}
@@ -297,6 +400,7 @@ export default function Discover() {
           ))}
         </Tabs>
       </div>
+
 
       <Dialog open={commentOpen} onOpenChange={setCommentOpen}>
         <DialogContent className="max-w-lg">
@@ -324,6 +428,53 @@ export default function Discover() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={draftOpen} onOpenChange={setDraftOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>
+              Outreach draft {draftOpp?.approach && <span className="text-xs font-normal text-muted-foreground">· {APPROACH_LABEL[draftOpp.approach] || draftOpp.approach}</span>}
+            </DialogTitle>
+          </DialogHeader>
+          {draftLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-6">
+              <Loader2 className="w-4 h-4 animate-spin" /> Drafting…
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Subject</Label>
+                <Input value={draftSubject} onChange={(e) => setDraftSubject(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Body</Label>
+                <Textarea value={draftBody} onChange={(e) => setDraftBody(e.target.value)} rows={12} />
+              </div>
+              <div className="flex flex-wrap gap-2 justify-end">
+                <Button size="sm" variant="ghost" onClick={() => draftOpp && onDraftEmail(draftOpp, true)}>
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Regenerate
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(`Subject: ${draftSubject}\n\n${draftBody}`); toast({ title: "Copied" }); }}>
+                  Copy
+                </Button>
+                {draftOpp && (
+                  <Button size="sm" asChild>
+                    <a
+                      href={`mailto:${draftOpp.contacts?.[0]?.email || ""}?subject=${encodeURIComponent(draftSubject)}&body=${encodeURIComponent(draftBody)}`}
+                    >
+                      <Mail className="w-3.5 h-3.5 mr-1.5" /> Open in mail
+                    </a>
+                  </Button>
+                )}
+              </div>
+              {!(draftOpp?.contacts?.[0]?.email) && (
+                <p className="text-xs text-muted-foreground">Tip: run <em>Find contacts</em> + <em>Find email</em> first to populate the recipient.</p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+
       <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -347,10 +498,10 @@ export default function Discover() {
 }
 
 function OpportunityCard({
-  opp, onSave, onAttend, onComment, onExtract, onRequestEnrich, enrichBusy, inRadar,
+  opp, onSave, onAttend, onComment, onExtract, onDraftEmail, onRequestEnrich, enrichBusy, inRadar,
 }: {
   opp: DiscoverOpportunity;
-  onSave: () => void; onAttend: () => void; onComment: () => void; onExtract: () => void;
+  onSave: () => void; onAttend: () => void; onComment: () => void; onExtract: () => void; onDraftEmail: () => void;
   onRequestEnrich: (index: number | "all", count: number) => void;
   enrichBusy: string | null;
   inRadar: boolean;
@@ -378,9 +529,12 @@ function OpportunityCard({
             {opp.source && <Badge variant="outline" className="text-[10px]">{opp.source}</Badge>}
             {date && <Badge variant="outline" className="text-[10px]">{date}</Badge>}
             {opp.location && !opp.is_virtual && <Badge variant="outline" className="text-[10px]">{opp.location}</Badge>}
+            {opp.approach && <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30" variant="outline">→ {APPROACH_LABEL[opp.approach] || opp.approach}</Badge>}
+            {opp.engagement_hint && <Badge variant="outline" className="text-[10px]"><Users className="w-3 h-3 mr-1 inline" />{opp.engagement_hint}</Badge>}
           </div>
           {opp.host_org && <p className="text-sm text-muted-foreground mt-1">Hosted by {opp.host_org}</p>}
           {opp.fit_reason && <p className="text-sm mt-2 italic text-muted-foreground">"{opp.fit_reason}"</p>}
+          {opp.approach_reason && <p className="text-xs mt-1 text-primary/80"><strong>How to approach:</strong> {opp.approach_reason}</p>}
 
           {contacts.length > 0 && (
             <div className="mt-3 space-y-2">
@@ -438,7 +592,8 @@ function OpportunityCard({
           )}
 
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={onAttend}><CalendarPlus className="w-3.5 h-3.5 mr-1.5" /> Attend (.ics)</Button>
+            <Button size="sm" onClick={onDraftEmail}><Mail className="w-3.5 h-3.5 mr-1.5" /> Draft outreach email</Button>
+            {opp.event_start && <Button size="sm" variant="outline" onClick={onAttend}><CalendarPlus className="w-3.5 h-3.5 mr-1.5" /> Attend (.ics)</Button>}
             <Button size="sm" variant="outline" onClick={onComment}><MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Draft comment</Button>
             <Button size="sm" variant="outline" onClick={onExtract}><Users className="w-3.5 h-3.5 mr-1.5" /> Find contacts</Button>
             <Button size="sm" variant={inRadar ? "secondary" : "ghost"} onClick={onSave}>

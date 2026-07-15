@@ -10,7 +10,7 @@ const corsHeaders = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-type Kind = "group" | "conference" | "webinar" | "podcast";
+type Kind = "group" | "conference" | "webinar" | "podcast" | "newsletter" | "forum";
 
 const SITE_HINTS: Record<Kind, string[]> = {
   conference: [
@@ -40,6 +40,20 @@ const SITE_HINTS: Record<Kind, string[]> = {
     "site:listennotes.com",
     "site:open.spotify.com/show",
     "podcast",
+  ],
+  newsletter: [
+    "site:substack.com",
+    "site:beehiiv.com",
+    "site:convertkit.com",
+    "site:buttondown.email",
+    "newsletter subscribe",
+  ],
+  forum: [
+    "site:discourse.org",
+    "site:reddit.com",
+    "forum community",
+    "site:community.hubspot.com",
+    "site:news.ycombinator.com",
   ],
 };
 
@@ -100,8 +114,8 @@ serve(async (req) => {
     const virtualOnly: boolean = !!body.virtual_only;
     const timeframeDays: number = Math.max(7, Math.min(365, Number(body.timeframe_days) || 90));
     const kinds: Kind[] = Array.isArray(body.kinds) && body.kinds.length
-      ? body.kinds.filter((k: string): k is Kind => ["group", "conference", "webinar", "podcast"].includes(k))
-      : ["group", "conference", "webinar", "podcast"];
+      ? body.kinds.filter((k: string): k is Kind => ["group", "conference", "webinar", "podcast", "newsletter", "forum"].includes(k))
+      : ["group", "conference", "webinar", "podcast", "newsletter", "forum"];
     const campaignId: string | null = body.campaign_id || null;
     if (!niche) return json({ error: "niche required" }, 400);
 
@@ -160,11 +174,13 @@ Region: ${region}${virtualOnly ? " (virtual only)" : ""}
 Timeframe: next ${timeframeDays} days
 
 For each result below, return JSON with this exact shape:
-{ "items": [ { "i": <index>, "keep": true|false, "kind": "group|conference|webinar|podcast", "host_org": "...", "location": "...", "is_virtual": true|false, "event_start": "YYYY-MM-DD" or null, "fit_score": 0-100, "fit_reason": "1 short sentence" } ] }
+{ "items": [ { "i": <index>, "keep": true|false, "kind": "group|conference|webinar|podcast|newsletter|forum", "host_org": "...", "location": "...", "is_virtual": true|false, "event_start": "YYYY-MM-DD" or null, "fit_score": 0-100, "fit_reason": "1 short sentence", "approach": "sponsor|speak|pitch|post|comment|subscribe", "approach_reason": "1 short sentence", "engagement_hint": "e.g. 12k subscribers, 5k members, active daily, or empty" } ] }
 
 Rules:
 - keep=false if result is unrelated, paywalled login, or generic homepage.
 - fit_score reflects audience match.
+- approach: best way for the sender to engage — sponsor (event $$), speak (talk/panel), pitch (guest post/interview/feature), post (contribute to community/forum), comment (join & engage), subscribe (newsletter collab).
+- engagement_hint: extract member/subscriber count or activity signal from title/description if visible, else empty string.
 - Only return JSON. No markdown.
 
 Results:
@@ -215,6 +231,9 @@ ${trimmed.map((r, i) => `${i}. [${r.kind}] ${r.title}\n${r.url}\n${r.description
         contacts: [],
         fit_score: Math.max(0, Math.min(100, Number(it.fit_score) || 0)),
         fit_reason: String(it.fit_reason || "").slice(0, 240),
+        approach: it.approach ? String(it.approach).slice(0, 24) : null,
+        approach_reason: it.approach_reason ? String(it.approach_reason).slice(0, 240) : null,
+        engagement_hint: it.engagement_hint ? String(it.engagement_hint).slice(0, 120) : null,
         dedup_hash: dedup,
         status: "new",
       });
