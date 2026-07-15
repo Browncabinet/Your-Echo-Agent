@@ -66,8 +66,8 @@ export default function Discover() {
   useEffect(() => { loadItems(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user?.id]);
 
   const grouped = useMemo(() => {
-    const g: Record<Kind, DiscoverOpportunity[]> = { group: [], conference: [], webinar: [], podcast: [] };
-    for (const it of items) g[it.kind]?.push(it);
+    const g: Record<Kind, DiscoverOpportunity[]> = { group: [], conference: [], webinar: [], podcast: [], newsletter: [], forum: [] };
+    for (const it of items) g[it.kind as Kind]?.push(it);
     return g;
   }, [items]);
 
