@@ -253,18 +253,18 @@ export default function Discover() {
   return (
     <PartnerShell width="wide">
       <SeoHead
-        title="AI event & community discovery — Your Echo Agent"
-        description="Find conferences, webinars, podcasts, and groups in your niche. AI fit-scores each one, drafts comments, and extracts contacts."
+        title="Community Radar — Your Echo Agent"
+        description="Paste your site. Echo Agent finds communities, events, newsletters, forums, and podcasts in your niche — with fit scores, how-to-approach guidance, and ready-to-send outreach drafts."
         path="/for-agents/discover"
       />
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <Sparkles className="w-7 h-7 text-primary" /> Discover
+              <Radar className="w-7 h-7 text-primary" /> Community Radar
             </h1>
             <p className="text-muted-foreground mt-1 max-w-2xl">
-              Find groups, conferences, webinars, and podcasts that match your niche — with an AI-scored fit.
+              Paste your site. We scan communities, events, newsletters, forums, and podcasts — score each fit, tell you how to approach, and draft the first message.
             </p>
           </div>
           <Badge variant="secondary" className="text-sm">
@@ -272,19 +272,28 @@ export default function Discover() {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-          {[
-            { n: "1", t: "Set niche" },
-            { n: "2", t: "AI discovers" },
-            { n: "3", t: "Fit-scored" },
-            { n: "4", t: "Email / comment / save" },
-          ].map((s) => (
-            <div key={s.n} className="rounded-md border bg-muted/30 px-3 py-2 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-primary/15 text-primary flex items-center justify-center font-mono text-[10px]">{s.n}</span>
-              <span className="text-muted-foreground">{s.t}</span>
+        <Card className="border-primary/30 bg-primary/[0.03]">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Globe className="w-4 h-4 text-primary" /> Start with your website
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={siteUrl}
+                onChange={(e) => setSiteUrl(e.target.value)}
+                placeholder="https://yoursite.com"
+                onKeyDown={(e) => { if (e.key === "Enter") analyzeSite(); }}
+              />
+              <Button onClick={analyzeSite} disabled={analyzing} className="shrink-0">
+                {analyzing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing…</> : <><Sparkles className="w-4 h-4 mr-2" /> Auto-detect niche</>}
+              </Button>
             </div>
-          ))}
-        </div>
+            {siteSummary && <p className="text-xs text-muted-foreground italic">{siteSummary}</p>}
+            <p className="text-xs text-muted-foreground">Optional — you can also fill the search fields below by hand.</p>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader><CardTitle className="text-base">Search</CardTitle></CardHeader>
@@ -328,6 +337,29 @@ export default function Discover() {
         <Collapsible>
           <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 text-left text-sm bg-muted/40 rounded-md p-3 hover:bg-muted/60 transition-colors">
             <span className="flex items-center gap-2 font-medium">
+              <Info className="w-4 h-4 text-primary" /> Your name & pitch (used for email drafts)
+            </span>
+            <ChevronDown className="w-4 h-4 opacity-60" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="bg-muted/30 rounded-b-md p-3 -mt-1 grid gap-3 md:grid-cols-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Your name</Label>
+              <Input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="Alex Doe" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Company</Label>
+              <Input value={senderCompany} onChange={(e) => setSenderCompany(e.target.value)} placeholder="Acme" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">One-line pitch</Label>
+              <Input value={senderPitch} onChange={(e) => setSenderPitch(e.target.value)} placeholder="We help X do Y" />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible>
+          <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 text-left text-sm bg-muted/40 rounded-md p-3 hover:bg-muted/60 transition-colors">
+            <span className="flex items-center gap-2 font-medium">
               <Info className="w-4 h-4 text-primary" /> What we can (and can't) get from an event page
             </span>
             <ChevronDown className="w-4 h-4 opacity-60" />
@@ -340,14 +372,14 @@ export default function Discover() {
         </Collapsible>
 
         <Tabs value={activeKind} onValueChange={(v) => setActiveKind(v as Kind)}>
-          <TabsList>
-            {(["conference", "webinar", "group", "podcast"] as Kind[]).map((k) => (
+          <TabsList className="flex-wrap h-auto">
+            {(["conference", "webinar", "group", "podcast", "newsletter", "forum"] as Kind[]).map((k) => (
               <TabsTrigger key={k} value={k}>
                 {KIND_LABEL[k]} <span className="ml-1.5 text-xs opacity-70">{grouped[k].length}</span>
               </TabsTrigger>
             ))}
           </TabsList>
-          {(["conference", "webinar", "group", "podcast"] as Kind[]).map((k) => (
+          {(["conference", "webinar", "group", "podcast", "newsletter", "forum"] as Kind[]).map((k) => (
             <TabsContent key={k} value={k} className="space-y-3 mt-4">
               {grouped[k].length === 0 ? (
                 <div className="text-center text-sm text-muted-foreground py-10 border rounded-md">
@@ -358,6 +390,7 @@ export default function Discover() {
                   key={opp.id} opp={opp}
                   onSave={() => saveToRadar(opp)} onAttend={() => onAttend(opp)}
                   onComment={() => onComment(opp)} onExtract={() => onExtract(opp)}
+                  onDraftEmail={() => onDraftEmail(opp)}
                   onRequestEnrich={(index, count) => setConfirm({ opp, index, count })}
                   enrichBusy={enrichBusy}
                   inRadar={radarIds.has(opp.id)}
@@ -367,6 +400,7 @@ export default function Discover() {
           ))}
         </Tabs>
       </div>
+
 
       <Dialog open={commentOpen} onOpenChange={setCommentOpen}>
         <DialogContent className="max-w-lg">
