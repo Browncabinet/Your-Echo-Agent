@@ -110,6 +110,58 @@ export default function Discover() {
     } finally { setRunning(false); }
   };
 
+  const analyzeSite = async () => {
+    if (!siteUrl.trim()) {
+      toast({ title: "URL required", description: "Paste your website URL to auto-detect niche & audience." });
+      return;
+    }
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-site-for-radar", {
+        body: { url: siteUrl.trim() },
+      });
+      if (error) throw error;
+      if (data?.niche) setNiche(data.niche);
+      if (data?.audience) setAudience(data.audience);
+      if (data?.region) setRegion(data.region);
+      if (data?.summary) setSiteSummary(data.summary);
+      if (data?.positioning && !senderPitch) setSenderPitch(data.positioning);
+      try {
+        const host = new URL(siteUrl.trim()).hostname.replace(/^www\./, "");
+        if (!senderCompany) setSenderCompany(host.split(".")[0].replace(/^\w/, (c) => c.toUpperCase()));
+      } catch { /* ignore */ }
+      toast({ title: "Site analyzed", description: "Niche, audience, and region prefilled — edit anything, then hit Find." });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Analysis failed";
+      toast({ title: "Analysis failed", description: msg, variant: "destructive" });
+    } finally { setAnalyzing(false); }
+  };
+
+  const onDraftEmail = async (opp: DiscoverOpportunity, regenerate = false) => {
+    setDraftOpp(opp);
+    setDraftOpen(true);
+    setDraftLoading(true);
+    setDraftSubject("");
+    setDraftBody("");
+    try {
+      const { data, error } = await supabase.functions.invoke("radar-draft-outreach", {
+        body: {
+          opportunity_id: opp.id,
+          sender_name: senderName,
+          sender_company: senderCompany,
+          sender_pitch: senderPitch || siteSummary,
+          regenerate,
+        },
+      });
+      if (error) throw error;
+      setDraftSubject(data?.subject || "");
+      setDraftBody(data?.body || "");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Draft failed";
+      toast({ title: "Draft failed", description: msg, variant: "destructive" });
+    } finally { setDraftLoading(false); }
+  };
+
   const saveToRadar = async (opp: DiscoverOpportunity, status: "saved" | "attending" = "saved") => {
     if (!user) return;
     const { error } = await supabase.from("radar_items").upsert(
