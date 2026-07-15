@@ -10,7 +10,7 @@ const corsHeaders = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-type Kind = "group" | "conference" | "webinar" | "podcast";
+type Kind = "group" | "conference" | "webinar" | "podcast" | "newsletter" | "forum";
 
 const SITE_HINTS: Record<Kind, string[]> = {
   conference: [
@@ -40,6 +40,20 @@ const SITE_HINTS: Record<Kind, string[]> = {
     "site:listennotes.com",
     "site:open.spotify.com/show",
     "podcast",
+  ],
+  newsletter: [
+    "site:substack.com",
+    "site:beehiiv.com",
+    "site:convertkit.com",
+    "site:buttondown.email",
+    "newsletter subscribe",
+  ],
+  forum: [
+    "site:discourse.org",
+    "site:reddit.com",
+    "forum community",
+    "site:community.hubspot.com",
+    "site:news.ycombinator.com",
   ],
 };
 
