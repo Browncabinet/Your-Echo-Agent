@@ -404,7 +404,7 @@ export default function Home() {
           </div>
 
           <div className="mt-8 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center text-sm text-muted-foreground max-w-3xl mx-auto">
-            <strong className="text-foreground">Open examples available on GitHub.</strong> The full production engine — with optimized performance, prepaid billing, per-job spending caps, and observability — is hosted at <a href="https://yourechoagent.com" className="text-primary underline">yourechoagent.com</a>.
+            Open examples and wrappers on GitHub. Full production engine with optimized performance and billing is at <a href="https://yourechoagent.com" className="text-primary underline">yourechoagent.com</a>.
           </div>
         </div>
       </section>
