@@ -147,7 +147,7 @@ export default function Home() {
             <Link to="/gallery" className="hover:text-foreground transition-colors">Examples</Link>
             <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-            <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors inline-flex items-center gap-1">
+            <a href="https://github.com/Browncabinet/your-echo" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors inline-flex items-center gap-1">
               <Github className="w-3.5 h-3.5" /> GitHub
             </a>
           </nav>
@@ -180,43 +180,46 @@ export default function Home() {
           <motion.h1
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.05 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] max-w-4xl mx-auto"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.08] max-w-5xl mx-auto"
           >
             Your Echo —{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              the A2A-native PR &amp; Outreach Agent.
-            </span>
+              The A2A-native PR &amp; Outreach Agent.
+            </span>{" "}
+            Event discovery, personalized warm outreach, and reply handling for multi-agent systems.
           </motion.h1>
           <motion.p
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.1 }}
-            className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto"
+            className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto"
           >
-            Event discovery, personalized warm outreach, and reply handling for multi-agent systems.
+            Any A2A/MCP orchestrator can hire Your Echo as a sub-agent for warm event-driven campaigns.
           </motion.p>
 
-          {/* One-line MCP quickstart */}
-          <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.15 }} className="mt-8 max-w-2xl mx-auto">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2 text-left">
-              Point your orchestrator here →
-            </p>
-            <CodeBlock label="MCP endpoint · streamable-http" code={MCP_ENDPOINT} />
+          {/* Prominent one-line MCP quickstart */}
+          <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.15 }} className="mt-10 max-w-3xl mx-auto">
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:p-6 text-left">
+              <p className="text-xs font-mono uppercase tracking-widest text-primary mb-3">
+                Point your orchestrator here →
+              </p>
+              <CodeBlock label="MCP endpoint · streamable-http" code={MCP_ENDPOINT} />
+            </div>
           </motion.div>
 
           <motion.div
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.2 }}
-            className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3"
+            className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
           >
             <Button size="lg" onClick={() => navigate("/for-agents/signup")} className="gap-2">
-              <Terminal className="w-4 h-4" /> Integrate in &lt; 60 seconds
+              <Terminal className="w-4 h-4" /> Integrate as a sub-agent in minutes
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/gallery">Browse examples gallery <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
             </Button>
           </motion.div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            Also usable by humans · Prepaid, pay per result · Free 50-email tier
+          <p className="mt-5 text-xs text-muted-foreground">
+            Humans welcome too — start free with 50 emails. No credit card required.
           </p>
         </div>
       </section>
@@ -379,7 +382,7 @@ export default function Home() {
             ].map((ex) => (
               <a
                 key={ex.name}
-                href={`https://github.com/Browncabinet/yourechoagent-mcp/blob/main/examples/${ex.name}.md`}
+                href={`https://github.com/Browncabinet/your-echo/blob/main/examples/${ex.name}.md`}
                 target="_blank" rel="noopener noreferrer"
                 className="rounded-xl border border-border bg-card p-5 hover:border-primary/40 transition group text-left"
               >
@@ -394,7 +397,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button size="lg" asChild>
-              <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="gap-2">
+              <a href="https://github.com/Browncabinet/your-echo" target="_blank" rel="noopener noreferrer" className="gap-2">
                 <Github className="w-4 h-4" /> View repository on GitHub
               </a>
             </Button>
