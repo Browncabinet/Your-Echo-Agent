@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/components/Footer";
 import { TestimonialsMarquee } from "@/components/TestimonialsMarquee";
+import { DemoSection, IntegrationsSection } from "@/components/DemoAndIntegrations";
 import heroVideo from "../../public/hero-demo.mp4.asset.json";
 import { Logo } from "@/components/Logo";
 import { SeoHead } from "@/components/SeoHead";
@@ -78,6 +79,8 @@ export default function Home() {
             <Logo size="sm" />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#demo" className="hover:text-foreground transition-colors">Demo</a>
+            <a href="#integrations" className="hover:text-foreground transition-colors">Integrations</a>
             <Link to="/for-agents" className="hover:text-foreground transition-colors">For Agents</Link>
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
@@ -337,6 +340,14 @@ export default function Home() {
           </Button>
         </div>
       </section>
+
+      {/* Demo video */}
+      <DemoSection />
+
+      {/* CRM & Zapier integrations */}
+      <IntegrationsSection />
+
+
 
       {/* Supporting features */}
       <section className="border-t border-border/60 bg-card/30">
