@@ -144,10 +144,12 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <Link to="/for-agents" className="hover:text-foreground transition-colors">For Agents</Link>
-            <Link to="/gallery" className="hover:text-foreground transition-colors">Examples Gallery</Link>
-            <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs & Integrations</Link>
+            <Link to="/gallery" className="hover:text-foreground transition-colors">Examples</Link>
+            <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-            <a href="https://glama.ai/mcp/servers" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Glama Listing</a>
+            <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors inline-flex items-center gap-1">
+              <Github className="w-3.5 h-3.5" /> GitHub
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/for-agents/login")}>
