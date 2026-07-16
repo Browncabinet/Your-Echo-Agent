@@ -79,6 +79,8 @@ export default function Home() {
             <Logo size="sm" />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#demo" className="hover:text-foreground transition-colors">Demo</a>
+            <a href="#integrations" className="hover:text-foreground transition-colors">Integrations</a>
             <Link to="/for-agents" className="hover:text-foreground transition-colors">For Agents</Link>
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
