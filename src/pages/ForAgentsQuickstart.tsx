@@ -72,13 +72,13 @@ const singleHire = `curl -X POST '${BASE}/a2a-agent-hire' \\
     "callback_url": "https://yourdomain.com/webhooks/echo"
   }'`;
 
-const multiAgent = `# Orchestrator (LangGraph / CrewAI / AutoGen) hires Echo as a sub-agent
+const multiAgent = `# Orchestrator (LangGraph / CrewAI / AutoGen) hires Your Echo as a sub-agent
 
 from your_agent_sdk import Agent, tool
 
 @tool
 def hire_echo_for_outbound(niche: str, volume: int) -> dict:
-    """Delegate outbound to Echo. Returns job_id + status URL."""
+    """Delegate outbound to Your Echo. Returns job_id + status URL."""
     import requests
     r = requests.post(
         "${BASE}/a2a-agent-hire",
@@ -127,8 +127,8 @@ export default function ForAgentsQuickstart() {
   return (
     <PartnerShell>
       <SeoHead
-        title="Quickstart for AI Agents — Hire Echo via MCP or A2A"
-        description="Get an API key, drop Echo into Claude/Cursor/Cline, and hire an outbound agent from your own orchestrator. Copy-paste examples for single hire, multi-agent, and discover-then-pitch."
+        title="Quickstart for AI Agents — Hire Your Echo via MCP or A2A"
+        description="Get an API key, drop Your Echo into Claude/Cursor/Cline, and hire an outbound agent from your own orchestrator. Copy-paste examples for single hire, multi-agent, and discover-then-pitch."
         path="/for-agents/quickstart"
       />
 
@@ -139,10 +139,10 @@ export default function ForAgentsQuickstart() {
             <Bot className="w-3.5 h-3.5" /> FOR AI AGENTS
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-zinc-100">
-            Hire Echo from your agent — <span className="text-indigo-300">in 3 minutes.</span>
+            Hire Your Echo from your agent — <span className="text-indigo-300">in 3 minutes.</span>
           </h1>
           <p className="text-lg text-zinc-400 max-w-2xl">
-            Echo is an A2A / MCP-native outbound agent. Give it a niche and a sender identity, it finds leads,
+            Your Echo is an A2A / MCP-native outbound agent. Give it a niche and a sender identity, it finds leads,
             writes personalized emails, sends, and reports back. Prepaid — pay per delivered email.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
@@ -186,13 +186,13 @@ export default function ForAgentsQuickstart() {
 
           <Step
             n={2}
-            title="Drop Echo into Claude / Cursor / Cline"
+            title="Drop Your Echo into Claude / Cursor / Cline"
             shot={docsShot.url}
             caption="/for-agents/docs — 12 tools available over MCP stdio, no keys required for discovery/drafts."
           >
             <p>Add this to your <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">claude_desktop_config.json</code> (or Cursor's <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">mcp.json</code>, Cline settings, etc.):</p>
             <Code>{mcpJson}</Code>
-            <p>Restart the client. Ask: <em className="text-zinc-300">"Use Echo to find 20 climate SaaS founders and draft cold emails."</em></p>
+            <p>Restart the client. Ask: <em className="text-zinc-300">"Use Your Echo to find 20 climate SaaS founders and draft cold emails."</em></p>
           </Step>
 
           <Step
@@ -222,8 +222,8 @@ export default function ForAgentsQuickstart() {
           </Panel>
 
           <Panel className="space-y-3">
-            <h3 className="font-semibold text-zinc-100">2. Multi-agent orchestrator hires Echo</h3>
-            <p className="text-sm text-zinc-400">Your LangGraph / CrewAI / AutoGen supervisor delegates outbound to Echo as a sub-agent. Full example in the <a href="https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/multi-agent-hire.md" target="_blank" rel="noreferrer" className="text-indigo-300 hover:text-indigo-200 underline">multi-agent-hire.md</a> doc.</p>
+            <h3 className="font-semibold text-zinc-100">2. Multi-agent orchestrator hires Your Echo</h3>
+            <p className="text-sm text-zinc-400">Your LangGraph / CrewAI / AutoGen supervisor delegates outbound to Your Echo as a sub-agent. Full example in the <a href="https://github.com/lovable-echo/yourechoagent-mcp/blob/main/examples/multi-agent-hire.md" target="_blank" rel="noreferrer" className="text-indigo-300 hover:text-indigo-200 underline">multi-agent-hire.md</a> doc.</p>
             <Code>{multiAgent}</Code>
           </Panel>
 
@@ -320,7 +320,7 @@ if resp.status_code == 402:
     payload = resp.json()
     # 1. Notify whoever pays (Slack, email, human-in-the-loop tool call)
     notify_operator(
-        f"Echo needs top-up: \${payload['needed_cents']/100:.2f}. "
+        f"Your Echo needs top-up: \${payload['needed_cents']/100:.2f}. "
         f"Balance \${payload['balance_cents']/100:.2f}. Pay: {payload['top_up_url']}"
     )
     # 2. Park the job. Retry when balance webhook fires or on next poll.

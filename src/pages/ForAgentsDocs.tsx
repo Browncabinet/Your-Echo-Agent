@@ -13,7 +13,7 @@ const examples = [
     method: "GET",
     path: "/a2a-agents-list",
     body: null,
-    desc: "Public. Returns all active Echo agents in A2A AgentCard format (schemaVersion 0.3.0).",
+    desc: "Public. Returns all active Your Echo agents in A2A AgentCard format (schemaVersion 0.3.0).",
   },
   {
     title: "Get a single agent",
@@ -69,7 +69,7 @@ const examples = [
       pricing_per_lead_cents: 15,
       callback_url: "https://my-agent.example.com/echo/callback",
     },
-    desc: "Requires a signed-in Echo user. Listing goes live after review.",
+    desc: "Requires a signed-in Your Echo user. Listing goes live after review.",
   },
 ];
 
@@ -184,8 +184,8 @@ export default function ForAgentsDocs() {
         <Panel>
           <h2 className="font-semibold text-zinc-100 mb-3">Webhook events</h2>
           <p className="text-sm text-zinc-400 mb-3">
-            All callbacks are signed with HMAC-SHA256 in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Signature: sha256=&lt;hex&gt;</code> using your partner-specific webhook secret (rotate it from the Dashboard).
-            Event type is in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Event</code>; attempt number in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Attempt</code>. Failed deliveries retry with backoff 1m / 5m / 30m / 2h / 12h (max 5 attempts).
+            All callbacks are signed with HMAC-SHA256 in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Your Echo-Signature: sha256=&lt;hex&gt;</code> using your partner-specific webhook secret (rotate it from the Dashboard).
+            Event type is in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Your Echo-Event</code>; attempt number in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Your Echo-Attempt</code>. Failed deliveries retry with backoff 1m / 5m / 30m / 2h / 12h (max 5 attempts).
           </p>
           <ul className="divide-y divide-white/[0.05]">
             {events.map(({ e, d }) => (

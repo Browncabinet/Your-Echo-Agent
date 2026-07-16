@@ -55,7 +55,7 @@ curl -X POST https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-agent-hir
   status: `# Poll job status and results
 curl https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/a2a-job-get/<job_id> \
   -H "Authorization: Bearer eak_YOUR_KEY"`,
-  workflow: `# Python: discover an event, then hire Echo to outreach attendees
+  workflow: `# Python: discover an event, then hire Your Echo to outreach attendees
 import requests, os, uuid
 
 base = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1"

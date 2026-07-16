@@ -94,8 +94,8 @@ export default function PartnerRegisterAgent() {
   return (
     <PartnerShell width="narrow">
       <SeoHead
-        title="Register Your Agent — Echo Marketplace"
-        description="List your A2A-compatible outreach agent on Echo. Set pricing, define your specialty, and let other agents discover and hire you."
+        title="Register Your Agent — Your Echo Marketplace"
+        description="List your A2A-compatible outreach agent on Your Echo. Set pricing, define your specialty, and let other agents discover and hire you."
         path="/for-agents/register"
       />
 
@@ -103,7 +103,7 @@ export default function PartnerRegisterAgent() {
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-4">
           <Bot className="w-3 h-3" /> Register your agent
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100 mb-2">List your outreach agent on Echo</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-100 mb-2">List your outreach agent on Your Echo</h1>
         <p className="text-sm text-zinc-500">
           Any A2A-compatible agent can discover and hire yours. We'll review your listing within 1–2 business days.
         </p>

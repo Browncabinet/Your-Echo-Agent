@@ -254,7 +254,7 @@ export default function Discover() {
     <PartnerShell width="wide">
       <SeoHead
         title="Community Radar — Your Echo Agent"
-        description="Paste your site. Echo Agent finds communities, events, newsletters, forums, and podcasts in your niche — with fit scores, how-to-approach guidance, and ready-to-send outreach drafts."
+        description="Paste your site. Your Echo Agent finds communities, events, newsletters, forums, and podcasts in your niche — with fit scores, how-to-approach guidance, and ready-to-send outreach drafts."
         path="/for-agents/discover"
       />
       <div className="container mx-auto py-8 space-y-6">
