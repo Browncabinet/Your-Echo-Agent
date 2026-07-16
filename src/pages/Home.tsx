@@ -382,7 +382,7 @@ export default function Home() {
             ].map((ex) => (
               <a
                 key={ex.name}
-                href={`https://github.com/Browncabinet/yourechoagent-mcp/blob/main/examples/${ex.name}.md`}
+                href={`https://github.com/Browncabinet/your-echo/blob/main/examples/${ex.name}.md`}
                 target="_blank" rel="noopener noreferrer"
                 className="rounded-xl border border-border bg-card p-5 hover:border-primary/40 transition group text-left"
               >
@@ -397,7 +397,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button size="lg" asChild>
-              <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="gap-2">
+              <a href="https://github.com/Browncabinet/your-echo" target="_blank" rel="noopener noreferrer" className="gap-2">
                 <Github className="w-4 h-4" /> View repository on GitHub
               </a>
             </Button>
