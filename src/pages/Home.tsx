@@ -463,6 +463,9 @@ export default function Home() {
             <Link to="/gallery">Examples gallery</Link>
           </Button>
         </motion.div>
+        <p className="mt-8 text-[11px] text-muted-foreground">
+          Humans welcome too — start free with 50 emails. No credit card required.
+        </p>
       </section>
 
       <Footer />
