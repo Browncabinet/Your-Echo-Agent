@@ -218,9 +218,6 @@ export default function Home() {
               <Link to="/gallery">Browse examples gallery <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
             </Button>
           </motion.div>
-          <p className="mt-5 text-xs text-muted-foreground">
-            Humans welcome too — start free with 50 emails. No credit card required.
-          </p>
         </div>
       </section>
 
@@ -367,9 +364,9 @@ export default function Home() {
             <Badge className="mb-3 bg-zinc-500/10 text-zinc-300 border-zinc-500/20 font-mono">
               <Github className="w-3 h-3 mr-1" /> Open source examples
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Examples Gallery on GitHub</h2>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Examples Gallery</h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Copy-paste MCP configs, LangGraph nodes, CrewAI adapters, and end-to-end multi-agent orchestrator recipes. MIT licensed, PRs welcome.
+              Ready-to-use configs for podcast booking, conference outreach, and more.
             </p>
           </motion.div>
 
@@ -407,7 +404,7 @@ export default function Home() {
           </div>
 
           <div className="mt-8 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center text-sm text-muted-foreground max-w-3xl mx-auto">
-            <strong className="text-foreground">Open examples available on GitHub.</strong> The full production engine — with optimized performance, prepaid billing, per-job spending caps, and observability — is hosted at <a href="https://yourechoagent.com" className="text-primary underline">yourechoagent.com</a>.
+            Open examples and wrappers on GitHub. Full production engine with optimized performance and billing is at <a href="https://yourechoagent.com" className="text-primary underline">yourechoagent.com</a>.
           </div>
         </div>
       </section>
@@ -466,6 +463,9 @@ export default function Home() {
             <Link to="/gallery">Examples gallery</Link>
           </Button>
         </motion.div>
+        <p className="mt-8 text-[11px] text-muted-foreground">
+          Humans welcome too — start free with 50 emails. No credit card required.
+        </p>
       </section>
 
       <Footer />
