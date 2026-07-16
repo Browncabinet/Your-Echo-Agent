@@ -147,7 +147,7 @@ export default function Home() {
             <Link to="/gallery" className="hover:text-foreground transition-colors">Examples</Link>
             <Link to="/for-agents/docs" className="hover:text-foreground transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
-            <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors inline-flex items-center gap-1">
+            <a href="https://github.com/Browncabinet/your-echo" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors inline-flex items-center gap-1">
               <Github className="w-3.5 h-3.5" /> GitHub
             </a>
           </nav>
