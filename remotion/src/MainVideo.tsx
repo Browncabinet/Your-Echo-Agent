@@ -218,6 +218,91 @@ const SceneClose: React.FC = () => {
   );
 };
 
+// ---------- Scene: Community Radar ----------
+const SceneRadar: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame, fps, config: { damping: 20, stiffness: 120 } });
+
+  // URL typing
+  const url = "ledgerloop.com";
+  const urlChars = Math.floor(interpolate(frame, [8, 34], [0, url.length], { extrapolateRight: "clamp" }));
+  const typedUrl = url.slice(0, urlChars);
+  const caret = frame % 20 < 10 ? "▍" : " ";
+
+  // Analyzing bar
+  const analyzeStart = 40;
+  const analyzeProgress = interpolate(frame, [analyzeStart, analyzeStart + 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const analyzing = frame >= analyzeStart && frame < analyzeStart + 34;
+  const nicheOpacity = interpolate(frame, [analyzeStart + 26, analyzeStart + 40], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const results = [
+    { kind: "NEWSLETTER", label: "GrowthOps Weekly", meta: "12.4k subs · weekly", approach: "SPONSOR", tone: CYAN, d: 80 },
+    { kind: "COMMUNITY",  label: "Indie Hackers · SaaS", meta: "38k members · very active", approach: "POST", tone: GREEN, d: 92 },
+    { kind: "EVENT",      label: "DevTools Summit '26", meta: "Oct · virtual · 4.2k RSVP", approach: "SPEAK", tone: BLUE, d: 104 },
+    { kind: "FORUM",      label: "r/SaaS", meta: "high engagement · daily", approach: "COMMENT", tone: "#a78bfa", d: 116 },
+  ];
+
+  return (
+    <AbsoluteFill style={{ padding: 120 }}>
+      {/* Left copy */}
+      <div style={{ position: "absolute", left: 120, top: 200, maxWidth: 640, opacity: s }}>
+        <div style={{ fontFamily: MONO, color: GREEN, fontSize: 22, letterSpacing: 3, marginBottom: 18 }}>NEW · COMMUNITY RADAR</div>
+        <div style={{ fontFamily: DM, fontWeight: 700, fontSize: 82, color: INK, lineHeight: 1.02, letterSpacing: -2 }}>
+          Paste a URL.<br/>Get the rooms.
+        </div>
+        <div style={{ fontFamily: DM, color: MUTED, fontSize: 24, marginTop: 22, lineHeight: 1.4 }}>
+          Echo reads your site, infers your niche, and surfaces newsletters, communities, events, and forums — with how to approach each one.
+        </div>
+
+        {/* URL input */}
+        <div style={{ marginTop: 40, transform: `translateY(${interpolate(s, [0, 1], [20, 0])}px)` }}>
+          <Card style={{ padding: 18, display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ fontFamily: MONO, color: MUTED, fontSize: 16 }}>https://</div>
+            <div style={{ fontFamily: MONO, color: INK, fontSize: 22, flex: 1 }}>{typedUrl}<span style={{ color: CYAN }}>{caret}</span></div>
+            <div style={{ padding: "8px 16px", borderRadius: 10, background: `linear-gradient(90deg, ${BLUE}, ${GREEN})`, color: "#02121a", fontFamily: DM, fontWeight: 600, fontSize: 15 }}>Analyze</div>
+          </Card>
+
+          {/* Analyzing / niche */}
+          <div style={{ marginTop: 18, height: 6, borderRadius: 4, background: `${BLUE}22`, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${analyzeProgress * 100}%`, background: `linear-gradient(90deg, ${CYAN}, ${GREEN})`, boxShadow: `0 0 12px ${CYAN}` }} />
+          </div>
+          <div style={{ marginTop: 14, fontFamily: MONO, fontSize: 15, color: analyzing ? CYAN : MUTED, minHeight: 22 }}>
+            {analyzing ? "› scanning site · inferring niche · matching rooms…" : ""}
+          </div>
+          <div style={{ opacity: nicheOpacity, marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {["fintech", "SMB accounting", "founder-led", "north america"].map((t) => (
+              <div key={t} style={{ padding: "6px 14px", borderRadius: 999, border: `1px solid ${GREEN}66`, color: GREEN, fontSize: 14, fontFamily: MONO }}>{t}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right results feed */}
+      <div style={{ position: "absolute", right: 120, top: 160, width: 640, display: "flex", flexDirection: "column", gap: 16 }}>
+        {results.map((r, i) => {
+          const local = frame - r.d;
+          const ap = spring({ frame: local, fps, config: { damping: 14 } });
+          return (
+            <div key={i} style={{ transform: `translateX(${interpolate(ap, [0, 1], [80, 0])}px)`, opacity: ap }}>
+              <Card style={{ padding: 22 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                  <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: 2, color: r.tone, padding: "3px 10px", borderRadius: 6, border: `1px solid ${r.tone}66` }}>{r.kind}</div>
+                  <div style={{ marginLeft: "auto", fontFamily: MONO, fontSize: 13, color: MUTED }}>approach →</div>
+                  <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: 2, color: INK, padding: "3px 10px", borderRadius: 6, background: `${r.tone}22`, border: `1px solid ${r.tone}88` }}>{r.approach}</div>
+                </div>
+                <div style={{ fontFamily: DM, fontWeight: 600, fontSize: 24, color: INK }}>{r.label}</div>
+                <div style={{ fontFamily: DM, color: MUTED, fontSize: 16, marginTop: 4 }}>{r.meta}</div>
+              </Card>
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+
 // ---------- Persistent HUD ticks (subtle brand) ----------
 const HUD: React.FC = () => (
   <AbsoluteFill style={{ pointerEvents: "none" }}>
@@ -233,9 +318,10 @@ export const MainVideo: React.FC = () => {
       <Background />
       <HUD />
       <Sequence from={0} durationInFrames={130}><SceneDiscover /></Sequence>
-      <Sequence from={130} durationInFrames={140}><SceneDraft /></Sequence>
-      <Sequence from={270} durationInFrames={110}><SceneReply /></Sequence>
-      <Sequence from={380} durationInFrames={70}><SceneClose /></Sequence>
+      <Sequence from={130} durationInFrames={140}><SceneRadar /></Sequence>
+      <Sequence from={270} durationInFrames={140}><SceneDraft /></Sequence>
+      <Sequence from={410} durationInFrames={110}><SceneReply /></Sequence>
+      <Sequence from={520} durationInFrames={70}><SceneClose /></Sequence>
     </AbsoluteFill>
   );
 };
