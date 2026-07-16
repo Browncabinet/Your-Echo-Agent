@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/components/Footer";
 import { TestimonialsMarquee } from "@/components/TestimonialsMarquee";
+import { DemoSection, IntegrationsSection } from "@/components/DemoAndIntegrations";
 import heroVideo from "../../public/hero-demo.mp4.asset.json";
 import { Logo } from "@/components/Logo";
 import { SeoHead } from "@/components/SeoHead";
