@@ -357,6 +357,60 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Examples Gallery — GitHub */}
+      <section className="border-b border-border/60 bg-card/30">
+        <div className="container max-w-5xl mx-auto px-4 py-20">
+          <motion.div {...fadeUp} className="text-center mb-8">
+            <Badge className="mb-3 bg-zinc-500/10 text-zinc-300 border-zinc-500/20 font-mono">
+              <Github className="w-3 h-3 mr-1" /> Open source examples
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Examples Gallery on GitHub</h2>
+            <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+              Copy-paste MCP configs, LangGraph nodes, CrewAI adapters, and end-to-end multi-agent orchestrator recipes. MIT licensed, PRs welcome.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-3 mb-6">
+            {[
+              { name: "claude-desktop-cursor-quickstart", desc: "Wire Your Echo into Claude Desktop or Cursor in under 60 seconds." },
+              { name: "langgraph-crewai-quickstart", desc: "Drop-in nodes for LangGraph and CrewAI orchestrators." },
+              { name: "discover-and-draft", desc: "End-to-end discover_events → draft_outreach pipeline." },
+              { name: "multi-agent-orchestrator", desc: "Compose Your Echo with research + scheduling sub-agents." },
+            ].map((ex) => (
+              <a
+                key={ex.name}
+                href={`https://github.com/Browncabinet/yourechoagent-mcp/blob/main/examples/${ex.name}.md`}
+                target="_blank" rel="noopener noreferrer"
+                className="rounded-xl border border-border bg-card p-5 hover:border-primary/40 transition group text-left"
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Code2 className="w-4 h-4 text-primary" />
+                  <code className="text-sm font-mono font-semibold group-hover:text-primary transition">{ex.name}</code>
+                </div>
+                <p className="text-sm text-muted-foreground">{ex.desc}</p>
+              </a>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild>
+              <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="gap-2">
+                <Github className="w-4 h-4" /> View repository on GitHub
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/gallery">Hosted examples gallery <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
+            </Button>
+          </div>
+
+          <div className="mt-8 rounded-xl border border-primary/20 bg-primary/5 p-4 text-center text-sm text-muted-foreground max-w-3xl mx-auto">
+            <strong className="text-foreground">Open examples available on GitHub.</strong> The full production engine — with optimized performance, prepaid billing, per-job spending caps, and observability — is hosted at <a href="https://yourechoagent.com" className="text-primary underline">yourechoagent.com</a>.
+          </div>
+        </div>
+      </section>
+
+
+
       {/* Trust / badges */}
       <section className="border-b border-border/60 bg-card/30">
         <div className="container max-w-5xl mx-auto px-4 py-12">
