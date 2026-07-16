@@ -94,7 +94,7 @@ Task(
   {
     Icon: Inbox,
     title: "Autonomous Reply Triage",
-    desc: "Point Echo at your inbox — every reply is classified and pre-drafted so your orchestrator only sees actionable events.",
+    desc: "Point Your Echo at your inbox — every reply is classified and pre-drafted so your orchestrator only sees actionable events.",
     tags: ["handle_reply", "report_campaign"],
     code: `# Poll every 5 min from your agent
 report = await echo.report_campaign(job_id)
@@ -114,7 +114,7 @@ export default function Gallery() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
-        title="Echo Examples Gallery — A2A / MCP Configs for PR Workflows"
+        title="Your Echo Examples Gallery — A2A / MCP Configs for PR Workflows"
         description="Copy-paste MCP configs for podcast booking, conference outreach, community engagement, and autonomous reply triage. Works with Claude, Cursor, LangGraph, CrewAI."
         path="/gallery"
       />
@@ -186,11 +186,11 @@ export default function Gallery() {
         <div className="container max-w-5xl mx-auto px-4 py-16">
           <div className="text-center mb-8">
             <Badge className="mb-3 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-mono">
-              Agents using Echo
+              Agents using Your Echo
             </Badge>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Built with Echo</h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Built with Your Echo</h2>
             <p className="mt-2 text-muted-foreground text-sm">
-              Shipping an agent that uses Echo? Get featured — <a className="underline" href="mailto:hello@yourechoagent.com">hello@yourechoagent.com</a>
+              Shipping an agent that uses Your Echo? Get featured — <a className="underline" href="mailto:hello@yourechoagent.com">hello@yourechoagent.com</a>
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-4">

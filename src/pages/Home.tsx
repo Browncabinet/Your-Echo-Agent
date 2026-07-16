@@ -27,22 +27,22 @@ const MCP_ENDPOINT = "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-
 const faqs = [
   {
     q: "What is A2A / MCP?",
-    a: "A2A (Agent-to-Agent 0.3.0) and MCP (Model Context Protocol) are the two emerging standards for how autonomous agents discover and hire other agents. Echo speaks both natively — no wrappers, no glue code.",
+    a: "A2A (Agent-to-Agent 0.3.0) and MCP (Model Context Protocol) are the two emerging standards for how autonomous agents discover and hire other agents. Your Echo speaks both natively — no wrappers, no glue code.",
   },
   {
-    q: "Can a human still use Echo?",
-    a: "Yes. Echo has a full human web UI at yourechoagent.com — but the product is designed agent-first. Every workflow you can do in the UI is a callable MCP tool with structured JSON output.",
+    q: "Can a human still use Your Echo?",
+    a: "Yes. Your Echo has a full human web UI at yourechoagent.com — but the product is designed agent-first. Every workflow you can do in the UI is a callable MCP tool with structured JSON output.",
   },
   {
     q: "How does per-job spending work?",
-    a: "Every hire accepts a spending_cap_cents. Echo stops the job and returns HTTP 402 with a signed top_up_url when the cap or prepaid balance is exhausted. Safe for autonomous orchestrators.",
+    a: "Every hire accepts a spending_cap_cents. Your Echo stops the job and returns HTTP 402 with a signed top_up_url when the cap or prepaid balance is exhausted. Safe for autonomous orchestrators.",
   },
   {
     q: "Do you scrape LinkedIn?",
-    a: "No. Echo is event-based and ethics-first. We discover public conferences, webinars, podcasts, and communities — then draft warm, context-referenced outreach. No TOS violations, no account bans.",
+    a: "No. Your Echo is event-based and ethics-first. We discover public conferences, webinars, podcasts, and communities — then draft warm, context-referenced outreach. No TOS violations, no account bans.",
   },
   {
-    q: "Where is Echo listed?",
+    q: "Where is Your Echo listed?",
     a: "Glama.ai, Smithery, and the Awesome-A2A registry. Server card at /.well-known/mcp/server-card.json and A2A card at /.well-known/agent-card.json.",
   },
 ];
@@ -121,7 +121,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
-        title="Echo — The A2A-native PR & Outreach Agent"
+        title="Your Echo — The A2A-native PR & Outreach Agent"
         description="Event discovery, personalized warm outreach, and reply handling for multi-agent systems. MCP + A2A 0.3.0 native. Hire from Claude, Cursor, LangGraph, CrewAI."
         path="/"
         jsonLd={{
@@ -180,7 +180,7 @@ export default function Home() {
             transition={{ ...fadeUp.transition, delay: 0.05 }}
             className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight leading-[1.05] max-w-4xl mx-auto"
           >
-            Echo —{" "}
+            Your Echo —{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
               the A2A-native PR &amp; Outreach Agent.
             </span>
@@ -283,11 +283,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why agents choose Echo */}
+      {/* Why agents choose Your Echo */}
       <section className="border-b border-border/60 bg-card/30">
         <div className="container max-w-5xl mx-auto px-4 py-20">
           <motion.div {...fadeUp} className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Why agents choose Echo</h2>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Why agents choose Your Echo</h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-4">
             {[
@@ -315,7 +315,7 @@ export default function Home() {
             <Badge className="mb-3 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-mono">Workflows</Badge>
             <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Example PR workflows</h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Compose Echo's tools into end-to-end PR loops. Each one is a copy-paste config in the <Link to="/gallery" className="underline">Examples Gallery</Link>.
+              Compose Your Echo's tools into end-to-end PR loops. Each one is a copy-paste config in the <Link to="/gallery" className="underline">Examples Gallery</Link>.
             </p>
           </motion.div>
 
@@ -391,7 +391,7 @@ export default function Home() {
       {/* Bottom CTA */}
       <section className="container max-w-4xl mx-auto px-4 py-20 text-center">
         <motion.h2 {...fadeUp} className="text-3xl sm:text-4xl font-semibold tracking-tight">
-          Wire Echo into your agent stack.
+          Wire Your Echo into your agent stack.
         </motion.h2>
         <motion.p {...fadeUp} className="mt-3 text-muted-foreground">
           One MCP endpoint. Four rich tools. Prepaid, per-job spending caps. Start in under a minute.

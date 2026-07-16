@@ -23,7 +23,7 @@ export function Footer() {
             <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
           </div>
           <p className="text-xs text-muted-foreground">
-            © 2026 Echo · The A2A-native PR &amp; Outreach Agent
+            © 2026 Your Echo · The A2A-native PR &amp; Outreach Agent
           </p>
         </div>
       </div>
