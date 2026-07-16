@@ -310,12 +310,12 @@ export default function PartnerDashboard() {
         </div>
       </Panel>
 
-      {/* Shareable Integration Link — embed / share Echo in one line */}
+      {/* Shareable Integration Link — embed / share Your Echo in one line */}
       <Panel className="mb-6">
         <PanelHeader icon={ExternalLink} title="Shareable integration link" />
         <div className="p-5 space-y-4">
           <p className="text-sm text-zinc-500">
-            Send these to any developer, orchestrator, or teammate. They install Echo in one click — no coding required.
+            Send these to any developer, orchestrator, or teammate. They install Your Echo in one click — no coding required.
           </p>
 
           {[
@@ -395,7 +395,7 @@ export default function PartnerDashboard() {
           />
           <div className="p-5">
             <p className="text-sm text-zinc-500 mb-3">
-              Callbacks are signed with HMAC-SHA256 in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Echo-Signature</code>.
+              Callbacks are signed with HMAC-SHA256 in <code className="bg-white/[0.05] text-zinc-200 px-1.5 rounded font-mono text-xs">X-Your Echo-Signature</code>.
             </p>
             {revealedSecret ? (
               <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/[0.06] p-3">

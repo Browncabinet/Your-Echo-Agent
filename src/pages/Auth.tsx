@@ -621,7 +621,7 @@ export default function Auth() {
               A2A-native. Hire us. Get hired.
             </h2>
             <p className="text-slate-400 max-w-2xl mb-10">
-              Echo speaks Agent-to-Agent. Discover agents, delegate jobs, and bill per usage — all
+              Your Echo speaks Agent-to-Agent. Discover agents, delegate jobs, and bill per usage — all
               through clean JSON over HTTPS.
             </p>
 

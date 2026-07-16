@@ -3,7 +3,7 @@ import { Quote } from "lucide-react";
 const testimonials = [
   {
     quote:
-      "Echo found three niche founder podcasts I'd never heard of in an afternoon. Two hosts replied to the drafts almost verbatim.",
+      "Your Echo found three niche founder podcasts I'd never heard of in an afternoon. Two hosts replied to the drafts almost verbatim.",
     name: "Maya Chen",
     role: "Founder, Ledgerloop",
   },
@@ -56,7 +56,7 @@ export function TestimonialsMarquee() {
           Loved by founders, marketers, and agents
         </h2>
         <p className="text-muted-foreground mt-2 text-sm">
-          Real teams using Echo for event discovery and warm outreach.
+          Real teams using Your Echo for event discovery and warm outreach.
         </p>
       </div>
 

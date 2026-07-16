@@ -39,7 +39,7 @@ export function DemoSection() {
             <Play className="w-3 h-3" /> Watch it work
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-            See Echo in Action <span className="text-muted-foreground font-normal">(1:45)</span>
+            See Your Echo in Action <span className="text-muted-foreground font-normal">(1:45)</span>
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
             From niche → high-fit event → personalized draft → reply handler → one-click action.
@@ -88,7 +88,7 @@ export function DemoSection() {
             </a>
           </Button>
           <p className="text-xs text-muted-foreground max-w-md text-center italic">
-            "So I typed 'fractional CFOs for seed SaaS' — Echo pulled a SaaStr side-event with an 92 fit score
+            "So I typed 'fractional CFOs for seed SaaS' — Your Echo pulled a SaaStr side-event with an 92 fit score
             and drafted an email referencing the actual talk. I sent it. She replied in 40 minutes."
           </p>
         </div>
@@ -167,7 +167,7 @@ export function IntegrationsSection() {
             <Zap className="w-5 h-5 text-amber-500 mb-3" />
             <h3 className="font-semibold mb-2">Native Zapier triggers</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Fire any workflow the moment Echo finds a lead or gets a reply.
+              Fire any workflow the moment Your Echo finds a lead or gets a reply.
             </p>
             <div className="flex flex-wrap gap-1.5">
               {zapTriggers.map((t) => (
@@ -190,7 +190,7 @@ export function IntegrationsSection() {
           className="rounded-xl border border-dashed border-border bg-muted/30 p-5 text-sm text-muted-foreground text-center"
         >
           <span className="font-medium text-foreground">Works alongside tools like Gojiberry:</span>{" "}
-          use Echo for event discovery & outreach, sync the results to your existing stack automatically.
+          use Your Echo for event discovery & outreach, sync the results to your existing stack automatically.
         </motion.div>
 
         {/* Trust badge */}

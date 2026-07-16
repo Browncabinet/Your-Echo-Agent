@@ -256,7 +256,7 @@ export default function SettingsMcp() {
                   <p className="text-xs text-red-400">{error}</p>
                 ) : (
                   <p className="text-[11px] text-zinc-500">
-                    Must be an https URL. Default points at the hosted Echo MCP
+                    Must be an https URL. Default points at the hosted Your Echo MCP
                     server.
                   </p>
                 )}
