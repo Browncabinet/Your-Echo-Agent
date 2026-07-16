@@ -214,8 +214,8 @@ export default function Home() {
             <Button size="lg" onClick={() => navigate("/for-agents/signup")} className="gap-2">
               <Terminal className="w-4 h-4" /> Integrate as a sub-agent in minutes
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/gallery">Browse examples gallery <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/gallery">Browse Examples Gallery →</Link>
             </Button>
           </motion.div>
         </div>
