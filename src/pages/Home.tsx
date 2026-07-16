@@ -364,9 +364,9 @@ export default function Home() {
             <Badge className="mb-3 bg-zinc-500/10 text-zinc-300 border-zinc-500/20 font-mono">
               <Github className="w-3 h-3 mr-1" /> Open source examples
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Examples Gallery on GitHub</h2>
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Examples Gallery</h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Copy-paste MCP configs, LangGraph nodes, CrewAI adapters, and end-to-end multi-agent orchestrator recipes. MIT licensed, PRs welcome.
+              Ready-to-use configs for podcast booking, conference outreach, and more.
             </p>
           </motion.div>
 
