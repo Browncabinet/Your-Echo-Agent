@@ -180,13 +180,13 @@ export default function Home() {
           <motion.h1
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.05 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.08] max-w-5xl mx-auto"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.08] max-w-5xl mx-auto text-foreground"
           >
-            Your Echo —{" "}
+            Your Echo — The{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              The A2A-native PR &amp; Outreach Agent.
-            </span>{" "}
-            Event discovery, personalized warm outreach, and reply handling for multi-agent systems.
+              A2A-native PR &amp; Outreach Agent
+            </span>
+            . Event discovery, personalized warm outreach, and reply handling for multi-agent systems.
           </motion.h1>
           <motion.p
             {...fadeUp}
