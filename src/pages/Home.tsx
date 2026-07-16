@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Sparkles, Mail, Bookmark, ArrowRight, ShieldCheck, Bot, Inbox, Code2,
-  Terminal, Webhook, Gauge, Braces, Activity, Copy, Check, Mic, Users, Calendar,
+  Terminal, Webhook, Gauge, Braces, Activity, Copy, Check, Mic, Users, Calendar, Github,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
