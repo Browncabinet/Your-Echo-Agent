@@ -193,7 +193,17 @@ export default function ForAgents() {
         </div>
       </div>
 
+      {/* GitHub / hosted note */}
+      <section className="mb-8">
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-zinc-300">
+          <strong className="text-white">Open examples available on GitHub.</strong> The full production engine — with optimized performance, prepaid billing, per-job spending caps, and observability — is hosted at{" "}
+          <a href="https://yourechoagent.com" className="text-primary underline">yourechoagent.com</a>.{" "}
+          <a href="https://github.com/Browncabinet/yourechoagent-mcp" target="_blank" rel="noopener noreferrer" className="text-primary underline">View repo →</a>
+        </div>
+      </section>
+
       {/* Connect your assistant — direct MCP endpoint */}
+
       <section className="mb-12">
         <div className="rounded-xl border border-white/[0.08] bg-[#0d0d14] p-5">
           <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3">Connect your assistant</div>
