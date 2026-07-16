@@ -339,6 +339,14 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Demo video */}
+      <DemoSection />
+
+      {/* CRM & Zapier integrations */}
+      <IntegrationsSection />
+
+
+
       {/* Supporting features */}
       <section className="border-t border-border/60 bg-card/30">
         <div className="container max-w-6xl mx-auto px-4 py-16">
