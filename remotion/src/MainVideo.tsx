@@ -233,9 +233,10 @@ export const MainVideo: React.FC = () => {
       <Background />
       <HUD />
       <Sequence from={0} durationInFrames={130}><SceneDiscover /></Sequence>
-      <Sequence from={130} durationInFrames={140}><SceneDraft /></Sequence>
-      <Sequence from={270} durationInFrames={110}><SceneReply /></Sequence>
-      <Sequence from={380} durationInFrames={70}><SceneClose /></Sequence>
+      <Sequence from={130} durationInFrames={140}><SceneRadar /></Sequence>
+      <Sequence from={270} durationInFrames={140}><SceneDraft /></Sequence>
+      <Sequence from={410} durationInFrames={110}><SceneReply /></Sequence>
+      <Sequence from={520} durationInFrames={70}><SceneClose /></Sequence>
     </AbsoluteFill>
   );
 };
