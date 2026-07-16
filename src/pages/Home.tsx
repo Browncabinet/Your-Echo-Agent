@@ -218,9 +218,6 @@ export default function Home() {
               <Link to="/gallery">Browse examples gallery <ArrowRight className="w-4 h-4 ml-1.5" /></Link>
             </Button>
           </motion.div>
-          <p className="mt-5 text-xs text-muted-foreground">
-            Humans welcome too — start free with 50 emails. No credit card required.
-          </p>
         </div>
       </section>
 
