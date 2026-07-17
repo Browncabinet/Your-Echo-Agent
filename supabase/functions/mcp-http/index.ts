@@ -718,13 +718,15 @@ Tone: ${p.tone ?? "concise"}`;
       "Discover the most active LinkedIn Groups and professional associations for a niche. Returns group name, url, focus, and why it fits — assist-only (you review + join manually; LinkedIn TOS forbids automation). Public demo.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche"],
       properties: {
-        niche: { type: "string" },
-        seniority: { type: "string", description: "Optional seniority e.g. 'founder', 'director', 'VP+'." },
-        region: { type: "string", description: "Optional region e.g. 'North America', 'EMEA'." },
-        limit: { type: "integer", minimum: 1, maximum: 10, default: 6 },
+        niche: { type: "string", minLength: 1, description: "Industry / audience, e.g. 'AI agents', 'B2B SaaS marketing'." },
+        seniority: { type: "string", description: "Optional seniority filter, e.g. 'founder', 'director', 'VP+'." },
+        region: { type: "string", description: "Optional region, e.g. 'North America', 'EMEA'." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 6, description: "Max groups to return." },
       },
+      examples: [{ niche: "AI agents", seniority: "founder", region: "North America", limit: 6 }],
     },
     handler: async (args: any) => {
       const p = z.object({
