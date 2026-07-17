@@ -697,6 +697,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("queue_pr_outreach_job", {
+    title: "Queue PR Outreach Job for Review & Send",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Save a set of PR outreach drafts (from draft_pr_outreach_for_contacts) as a job for review + send. Returns job_id + a dashboard URL where the user approves and sends. Every send uses the verified sender identity, respects weekly caps, honors the suppression list, and routes replies back to reply_email. Requires ECHO_API_KEY.",
     inputSchema: {
