@@ -506,12 +506,20 @@ Tone: ${p.tone ?? "concise"}`;
       "Draft a value-first comment to post in a community/group/podcast thread (LinkedIn, Reddit, Slack, etc.) to build relationships before outreach. Returns 2 short variants. Public demo.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["context"],
       properties: {
-        context: { type: "string", description: "The post/thread/episode summary or quote you're commenting on." },
+        context: { type: "string", minLength: 1, description: "The post/thread/episode summary or quote you're commenting on." },
         angle: { type: "string", description: "Optional angle, e.g. 'agree and extend', 'gentle pushback', 'share a relevant stat'." },
-        sender_role: { type: "string", description: "Your role/expertise for credibility." },
+        sender_role: { type: "string", description: "Your role/expertise for credibility, e.g. 'founder of an AI infra startup'." },
       },
+      examples: [
+        {
+          context: "LinkedIn post: 'RAG is dead. Long context windows have won.'",
+          angle: "gentle pushback with a stat",
+          sender_role: "founder building agent memory",
+        },
+      ],
     },
     handler: async (args: any) => {
       const p = z.object({
