@@ -497,6 +497,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("find_linkedin_groups", {
+    title: "Find Active LinkedIn Groups & Associations",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "Discover the most active LinkedIn Groups and professional associations for a niche. Returns group name, url, focus, and why it fits — assist-only (you review + join manually; LinkedIn TOS forbids automation). Public demo.",
     inputSchema: {
