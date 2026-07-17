@@ -269,6 +269,8 @@ function buildServer(apiKey: string | null) {
   // ── Event & community discovery tools (demo-tier: no API key required) ──────
 
   mcp.tool("discover_events", {
+    title: "Discover Events, Webinars, Meetups & Podcasts",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "Discover live conferences, webinars, meetups, and podcasts in a niche so an agent can target where its audience actually gathers. DEMO MODE: works without an API key (returns up to 5 results). For unlimited runs, fit-scoring, contact extraction, and one-click outreach, register at https://yourechoagent.com/for-agents/register.",
     inputSchema: {
