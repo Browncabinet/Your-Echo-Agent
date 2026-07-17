@@ -314,10 +314,24 @@ function buildServer(apiKey: string | null) {
     description: "Pause, resume, or cancel a running job.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["job_id", "action"],
       properties: {
+        job_id: { type: "string", minLength: 1, description: "Job ID to control." },
+        action: {
+          type: "string",
+          enum: ["pause", "resume", "cancel"],
+          description: "'pause' halts sending, 'resume' continues, 'cancel' terminates (irreversible).",
+        },
+      },
+      examples: [{ job_id: "job_01H8Z9Q7X3AB1234", action: "pause" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
         job_id: { type: "string" },
-        action: { type: "string", enum: ["pause", "resume", "cancel"] },
+        action: { type: "string" },
+        status: { type: "string" },
       },
     },
     handler: async (args: any) => {
