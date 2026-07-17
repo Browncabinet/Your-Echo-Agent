@@ -350,11 +350,21 @@ function buildServer(apiKey: string | null) {
     description: "Submit a 1–5 star rating for a completed job, with optional written feedback.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["job_id", "stars"],
       properties: {
+        job_id: { type: "string", minLength: 1, description: "Completed job ID." },
+        stars: { type: "integer", minimum: 1, maximum: 5, description: "Rating from 1 (worst) to 5 (best)." },
+        feedback: { type: "string", description: "Optional freeform feedback (deliverability, personalization, reply quality)." },
+      },
+      examples: [{ job_id: "job_01H8Z9Q7X3AB1234", stars: 5, feedback: "Booked 3 demos in the first 24h." }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
         job_id: { type: "string" },
-        stars: { type: "integer", minimum: 1, maximum: 5 },
-        feedback: { type: "string" },
+        stars: { type: "integer" },
+        ok: { type: "boolean" },
       },
     },
     handler: async (args: any) => {
