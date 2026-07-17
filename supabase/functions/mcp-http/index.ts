@@ -541,6 +541,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("extract_contacts_from_url", {
+    title: "Extract Contacts from URL",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description:
       "Scrape any public event/community/organization page and extract structured contacts: name, title, company, email, location, linkedin_url, twitter_url, confidence. Public demo (uses Firecrawl + AI, no auth). For enrichment, verification, and one-click outreach use ECHO_API_KEY.",
     inputSchema: {
