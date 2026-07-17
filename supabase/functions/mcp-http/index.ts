@@ -764,9 +764,36 @@ Tone: ${p.tone ?? "concise"}`;
       "Scrape any public event/community/organization page and extract structured contacts: name, title, company, email, location, linkedin_url, twitter_url, confidence. Public demo (uses Firecrawl + AI, no auth). For enrichment, verification, and one-click outreach use ECHO_API_KEY.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["url"],
       properties: {
-        url: { type: "string", description: "Any public URL (event page, org 'about us', speaker list, LinkedIn group description page, etc.)." },
+        url: { type: "string", format: "uri", description: "Any public URL (event page, org 'about us', speaker list, LinkedIn group description page)." },
+      },
+      examples: [{ url: "https://www.saastr.com/annual/speakers/" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        url: { type: "string", format: "uri" },
+        count: { type: "integer" },
+        contacts: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              title: { type: "string" },
+              company: { type: "string" },
+              email: { type: "string", format: "email" },
+              location: { type: "string" },
+              linkedin_url: { type: "string", format: "uri" },
+              twitter_url: { type: "string", format: "uri" },
+              confidence: { type: "number", minimum: 0, maximum: 1 },
+              source_url: { type: "string", format: "uri" },
+            },
+          },
+        },
+        error: { type: "string" },
       },
     },
     handler: async (args: any) => {
