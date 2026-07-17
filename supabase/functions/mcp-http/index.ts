@@ -345,6 +345,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("generate_comment_for_community", {
+    title: "Generate Value-First Community Comment",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: false },
     description:
       "Draft a value-first comment to post in a community/group/podcast thread (LinkedIn, Reddit, Slack, etc.) to build relationships before outreach. Returns 2 short variants. Public demo.",
     inputSchema: {
