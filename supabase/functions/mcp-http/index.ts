@@ -243,6 +243,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("rate_job", {
+    title: "Rate Completed Job",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description: "Submit a 1–5 star rating for a completed job, with optional written feedback.",
     inputSchema: {
       type: "object",
