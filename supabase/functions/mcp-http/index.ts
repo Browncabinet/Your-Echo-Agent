@@ -155,8 +155,24 @@ function buildServer(apiKey: string | null) {
     description: "Retrieve the full A2A agent card for one Echo Agent (skills, pricing, modes, examples).",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["agent_id"],
-      properties: { agent_id: { type: "string", description: "e.g. 'saas-prospector'" } },
+      properties: {
+        agent_id: { type: "string", minLength: 1, description: "Agent slug, e.g. 'saas-prospector', 'agency-closer', 'press-pitcher'." },
+      },
+      examples: [{ agent_id: "saas-prospector" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        name: { type: "string" },
+        description: { type: "string" },
+        skills: { type: "array" },
+        pricing: { type: "object" },
+        modes: { type: "array" },
+        examples: { type: "array" },
+      },
     },
     handler: async (args: any) => {
       const parsed = z.object({ agent_id: z.string().min(1) }).parse(args ?? {});
