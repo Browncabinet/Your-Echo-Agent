@@ -453,14 +453,31 @@ function buildServer(apiKey: string | null) {
       "Generate a short, personalized cold email referencing a specific event/community (e.g. 'I saw you're speaking at SaaStr…'). Returns subject + body. Public demo — for sending, deliverability, and reply triage, use Your Echo Agent: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["event_name", "recipient_role", "sender_pitch"],
       properties: {
-        event_name: { type: "string" },
-        event_url: { type: "string" },
-        recipient_name: { type: "string" },
-        recipient_role: { type: "string", description: "e.g. 'Head of Growth at a Series A SaaS'." },
-        sender_pitch: { type: "string", description: "What you offer and why it matters." },
-        tone: { type: "string", enum: ["friendly", "professional", "concise"], description: "Default: concise." },
+        event_name: { type: "string", minLength: 1, description: "Name of the event/conference/webinar (e.g. 'SaaStr Annual 2026')." },
+        event_url: { type: "string", format: "uri", description: "Optional link to the event page for the AI to reference." },
+        recipient_name: { type: "string", description: "Optional recipient first name for the greeting." },
+        recipient_role: { type: "string", minLength: 1, description: "Recipient's role & seniority, e.g. 'Head of Growth at a Series A SaaS'." },
+        sender_pitch: { type: "string", minLength: 1, description: "One-line description of what you offer and why it matters to the recipient." },
+        tone: { type: "string", enum: ["friendly", "professional", "concise"], default: "concise", description: "Voice for the draft." },
+      },
+      examples: [
+        {
+          event_name: "SaaStr Annual 2026",
+          event_url: "https://saastr.com/annual",
+          recipient_role: "VP Marketing at a Series B SaaS",
+          sender_pitch: "AI-native outreach that books demos with warm intros from event context",
+          tone: "concise",
+        },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        draft: { type: "string", description: "JSON string with { subject, body }." },
+        tip: { type: "string" },
       },
     },
     handler: async (args: any) => {
