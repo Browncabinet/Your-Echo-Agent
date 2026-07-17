@@ -1,46 +1,47 @@
-## Why the scores are low
+## Pass 2: enrich MCP tool schemas before Glama re-sync
 
-Glama grades each MCP tool on the richness of its metadata: human-friendly `title`, MCP `annotations` (readOnly / destructive / idempotent / openWorld), per-property `description`s, `examples`, constraints (`minLength`, `format`, `default`), `additionalProperties: false`, and an `outputSchema` when possible.
+Goal: lift Glama's per-field / examples / outputSchema sub-scores on top of the title + annotations already deployed.
 
-Auditing `supabase/functions/mcp-http/index.ts` (the hosted MCP server Glama scans) against the low-scoring tools:
+### File: `supabase/functions/mcp-http/index.ts` (metadata only — no handler changes)
 
-| Tool | Missing today |
-|---|---|
-| discover_communities (C, 2.6) | no title, no annotations, no examples, no field descriptions on `category`, no `outputSchema` |
-| add_to_radar (3.0) | no title/annotations, `kind` undescribed, no examples, mutation not marked |
-| control_job (3.2) | no title/annotations, `action` values undescribed, destructive not marked |
-| build_contact_list (3.3) | no title/annotations/examples/outputSchema |
-| discover_events (3.3) | no title/annotations/examples, `kind` undescribed |
-| get_job_status (3.3) | no title/annotations, missing readOnly hint, no example |
-| rate_job (3.3) | no title/annotations, `stars` undescribed |
-| hire_echo_agent (B) | no title/annotations, nested props undescribed, no example, no outputSchema |
+For every tool, edit its `inputSchema` in place to add:
 
-Nothing about the runtime behavior needs to change — only the tool registration metadata.
+- `description` on **every** property that lacks one (job_id, agent_id, action, stars, feedback, kind, notes, category, location, url, sources, all nested `campaign.*` and `sender_identity.*` and `sender.*` and `groups[]` fields).
+- `format: "uri"` on URL fields, `format: "email"` on email fields, `minLength: 1` on required strings.
+- `default` values that match handler defaults (`limit: 5`, `tone: "concise"`, `kind: "any"`, `category: "any"`, `sources: 3`).
+- `additionalProperties: false` on every object schema.
+- Top-level `examples: [ … ]` on each tool with one realistic call (e.g. `discover_events` → `{ niche: "AI agents", kind: "conference", limit: 5 }`, `hire_echo_agent` → full sample payload, `rate_job` → `{ job_id: "job_123", stars: 5, feedback: "Great replies" }`).
 
-## Plan
+Add an `outputSchema` (JSON Schema, `type: "object"`) for the tools whose responses have a stable shape:
 
-Edit only metadata in `supabase/functions/mcp-http/index.ts`. For each tool listed above (and, for parity, the other tools in the same file):
+- `get_job_status` — `{ job_id, status, progress, leads_count, sent_count, reply_count, spend_cents }`
+- `hire_echo_agent` — `{ job_id, status, agent_id, spending_cap_cents }`
+- `control_job` — `{ job_id, action, status }`
+- `rate_job` — `{ job_id, stars, ok }`
+- `add_to_radar` — `{ saved, item, result? }`
+- `discover_events` — `{ niche, kind, count, results: [{ title, url, description }] }`
+- `discover_communities` — `{ niche, category, location, count, results, next_steps }`
+- `build_contact_list` — `{ niche, category, sources_scraped, contact_count, contacts }`
+- `list_available_agents` / `get_agent_card` — mirror shape returned by A2A endpoints
+- `extract_contacts_from_url` — `{ url, count, contacts }`
+- `queue_pr_outreach_job` — `{ job_id, dashboard_url }`
 
-1. Add `title` — short human name ("Discover Communities", "Hire Echo Agent", "Rate Job", …).
-2. Add `annotations`:
-   - read-only tools (`list_available_agents`, `get_agent_card`, `get_job_status`, `discover_events`, `discover_communities`, `find_linkedin_groups`, `extract_contacts_from_url`, `build_contact_list`, `draft_outreach_for_event`, `draft_pr_outreach_for_contacts`, `generate_comment_for_community`): `{ readOnlyHint: true, idempotentHint: true, openWorldHint: true }` (openWorldHint false for pure LLM drafts).
-   - mutating tools: `hire_echo_agent` → `{ readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true }` (idempotent via Idempotency-Key), `add_to_radar` → same shape, `rate_job` → `{ idempotentHint: true }`, `control_job` → `{ destructiveHint: true, idempotentHint: false }`, `send_pr_outreach_campaign` → `{ destructiveHint: true }`.
-3. Enrich `inputSchema`:
-   - Add `description` to every property that lacks one (esp. `job_id`, `stars`, `feedback`, `action`, `agent_id`, nested `campaign.*` and `sender_identity.*`, `kind`, `notes`, `category`, `location`).
-   - Add `format: "uri"` on url fields, `format: "email"` on emails, `minLength: 1` on required strings.
-   - Add `default` values where the handler already defaults (`limit: 5`, `tone: "concise"`, `kind: "any"`, `category: "any"`).
-   - Add `additionalProperties: false` on every object.
-   - Add `examples: [ … ]` at the tool root with one realistic call.
-4. Add `outputSchema` for structured returns where cheap: `get_job_status`, `hire_echo_agent`, `control_job`, `rate_job`, `add_to_radar`, `discover_events`, `discover_communities`, `build_contact_list` (shape: mirror what the handler already puts through `asText`).
-5. Mirror the same title/annotations/descriptions into `mcp-server/src/index.ts` (stdio server) so the npm-published package matches, and refresh the tool descriptions in `docs/public-repo-root-files/server.json` and `smithery.yaml` to the same longer copy.
+Handlers already emit these shapes via `asText(...)`; the schemas just document them. `asText` returns text content today, which is fine — Glama grades on schema presence, not on structuredContent parity.
 
-No behavior, auth, routing, or handler logic changes. No new tools. After edits, run `bunx tsc --noEmit` and redeploy `mcp-http` so Glama re-scores against the improved manifest.
+### Files: `mcp-server/src/index.ts`, `docs/public-repo-root-files/server.json`, `smithery.yaml`
 
-### Files touched
-- `supabase/functions/mcp-http/index.ts` (metadata only)
-- `mcp-server/src/index.ts` (metadata only)
-- `docs/public-repo-root-files/server.json`
-- `smithery.yaml`
+Skip in this pass — Glama scores the hosted `mcp-http` endpoint (that's what its remote scanner probes). The stdio/npm mirror can catch up in a follow-up if you want npm-listing parity later.
+
+### Verify + ship
+
+1. `bunx tsgo --noEmit` to typecheck.
+2. Deploy `mcp-http`.
+3. You click Refresh / re-scan on Glama.
+
+### Non-goals
+- No handler / auth / routing changes.
+- No new tools.
+- No changes to the marketing site (no publish needed).
 
 ### Expected impact
-Glama's rubric rewards each of title / annotations / per-field docs / examples / outputSchema independently, so adding all five typically lifts a B tool to A and a C tool (discover_communities) into the B/A range.
+Adds the last two Glama rubric levers (per-field docs + examples, and outputSchema) on top of the title + annotations already live. Should push discover_communities out of C and the B tools toward A.
