@@ -372,6 +372,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("add_to_radar", {
+    title: "Save Event to Radar",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Save a discovered event/community to the user's Radar in Your Echo Agent for one-click calendar add, contact extraction, and AI-drafted outreach. Requires ECHO_API_KEY (free tier: 50 emails). Register: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
