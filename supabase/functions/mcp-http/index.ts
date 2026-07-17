@@ -145,6 +145,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("hire_echo_agent", {
+    title: "Hire Echo Agent",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description: "Hire an Echo Agent to run an outreach campaign. Returns a job_id you can poll with get_job_status. Requires ECHO_API_KEY.",
     inputSchema: {
       type: "object",
