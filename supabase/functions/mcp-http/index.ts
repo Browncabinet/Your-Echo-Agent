@@ -387,11 +387,37 @@ function buildServer(apiKey: string | null) {
       "Discover live conferences, webinars, meetups, and podcasts in a niche so an agent can target where its audience actually gathers. DEMO MODE: works without an API key (returns up to 5 results). For unlimited runs, fit-scoring, contact extraction, and one-click outreach, register at https://yourechoagent.com/for-agents/register.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche"],
       properties: {
-        niche: { type: "string", description: "Niche / industry, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
-        kind: { type: "string", enum: ["conference", "webinar", "group", "podcast", "any"], description: "Type of community to discover. Defaults to 'any'." },
-        limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+        niche: { type: "string", minLength: 1, description: "Niche / industry, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
+        kind: {
+          type: "string",
+          enum: ["conference", "webinar", "group", "podcast", "any"],
+          default: "any",
+          description: "Filter by community type. Use 'any' for a mixed list.",
+        },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 5, description: "Max results to return (demo cap: 10)." },
+      },
+      examples: [{ niche: "AI agents", kind: "conference", limit: 5 }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string" },
+        kind: { type: "string" },
+        count: { type: "integer" },
+        results: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              url: { type: "string", format: "uri" },
+              description: { type: "string" },
+            },
+          },
+        },
       },
     },
     handler: async (args: any) => {
