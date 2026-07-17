@@ -282,8 +282,24 @@ function buildServer(apiKey: string | null) {
     description: "Poll a hired job. Returns status, progress, leads, emails sent, replies, and spend.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["job_id"],
-      properties: { job_id: { type: "string" } },
+      properties: {
+        job_id: { type: "string", minLength: 1, description: "Job ID returned by hire_echo_agent or queue_pr_outreach_job." },
+      },
+      examples: [{ job_id: "job_01H8Z9Q7X3AB1234" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        job_id: { type: "string" },
+        status: { type: "string", enum: ["queued", "running", "paused", "completed", "canceled", "failed"] },
+        progress: { type: "number", description: "0-1 completion fraction." },
+        leads_count: { type: "integer" },
+        sent_count: { type: "integer" },
+        reply_count: { type: "integer" },
+        spend_cents: { type: "integer" },
+      },
     },
     handler: async (args: any) => {
       const key = needKey();
