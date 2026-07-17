@@ -648,15 +648,43 @@ Tone: ${p.tone ?? "concise"}`;
       "Find where your audience gathers — filtered by category (conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter). Returns ranked results with url and description. Public demo, no API key required.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche", "category"],
       properties: {
-        niche: { type: "string", description: "Industry / audience, e.g. 'fintech founders', 'AI agents'." },
+        niche: { type: "string", minLength: 1, description: "Industry / audience, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
         category: {
           type: "string",
           enum: ["conference", "webinar", "meetup", "networking_event", "linkedin_group", "facebook_group", "slack_community", "discord_server", "subreddit", "professional_association", "podcast", "newsletter", "any"],
+          default: "any",
+          description: "Community type to filter by. Use 'any' for a mixed list.",
         },
-        location: { type: "string", description: "Optional city/region or 'remote'." },
-        limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+        location: { type: "string", description: "Optional city/region, or 'remote' for virtual-only." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 5, description: "Max results to return (demo cap: 10)." },
+      },
+      examples: [
+        { niche: "AI agents", category: "conference", location: "San Francisco", limit: 5 },
+        { niche: "devtools founders", category: "slack_community", limit: 8 },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string" },
+        category: { type: "string" },
+        location: { type: ["string", "null"] },
+        count: { type: "integer" },
+        results: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              url: { type: "string", format: "uri" },
+              description: { type: "string" },
+            },
+          },
+        },
+        next_steps: { type: "array", items: { type: "string" } },
       },
     },
     handler: async (args: any) => {
