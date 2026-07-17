@@ -633,6 +633,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("draft_pr_outreach_for_contacts", {
+    title: "Draft Personalized PR Outreach Emails",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: false },
     description:
       "Draft personalized PR outreach emails per contact, grouped by source (event / conference / LinkedIn group / association / org). Each draft includes a personalized hook, one-line pitch, why-you reason, a 15-min meeting ask (phone/online/in-person as configured), and a reply-by-email CTA. Public demo — no API key needed. Returns groups + total_drafts + a 'needs_manual_review' bucket for low-confidence / generic mailboxes.",
     inputSchema: {
