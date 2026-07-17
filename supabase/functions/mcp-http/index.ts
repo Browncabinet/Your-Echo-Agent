@@ -541,13 +541,37 @@ Tone: ${p.tone ?? "concise"}`;
       "Save a discovered event/community to the user's Radar in Your Echo Agent for one-click calendar add, contact extraction, and AI-drafted outreach. Requires ECHO_API_KEY (free tier: 50 emails). Register: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["title", "url"],
       properties: {
-        title: { type: "string" },
-        url: { type: "string" },
-        kind: { type: "string", enum: ["conference", "webinar", "group", "podcast"] },
-        niche: { type: "string" },
-        notes: { type: "string" },
+        title: { type: "string", minLength: 1, description: "Event / community name to save." },
+        url: { type: "string", format: "uri", description: "Public URL of the event page or community." },
+        kind: {
+          type: "string",
+          enum: ["conference", "webinar", "group", "podcast"],
+          description: "Type of opportunity — powers icons and default outreach template.",
+        },
+        niche: { type: "string", description: "Optional niche tag for grouping (e.g. 'devtools')." },
+        notes: { type: "string", description: "Optional notes visible in your Radar dashboard." },
+      },
+      examples: [
+        {
+          title: "AI Engineer Summit",
+          url: "https://ai.engineer",
+          kind: "conference",
+          niche: "AI infrastructure",
+          notes: "Sponsors get 5-min demo slot",
+        },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        saved: { type: "boolean" },
+        item: { type: "object" },
+        result: { type: "object" },
+        message: { type: "string" },
+        manual_save_url: { type: "string", format: "uri" },
       },
     },
     handler: async (args: any) => {
