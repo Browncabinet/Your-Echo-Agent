@@ -115,9 +115,29 @@ function buildServer(apiKey: string | null) {
     description: "Browse Echo Agents available for hire. Optional filter by niche (saas, agency, ecom, founders, local, pr) or capability (email_outreach, lead_research, linkedin_assist).",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
-        niche: { type: "string", description: "Filter by niche substring." },
-        capability: { type: "string", description: "Filter by capability." },
+        niche: { type: "string", description: "Filter agents by niche substring (e.g. 'saas', 'agency', 'ecom', 'founders', 'local', 'pr')." },
+        capability: { type: "string", description: "Filter agents by capability (e.g. 'email_outreach', 'lead_research', 'linkedin_assist')." },
+      },
+      examples: [{ niche: "saas", capability: "email_outreach" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        agents: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              name: { type: "string" },
+              niche: { type: "string" },
+              capabilities: { type: "array", items: { type: "string" } },
+              pricing: { type: "object" },
+            },
+          },
+        },
       },
     },
     handler: async (args: any) => {
@@ -135,8 +155,24 @@ function buildServer(apiKey: string | null) {
     description: "Retrieve the full A2A agent card for one Echo Agent (skills, pricing, modes, examples).",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["agent_id"],
-      properties: { agent_id: { type: "string", description: "e.g. 'saas-prospector'" } },
+      properties: {
+        agent_id: { type: "string", minLength: 1, description: "Agent slug, e.g. 'saas-prospector', 'agency-closer', 'press-pitcher'." },
+      },
+      examples: [{ agent_id: "saas-prospector" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        name: { type: "string" },
+        description: { type: "string" },
+        skills: { type: "array" },
+        pricing: { type: "object" },
+        modes: { type: "array" },
+        examples: { type: "array" },
+      },
     },
     handler: async (args: any) => {
       const parsed = z.object({ agent_id: z.string().min(1) }).parse(args ?? {});
@@ -150,33 +186,69 @@ function buildServer(apiKey: string | null) {
     description: "Hire an Echo Agent to run an outreach campaign. Returns a job_id you can poll with get_job_status. Requires ECHO_API_KEY.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["agent_id", "campaign", "sender_identity"],
       properties: {
-        agent_id: { type: "string" },
+        agent_id: { type: "string", minLength: 1, description: "Agent slug from list_available_agents (e.g. 'saas-prospector', 'press-pitcher')." },
         campaign: {
           type: "object",
+          additionalProperties: false,
           required: ["goal", "target_audience", "volume"],
           properties: {
-            name: { type: "string" },
-            goal: { type: "string" },
-            target_audience: { oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }] },
-            niche: { type: "string" },
-            volume: { type: "integer", minimum: 1, maximum: 1000 },
-            website_url: { type: "string" },
+            name: { type: "string", description: "Optional human-readable campaign name." },
+            goal: { type: "string", minLength: 1, description: "Plain-English goal, e.g. 'Book 10 demos with Series A B2B SaaS founders'." },
+            target_audience: {
+              description: "Who to reach — a description string or an array of role/persona strings.",
+              oneOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+            },
+            niche: { type: "string", description: "Industry / vertical, e.g. 'fintech', 'devtools'." },
+            volume: { type: "integer", minimum: 1, maximum: 1000, description: "Max delivered emails for this campaign (1-1000)." },
+            website_url: { type: "string", format: "uri", description: "Sender's website — used for pitch personalization." },
           },
         },
         sender_identity: {
           type: "object",
+          additionalProperties: false,
           required: ["name", "email"],
           properties: {
-            name: { type: "string" },
-            email: { type: "string" },
-            company: { type: "string" },
-            scheduling_link: { type: "string" },
+            name: { type: "string", minLength: 1, description: "Human sender name shown in the From header." },
+            email: { type: "string", format: "email", description: "Verified sender email (also Reply-To). Must be a verified domain in your Echo account." },
+            company: { type: "string", description: "Sender's company name." },
+            scheduling_link: { type: "string", format: "uri", description: "Calendly/Cal.com link included in the CTA." },
           },
         },
+        spending_cap_cents: { type: "integer", minimum: 1, description: "Hard cap in USD cents. Job pauses when reached." },
+        callback_url: { type: "string", format: "uri", description: "HMAC-signed webhook URL for job.status.updated events." },
+      },
+      examples: [
+        {
+          agent_id: "saas-prospector",
+          campaign: {
+            name: "Q1 SaaS founders push",
+            goal: "Book 10 discovery calls with Series A B2B SaaS founders",
+            target_audience: ["founder", "cto"],
+            niche: "devtools",
+            volume: 200,
+            website_url: "https://example.com",
+          },
+          sender_identity: {
+            name: "Alex Smith",
+            email: "alex@example.com",
+            company: "Example Inc",
+            scheduling_link: "https://cal.com/alex/15min",
+          },
+          spending_cap_cents: 5000,
+        },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        job_id: { type: "string" },
+        status: { type: "string", enum: ["queued", "running", "paused", "completed", "canceled", "failed"] },
+        agent_id: { type: "string" },
         spending_cap_cents: { type: "integer" },
-        callback_url: { type: "string" },
+        top_up_url: { type: "string", format: "uri", description: "Present on HTTP 402 when balance is insufficient." },
       },
     },
     handler: async (args: any) => {
@@ -210,8 +282,24 @@ function buildServer(apiKey: string | null) {
     description: "Poll a hired job. Returns status, progress, leads, emails sent, replies, and spend.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["job_id"],
-      properties: { job_id: { type: "string" } },
+      properties: {
+        job_id: { type: "string", minLength: 1, description: "Job ID returned by hire_echo_agent or queue_pr_outreach_job." },
+      },
+      examples: [{ job_id: "job_01H8Z9Q7X3AB1234" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        job_id: { type: "string" },
+        status: { type: "string", enum: ["queued", "running", "paused", "completed", "canceled", "failed"] },
+        progress: { type: "number", description: "0-1 completion fraction." },
+        leads_count: { type: "integer" },
+        sent_count: { type: "integer" },
+        reply_count: { type: "integer" },
+        spend_cents: { type: "integer" },
+      },
     },
     handler: async (args: any) => {
       const key = needKey();
@@ -226,10 +314,24 @@ function buildServer(apiKey: string | null) {
     description: "Pause, resume, or cancel a running job.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["job_id", "action"],
       properties: {
+        job_id: { type: "string", minLength: 1, description: "Job ID to control." },
+        action: {
+          type: "string",
+          enum: ["pause", "resume", "cancel"],
+          description: "'pause' halts sending, 'resume' continues, 'cancel' terminates (irreversible).",
+        },
+      },
+      examples: [{ job_id: "job_01H8Z9Q7X3AB1234", action: "pause" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
         job_id: { type: "string" },
-        action: { type: "string", enum: ["pause", "resume", "cancel"] },
+        action: { type: "string" },
+        status: { type: "string" },
       },
     },
     handler: async (args: any) => {
@@ -248,11 +350,21 @@ function buildServer(apiKey: string | null) {
     description: "Submit a 1–5 star rating for a completed job, with optional written feedback.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["job_id", "stars"],
       properties: {
+        job_id: { type: "string", minLength: 1, description: "Completed job ID." },
+        stars: { type: "integer", minimum: 1, maximum: 5, description: "Rating from 1 (worst) to 5 (best)." },
+        feedback: { type: "string", description: "Optional freeform feedback (deliverability, personalization, reply quality)." },
+      },
+      examples: [{ job_id: "job_01H8Z9Q7X3AB1234", stars: 5, feedback: "Booked 3 demos in the first 24h." }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
         job_id: { type: "string" },
-        stars: { type: "integer", minimum: 1, maximum: 5 },
-        feedback: { type: "string" },
+        stars: { type: "integer" },
+        ok: { type: "boolean" },
       },
     },
     handler: async (args: any) => {
@@ -275,11 +387,37 @@ function buildServer(apiKey: string | null) {
       "Discover live conferences, webinars, meetups, and podcasts in a niche so an agent can target where its audience actually gathers. DEMO MODE: works without an API key (returns up to 5 results). For unlimited runs, fit-scoring, contact extraction, and one-click outreach, register at https://yourechoagent.com/for-agents/register.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche"],
       properties: {
-        niche: { type: "string", description: "Niche / industry, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
-        kind: { type: "string", enum: ["conference", "webinar", "group", "podcast", "any"], description: "Type of community to discover. Defaults to 'any'." },
-        limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+        niche: { type: "string", minLength: 1, description: "Niche / industry, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
+        kind: {
+          type: "string",
+          enum: ["conference", "webinar", "group", "podcast", "any"],
+          default: "any",
+          description: "Filter by community type. Use 'any' for a mixed list.",
+        },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 5, description: "Max results to return (demo cap: 10)." },
+      },
+      examples: [{ niche: "AI agents", kind: "conference", limit: 5 }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string" },
+        kind: { type: "string" },
+        count: { type: "integer" },
+        results: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              url: { type: "string", format: "uri" },
+              description: { type: "string" },
+            },
+          },
+        },
       },
     },
     handler: async (args: any) => {
@@ -315,14 +453,31 @@ function buildServer(apiKey: string | null) {
       "Generate a short, personalized cold email referencing a specific event/community (e.g. 'I saw you're speaking at SaaStr…'). Returns subject + body. Public demo — for sending, deliverability, and reply triage, use Your Echo Agent: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["event_name", "recipient_role", "sender_pitch"],
       properties: {
-        event_name: { type: "string" },
-        event_url: { type: "string" },
-        recipient_name: { type: "string" },
-        recipient_role: { type: "string", description: "e.g. 'Head of Growth at a Series A SaaS'." },
-        sender_pitch: { type: "string", description: "What you offer and why it matters." },
-        tone: { type: "string", enum: ["friendly", "professional", "concise"], description: "Default: concise." },
+        event_name: { type: "string", minLength: 1, description: "Name of the event/conference/webinar (e.g. 'SaaStr Annual 2026')." },
+        event_url: { type: "string", format: "uri", description: "Optional link to the event page for the AI to reference." },
+        recipient_name: { type: "string", description: "Optional recipient first name for the greeting." },
+        recipient_role: { type: "string", minLength: 1, description: "Recipient's role & seniority, e.g. 'Head of Growth at a Series A SaaS'." },
+        sender_pitch: { type: "string", minLength: 1, description: "One-line description of what you offer and why it matters to the recipient." },
+        tone: { type: "string", enum: ["friendly", "professional", "concise"], default: "concise", description: "Voice for the draft." },
+      },
+      examples: [
+        {
+          event_name: "SaaStr Annual 2026",
+          event_url: "https://saastr.com/annual",
+          recipient_role: "VP Marketing at a Series B SaaS",
+          sender_pitch: "AI-native outreach that books demos with warm intros from event context",
+          tone: "concise",
+        },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        draft: { type: "string", description: "JSON string with { subject, body }." },
+        tip: { type: "string" },
       },
     },
     handler: async (args: any) => {
@@ -351,12 +506,20 @@ Tone: ${p.tone ?? "concise"}`;
       "Draft a value-first comment to post in a community/group/podcast thread (LinkedIn, Reddit, Slack, etc.) to build relationships before outreach. Returns 2 short variants. Public demo.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["context"],
       properties: {
-        context: { type: "string", description: "The post/thread/episode summary or quote you're commenting on." },
+        context: { type: "string", minLength: 1, description: "The post/thread/episode summary or quote you're commenting on." },
         angle: { type: "string", description: "Optional angle, e.g. 'agree and extend', 'gentle pushback', 'share a relevant stat'." },
-        sender_role: { type: "string", description: "Your role/expertise for credibility." },
+        sender_role: { type: "string", description: "Your role/expertise for credibility, e.g. 'founder of an AI infra startup'." },
       },
+      examples: [
+        {
+          context: "LinkedIn post: 'RAG is dead. Long context windows have won.'",
+          angle: "gentle pushback with a stat",
+          sender_role: "founder building agent memory",
+        },
+      ],
     },
     handler: async (args: any) => {
       const p = z.object({
@@ -378,13 +541,37 @@ Tone: ${p.tone ?? "concise"}`;
       "Save a discovered event/community to the user's Radar in Your Echo Agent for one-click calendar add, contact extraction, and AI-drafted outreach. Requires ECHO_API_KEY (free tier: 50 emails). Register: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["title", "url"],
       properties: {
-        title: { type: "string" },
-        url: { type: "string" },
-        kind: { type: "string", enum: ["conference", "webinar", "group", "podcast"] },
-        niche: { type: "string" },
-        notes: { type: "string" },
+        title: { type: "string", minLength: 1, description: "Event / community name to save." },
+        url: { type: "string", format: "uri", description: "Public URL of the event page or community." },
+        kind: {
+          type: "string",
+          enum: ["conference", "webinar", "group", "podcast"],
+          description: "Type of opportunity — powers icons and default outreach template.",
+        },
+        niche: { type: "string", description: "Optional niche tag for grouping (e.g. 'devtools')." },
+        notes: { type: "string", description: "Optional notes visible in your Radar dashboard." },
+      },
+      examples: [
+        {
+          title: "AI Engineer Summit",
+          url: "https://ai.engineer",
+          kind: "conference",
+          niche: "AI infrastructure",
+          notes: "Sponsors get 5-min demo slot",
+        },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        saved: { type: "boolean" },
+        item: { type: "object" },
+        result: { type: "object" },
+        message: { type: "string" },
+        manual_save_url: { type: "string", format: "uri" },
       },
     },
     handler: async (args: any) => {
@@ -461,15 +648,43 @@ Tone: ${p.tone ?? "concise"}`;
       "Find where your audience gathers — filtered by category (conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter). Returns ranked results with url and description. Public demo, no API key required.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche", "category"],
       properties: {
-        niche: { type: "string", description: "Industry / audience, e.g. 'fintech founders', 'AI agents'." },
+        niche: { type: "string", minLength: 1, description: "Industry / audience, e.g. 'fintech founders', 'AI agents', 'climate SaaS'." },
         category: {
           type: "string",
           enum: ["conference", "webinar", "meetup", "networking_event", "linkedin_group", "facebook_group", "slack_community", "discord_server", "subreddit", "professional_association", "podcast", "newsletter", "any"],
+          default: "any",
+          description: "Community type to filter by. Use 'any' for a mixed list.",
         },
-        location: { type: "string", description: "Optional city/region or 'remote'." },
-        limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+        location: { type: "string", description: "Optional city/region, or 'remote' for virtual-only." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 5, description: "Max results to return (demo cap: 10)." },
+      },
+      examples: [
+        { niche: "AI agents", category: "conference", location: "San Francisco", limit: 5 },
+        { niche: "devtools founders", category: "slack_community", limit: 8 },
+      ],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string" },
+        category: { type: "string" },
+        location: { type: ["string", "null"] },
+        count: { type: "integer" },
+        results: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              url: { type: "string", format: "uri" },
+              description: { type: "string" },
+            },
+          },
+        },
+        next_steps: { type: "array", items: { type: "string" } },
       },
     },
     handler: async (args: any) => {
@@ -503,13 +718,15 @@ Tone: ${p.tone ?? "concise"}`;
       "Discover the most active LinkedIn Groups and professional associations for a niche. Returns group name, url, focus, and why it fits — assist-only (you review + join manually; LinkedIn TOS forbids automation). Public demo.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche"],
       properties: {
-        niche: { type: "string" },
-        seniority: { type: "string", description: "Optional seniority e.g. 'founder', 'director', 'VP+'." },
-        region: { type: "string", description: "Optional region e.g. 'North America', 'EMEA'." },
-        limit: { type: "integer", minimum: 1, maximum: 10, default: 6 },
+        niche: { type: "string", minLength: 1, description: "Industry / audience, e.g. 'AI agents', 'B2B SaaS marketing'." },
+        seniority: { type: "string", description: "Optional seniority filter, e.g. 'founder', 'director', 'VP+'." },
+        region: { type: "string", description: "Optional region, e.g. 'North America', 'EMEA'." },
+        limit: { type: "integer", minimum: 1, maximum: 10, default: 6, description: "Max groups to return." },
       },
+      examples: [{ niche: "AI agents", seniority: "founder", region: "North America", limit: 6 }],
     },
     handler: async (args: any) => {
       const p = z.object({
@@ -547,9 +764,36 @@ Tone: ${p.tone ?? "concise"}`;
       "Scrape any public event/community/organization page and extract structured contacts: name, title, company, email, location, linkedin_url, twitter_url, confidence. Public demo (uses Firecrawl + AI, no auth). For enrichment, verification, and one-click outreach use ECHO_API_KEY.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["url"],
       properties: {
-        url: { type: "string", description: "Any public URL (event page, org 'about us', speaker list, LinkedIn group description page, etc.)." },
+        url: { type: "string", format: "uri", description: "Any public URL (event page, org 'about us', speaker list, LinkedIn group description page)." },
+      },
+      examples: [{ url: "https://www.saastr.com/annual/speakers/" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        url: { type: "string", format: "uri" },
+        count: { type: "integer" },
+        contacts: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              title: { type: "string" },
+              company: { type: "string" },
+              email: { type: "string", format: "email" },
+              location: { type: "string" },
+              linkedin_url: { type: "string", format: "uri" },
+              twitter_url: { type: "string", format: "uri" },
+              confidence: { type: "number", minimum: 0, maximum: 1 },
+              source_url: { type: "string", format: "uri" },
+            },
+          },
+        },
+        error: { type: "string" },
       },
     },
     handler: async (args: any) => {
@@ -573,15 +817,44 @@ Tone: ${p.tone ?? "concise"}`;
       "One-shot lead list: discovers communities in a niche+category, then extracts contacts from the top results and returns a deduped list with name, title, company, email, location, source_url. Public demo — limited to 3 sources per call. Use ECHO_API_KEY for larger runs and export.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche", "category"],
       properties: {
-        niche: { type: "string" },
+        niche: { type: "string", minLength: 1, description: "Industry / audience, e.g. 'fintech founders', 'AI agents'." },
         category: {
           type: "string",
           enum: ["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"],
+          default: "any",
+          description: "Community type to seed the discovery search.",
         },
-        location: { type: "string" },
+        location: { type: "string", description: "Optional city/region, or 'remote' for virtual-only." },
         sources: { type: "integer", minimum: 1, maximum: 3, default: 3, description: "How many discovered pages to scrape (demo cap: 3)." },
+      },
+      examples: [{ niche: "AI agents", category: "conference", location: "San Francisco", sources: 3 }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string" },
+        category: { type: "string" },
+        sources_scraped: { type: "array", items: { type: "string", format: "uri" } },
+        contact_count: { type: "integer" },
+        contacts: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              title: { type: "string" },
+              company: { type: "string" },
+              email: { type: "string", format: "email" },
+              location: { type: "string" },
+              linkedin_url: { type: "string", format: "uri" },
+              source_url: { type: "string", format: "uri" },
+              confidence: { type: "number", minimum: 0, maximum: 1 },
+            },
+          },
+        },
       },
     },
     handler: async (args: any) => {
