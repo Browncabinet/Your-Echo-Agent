@@ -110,6 +110,8 @@ function buildServer(apiKey: string | null) {
   };
 
   mcp.tool("list_available_agents", {
+    title: "List Available Echo Agents",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description: "Browse Echo Agents available for hire. Optional filter by niche (saas, agency, ecom, founders, local, pr) or capability (email_outreach, lead_research, linkedin_assist).",
     inputSchema: {
       type: "object",
