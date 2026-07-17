@@ -221,6 +221,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("control_job", {
+    title: "Control Job (pause/resume/cancel)",
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
     description: "Pause, resume, or cancel a running job.",
     inputSchema: {
       type: "object",
