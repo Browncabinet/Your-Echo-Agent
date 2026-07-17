@@ -746,6 +746,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("find_and_pitch", {
+    title: "Find Communities & Draft Personalized Pitches",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     description:
       "One-shot personalized PR outreach: discover communities in a niche+category, extract contacts, draft a personalized email per contact (with meeting ask + reply CTA), grouped by source. If ECHO_API_KEY is present, also queues the job for review + send. Public demo returns drafts only. Perfect for 'find AI-agent conferences and draft a personalized pitch to each organizer from Alex at Lensora'.",
     inputSchema: {
