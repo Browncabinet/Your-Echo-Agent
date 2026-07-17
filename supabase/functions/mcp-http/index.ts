@@ -110,6 +110,8 @@ function buildServer(apiKey: string | null) {
   };
 
   mcp.tool("list_available_agents", {
+    title: "List Available Echo Agents",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description: "Browse Echo Agents available for hire. Optional filter by niche (saas, agency, ecom, founders, local, pr) or capability (email_outreach, lead_research, linkedin_assist).",
     inputSchema: {
       type: "object",
@@ -128,6 +130,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("get_agent_card", {
+    title: "Get Echo Agent Card",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description: "Retrieve the full A2A agent card for one Echo Agent (skills, pricing, modes, examples).",
     inputSchema: {
       type: "object",
@@ -141,6 +145,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("hire_echo_agent", {
+    title: "Hire Echo Agent",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description: "Hire an Echo Agent to run an outreach campaign. Returns a job_id you can poll with get_job_status. Requires ECHO_API_KEY.",
     inputSchema: {
       type: "object",
@@ -199,6 +205,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("get_job_status", {
+    title: "Get Job Status",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description: "Poll a hired job. Returns status, progress, leads, emails sent, replies, and spend.",
     inputSchema: {
       type: "object",
@@ -213,6 +221,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("control_job", {
+    title: "Control Job (pause/resume/cancel)",
+    annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
     description: "Pause, resume, or cancel a running job.",
     inputSchema: {
       type: "object",
@@ -233,6 +243,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("rate_job", {
+    title: "Rate Completed Job",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description: "Submit a 1–5 star rating for a completed job, with optional written feedback.",
     inputSchema: {
       type: "object",
@@ -257,6 +269,8 @@ function buildServer(apiKey: string | null) {
   // ── Event & community discovery tools (demo-tier: no API key required) ──────
 
   mcp.tool("discover_events", {
+    title: "Discover Events, Webinars, Meetups & Podcasts",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "Discover live conferences, webinars, meetups, and podcasts in a niche so an agent can target where its audience actually gathers. DEMO MODE: works without an API key (returns up to 5 results). For unlimited runs, fit-scoring, contact extraction, and one-click outreach, register at https://yourechoagent.com/for-agents/register.",
     inputSchema: {
@@ -295,6 +309,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("draft_outreach_for_event", {
+    title: "Draft Personalized Outreach Email for an Event",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: false },
     description:
       "Generate a short, personalized cold email referencing a specific event/community (e.g. 'I saw you're speaking at SaaStr…'). Returns subject + body. Public demo — for sending, deliverability, and reply triage, use Your Echo Agent: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
@@ -329,6 +345,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("generate_comment_for_community", {
+    title: "Generate Value-First Community Comment",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: false },
     description:
       "Draft a value-first comment to post in a community/group/podcast thread (LinkedIn, Reddit, Slack, etc.) to build relationships before outreach. Returns 2 short variants. Public demo.",
     inputSchema: {
@@ -354,6 +372,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("add_to_radar", {
+    title: "Save Event to Radar",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Save a discovered event/community to the user's Radar in Your Echo Agent for one-click calendar add, contact extraction, and AI-drafted outreach. Requires ECHO_API_KEY (free tier: 50 emails). Register: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
@@ -435,6 +455,8 @@ Tone: ${p.tone ?? "concise"}`;
   }
 
   mcp.tool("discover_communities", {
+    title: "Discover Communities by Category",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "Find where your audience gathers — filtered by category (conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter). Returns ranked results with url and description. Public demo, no API key required.",
     inputSchema: {
@@ -475,6 +497,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("find_linkedin_groups", {
+    title: "Find Active LinkedIn Groups & Associations",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "Discover the most active LinkedIn Groups and professional associations for a niche. Returns group name, url, focus, and why it fits — assist-only (you review + join manually; LinkedIn TOS forbids automation). Public demo.",
     inputSchema: {
@@ -517,6 +541,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("extract_contacts_from_url", {
+    title: "Extract Contacts from URL",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description:
       "Scrape any public event/community/organization page and extract structured contacts: name, title, company, email, location, linkedin_url, twitter_url, confidence. Public demo (uses Firecrawl + AI, no auth). For enrichment, verification, and one-click outreach use ECHO_API_KEY.",
     inputSchema: {
@@ -541,6 +567,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("build_contact_list", {
+    title: "Build Deduped Contact List",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "One-shot lead list: discovers communities in a niche+category, then extracts contacts from the top results and returns a deduped list with name, title, company, email, location, source_url. Public demo — limited to 3 sources per call. Use ECHO_API_KEY for larger runs and export.",
     inputSchema: {
@@ -605,6 +633,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("draft_pr_outreach_for_contacts", {
+    title: "Draft Personalized PR Outreach Emails",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: false },
     description:
       "Draft personalized PR outreach emails per contact, grouped by source (event / conference / LinkedIn group / association / org). Each draft includes a personalized hook, one-line pitch, why-you reason, a 15-min meeting ask (phone/online/in-person as configured), and a reply-by-email CTA. Public demo — no API key needed. Returns groups + total_drafts + a 'needs_manual_review' bucket for low-confidence / generic mailboxes.",
     inputSchema: {
@@ -667,6 +697,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("queue_pr_outreach_job", {
+    title: "Queue PR Outreach Job for Review & Send",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Save a set of PR outreach drafts (from draft_pr_outreach_for_contacts) as a job for review + send. Returns job_id + a dashboard URL where the user approves and sends. Every send uses the verified sender identity, respects weekly caps, honors the suppression list, and routes replies back to reply_email. Requires ECHO_API_KEY.",
     inputSchema: {
@@ -714,6 +746,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("find_and_pitch", {
+    title: "Find Communities & Draft Personalized Pitches",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     description:
       "One-shot personalized PR outreach: discover communities in a niche+category, extract contacts, draft a personalized email per contact (with meeting ask + reply CTA), grouped by source. If ECHO_API_KEY is present, also queues the job for review + send. Public demo returns drafts only. Perfect for 'find AI-agent conferences and draft a personalized pitch to each organizer from Alex at Lensora'.",
     inputSchema: {
