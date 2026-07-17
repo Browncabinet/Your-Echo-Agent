@@ -205,6 +205,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("get_job_status", {
+    title: "Get Job Status",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description: "Poll a hired job. Returns status, progress, leads, emails sent, replies, and spend.",
     inputSchema: {
       type: "object",
