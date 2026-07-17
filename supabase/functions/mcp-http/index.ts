@@ -115,9 +115,29 @@ function buildServer(apiKey: string | null) {
     description: "Browse Echo Agents available for hire. Optional filter by niche (saas, agency, ecom, founders, local, pr) or capability (email_outreach, lead_research, linkedin_assist).",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       properties: {
-        niche: { type: "string", description: "Filter by niche substring." },
-        capability: { type: "string", description: "Filter by capability." },
+        niche: { type: "string", description: "Filter agents by niche substring (e.g. 'saas', 'agency', 'ecom', 'founders', 'local', 'pr')." },
+        capability: { type: "string", description: "Filter agents by capability (e.g. 'email_outreach', 'lead_research', 'linkedin_assist')." },
+      },
+      examples: [{ niche: "saas", capability: "email_outreach" }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        agents: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              name: { type: "string" },
+              niche: { type: "string" },
+              capabilities: { type: "array", items: { type: "string" } },
+              pricing: { type: "object" },
+            },
+          },
+        },
       },
     },
     handler: async (args: any) => {
