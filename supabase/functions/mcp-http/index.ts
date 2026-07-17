@@ -817,15 +817,44 @@ Tone: ${p.tone ?? "concise"}`;
       "One-shot lead list: discovers communities in a niche+category, then extracts contacts from the top results and returns a deduped list with name, title, company, email, location, source_url. Public demo — limited to 3 sources per call. Use ECHO_API_KEY for larger runs and export.",
     inputSchema: {
       type: "object",
+      additionalProperties: false,
       required: ["niche", "category"],
       properties: {
-        niche: { type: "string" },
+        niche: { type: "string", minLength: 1, description: "Industry / audience, e.g. 'fintech founders', 'AI agents'." },
         category: {
           type: "string",
           enum: ["conference", "webinar", "meetup", "networking_event", "professional_association", "podcast", "any"],
+          default: "any",
+          description: "Community type to seed the discovery search.",
         },
-        location: { type: "string" },
+        location: { type: "string", description: "Optional city/region, or 'remote' for virtual-only." },
         sources: { type: "integer", minimum: 1, maximum: 3, default: 3, description: "How many discovered pages to scrape (demo cap: 3)." },
+      },
+      examples: [{ niche: "AI agents", category: "conference", location: "San Francisco", sources: 3 }],
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        niche: { type: "string" },
+        category: { type: "string" },
+        sources_scraped: { type: "array", items: { type: "string", format: "uri" } },
+        contact_count: { type: "integer" },
+        contacts: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              title: { type: "string" },
+              company: { type: "string" },
+              email: { type: "string", format: "email" },
+              location: { type: "string" },
+              linkedin_url: { type: "string", format: "uri" },
+              source_url: { type: "string", format: "uri" },
+              confidence: { type: "number", minimum: 0, maximum: 1 },
+            },
+          },
+        },
       },
     },
     handler: async (args: any) => {
