@@ -130,6 +130,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("get_agent_card", {
+    title: "Get Echo Agent Card",
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
     description: "Retrieve the full A2A agent card for one Echo Agent (skills, pricing, modes, examples).",
     inputSchema: {
       type: "object",
