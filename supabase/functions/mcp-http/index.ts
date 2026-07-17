@@ -455,6 +455,8 @@ Tone: ${p.tone ?? "concise"}`;
   }
 
   mcp.tool("discover_communities", {
+    title: "Discover Communities by Category",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "Find where your audience gathers — filtered by category (conference, webinar, meetup, networking_event, linkedin_group, facebook_group, slack_community, discord_server, subreddit, professional_association, podcast, newsletter). Returns ranked results with url and description. Public demo, no API key required.",
     inputSchema: {
