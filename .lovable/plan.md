@@ -1,62 +1,46 @@
+## Why the scores are low
 
-# Community Radar — upgrade of /for-agents/discover
+Glama grades each MCP tool on the richness of its metadata: human-friendly `title`, MCP `annotations` (readOnly / destructive / idempotent / openWorld), per-property `description`s, `examples`, constraints (`minLength`, `format`, `default`), `additionalProperties: false`, and an `outputSchema` when possible.
 
-Turn the existing Discover surface into "Community Radar": paste a URL, pick a niche, and Echo Agent returns communities, events, newsletters, forums, and podcasts with a fit score, how-to-approach guidance, and an on-demand outreach email draft per opportunity.
+Auditing `supabase/functions/mcp-http/index.ts` (the hosted MCP server Glama scans) against the low-scoring tools:
 
-## What ships
+| Tool | Missing today |
+|---|---|
+| discover_communities (C, 2.6) | no title, no annotations, no examples, no field descriptions on `category`, no `outputSchema` |
+| add_to_radar (3.0) | no title/annotations, `kind` undescribed, no examples, mutation not marked |
+| control_job (3.2) | no title/annotations, `action` values undescribed, destructive not marked |
+| build_contact_list (3.3) | no title/annotations/examples/outputSchema |
+| discover_events (3.3) | no title/annotations/examples, `kind` undescribed |
+| get_job_status (3.3) | no title/annotations, missing readOnly hint, no example |
+| rate_job (3.3) | no title/annotations, `stars` undescribed |
+| hire_echo_agent (B) | no title/annotations, nested props undescribed, no example, no outputSchema |
 
-**1. URL-first onramp (new top-of-page card)**
-- Input: website URL + niche picker (existing chip list). Audience/region become "auto-detect (edit)".
-- New edge function `analyze-site-for-radar` scrapes the URL with Firecrawl (`formats: ['markdown','summary']`), sends to Gemini to infer: niche suggestion, target audience, positioning, 5–10 keywords, region hint. Prefills the search form; user can edit any field before running.
-- If the user skips the URL, the current manual form still works unchanged.
+Nothing about the runtime behavior needs to change — only the tool registration metadata.
 
-**2. Two new opportunity kinds: `newsletter`, `forum`**
-- Extend the `Kind` enum in `discover-communities` and add site hints:
-  - newsletter: `site:substack.com`, `site:beehiiv.com`, `site:convertkit.com`, `site:buttondown.email`, `"newsletter" niche`
-  - forum: `site:discourse.org`, `site:reddit.com`, `"forum" niche`, `site:news.ycombinator.com` (as reference)
-- Gemini classifier prompt updated to include newsletter/forum, and to return an `engagement_hint` string (e.g. "12k subscribers", "active daily", "5k members") when detectable.
-- Migration: no enum column exists in DB (kind is `text`), so only code + UI filter updates.
+## Plan
 
-**3. "How to approach" per opportunity**
-- Gemini returns `approach: "post" | "sponsor" | "speak" | "pitch" | "subscribe" | "comment"` and `approach_reason` (one sentence).
-- Rendered as a small pill on each Discover card and included in Radar cards.
-- New nullable columns on `discovered_opportunities`: `approach text`, `approach_reason text`, `engagement_hint text`.
+Edit only metadata in `supabase/functions/mcp-http/index.ts`. For each tool listed above (and, for parity, the other tools in the same file):
 
-**4. On-demand outreach email draft**
-- New "Draft outreach email" button on each opportunity card (Discover + Radar).
-- New edge function `radar-draft-outreach`:
-  - Input: `opportunity_id`
-  - Loads the opportunity + the user's saved profile/site summary (reuse what `analyze-site-for-radar` cached, or re-derive from `user_email_settings` if present)
-  - Calls Gemini with a subject+body prompt tailored to `kind` and `approach` (sponsor pitch vs. speaker pitch vs. guest-post vs. comment intro)
-  - Returns `{ subject, body }`; frontend shows an editable dialog with Copy / Save-to-Radar buttons. Not sent — matches your "assist, not automate" stance for social/PR outreach.
-- Cost control: draft is generated only when the user clicks the button; result is cached on the opportunity row (`draft_subject`, `draft_body`, `draft_generated_at`) so re-opening is free.
+1. Add `title` — short human name ("Discover Communities", "Hire Echo Agent", "Rate Job", …).
+2. Add `annotations`:
+   - read-only tools (`list_available_agents`, `get_agent_card`, `get_job_status`, `discover_events`, `discover_communities`, `find_linkedin_groups`, `extract_contacts_from_url`, `build_contact_list`, `draft_outreach_for_event`, `draft_pr_outreach_for_contacts`, `generate_comment_for_community`): `{ readOnlyHint: true, idempotentHint: true, openWorldHint: true }` (openWorldHint false for pure LLM drafts).
+   - mutating tools: `hire_echo_agent` → `{ readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true }` (idempotent via Idempotency-Key), `add_to_radar` → same shape, `rate_job` → `{ idempotentHint: true }`, `control_job` → `{ destructiveHint: true, idempotentHint: false }`, `send_pr_outreach_campaign` → `{ destructiveHint: true }`.
+3. Enrich `inputSchema`:
+   - Add `description` to every property that lacks one (esp. `job_id`, `stars`, `feedback`, `action`, `agent_id`, nested `campaign.*` and `sender_identity.*`, `kind`, `notes`, `category`, `location`).
+   - Add `format: "uri"` on url fields, `format: "email"` on emails, `minLength: 1` on required strings.
+   - Add `default` values where the handler already defaults (`limit: 5`, `tone: "concise"`, `kind: "any"`, `category: "any"`).
+   - Add `additionalProperties: false` on every object.
+   - Add `examples: [ … ]` at the tool root with one realistic call.
+4. Add `outputSchema` for structured returns where cheap: `get_job_status`, `hire_echo_agent`, `control_job`, `rate_job`, `add_to_radar`, `discover_events`, `discover_communities`, `build_contact_list` (shape: mirror what the handler already puts through `asText`).
+5. Mirror the same title/annotations/descriptions into `mcp-server/src/index.ts` (stdio server) so the npm-published package matches, and refresh the tool descriptions in `docs/public-repo-root-files/server.json` and `smithery.yaml` to the same longer copy.
 
-**5. Rename + light rebrand on the Discover page**
-- Page title, breadcrumb, and nav label: "Discover" → "Community Radar".
-- Route `/for-agents/discover` kept (no breakage); add redirect from `/for-agents/community-radar` → same page for shareability.
-- Filter chips gain "Newsletters" and "Forums".
-- Small hero explainer above results: "Paste your site. We scan communities, events, newsletters, forums, and podcasts — and draft the first message."
+No behavior, auth, routing, or handler logic changes. No new tools. After edits, run `bunx tsc --noEmit` and redeploy `mcp-http` so Glama re-scores against the improved manifest.
 
-## Files touched
+### Files touched
+- `supabase/functions/mcp-http/index.ts` (metadata only)
+- `mcp-server/src/index.ts` (metadata only)
+- `docs/public-repo-root-files/server.json`
+- `smithery.yaml`
 
-- `supabase/functions/discover-communities/index.ts` — add `newsletter`/`forum` kinds + hints, extend Gemini schema (`approach`, `approach_reason`, `engagement_hint`), persist new columns.
-- `supabase/functions/analyze-site-for-radar/index.ts` — NEW. Firecrawl scrape → Gemini → prefill JSON.
-- `supabase/functions/radar-draft-outreach/index.ts` — NEW. Per-opportunity draft.
-- `supabase/migrations/*` — add nullable columns to `discovered_opportunities`: `approach`, `approach_reason`, `engagement_hint`, `draft_subject`, `draft_body`, `draft_generated_at`.
-- `src/pages/Discover.tsx` — URL onramp card, new kind chips, approach pill, "Draft outreach email" button + dialog, rename to Community Radar.
-- `src/pages/MyRadar.tsx` — surface `approach` + draft button on saved items.
-- `src/App.tsx` — add `/for-agents/community-radar` alias route.
-- Nav label update wherever Discover appears (`PartnerShell`).
-- `.lovable/mem/features/` — new memory doc for Community Radar.
-
-## Out of scope (call out for later)
-
-- Auto-sending emails from the draft (kept manual — matches existing LinkedIn assist-only pattern).
-- Enrichment of newsletter/forum contact info (Hunter lookup) — can layer in later using existing `discover-enrich-contact` fn.
-- Weekly cap changes — reuses existing `current_week_caps` (1 Discover run = 1 discovery, unchanged).
-
-## Notes
-
-- No new secrets needed (Firecrawl + Lovable AI already wired).
-- Draft function counts as an AI call but not a "discovery"; no cap change proposed. If cost becomes an issue we can add a per-week draft cap later.
-- Keeps existing glassmorphism / DM Sans style; no new visual system.
+### Expected impact
+Glama's rubric rewards each of title / annotations / per-field docs / examples / outputSchema independently, so adding all five typically lifts a B tool to A and a C tool (discover_communities) into the B/A range.
