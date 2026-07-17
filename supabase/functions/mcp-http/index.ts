@@ -309,6 +309,8 @@ function buildServer(apiKey: string | null) {
   });
 
   mcp.tool("draft_outreach_for_event", {
+    title: "Draft Personalized Outreach Email for an Event",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: false },
     description:
       "Generate a short, personalized cold email referencing a specific event/community (e.g. 'I saw you're speaking at SaaStr…'). Returns subject + body. Public demo — for sending, deliverability, and reply triage, use Your Echo Agent: https://yourechoagent.com/for-agents/register.",
     inputSchema: {
