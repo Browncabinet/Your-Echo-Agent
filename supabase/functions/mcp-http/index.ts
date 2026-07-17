@@ -567,6 +567,8 @@ Tone: ${p.tone ?? "concise"}`;
   });
 
   mcp.tool("build_contact_list", {
+    title: "Build Deduped Contact List",
+    annotations: { readOnlyHint: true, idempotentHint: false, openWorldHint: true },
     description:
       "One-shot lead list: discovers communities in a niche+category, then extracts contacts from the top results and returns a deduped list with name, title, company, email, location, source_url. Public demo — limited to 3 sources per call. Use ECHO_API_KEY for larger runs and export.",
     inputSchema: {
