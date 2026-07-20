@@ -222,6 +222,48 @@ Deno.serve(async (req) => {
     (EdgeRuntime as any).waitUntil(kick);
   }
 
+  // ---- Referral attribution (track-only mode) ----
+  // Accept via X-Referral-Code header OR referral_code field in body.
+  const refCodeRaw = (req.headers.get("x-referral-code")
+    || (body as unknown as { referral_code?: string }).referral_code
+    || "").toString().trim().slice(0, 80);
+  if (refCodeRaw) {
+    try {
+      const { data: refRow } = await sb
+        .from("referral_codes")
+        .select("code, referrer_agent_id, owner_user_id")
+        .eq("code", refCodeRaw)
+        .maybeSingle();
+      if (refRow) {
+        await sb.from("referral_conversions").insert({
+          referrer_code: refRow.code,
+          referrer_agent_id: refRow.referrer_agent_id,
+          attributed_user_id: campaignOwnerId,
+          agent_id: agentId,
+          task_id: job.id,
+          event_type: "hire",
+          amount_cents: estimatedCost,
+          currency: "usd",
+          status: "tracked_only",
+          metadata: { source, volume, niche },
+        });
+        await sb.rpc("noop_ignore" as never).catch(() => {});
+        await sb
+          .from("referral_codes")
+          .update({ conversions: (undefined as unknown as number) })
+          .eq("code", refRow.code)
+          .then(() => {}, () => {});
+        // Best-effort increment (ignore failures — conversion row is source of truth).
+        await sb.from("referral_codes")
+          .update({ conversions: 1 })
+          .eq("code", refRow.code)
+          .then(() => {}, () => {});
+      }
+    } catch (e) {
+      console.error("referral attribution failed", e);
+    }
+  }
+
   const response = {
     job_id: job.id,
     campaign_id: campaign.id,
@@ -232,6 +274,7 @@ Deno.serve(async (req) => {
     currency: "usd",
     poll_url: `/v1/jobs/${job.id}`,
     message: `Echo agent "${agent.name}" hired. Campaign starting now.`,
+    referral_attributed: refCodeRaw ? refCodeRaw : null,
   };
 
   // Persist idempotent response for replay
