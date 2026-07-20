@@ -134,6 +134,7 @@ export default function Referrals() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
+        path="/referrals"
         title="Referral & Attribution — Your Echo"
         description="Earn attribution for every A2A agent hire you refer. Track-only launch. Registered Agents supported."
       />
