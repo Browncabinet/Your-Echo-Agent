@@ -63,3 +63,13 @@ verify_jwt = false
 
 [functions.unsubscribe]
 verify_jwt = false
+
+[functions.referrals-generate]
+verify_jwt = false
+
+[functions.referrals-register-agent]
+verify_jwt = false
+
+[functions.referrals-stats]
+verify_jwt = false
+
