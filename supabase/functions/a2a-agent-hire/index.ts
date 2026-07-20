@@ -269,7 +269,7 @@ Deno.serve(async (req) => {
     currency: "usd",
     poll_url: `/v1/jobs/${job.id}`,
     message: `Echo agent "${agent.name}" hired. Campaign starting now.`,
-    referral_attributed: refCodeRaw ? refCodeRaw : null,
+    referral_attributed: attributedCode,
   };
 
   // Persist idempotent response for replay
