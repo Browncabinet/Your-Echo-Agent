@@ -227,14 +227,16 @@ Deno.serve(async (req) => {
   const refCodeRaw = (req.headers.get("x-referral-code")
     || (body as unknown as { referral_code?: string }).referral_code
     || "").toString().trim().slice(0, 80);
+  let attributedCode: string | null = null;
   if (refCodeRaw) {
     try {
       const { data: refRow } = await sb
         .from("referral_codes")
-        .select("code, referrer_agent_id, owner_user_id")
+        .select("code, referrer_agent_id, conversions")
         .eq("code", refCodeRaw)
         .maybeSingle();
       if (refRow) {
+        attributedCode = refRow.code;
         await sb.from("referral_conversions").insert({
           referrer_code: refRow.code,
           referrer_agent_id: refRow.referrer_agent_id,
@@ -247,22 +249,15 @@ Deno.serve(async (req) => {
           status: "tracked_only",
           metadata: { source, volume, niche },
         });
-        await sb.rpc("noop_ignore" as never).catch(() => {});
-        await sb
-          .from("referral_codes")
-          .update({ conversions: (undefined as unknown as number) })
-          .eq("code", refRow.code)
-          .then(() => {}, () => {});
-        // Best-effort increment (ignore failures — conversion row is source of truth).
         await sb.from("referral_codes")
-          .update({ conversions: 1 })
-          .eq("code", refRow.code)
-          .then(() => {}, () => {});
+          .update({ conversions: (refRow.conversions || 0) + 1 })
+          .eq("code", refRow.code);
       }
     } catch (e) {
       console.error("referral attribution failed", e);
     }
   }
+
 
   const response = {
     job_id: job.id,
