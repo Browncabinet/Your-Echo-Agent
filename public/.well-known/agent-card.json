@@ -137,6 +137,20 @@
     }
   ],
   "supportsAuthenticatedExtendedCard": false,
+  "referrals": {
+    "enabled": true,
+    "mode": "track_only",
+    "payouts_enabled": false,
+    "landing": "https://yourechoagent.com/referrals",
+    "generateCodeUrl": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/referrals-generate",
+    "registerAgentUrl": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/referrals-register-agent",
+    "statsUrl": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/referrals-stats",
+    "attribution": {
+      "header": "X-Referral-Code",
+      "bodyField": "referral_code",
+      "note": "Include on any /hire call to attribute the resulting job. Program is track-only today; payouts are planned."
+    }
+  },
   "mcp": {
     "hostedEndpoint": "https://dqovpwkmmtxqlrdvfuzz.supabase.co/functions/v1/mcp-http",
     "transports": ["streamable-http", "stdio"],

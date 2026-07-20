@@ -222,6 +222,43 @@ Deno.serve(async (req) => {
     (EdgeRuntime as any).waitUntil(kick);
   }
 
+  // ---- Referral attribution (track-only mode) ----
+  // Accept via X-Referral-Code header OR referral_code field in body.
+  const refCodeRaw = (req.headers.get("x-referral-code")
+    || (body as unknown as { referral_code?: string }).referral_code
+    || "").toString().trim().slice(0, 80);
+  let attributedCode: string | null = null;
+  if (refCodeRaw) {
+    try {
+      const { data: refRow } = await sb
+        .from("referral_codes")
+        .select("code, referrer_agent_id, conversions")
+        .eq("code", refCodeRaw)
+        .maybeSingle();
+      if (refRow) {
+        attributedCode = refRow.code;
+        await sb.from("referral_conversions").insert({
+          referrer_code: refRow.code,
+          referrer_agent_id: refRow.referrer_agent_id,
+          attributed_user_id: campaignOwnerId,
+          agent_id: agentId,
+          task_id: job.id,
+          event_type: "hire",
+          amount_cents: estimatedCost,
+          currency: "usd",
+          status: "tracked_only",
+          metadata: { source, volume, niche },
+        });
+        await sb.from("referral_codes")
+          .update({ conversions: (refRow.conversions || 0) + 1 })
+          .eq("code", refRow.code);
+      }
+    } catch (e) {
+      console.error("referral attribution failed", e);
+    }
+  }
+
+
   const response = {
     job_id: job.id,
     campaign_id: campaign.id,
@@ -232,6 +269,7 @@ Deno.serve(async (req) => {
     currency: "usd",
     poll_url: `/v1/jobs/${job.id}`,
     message: `Echo agent "${agent.name}" hired. Campaign starting now.`,
+    referral_attributed: attributedCode,
   };
 
   // Persist idempotent response for replay

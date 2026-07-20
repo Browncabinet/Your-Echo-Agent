@@ -33,6 +33,7 @@ import Home from "./pages/Home.tsx";
 import SettingsMcp from "./pages/SettingsMcp.tsx";
 import SubmissionsHelper from "./pages/SubmissionsHelper.tsx";
 import Gallery from "./pages/Gallery.tsx";
+import Referrals from "./pages/Referrals.tsx";
 
 function HomeRoute() {
   const { user, loading } = useAuth();
@@ -90,6 +91,7 @@ const App = () => (
                 <Route path="/submissions" element={<ProtectedRoute><SubmissionsHelper /></ProtectedRoute>} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/examples" element={<Navigate to="/gallery" replace />} />
+                <Route path="/referrals" element={<Referrals />} />
                 <Route path="/" element={<HomeRoute />} />
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
