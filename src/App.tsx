@@ -91,6 +91,7 @@ const App = () => (
                 <Route path="/submissions" element={<ProtectedRoute><SubmissionsHelper /></ProtectedRoute>} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/examples" element={<Navigate to="/gallery" replace />} />
+                <Route path="/referrals" element={<Referrals />} />
                 <Route path="/" element={<HomeRoute />} />
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
