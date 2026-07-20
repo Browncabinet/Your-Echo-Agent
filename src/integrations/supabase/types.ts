@@ -1243,6 +1243,140 @@ export type Database = {
           },
         ]
       }
+      referral_agents: {
+        Row: {
+          agent_card_url: string | null
+          contact_email: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_user_id: string | null
+          payout_destination: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agent_card_url?: string | null
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_user_id?: string | null
+          payout_destination?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_card_url?: string | null
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_user_id?: string | null
+          payout_destination?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          clicks: number
+          code: string
+          conversions: number
+          created_at: string
+          label: string | null
+          owner_user_id: string | null
+          referrer_agent_id: string | null
+        }
+        Insert: {
+          clicks?: number
+          code: string
+          conversions?: number
+          created_at?: string
+          label?: string | null
+          owner_user_id?: string | null
+          referrer_agent_id?: string | null
+        }
+        Update: {
+          clicks?: number
+          code?: string
+          conversions?: number
+          created_at?: string
+          label?: string | null
+          owner_user_id?: string | null
+          referrer_agent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_codes_referrer_agent_id_fkey"
+            columns: ["referrer_agent_id"]
+            isOneToOne: false
+            referencedRelation: "referral_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_conversions: {
+        Row: {
+          agent_id: string | null
+          amount_cents: number
+          attributed_user_id: string | null
+          created_at: string
+          currency: string
+          event_type: string
+          id: string
+          metadata: Json
+          referrer_agent_id: string | null
+          referrer_code: string | null
+          status: string
+          task_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          amount_cents?: number
+          attributed_user_id?: string | null
+          created_at?: string
+          currency?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          referrer_agent_id?: string | null
+          referrer_code?: string | null
+          status?: string
+          task_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          amount_cents?: number
+          attributed_user_id?: string | null
+          created_at?: string
+          currency?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          referrer_agent_id?: string | null
+          referrer_code?: string | null
+          status?: string
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_conversions_referrer_agent_id_fkey"
+            columns: ["referrer_agent_id"]
+            isOneToOne: false
+            referencedRelation: "referral_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_conversions_referrer_code_fkey"
+            columns: ["referrer_code"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       reply_actions_log: {
         Row: {
           action: string
