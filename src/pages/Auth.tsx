@@ -296,6 +296,9 @@ export default function Auth() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next") ?? "";
+  const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
   const [url, setUrl] = useState("");
   const [previewing, setPreviewing] = useState(false);
   const [previewSources, setPreviewSources] = useState<string[] | null>(null);
