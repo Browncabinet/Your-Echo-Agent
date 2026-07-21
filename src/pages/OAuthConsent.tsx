@@ -39,12 +39,13 @@ export default function OAuthConsent() {
         setError(error.message);
         return;
       }
-      const immediate = data?.redirect_url ?? data?.redirect_to;
-      if (immediate && !data?.client) {
+      const d = data as any;
+      const immediate = d?.redirect_url ?? d?.redirect_to;
+      if (immediate && !d?.client) {
         window.location.href = immediate;
         return;
       }
-      setDetails(data);
+      setDetails(d);
     })();
     return () => {
       active = false;
@@ -62,7 +63,8 @@ export default function OAuthConsent() {
       setError(error.message);
       return;
     }
-    const target = data?.redirect_url ?? data?.redirect_to;
+    const d = data as any;
+    const target = d?.redirect_url ?? d?.redirect_to;
     if (!target) {
       setBusy(false);
       setError("No redirect returned by the authorization server.");
