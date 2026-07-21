@@ -337,7 +337,7 @@ export default function Auth() {
       </div>
     );
   }
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={nextPath || "/"} replace />;
 
   const handleGoogle = async (intent?: "clone" | "a2a") => {
     if (url.trim()) {
@@ -350,15 +350,18 @@ export default function Auth() {
         localStorage.setItem("auth_intent", intent);
       } catch {/* ignore */}
     }
+    const redirectTarget = nextPath
+      ? `${window.location.origin}${nextPath}`
+      : window.location.origin;
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: redirectTarget,
     });
     if (result.error) {
       toast({ title: "Error", description: "Google sign-in failed. Please try again.", variant: "destructive" });
       return;
     }
     if (result.redirected) return;
-    navigate("/");
+    navigate(nextPath || "/");
   };
 
   const handlePreview = () => {
