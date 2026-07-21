@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, Link, useNavigate } from "react-router-dom";
+import { Navigate, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -296,6 +296,9 @@ export default function Auth() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next") ?? "";
+  const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
   const [url, setUrl] = useState("");
   const [previewing, setPreviewing] = useState(false);
   const [previewSources, setPreviewSources] = useState<string[] | null>(null);
@@ -334,7 +337,7 @@ export default function Auth() {
       </div>
     );
   }
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={nextPath || "/"} replace />;
 
   const handleGoogle = async (intent?: "clone" | "a2a") => {
     if (url.trim()) {
@@ -347,15 +350,18 @@ export default function Auth() {
         localStorage.setItem("auth_intent", intent);
       } catch {/* ignore */}
     }
+    const redirectTarget = nextPath
+      ? `${window.location.origin}${nextPath}`
+      : window.location.origin;
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: redirectTarget,
     });
     if (result.error) {
       toast({ title: "Error", description: "Google sign-in failed. Please try again.", variant: "destructive" });
       return;
     }
     if (result.redirected) return;
-    navigate("/");
+    navigate(nextPath || "/");
   };
 
   const handlePreview = () => {
