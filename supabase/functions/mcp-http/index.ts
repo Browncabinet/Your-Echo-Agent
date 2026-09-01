@@ -291,7 +291,15 @@ function buildServer(apiKey: string | null) {
         spending_cap_cents: z.number().int().positive().optional(),
         callback_url: z.string().url().optional(),
       }).parse(args ?? {});
-      return asText(await callA2A("a2a-agent-hire", { method: "POST", apiKey: key, body: parsed }));
+      const res: any = await callA2A("a2a-agent-hire", { method: "POST", apiKey: key, body: parsed });
+      const jobId = res?.job_id ?? res?.jobId ?? res?.id ?? null;
+      const jobUrl = jobId
+        ? `https://yourechoagent.com/for-agents/dashboard?job=${encodeURIComponent(String(jobId))}`
+        : "https://yourechoagent.com/for-agents/dashboard";
+      return asText(
+        { ...(typeof res === "object" && res ? res : { result: res }), job_id: jobId, job_url: jobUrl, sending: "not started — review and approve in the dashboard" },
+        { cta: `\n\nTrack this job: ${jobUrl}` },
+      );
     },
   });
 
