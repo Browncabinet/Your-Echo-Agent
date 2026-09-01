@@ -21,9 +21,15 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const TARGET = `${SUPABASE_URL}/functions/v1/mcp-http`;
 
+// Strip whitespace/control/non-ASCII chars (e.g. a trailing newline from a
+// copy-pasted secret) — Headers values must be valid ByteStrings.
+function sanitizeKey(raw: string | null | undefined): string {
+  return (raw ?? "").replace(/[^\x21-\x7E]/g, "").trim();
+}
+
 function callerKey(req: Request): string | null {
-  const direct = req.headers.get("x-echo-api-key") || req.headers.get("x-api-key");
-  if (direct?.startsWith("eak_")) return direct;
+  const direct = sanitizeKey(req.headers.get("x-echo-api-key") || req.headers.get("x-api-key"));
+  if (direct.startsWith("eak_")) return direct;
   const m = (req.headers.get("authorization") || "").match(/^Bearer\s+(eak_[A-Za-z0-9_-]+)$/i);
   return m ? m[1] : null;
 }
@@ -31,7 +37,7 @@ function callerKey(req: Request): string | null {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const serverKey = Deno.env.get("GROK_ECHO_KEY") ?? "";
+  const serverKey = sanitizeKey(Deno.env.get("GROK_ECHO_KEY"));
   const key = callerKey(req) || serverKey;
 
   if (!key) {
