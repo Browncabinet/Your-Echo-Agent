@@ -55,6 +55,9 @@ verify_jwt = false
 [functions.mcp-http]
 verify_jwt = false
 
+[functions.mcp-grok]
+verify_jwt = false
+
 [functions.pr-outreach-create-job]
 verify_jwt = false
 
