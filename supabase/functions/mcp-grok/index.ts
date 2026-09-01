@@ -37,7 +37,7 @@ function callerKey(req: Request): string | null {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  const serverKey = Deno.env.get("GROK_ECHO_KEY") ?? "";
+  const serverKey = sanitizeKey(Deno.env.get("GROK_ECHO_KEY"));
   const key = callerKey(req) || serverKey;
 
   if (!key) {
