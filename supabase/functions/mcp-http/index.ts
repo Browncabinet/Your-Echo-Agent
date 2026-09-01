@@ -13,19 +13,38 @@ const corsHeaders: Record<string, string> = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const A2A_BASE = `${SUPABASE_URL}/functions/v1`;
 
+// Strip whitespace/control/non-ASCII chars (e.g. a trailing newline from a
+// copy-pasted secret) so the key is always a valid header ByteString.
+function sanitizeKey(raw: string | null | undefined): string {
+  return (raw ?? "").replace(/[^\x21-\x7E]/g, "").trim();
+}
+
 function extractApiKey(req: Request): string | null {
+  // 1. Authorization: Bearer eak_... (injected by mcp-grok, or sent directly)
+  const auth = sanitizeKey(req.headers.get("authorization"));
+  const m = auth.match(/^Bearer\s*(eak_[A-Za-z0-9_-]+)$/i);
+  if (m) return m[1];
+
+  // 2. x-echo-api-key / x-api-key header
+  const header = sanitizeKey(req.headers.get("x-echo-api-key") || req.headers.get("x-api-key"));
+  if (header) return header;
+
+  // 2b. query string (legacy clients; Grok strips these)
   const url = new URL(req.url);
-  const qp =
+  const qp = sanitizeKey(
     url.searchParams.get("apiKey") ||
     url.searchParams.get("echoApiKey") ||
-    url.searchParams.get("ECHO_API_KEY");
+    url.searchParams.get("ECHO_API_KEY"),
+  );
   if (qp) return qp;
-  const header = req.headers.get("x-echo-api-key") || req.headers.get("x-api-key");
-  if (header) return header;
-  const auth = req.headers.get("authorization") || "";
-  const m = auth.match(/^Bearer\s+(eak_[A-Za-z0-9_-]+)$/i);
-  return m ? m[1] : null;
+
+  // 3. Server-side secret fallback: ECHO_API_KEY, aliased to GROK_ECHO_KEY.
+  const serverKey = sanitizeKey(Deno.env.get("ECHO_API_KEY") || Deno.env.get("GROK_ECHO_KEY"));
+  if (serverKey) return serverKey;
+
+  return null;
 }
+
 
 async function callA2A(
   fn: string,
