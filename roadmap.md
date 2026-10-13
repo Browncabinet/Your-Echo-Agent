@@ -1,0 +1,4 @@
+- [ ] Ensure unique Helmet metadata on every route and Your Echo sitewide branding.
+- [ ] Keep FAQ answers rendered and tool FAQPage JSON-LD in Helmet.
+- [ ] Replace founder handle mentions with team attribution.
+- [ ] Verify route metadata and FAQ behavior.
