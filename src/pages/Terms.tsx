@@ -9,8 +9,8 @@ export default function Terms() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Terms of Service — Your Echo Agent"
-        description="Terms governing the use of Your Echo Agent, operated by Natasha Ulrich. Covers acceptable use, subscriptions, and billing."
+        title="Terms of Service — Your Echo"
+        description="Terms governing the use of Your Echo, operated by Natasha Ulrich. Covers acceptable use, subscriptions, and billing."
         path="/terms"
       />
 

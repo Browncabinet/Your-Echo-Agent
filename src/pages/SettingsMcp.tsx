@@ -192,7 +192,7 @@ export default function SettingsMcp() {
   return (
     <PartnerShell>
       <SeoHead
-        title="MCP Endpoint Settings | Your Echo Agent"
+        title="MCP Endpoint Settings | Your Echo"
         description="Configure the hosted MCP endpoint URL that AI assistants use to connect to your agent."
         path="/settings/mcp"
       />

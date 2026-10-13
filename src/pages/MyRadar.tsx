@@ -45,7 +45,7 @@ export default function MyRadar() {
   return (
     <PartnerShell width="wide">
       <SeoHead
-        title="My Radar — Your Echo Agent"
+        title="My Radar — Your Echo"
         description="Your saved events, webinars, and communities with one-click calendar add."
         path="/for-agents/radar"
       />

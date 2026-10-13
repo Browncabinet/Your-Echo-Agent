@@ -9,8 +9,8 @@ export default function Privacy() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Privacy Policy — Your Echo Agent"
-        description="How Natasha Ulrich (Your Echo Agent) collects, uses, and protects your data. Plain-language privacy notice."
+        title="Privacy Policy — Your Echo"
+        description="How Natasha Ulrich (Your Echo) collects, uses, and protects your data. Plain-language privacy notice."
         path="/privacy"
       />
 

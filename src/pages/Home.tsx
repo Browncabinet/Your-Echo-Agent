@@ -10,9 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
 import { SeoHead } from "@/components/SeoHead";
-import {
-  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
-} from "@/components/ui/accordion";
+import { FaqList } from "@/components/FaqList";
 import { toast } from "sonner";
 
 const fadeUp = {
@@ -433,14 +431,7 @@ export default function Home() {
           <motion.h2 {...fadeUp} className="text-center text-2xl sm:text-3xl font-semibold tracking-tight mb-8">
             Frequently asked
           </motion.h2>
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((f, i) => (
-              <AccordionItem key={i} value={`f-${i}`}>
-                <AccordionTrigger className="text-left">{f.q}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">{f.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <FaqList items={faqs.map((f) => ({ question: f.q, answer: f.a }))} />
         </div>
       </section>
 

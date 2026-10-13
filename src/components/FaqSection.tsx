@@ -1,9 +1,4 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { FaqList } from "@/components/FaqList";
 
 const faqs = [
   {
@@ -45,18 +40,7 @@ export function FaqSection() {
         Frequently Asked Questions
       </h3>
       <div className="max-w-2xl mx-auto">
-        <Accordion type="single" collapsible className="w-full">
-          {faqs.map((faq, i) => (
-            <AccordionItem key={i} value={`item-${i}`}>
-              <AccordionTrigger className="text-left text-sm font-medium text-foreground">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        <FaqList items={faqs} />
       </div>
     </div>
   );

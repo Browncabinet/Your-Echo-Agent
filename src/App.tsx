@@ -9,6 +9,7 @@ import { CreditsProvider } from "@/hooks/use-credits";
 import { SubscriptionProvider } from "@/hooks/use-subscription";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Footer } from "@/components/Footer";
+import { RouteSeoHead } from "@/components/RouteSeoHead";
 import Auth from "./pages/Auth.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import About from "./pages/About.tsx";
@@ -65,6 +66,7 @@ const App = () => (
         <AuthProvider>
           <CreditsProvider>
             <SubscriptionProvider>
+              <RouteSeoHead />
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/pricing" element={<Pricing />} />
