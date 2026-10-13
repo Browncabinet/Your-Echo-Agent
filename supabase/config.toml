@@ -76,3 +76,6 @@ verify_jwt = false
 [functions.referrals-stats]
 verify_jwt = false
 
+
+[functions.free-outreach-draft]
+verify_jwt = false

@@ -13,6 +13,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             <Link to="/for-agents" className="hover:text-primary transition-colors">For Agents</Link>
             <Link to="/gallery" className="hover:text-primary transition-colors">Examples</Link>
+            <Link to="/free-event-outreach-email-generator" className="hover:text-primary transition-colors">Free tools</Link>
             <Link to="/for-agents/docs" className="hover:text-primary transition-colors">Docs</Link>
             <Link to="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
             <a href="/.well-known/agent-card.json" className="hover:text-primary transition-colors">Agent Card</a>
