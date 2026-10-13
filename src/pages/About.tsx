@@ -13,7 +13,7 @@ export default function About() {
       className="min-h-screen flex flex-col bg-[#06061a] text-slate-200 font-[Manrope,system-ui,sans-serif] relative overflow-hidden"
     >
       <SeoHead
-        title="About — Your Echo Agent"
+        title="About — Your Echo"
         description="Built by a solo founder with a PR background to replace LinkedIn-only outreach with smarter event discovery + AI email — all in one app."
         path="/about"
       />
@@ -95,16 +95,7 @@ export default function About() {
             <section className="pt-2 border-t border-white/5">
               <h3 className="text-white font-semibold mb-1">Contact</h3>
               <p>
-                Questions, feedback, or partnerships → DM{" "}
-                <a
-                  href="https://x.com/ladysoleil33"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-300 hover:text-white font-medium underline underline-offset-4 decoration-indigo-500/40 hover:decoration-white transition-colors"
-                >
-                  @ladysoleil33 on X
-                </a>
-                .
+                Built by the Your Echo team.
               </p>
               <p className="mt-3 text-sm text-slate-400">
                 P.S. I also run{" "}

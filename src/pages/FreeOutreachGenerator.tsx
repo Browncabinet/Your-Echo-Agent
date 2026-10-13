@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { FaqList } from "@/components/FaqList";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
@@ -198,7 +198,7 @@ export default function FreeOutreachGenerator() {
                   {d.follow_up?.body && (
                     <Block label={`Follow-up (day ${d.follow_up.send_after_days ?? 5})`} text={`Subject: ${d.follow_up.subject ?? ""}\n\n${d.follow_up.body}`} />
                   )}
-                  <p className="text-xs text-zinc-500">{result!.remaining_today} free drafts left today.</p>
+                   <p className="text-xs text-zinc-500">{result?.remaining_today} free drafts left today.</p>
                 </TabsContent>
                 <TabsContent value="json" className="mt-4">
                   <Block label="draft_outreach response" text={JSON.stringify(result, null, 2)} mono />
@@ -236,14 +236,7 @@ export default function FreeOutreachGenerator() {
 
         <section className="mt-16 max-w-3xl">
           <h2 className="text-2xl font-semibold mb-4">Frequently asked questions</h2>
-          <Accordion type="single" collapsible>
-            {FAQS.map((x, i) => (
-              <AccordionItem key={i} value={`f${i}`} className="border-white/10">
-                <AccordionTrigger className="text-left">{x.q}</AccordionTrigger>
-                <AccordionContent className="text-zinc-400">{x.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <FaqList items={FAQS.map((x) => ({ question: x.q, answer: x.a }))} />
         </section>
 
         <p className="mt-16 text-center text-xs text-zinc-500">Built by the Your Echo team.</p>

@@ -23,6 +23,8 @@ export function SeoHead({ title, description, path, jsonLd }: SeoHeadProps) {
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="Your Echo" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       {blocks.map((block, i) => (

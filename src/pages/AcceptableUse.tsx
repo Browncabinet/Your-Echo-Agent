@@ -9,7 +9,7 @@ export default function AcceptableUse() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Acceptable Use & Anti-Spam Policy — Your Echo Agent"
+        title="Acceptable Use & Anti-Spam Policy — Your Echo"
         description="Our anti-spam rules, mandatory unsubscribe, deliverability safeguards, and prohibited content. Required reading before sending."
         path="/acceptable-use"
       />

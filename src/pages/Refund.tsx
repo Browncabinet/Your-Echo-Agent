@@ -9,7 +9,7 @@ export default function Refund() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead
-        title="Refund Policy — Your Echo Agent"
+        title="Refund Policy — Your Echo"
         description="30-day money-back guarantee on subscriptions and one-time email top-up packs."
         path="/refund"
       />
