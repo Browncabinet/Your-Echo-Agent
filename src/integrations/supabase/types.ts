@@ -1012,6 +1012,24 @@ export type Database = {
         }
         Relationships: []
       }
+      free_tool_usage: {
+        Row: {
+          count: number
+          day: string
+          ip_hash: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+          ip_hash: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          ip_hash?: string
+        }
+        Relationships: []
+      }
       hunter_usage_daily: {
         Row: {
           day: string
@@ -1661,6 +1679,10 @@ export type Database = {
     Functions: {
       a2a_bump_rate: {
         Args: { _api_key_id: string; _window_start: string }
+        Returns: number
+      }
+      bump_free_tool_usage: {
+        Args: { _ip_hash: string; _limit: number }
         Returns: number
       }
       bump_hunter_usage: {
